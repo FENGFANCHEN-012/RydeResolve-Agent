@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "data_type": "synthetic_demo",
+  "dispute_id": "NS-002",
+  "dispute_type": "no_show",
+  "reporter": "rider",
+  "order_id": "RYDE-DEMO-004",
+  "description": "The driver arrived at the pickup point and waited for 7 minutes. The rider did not appear or respond to messages. A SGD 8 cancellation charge was applied and the rider disputes it.",
+  "trip": {
+    "pickup_name": "NEX Shopping Mall",
+    "dropoff_name": "Singapore Expo",
+    "estimated_distance_km": 6.8,
+    "actual_distance_km": 0.0,
+    "estimated_duration_min": 15,
+    "actual_duration_min": 0,
+    "route_deviation_percent": 0.0,
+    "driver_reported_reason": "Rider was a no-show; driver waited 7 minutes and cancelled"
+  },
+  "payment": {
+    "currency": "SGD",
+    "estimated_fare": 8.0,
+    "charged_fare": 8.0,
+    "disputed_amount": 8.0
+  },
+  "chat_log": [
+    {
+      "timestamp": "2026-09-21T18:00:00+08:00",
+      "sender": "driver",
+      "message": "Hi, I've arrived at NEX Shopping Mall. I'm at the pickup point near the taxi stand."
+    },
+    {
+      "timestamp": "2026-09-21T18:03:00+08:00",
+      "sender": "driver",
+      "message": "I'm still waiting at the pickup point. Please come when you're ready."
+    },
+    {
+      "timestamp": "2026-09-21T18:07:00+08:00",
+      "sender": "driver",
+      "message": "I've waited 7 minutes and you haven't arrived. I'll have to cancel the trip and a cancellation fee will apply."
+    }
+  ],
+  "gps_trace": [
+    {
+      "timestamp": "2026-09-21T17:58:00+08:00",
+      "latitude": 1.3509,
+      "longitude": 103.9365
+    },
+    {
+      "timestamp": "2026-09-21T18:00:00+08:00",
+      "latitude": 1.3511,
+      "longitude": 103.9370
+    },
+    {
+      "timestamp": "2026-09-21T18:03:00+08:00",
+      "latitude": 1.3510,
+      "longitude": 103.9371
+    },
+    {
+      "timestamp": "2026-09-21T18:07:00+08:00",
+      "latitude": 1.3511,
+      "longitude": 103.9369
+    }
+  ],
+  "behavior_profiles": {
+    "rider": {
+      "account_age_months": 3,
+      "rating": 3.8,
+      "previous_disputes": 1
+    },
+    "driver": {
+      "account_age_months": 22,
+      "rating": 4.8,
+      "previous_route_disputes": 0
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "Driver GPS confirms the driver arrived at the pickup point and remained stationary for 7 minutes. The driver sent two messages to the rider who neither appeared nor responded. The SGD 8 cancellation charge is justified."
+  }
+}
