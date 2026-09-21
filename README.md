@@ -2,9 +2,15 @@
 
 > Multi-Agent System for Automated Dispute Resolution on the Ryde Platform
 >
-> **Competition**: Tencent Cloud AI CAN DO IT Hackathon Singapore 2026
-> **Prize Pool**: 17,000 SGD
-> **Date**: 2026-09-18
+> **Competition**: Tencent Cloud AI CAN DO IT Hackathon Singapore 2026 — Digital Native Track (Ryde)
+>
+> **Prize Pool**: SGD $17,000 (1st: $10,000 / 2nd: $5,000 / 3rd: $2,000)
+>
+> **Challenge**: Multi-Agent Autonomous Dispute Resolution System
+>
+> **Deadline**: 16 October 2026 | **Demo Day**: 3 November 2026
+>
+> **Built with**: CodeBuddy (Tencent Cloud AI coding assistant)
 
 ## Overview
 
@@ -69,14 +75,13 @@ Report -> [Collector Agent] -> [Classifier Agent] -> Parallel Investigation:
 
 | Layer | Technology |
 |-------|-----------|
-| LLM Engine | Tencent Hunyuan |
-| Agent Framework | LangChain / LangGraph |
-| RAG | Tencent VectorDB + Embedding |
-| Backend | Python + FastAPI |
-| Frontend | React + TypeScript |
-| Database | PostgreSQL |
-| Queue | Redis |
-| Deploy | Tencent Cloud CVM / TKE |
+| LLM Engine | Tencent Hunyuan (OpenAI-compatible API, fallback supported) |
+| Agent Framework | LangChain + custom async pipeline |
+| RAG | ChromaDB + Tencent Embedding API |
+| Backend | Python 3.12 + FastAPI |
+| Frontend | React + TypeScript + Vite + Tailwind CSS |
+| Data Validation | Pydantic v2 |
+| Containerization | Docker + docker-compose |
 
 ## Dispute Categories
 
@@ -92,30 +97,47 @@ Report -> [Collector Agent] -> [Classifier Agent] -> Parallel Investigation:
 ```
 RydeResolve-Agent/
 ├── docs/
-│   └── proposal.md          # Design proposal report
+│   ├── PLAN.md              # Detailed development plan
+│   └── TASKS.md             # Task breakdown with checkboxes
 ├── src/
-│   ├── agents/              # Agent implementations
-│   ├── core/                # Orchestrator, debate engine
-│   ├── rag/                 # Policy knowledge base
+│   ├── agents/              # Agent implementations (collector, classifier, passenger, driver, policy, arbitrator, executor)
+│   ├── core/                # Orchestrator, debate engine, confidence, LLM client
+│   ├── rag/                 # Policy indexer + retriever (ChromaDB)
 │   ├── api/                 # FastAPI service
-│   ├── models/              # Data models
-│   └── config.py
-├── tests/
-├── frontend/
-├── data/                    # Mock data & policy docs
+│   ├── models/              # Pydantic data models
+│   └── config.py            # Configuration
+├── tests/                   # Unit + integration tests
+├── frontend/                # React + TypeScript dashboard (planned)
+├── data/
+│   ├── policies/            # Ryde policy documents for RAG
+│   └── mock_disputes/       # Mock dispute scenarios with evidence (planned)
+├── proof of usage of codebuddy/  # CodeBuddy development screenshots
 ├── requirements.txt
-└── docker-compose.yml
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 ```
 
 ## Development Plan
 
-| Phase | Week | Focus |
-|-------|------|-------|
-| 1 | Week 1 | Architecture + policy docs + RAG setup |
-| 2 | Week 2 | Core agents (classifier, passenger, driver, policy) |
-| 3 | Week 3 | Arbitration engine + debate mechanism + confidence |
-| 4 | Week 4 | API + frontend dashboard + integration |
-| 5 | Week 5 | Mock data testing + optimization + submission |
+> Detailed plan and task breakdown: see [docs/PLAN.md](docs/PLAN.md) and [docs/TASKS.md](docs/TASKS.md)
+
+### Current Status: Phase 1 — Foundation
+
+| Phase | Dates | Focus | Status |
+|-------|-------|-------|--------|
+| 1. Foundation | Sep 21-25 | Data models, mock dataset, policy docs, LLM client, Docker | In Progress |
+| 2. Core Agents MVP | Sep 26-Oct 2 | All 3 core agents + debate engine + orchestrator + API | Pending |
+| 3. Frontend Dashboard | Oct 3-7 | React UI: dispute filing, live debate view, verdict display | Pending |
+| 4. Testing & Polish | Oct 8-12 | Unit tests, integration tests, error handling, demo prep | Pending |
+| 5. Stretch Goals | Oct 13-15 | Escalation protocol, precedent RAG, fraud detection | Pending |
+| 6. Submission | Oct 16 | Final review, CodeBuddy proof, cover image, submit | Pending |
+
+### MVP Scope
+- **3 Core Agents**: Rider Advocate, Driver Advocate, Judge Agent
+- **2 Dispute Types**: Route Deviation + No-Show Charge
+- **Evidence Sources**: GPS traces, chat logs, payment data, behavior profiles
+- **Observable Communication**: All inter-agent messages logged and visible in UI
 
 ## Target Metrics
 
