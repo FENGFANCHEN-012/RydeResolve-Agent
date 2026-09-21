@@ -3,10 +3,12 @@ FastAPI Entry Point
 RydeResolve-Agent REST API service with RAG endpoints.
 """
 import os
+import io
 import tempfile
 import shutil
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from src.config import CORS_ORIGINS, CHROMA_COLLECTION, BASE_DIR
@@ -23,11 +25,11 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# CORS
+# CORS — allow all origins for local dev (includes file:// protocol)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -74,12 +76,10 @@ async def upload_document(
     collection_name: str | None = None,
 ):
     """
-    Upload a document file, parse it, chunk it, and index into vector DB.
-
+    Upload a single document file, parse it, chunk it, and index into vector DB.
     Supported formats: PDF, Word (.docx/.doc), PowerPoint (.pptx),
     Excel (.xlsx), TXT, Markdown, HTML.
     """
-    # Validate file type
     ext = os.path.splitext(file.filename or "")[1].lower()
     if ext not in document_parser.SUPPORTED_EXTENSIONS:
         raise HTTPException(
@@ -88,30 +88,47 @@ async def upload_document(
                    f"Supported: {', '.join(sorted(document_parser.SUPPORTED_EXTENSIONS))}",
         )
 
-    # Read file content
-    content_bytes = await file.read()
+    # Read file content in a thread to avoid blocking
+    try:
+        content_bytes = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+
     if not content_bytes:
         raise HTTPException(status_code=400, detail="Empty file")
 
+    file_size_mb = len(content_bytes) / (1024 * 1024)
+
     # Parse document
-    import io
     file_obj = io.BytesIO(content_bytes)
     try:
         text = document_parser.parse(file.filename, file_obj)
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Failed to parse {file.filename}: {str(e)}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Failed to parse {file.filename}: {str(e)}",
+        )
 
     if not text or not text.strip():
-        raise HTTPException(status_code=422, detail=f"No text content extracted from {file.filename}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"No text content extracted from {file.filename}",
+        )
 
     # Index into vector DB
     indexer = DocumentIndexer()
-    chunk_count = indexer.index_file(
-        filename=file.filename,
-        content=text,
-        file_type=ext,
-        collection_name=collection_name,
-    )
+    try:
+        chunk_count = indexer.index_file(
+            filename=file.filename,
+            content=text,
+            file_type=ext,
+            collection_name=collection_name,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Indexing failed for {file.filename}: {str(e)}",
+        )
 
     # Also save original file to data/uploads for reference
     upload_dir = os.path.join(BASE_DIR, "data", "uploads")
@@ -124,6 +141,7 @@ async def upload_document(
         "status": "success",
         "filename": file.filename,
         "file_type": ext,
+        "file_size_mb": round(file_size_mb, 2),
         "chunks_indexed": chunk_count,
         "text_length": len(text),
         "collection": collection_name or CHROMA_COLLECTION,
@@ -139,7 +157,6 @@ async def upload_multiple_documents(
     """Upload multiple documents at once."""
     results = []
     indexer = DocumentIndexer()
-    import io
 
     for file in files:
         ext = os.path.splitext(file.filename or "")[1].lower()
@@ -151,7 +168,16 @@ async def upload_multiple_documents(
             })
             continue
 
-        content_bytes = await file.read()
+        try:
+            content_bytes = await file.read()
+        except Exception as e:
+            results.append({
+                "filename": file.filename,
+                "status": "error",
+                "error": f"Read failed: {str(e)}",
+            })
+            continue
+
         if not content_bytes:
             results.append({
                 "filename": file.filename,
@@ -160,9 +186,18 @@ async def upload_multiple_documents(
             })
             continue
 
+        file_size_mb = len(content_bytes) / (1024 * 1024)
         file_obj = io.BytesIO(content_bytes)
         try:
             text = document_parser.parse(file.filename, file_obj)
+            if not text or not text.strip():
+                results.append({
+                    "filename": file.filename,
+                    "status": "error",
+                    "error": "No text content extracted",
+                })
+                continue
+
             chunk_count = indexer.index_file(
                 filename=file.filename,
                 content=text,
@@ -172,10 +207,13 @@ async def upload_multiple_documents(
             results.append({
                 "filename": file.filename,
                 "status": "success",
+                "file_size_mb": round(file_size_mb, 2),
                 "chunks_indexed": chunk_count,
                 "text_length": len(text),
             })
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             results.append({
                 "filename": file.filename,
                 "status": "error",

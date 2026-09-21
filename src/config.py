@@ -9,24 +9,22 @@ load_dotenv()
 
 
 # ============================================================
-# LLM Configuration
+# LLM Configuration (Google Gemini)
 # ============================================================
-# Tencent Hunyuan — OpenAI-compatible API
-# Free tier: 1,000,000 tokens (1 year expiry) per model after first activation
-# Get API key: https://console.cloud.tencent.com/hunyuan/start
+# Gemini API Key: https://aistudio.google.com/app/apikey
+# Free tier: generous daily limits
+# Chat model: gemini-3.6-flash (fast, cheap)
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.hunyuan.cloud.tencent.com/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "hunyuan-turbos-latest")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.6-flash")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 
-# Tencent Hunyuan native SDK (for Embedding & other non-OpenAI APIs)
-TENCENT_SECRET_ID = os.getenv("TENCENT_SECRET_ID", "")
-TENCENT_SECRET_KEY = os.getenv("TENCENT_SECRET_KEY", "")
-TENCENT_REGION = os.getenv("TENCENT_REGION", "ap-singapore")
-
-# Hunyuan Embedding (via OpenAI-compatible endpoint)
-HUNYUAN_EMBEDDING_MODEL = os.getenv("HUNYUAN_EMBEDDING_MODEL", "hunyuan-embedding")
+# ============================================================
+# Embedding Configuration (Google Gemini)
+# ============================================================
+# Embedding model: gemini-embedding-2 (3072 dimensions)
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
+EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "3072"))
 
 # ============================================================
 # Vector Database (ChromaDB)
@@ -34,10 +32,6 @@ HUNYUAN_EMBEDDING_MODEL = os.getenv("HUNYUAN_EMBEDDING_MODEL", "hunyuan-embeddin
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8200"))
 CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "ryde_policies")
-
-# Tencent VectorDB (optional alternative)
-VECTORDB_API_URL = os.getenv("VECTORDB_API_URL", "")
-VECTORDB_COLLECTION = os.getenv("VECTORDB_COLLECTION", "ryde_policies")
 
 # ============================================================
 # PostgreSQL
@@ -64,7 +58,7 @@ CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "8000"))
 CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+    "CORS_ORIGINS", "*"
 ).split(",")
 
 # ============================================================

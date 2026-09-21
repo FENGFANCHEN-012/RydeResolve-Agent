@@ -888,67 +888,86 @@ async function uploadFiles(fileList) {
     const progressText = document.getElementById('uploadProgressText');
 
     // Add files to list as pending
-    const pendingIds = files.map(f => {
-        const id = 'pending_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+    files.forEach(f => {
         uploadedFiles.push({
-            id, name: f.name, size: f.size, type: f.name.split('.').pop().toLowerCase(),
+            id: 'pending_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            name: f.name, size: f.size, type: f.name.split('.').pop().toLowerCase(),
             status: 'pending', chunks: 0
         });
-        return id;
     });
     renderFileList();
 
-    const formData = new FormData();
-    files.forEach(f => formData.append('files', f));
-
     progressEl.classList.add('show');
-    barFill.style.width = '30%';
-    progressText.textContent = `Uploading ${files.length} file(s)...`;
+    let totalDone = 0;
+    const totalFiles = files.length;
+    let totalChunks = 0;
+    let successCount = 0;
+    let failCount = 0;
 
-    try {
-        const resp = await fetch(`${API_BASE}/api/rag/upload-multiple`, {
-            method: 'POST',
-            body: formData,
-        });
-        const data = await resp.json();
-        barFill.style.width = '100%';
+    // Upload files ONE BY ONE to avoid timeout on large PDFs
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        progressText.textContent = `Uploading ${i + 1}/${totalFiles}: ${file.name}`;
+        barFill.style.width = `${(i / totalFiles) * 100}%`;
 
-        if (resp.ok) {
-            // Update file statuses
-            data.results.forEach(r => {
-                const idx = uploadedFiles.findIndex(f => f.name === r.filename && f.status === 'pending');
+        try {
+            const formData = new FormData();
+            formData.append('files', file);
+
+            const resp = await fetch(`${API_BASE}/api/rag/upload-multiple`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await resp.json();
+            totalDone++;
+
+            if (resp.ok && data.results && data.results.length > 0) {
+                const r = data.results[0];
+                const idx = uploadedFiles.findIndex(f => f.name === file.name && f.status === 'pending');
                 if (idx >= 0) {
-                    uploadedFiles[idx].status = r.status === 'success' ? 'ok' : 'fail';
-                    uploadedFiles[idx].chunks = r.chunks_indexed || 0;
-                    uploadedFiles[idx].error = r.error || '';
+                    if (r.status === 'success') {
+                        uploadedFiles[idx].status = 'ok';
+                        uploadedFiles[idx].chunks = r.chunks_indexed || 0;
+                        uploadedFiles[idx].size = r.file_size_mb ? (r.file_size_mb * 1024 * 1024) : uploadedFiles[idx].size;
+                        totalChunks += r.chunks_indexed || 0;
+                        successCount++;
+                    } else {
+                        uploadedFiles[idx].status = 'fail';
+                        uploadedFiles[idx].error = r.error || 'Unknown error';
+                        failCount++;
+                    }
                 }
-            });
-            const okCount = data.successful || 0;
-            const failCount = data.failed || 0;
-            if (failCount > 0) {
-                showToast(`Indexed ${data.total_chunks} chunks from ${okCount} file(s), ${failCount} failed`, 'warning' === 'info' ? 'info' : 'error');
             } else {
-                showToast(`Indexed ${data.total_chunks} chunks from ${okCount} file(s)`, 'success');
+                const idx = uploadedFiles.findIndex(f => f.name === file.name && f.status === 'pending');
+                if (idx >= 0) {
+                    uploadedFiles[idx].status = 'fail';
+                    uploadedFiles[idx].error = (data.detail || data.error || 'Unknown error');
+                }
+                failCount++;
             }
-            refreshStats();
-        } else {
-            // Mark all pending as failed
-            pendingIds.forEach(id => {
-                const idx = uploadedFiles.findIndex(f => f.id === id);
-                if (idx >= 0) uploadedFiles[idx].status = 'fail';
-            });
-            showToast(`Upload failed: ${data.detail || 'Unknown error'}`, 'error');
+        } catch (e) {
+            const idx = uploadedFiles.findIndex(f => f.name === file.name && f.status === 'pending');
+            if (idx >= 0) {
+                uploadedFiles[idx].status = 'fail';
+                uploadedFiles[idx].error = e.message;
+            }
+            failCount++;
         }
-    } catch (e) {
-        pendingIds.forEach(id => {
-            const idx = uploadedFiles.findIndex(f => f.id === id);
-            if (idx >= 0) uploadedFiles[idx].status = 'fail';
-        });
-        showToast(`Upload error: ${e.message}`, 'error');
+
+        renderFileList();
     }
 
-    setTimeout(() => progressEl.classList.remove('show'), 2000);
-    renderFileList();
+    barFill.style.width = '100%';
+    progressText.textContent = `Done: ${successCount} ok, ${failCount} failed, ${totalChunks} chunks`;
+
+    if (failCount > 0) {
+        showToast(`Indexed ${totalChunks} chunks from ${successCount} file(s), ${failCount} failed`, 'error');
+    } else {
+        showToast(`Indexed ${totalChunks} chunks from ${successCount} file(s)`, 'success');
+    }
+    refreshStats();
+    setTimeout(() => progressEl.classList.remove('show'), 3000);
 }
 
 // ============================================================
@@ -981,12 +1000,14 @@ function renderFileList() {
     list.innerHTML = uploadedFiles.map(f => {
         const statusClass = f.status === 'ok' ? 'ok' : (f.status === 'fail' ? 'fail' : 'pending');
         const statusText = f.status === 'ok' ? `${f.chunks} chunks` : (f.status === 'fail' ? 'failed' : 'uploading...');
+        const errorLine = (f.status === 'fail' && f.error) ? `<div class="file-meta" style="color:var(--danger);">${escapeHtml(f.error.substring(0, 100))}</div>` : '';
         return `
             <div class="file-item">
                 <div class="file-icon">${getFileIcon(f.type)}</div>
                 <div class="file-info">
-                    <div class="file-name">${f.name}</div>
+                    <div class="file-name">${escapeHtml(f.name)}</div>
                     <div class="file-meta">${formatSize(f.size)} · ${statusText}</div>
+                    ${errorLine}
                 </div>
                 <div class="file-status ${statusClass}">${f.status === 'ok' ? 'OK' : (f.status === 'fail' ? 'FAIL' : '...')}</div>
             </div>
@@ -1019,7 +1040,9 @@ async function refreshStats() {
         document.getElementById('statMode').textContent = data.mode || '—';
 
         const embEl = document.getElementById('statEmbedding');
-        if (data.embedding_mode === 'hunyuan') {
+        if (data.embedding_mode === 'gemini') {
+            embEl.innerHTML = '<span class="badge hunyuan">gemini</span>';
+        } else if (data.embedding_mode === 'hunyuan') {
             embEl.innerHTML = '<span class="badge hunyuan">hunyuan</span>';
         } else if (data.embedding_mode === 'tencent') {
             embEl.innerHTML = '<span class="badge tencent">tencent</span>';

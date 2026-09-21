@@ -1,49 +1,45 @@
 """
-Tencent Cloud Hunyuan Embedding Client
-Uses the OpenAI-compatible Hunyuan API endpoint for embedding generation.
+Google Gemini Embedding Client
+Uses the Gemini API for embedding generation.
 
-API: https://api.hunyuan.cloud.tencent.com/v1/embeddings
-Model: hunyuan-embedding (1024 dimensions)
-Free tier: 1,000,000 tokens (1 year expiry) after first activation
+API: https://aistudio.google.com/app/apikey
+Model: gemini-embedding-2 (3072 dimensions)
+Free tier: generous daily limits
 
 Fallback chain:
-1. Hunyuan Embedding API (if LLM_API_KEY is set to Hunyuan key)
+1. Gemini Embedding API (if LLM_API_KEY is set)
 2. Simple hash-based embedding (for local dev without API key)
 """
 import hashlib
 import numpy as np
-from openai import AsyncOpenAI
+import google.generativeai as genai
 
 from src.config import (
     LLM_API_KEY,
-    LLM_BASE_URL,
-    HUNYUAN_EMBEDDING_MODEL,
+    EMBEDDING_MODEL,
+    EMBEDDING_DIMENSION,
 )
 
 
-class HunyuanEmbeddingClient:
+class GeminiEmbeddingClient:
     """
-    Calls Tencent Hunyuan Embedding API via OpenAI-compatible endpoint.
-    Free: 1M tokens after first activation.
+    Calls Google Gemini Embedding API.
+    Free: generous daily limits.
     """
 
     def __init__(self):
         self.api_key = LLM_API_KEY
-        self.base_url = LLM_BASE_URL
-        self.model = HUNYUAN_EMBEDDING_MODEL
-        self._client = None
+        self.model = f"models/{EMBEDDING_MODEL}"
+        self._configured = False
+
+    def _ensure_configured(self):
+        if not self._configured:
+            genai.configure(api_key=self.api_key)
+            self._configured = True
 
     @property
     def is_available(self) -> bool:
         return bool(self.api_key)
-
-    def _get_client(self):
-        if self._client is None:
-            self._client = AsyncOpenAI(
-                api_key=self.api_key,
-                base_url=self.base_url,
-            )
-        return self._client
 
     async def embed(self, text: str) -> list[float] | None:
         """Get embedding vector for a single text."""
@@ -51,14 +47,15 @@ class HunyuanEmbeddingClient:
             return None
 
         try:
-            client = self._get_client()
-            response = await client.embeddings.create(
+            self._ensure_configured()
+            result = genai.embed_content(
                 model=self.model,
-                input=text,
+                content=text,
+                task_type="retrieval_document",
             )
-            return response.data[0].embedding
+            return result["embedding"]
         except Exception as e:
-            print(f"Hunyuan embedding failed: {e}")
+            print(f"Gemini embedding failed: {e}")
             return None
 
     async def embed_batch(self, texts: list[str]) -> list[list[float] | None]:
@@ -76,7 +73,7 @@ class SimpleHashEmbedding:
     Uses word-level hashing to create a fixed-size vector.
     """
 
-    DIM = 1024  # Match Hunyuan embedding dimension
+    DIM = 3072  # Match Gemini embedding dimension
 
     def __call__(self, input: list[str]) -> list[list[float]]:
         return [self._embed(text) for text in input]
@@ -96,14 +93,14 @@ class SimpleHashEmbedding:
 class EmbeddingManager:
     """
     Manages embedding generation with fallback chain:
-    1. Tencent Hunyuan Embedding (if LLM_API_KEY is set)
+    1. Google Gemini Embedding (if LLM_API_KEY is set)
     2. Simple hash-based (always available)
     """
 
     def __init__(self):
-        self.hunyuan_client = HunyuanEmbeddingClient()
+        self.gemini_client = GeminiEmbeddingClient()
         self.hash_embedding = SimpleHashEmbedding()
-        self._mode = "hunyuan" if self.hunyuan_client.is_available else "hash"
+        self._mode = "gemini" if self.gemini_client.is_available else "hash"
 
     @property
     def mode(self) -> str:
@@ -111,24 +108,24 @@ class EmbeddingManager:
 
     @property
     def dimension(self) -> int:
-        if self._mode == "hunyuan":
-            return 1024  # Hunyuan embedding dimension
+        if self._mode == "gemini":
+            return EMBEDDING_DIMENSION
         return SimpleHashEmbedding.DIM
 
     async def embed(self, text: str) -> list[float]:
         """Get embedding vector for text with fallback."""
-        if self._mode == "hunyuan":
-            vec = await self.hunyuan_client.embed(text)
+        if self._mode == "gemini":
+            vec = await self.gemini_client.embed(text)
             if vec is not None:
                 return vec
-            print("Hunyuan embedding failed, falling back to hash embedding")
+            print("Gemini embedding failed, falling back to hash embedding")
             return self.hash_embedding._embed(text)
         return self.hash_embedding._embed(text)
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Get embeddings for multiple texts."""
-        if self._mode == "hunyuan":
-            results = await self.hunyuan_client.embed_batch(texts)
+        if self._mode == "gemini":
+            results = await self.gemini_client.embed_batch(texts)
             final = []
             for i, vec in enumerate(results):
                 if vec is not None:
