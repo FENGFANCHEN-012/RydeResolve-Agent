@@ -10,3 +10,7 @@ build/
 .ipynb_checkpoints/
 node_modules/
 frontend/dist/
+
+# ChromaDB local data
+chroma_data/
+chroma.sqlite3
