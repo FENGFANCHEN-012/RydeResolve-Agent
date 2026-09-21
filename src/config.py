@@ -11,20 +11,22 @@ load_dotenv()
 # ============================================================
 # LLM Configuration
 # ============================================================
-# Uses OpenAI-compatible API format.
-# Primary: Tencent Hunyuan / Fallback: OpenAI, Deepseek, etc.
+# Tencent Hunyuan — OpenAI-compatible API
+# Free tier: 1,000,000 tokens (1 year expiry) per model after first activation
+# Get API key: https://console.cloud.tencent.com/hunyuan/start
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.hunyuan.cloud.tencent.com/v1")
+LLM_MODEL = os.getenv("LLM_MODEL", "hunyuan-turbos-latest")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 
-# Tencent Hunyuan (if using directly)
+# Tencent Hunyuan native SDK (for Embedding & other non-OpenAI APIs)
 TENCENT_SECRET_ID = os.getenv("TENCENT_SECRET_ID", "")
 TENCENT_SECRET_KEY = os.getenv("TENCENT_SECRET_KEY", "")
 TENCENT_REGION = os.getenv("TENCENT_REGION", "ap-singapore")
-HUNYUAN_API_URL = os.getenv("HUNYUAN_API_URL", "")
-HUNYUAN_MODEL = os.getenv("HUNYUAN_MODEL", "hunyuan-pro")
+
+# Hunyuan Embedding (via OpenAI-compatible endpoint)
+HUNYUAN_EMBEDDING_MODEL = os.getenv("HUNYUAN_EMBEDDING_MODEL", "hunyuan-embedding")
 
 # ============================================================
 # Vector Database (ChromaDB)

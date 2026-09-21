@@ -1,76 +1,25 @@
 """
 RAG Indexer
-Indexes Ryde platform policy documents into ChromaDB for vector retrieval.
+Indexes documents into ChromaDB for vector retrieval.
 
 Supports two modes:
 1. HttpClient — connects to a running ChromaDB server (Docker or standalone)
 2. PersistentClient — uses local file-based storage (for development without Docker)
 
 Embedding strategy:
-- If LLM_API_KEY is set: uses OpenAI-compatible embedding API
-- If no API key: uses a simple hash-based embedding (for local dev/testing only)
-  This produces lower-quality retrieval but requires no downloads.
+- Primary: Tencent Hunyuan Embedding API (if TENCENT_SECRET_ID/KEY set)
+- Fallback: Simple hash-based embedding for local dev/testing
 """
 import os
-import hashlib
-import numpy as np
+import uuid
+import asyncio
 import chromadb
-from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 
 from src.config import (
     CHROMA_HOST, CHROMA_PORT, CHROMA_COLLECTION,
     POLICIES_DIR, BASE_DIR,
-    LLM_API_KEY, LLM_BASE_URL,
 )
-
-# Embedding dimension for fallback hash-based embeddings
-FALLBACK_EMBED_DIM = 384
-
-
-class SimpleHashEmbedding(EmbeddingFunction):
-    """
-    Fallback embedding function for local development without an API key.
-    Uses word-level hashing to create a fixed-size vector. This is NOT production-
-    quality but works for testing the RAG pipeline without downloading models.
-    """
-
-    def __init__(self, dim: int = FALLBACK_EMBED_DIM):
-        self.dim = dim
-
-    def __call__(self, input: Documents) -> Embeddings:
-        return [self._embed(text) for text in input]
-
-    def _embed(self, text: str) -> list[float]:
-        """Create a simple bag-of-words hash embedding."""
-        vec = np.zeros(self.dim, dtype=np.float32)
-        words = text.lower().split()
-        for word in words:
-            h = int(hashlib.md5(word.encode()).hexdigest(), 16) % self.dim
-            vec[h] += 1.0
-        # Normalize
-        norm = np.linalg.norm(vec)
-        if norm > 0:
-            vec = vec / norm
-        return vec.tolist()
-
-    def name(self):
-        return "simple_hash_embedding"
-
-
-def _get_embedding_function():
-    """Get embedding function. Uses OpenAI-compatible API if key is set, else hash-based."""
-    if LLM_API_KEY:
-        try:
-            from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
-            return OpenAIEmbeddingFunction(
-                api_key=LLM_API_KEY,
-                base_url=LLM_BASE_URL,
-                model_name="text-embedding-3-small",
-            )
-        except Exception as e:
-            print(f"Warning: Could not init OpenAI embedding function: {e}")
-    # Fallback: simple hash-based embedding for local dev
-    return SimpleHashEmbedding()
+from src.rag.embedding import embedding_manager
 
 
 def _get_chroma_client():
@@ -78,24 +27,78 @@ def _get_chroma_client():
     Get a ChromaDB client.
     Tries HttpClient first (for Docker/remote), falls back to PersistentClient (local dev).
     """
-    # Try HTTP client first
     try:
         client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
-        # Test connection
         client.heartbeat()
         return client, "http"
     except Exception:
         pass
 
-    # Fall back to persistent local client
     local_path = os.path.join(BASE_DIR, "chroma_data")
     os.makedirs(local_path, exist_ok=True)
     client = chromadb.PersistentClient(path=local_path)
     return client, "local"
 
 
-class PolicyIndexer:
-    """Indexes policy documents for RAG retrieval."""
+class ManualEmbeddingFunction:
+    """
+    Custom embedding function for ChromaDB that uses our EmbeddingManager.
+    ChromaDB calls these synchronously, but our embedding manager uses async
+    (for Tencent API calls). We bridge this with asyncio.run_in_executor
+    or a new event loop in a thread.
+
+    ChromaDB expects:
+    - __call__(input: list[str]) -> list[list[float]]  (for documents)
+    - embed_query(input: str) -> list[list[float]]      (for queries)
+    """
+
+    def __call__(self, input):
+        """Called by ChromaDB for document embedding. Returns list of embeddings."""
+        return self._run_async(embedding_manager.embed_batch(input))
+
+    def embed_query(self, input):
+        """Called by ChromaDB for query embedding.
+        ChromaDB passes a list of query texts (usually 1).
+        Returns a list of embeddings (matching input length).
+        """
+        texts = input if isinstance(input, list) else [input]
+        return self._run_async(embedding_manager.embed_batch(texts))
+
+    def _run_async(self, coro):
+        """Run an async coroutine from a sync context, handling running event loops."""
+        import threading
+        result = [None]
+        exc = [None]
+
+        def runner():
+            loop = asyncio.new_event_loop()
+            try:
+                result[0] = loop.run_until_complete(coro)
+            except Exception as e:
+                exc[0] = e
+            finally:
+                loop.close()
+
+        # If there's a running event loop, use a thread
+        try:
+            asyncio.get_running_loop()
+            t = threading.Thread(target=runner)
+            t.start()
+            t.join()
+        except RuntimeError:
+            # No running loop, run directly
+            runner()
+
+        if exc[0]:
+            raise exc[0]
+        return result[0]
+
+    def name(self):
+        return f"embedding_manager_{embedding_manager.mode}"
+
+
+class DocumentIndexer:
+    """Indexes documents into ChromaDB for RAG retrieval."""
 
     # Chunking settings
     CHUNK_SIZE = 500  # words per chunk
@@ -103,31 +106,29 @@ class PolicyIndexer:
 
     def __init__(self):
         self.client, self.mode = _get_chroma_client()
-        self.embedding_fn = _get_embedding_function()
+        self.embedding_fn = ManualEmbeddingFunction()
 
-    def get_or_create_collection(self):
-        """Get or create the ChromaDB collection for policies."""
+    def get_or_create_collection(self, collection_name: str | None = None):
+        """Get or create the ChromaDB collection."""
+        name = collection_name or CHROMA_COLLECTION
         return self.client.get_or_create_collection(
-            name=CHROMA_COLLECTION,
-            metadata={"description": "Ryde platform policy documents for RAG"},
+            name=name,
+            metadata={"description": "Ryde RAG knowledge base"},
             embedding_function=self.embedding_fn,
         )
 
-    def index_policies(self, documents: list[dict] | None = None) -> int:
+    def index_documents(self, documents: list[dict], collection_name: str | None = None) -> int:
         """
-        Index policy documents into ChromaDB.
+        Index documents into ChromaDB.
 
         Args:
-            documents: list of {id, title, content, source, section}
-                      If None, loads from POLICIES_DIR.
+            documents: list of {id, title, content, source, section, file_type}
+            collection_name: optional custom collection name
 
         Returns:
             Number of chunks indexed.
         """
-        if documents is None:
-            documents = self._load_policy_files()
-
-        collection = self.get_or_create_collection()
+        collection = self.get_or_create_collection(collection_name)
 
         count = 0
         for doc in documents:
@@ -138,11 +139,10 @@ class PolicyIndexer:
                     "title": doc["title"],
                     "source": doc.get("source", doc["title"]),
                     "section": doc.get("section", ""),
+                    "file_type": doc.get("file_type", ""),
                     "chunk_index": i,
                     "total_chunks": len(chunks),
                 }
-
-                # Upsert (idempotent — safe to re-run)
                 collection.upsert(
                     ids=[chunk_id],
                     documents=[chunk_text],
@@ -152,77 +152,120 @@ class PolicyIndexer:
 
         return count
 
+    def index_file(
+        self,
+        filename: str,
+        content: str,
+        file_type: str = "",
+        collection_name: str | None = None,
+    ) -> int:
+        """
+        Index a single parsed file into ChromaDB.
+
+        Args:
+            filename: original filename
+            content: parsed plain text content
+            file_type: file extension (e.g. ".pdf")
+            collection_name: optional collection override
+
+        Returns:
+            Number of chunks indexed.
+        """
+        doc_id = filename.rsplit(".", 1)[0].replace(" ", "_").lower()
+        doc_id += f"_{uuid.uuid4().hex[:8]}"
+
+        documents = [{
+            "id": doc_id,
+            "title": filename,
+            "content": content,
+            "source": filename,
+            "section": "",
+            "file_type": file_type,
+        }]
+
+        return self.index_documents(documents, collection_name)
+
     def _load_policy_files(self) -> list[dict]:
         """Load all .md files from the policies directory."""
         documents = []
         if not os.path.exists(POLICIES_DIR):
-            print(f"Policies directory not found: {POLICIES_DIR}")
             return documents
 
         for filename in sorted(os.listdir(POLICIES_DIR)):
             if not filename.endswith(".md"):
                 continue
-
             filepath = os.path.join(POLICIES_DIR, filename)
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
-
             doc_id = filename.replace(".md", "")
             title = doc_id.replace("_", " ").title()
-
             documents.append({
                 "id": doc_id,
                 "title": title,
                 "content": content,
                 "source": filename,
                 "section": "",
+                "file_type": ".md",
             })
 
         return documents
 
+    def index_policies(self) -> int:
+        """Index all policy .md files from POLICIES_DIR."""
+        docs = self._load_policy_files()
+        return self.index_documents(docs)
+
     def _chunk_document(self, text: str, chunk_size: int | None = None, overlap: int | None = None) -> list[str]:
-        """
-        Split document into overlapping word chunks.
-        """
+        """Split document into overlapping word chunks."""
         cs = chunk_size or self.CHUNK_SIZE
         ol = overlap or self.CHUNK_OVERLAP
-
         words = text.split()
         if len(words) <= cs:
             return [text]
-
         chunks = []
         start = 0
         while start < len(words):
             end = start + cs
             chunk = " ".join(words[start:end])
             chunks.append(chunk)
-            start = end - ol  # overlap for context continuity
-
+            start = end - ol
         return chunks
 
-    def get_collection_stats(self) -> dict:
+    def get_collection_stats(self, collection_name: str | None = None) -> dict:
         """Get statistics about the indexed collection."""
+        name = collection_name or CHROMA_COLLECTION
         try:
-            collection = self.client.get_collection(CHROMA_COLLECTION)
+            collection = self.client.get_collection(name)
             count = collection.count()
             return {
-                "collection": CHROMA_COLLECTION,
+                "collection": name,
                 "chunk_count": count,
                 "mode": self.mode,
             }
         except Exception:
             return {
-                "collection": CHROMA_COLLECTION,
+                "collection": name,
                 "chunk_count": 0,
                 "mode": self.mode,
                 "error": "Collection not found",
             }
 
-    def clear_collection(self):
+    def clear_collection(self, collection_name: str | None = None):
         """Delete the entire collection (for re-indexing)."""
+        name = collection_name or CHROMA_COLLECTION
         try:
-            self.client.delete_collection(CHROMA_COLLECTION)
-            print(f"Deleted collection: {CHROMA_COLLECTION}")
+            self.client.delete_collection(name)
+            print(f"Deleted collection: {name}")
         except Exception:
-            print(f"Collection {CHROMA_COLLECTION} does not exist, skipping delete.")
+            pass
+
+    def list_collections(self) -> list[str]:
+        """List all collections in ChromaDB."""
+        try:
+            return [c.name for c in self.client.list_collections()]
+        except Exception:
+            return []
+
+
+# Backward-compatible alias
+PolicyIndexer = DocumentIndexer

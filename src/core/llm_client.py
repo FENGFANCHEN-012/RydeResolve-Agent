@@ -19,7 +19,8 @@ class LLMClient:
     """
 
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
+        self.api_key = LLM_API_KEY
+        self.client = AsyncOpenAI(api_key=LLM_API_KEY or "placeholder", base_url=LLM_BASE_URL)
         self.model = LLM_MODEL
         self.temperature = LLM_TEMPERATURE
         self.max_tokens = LLM_MAX_TOKENS
