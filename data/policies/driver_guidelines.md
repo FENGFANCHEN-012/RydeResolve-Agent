@@ -1,108 +1,219 @@
-# Ryde Driver Guidelines and Code of Conduct
+# Ryde Driver Guidelines and Safety Standards
 
-## 1. Professional Standards
+**Sources:**
+- Ryde Code of Conduct: https://rydesharing.com/code-of-conduct/
+- Safe Driving Tips: https://rydesharing.com/4-safe-driving-tips-for-ryde-driver-partners/
+- Keeping Platform Work Safe and Fair: https://rydesharing.com/keeping-platform-work-safe-and-fair-a-guide-for-drivers/
+- Ryde Terms of Use: https://rydesharing.com/terms-of-use/
 
-### 1.1 Driver Requirements
-- Must hold a valid Singapore driving license (Class 3/3A) with minimum 2 years of driving experience
-- Must pass Ryde's background check and vehicle inspection
-- Must maintain valid personal vehicle insurance
-- Vehicle must be less than 10 years old and pass annual inspection
+**Publisher:** Ryde Technologies Pte. Ltd.
 
-### 1.2 Professional Conduct
-Drivers are expected to:
-- Arrive at the pickup location on time (within estimated arrival window)
-- Greet the rider politely
-- Confirm the rider's identity and destination before starting the trip
-- Follow the in-app navigation route unless the rider requests otherwise
-- Maintain a clean and comfortable vehicle interior
-- Drive safely and obey all traffic laws
-- Not use a mobile phone while driving (except for navigation, mounted)
-- Not smoke, eat, or drink in the vehicle while a rider is present
-- Respect the rider's privacy and not engage in inappropriate conversation topics
+## 1. Driver Requirements
 
-### 1.3 Route Compliance Standards
-- Drivers must follow the most efficient route as shown in the app's navigation
-- If traffic or road conditions require a detour, the driver must inform the rider via in-app chat
-- **Route deviation threshold**: Routes more than 10% longer than optimal may trigger a fare dispute
-- Drivers may accept a rider's request for a specific route, but should note this in the chat log
-- Unjustified route deviations may result in:
-  - Fare adjustment (refund to rider for the difference)
-  - Warning on driver's record
-  - Impact on driver rating
+### 1.1 Registration Requirements
 
-## 2. Acceptance and Cancellation Behavior
+Drivers must:
 
-### 2.1 Booking Acceptance
-- Drivers should only accept bookings they intend to fulfill
-- Accepting and then cancelling repeatedly is considered "acceptance abuse"
-- A driver's acceptance rate is tracked and displayed in their profile metrics
-- Acceptance rate below 70% may result in reduced booking priority
+- Possess all appropriate licenses, approvals, permits, consents, and authority related to their provision of the Services in the relevant jurisdiction.
+- Hold a valid Singapore driving license (Class 3/3A).
+- Own or have the legal right and authority to operate the vehicle used for providing the Services.
+- Maintain a valid policy/liability insurance (in industry-standard coverage amounts) in connection with their provision of the Services.
+- Pass Ryde's background check and vehicle inspection.
+- Keep documents updated: driving licence, vehicle details, and insurance must always be current and valid.
 
-### 2.2 Cancellation Guidelines
-- Valid cancellation reasons: vehicle breakdown, safety concern, medical emergency, rider no-show
-- Invalid cancellation reasons: found a better fare, changed mind, traffic inconvenience
-- 3+ unjustified cancellations in a 7-day period may trigger account review
+### 1.2 Mandatory Insurance
 
-### 2.3 No-Show Protocol (Driver Side)
-If a driver cannot reach the pickup location within 10 minutes of the scheduled time:
-1. Send an in-app message to the rider explaining the delay
-2. If no response after 2 minutes, call the rider via the in-app calling feature
-3. If still unable to reach after 5 minutes, the driver may cancel without penalty
-4. The driver must NOT mark the rider as a "no-show" if the driver was the one delayed
+- Partners must possess all mandatory insurance policies related to or in connection with their provision of the Services.
+- Partners must have a valid policy/liability insurance in connection with their provision of the Services.
+- Partners are solely responsible for any and all claims, judgments, and liabilities resulting from any accident, loss, or damage (including personal injuries, death, and property damage).
 
-## 3. Vehicle Standards
+### 1.3 Account Exclusivity
 
-### 3.1 Cleanliness
-- Vehicle interior must be clean and free of strong odors
-- Seats must be free of debris, stains, or damage
-- Air conditioning or ventilation must be functional
-- Trunk must be available for rider luggage (if applicable)
+- Driver accounts are strictly personal.
+- Using someone else's account or allowing another person to use yours is prohibited.
+- Sharing or renting out a driver account is classified as illegal and subject to enforcement action.
 
-### 3.2 Safety Equipment
-- All seatbelts must be functional
-- A first-aid kit is recommended
-- No loose items that could become projectiles in case of sudden stops
+## 2. Code of Conduct: 4 Simple Rules
 
-### 3.3 Vehicle Damage by Rider
-If a rider causes damage to the vehicle:
-1. Take photos of the damage immediately (with timestamp)
-2. Report the incident through the Ryde app within 24 hours
-3. Obtain cleaning/repair receipts
-4. The driver may claim a cleaning/repair fee from the rider
-5. Ryde will mediate the damage claim through the dispute resolution system
+### Rule 1: Safety First
 
-## 4. Zero Commission Model
+**Driver Standards:**
+- Adhere to all driving rules and regulations at all times.
+- Keep to speed limits.
+- Obey road signs.
+- Keep masks on during the entire ride (if required by current health regulations).
+- Refrain from using phones while on the road.
 
-### 4.1 Driver Earnings
-- Ryde operates on a **0% commission** model
-- Drivers receive 100% of the fare, minus:
-  - Government-mandated taxes (GST, where applicable)
-  - Optional platform service fees (clearly disclosed)
-- Drivers are classified as independent contractors
-- Drivers are responsible for their own income tax filings
+**Rider Expectations:**
+- Must have their masks on (if required).
+- Must have their seatbelts on.
+- When traveling with a child below the height of 1.35m, parents/guardians are required to ensure the child is secured with a child restraint appropriate for their height and weight.
 
-### 4.2 Surge Pricing and Driver Earnings
-- During surge periods, drivers receive the full surge-adjusted fare
-- Drivers cannot manipulate surge pricing (it is automatically calculated based on supply/demand)
-- Drivers should not refuse surge-priced bookings to wait for higher surge (this is monitored)
+### Rule 2: Be Punctual
 
-## 5. Safety Standards
+**Driver Standards:**
+- Drivers must travel directly to the rider's pick-up location once they have accepted the trip.
 
-### 5.1 Safe Driving
-- Drivers must obey all speed limits and traffic laws
-- Reckless driving reports from riders are treated as P0 safety incidents
-- GPS telemetry is monitored for excessive speeding or erratic driving patterns
-- 3+ safety reports in a 30-day period may result in immediate account suspension
+**Rider Expectations:**
+- Passengers must be prepared to wait for the driver at the pick-up location once matched with a driver.
+- Failure to be ready may result in being charged Cancellation and Waiting Time fees.
 
-### 5.2 Inappropriate Behavior
-- Any form of harassment, discrimination, or inappropriate conduct is prohibited
-- Safety incidents are escalated immediately to human review
-- Drivers found guilty of safety violations face permanent account termination
-- Criminal behavior will be reported to Singapore Police
+### Rule 3: Communicate
 
-### 5.3 Rider Safety
-- Drivers must ensure the rider reaches the destination safely
-- If a rider appears intoxicated or unwell, the driver should:
-  - Ensure the rider is safely seated with seatbelt fastened
-  - Contact the emergency contact listed in the rider's profile if necessary
-  - Not leave the rider at an unsafe location
+**Driver Standards:**
+- Drop the passenger a message to let them know they are on the way, along with the estimated time of arrival.
+- Upon arrival, confirm the destination with the passenger.
+
+**Rider Expectations:**
+- Drop the driver a message to acknowledge the upcoming trip.
+- Add details to help drivers navigate to the specific pick-up point.
+- If passengers have additional requests (e.g., a preferred travel route), they must communicate this with the driver and come to a mutual agreement prior to starting the trip.
+
+### Rule 4: Mutual Respect
+
+**Driver Standards:**
+- Be kind to the passenger.
+- Physical and verbal assault or harassment is strictly not tolerated on the platform.
+- Avoid passing comments on anyone's appearance.
+- Must not make remarks on race, religion, or other forms of personal beliefs.
+- Contacting the passenger after the trip has ended is strictly prohibited.
+
+**Rider Expectations:**
+- Be nice to the driver and thank them after the ride.
+- Give the driver a compliment on their service for a pleasant ride.
+- If the driver was less than excellent, leave a respectful and constructive comment so the driver may improve.
+- Avoid slurs or personal insults.
+
+## 3. Safe Driving Best Practices
+
+### 3.1 Pre-Trip & Operational Rules
+
+- Verify Trip Details: Always confirm and check that the passenger's name and destination match the information displayed in the Ryde Driver App before starting the trip.
+- Adhere to PUDO Location Regulations: Follow the rules of designated pick-up or drop-off (PUDO) points and ensure the location is legally allowed for private ride-hailing.
+
+### 3.2 Focused Driving
+
+- Avoid Phone Distraction: Never hold or text on your phone while driving.
+- Use Proper Mounts: Utilize a dashboard mount or holder to answer calls, ensuring the device does not obstruct your view of the road.
+
+### 3.3 Vehicle Maintenance & Safety
+
+- Stick to Maintenance Schedules: Follow the servicing advice from your vehicle manufacturer or retailer to spot issues early.
+- Conduct Regular Inspections: Perform required regular inspections to stay roadworthy, checking schedules via the Land Transport Authority (LTA) website.
+- Repair Early: If you notice unusual sounds or wearing parts, get them checked and fixed early at a reputable workshop to prevent larger issues.
+- Use Approved Parts: Always replace vehicle parts with those approved by the manufacturer.
+- Keep Maintenance Records: Hold on to all receipts and service notes for future reference.
+- Routine Car Checks: Routinely inspect tire pressure, fluid levels, brakes, proper lighting, and functioning windshield wipers.
+
+### 3.4 Weather Safety Preparedness
+
+Given Singapore's unpredictable weather, drivers should:
+
+- Download and use the myENV app (by NEA).
+- Monitor WBGT readings (Wet Bulb Globe Temperature) to avoid heat stress.
+- Check lightning alerts to take precautions during thunderstorms.
+- Check the app regularly, especially when waiting outdoors or driving in exposed areas.
+
+### 3.5 Driver Fatigue Management
+
+- Rest is Essential: Take regular breaks to stay alert and avoid fatigue.
+- Listen to Your Body: If you feel tired or drowsy, pause and rest before continuing to drive.
+- Prioritize Health: Ensure you get adequate rest to stay safe and serve passengers effectively.
+
+### 3.6 Additional Safety Resources
+
+- WSH (Workplace Safety and Health) Council: Refer to their "Guide to Safe Driving" and video resources on managing fatigue and essential safety tips for platform workers.
+- Land Transport Authority (LTA): Refer to the LTA website for active mobility rules and codes of conduct.
+
+## 4. Platform Work Safety and Fairness
+
+### 4.1 Rules Drivers Must Follow
+
+- Use Approved Platforms Only: Only accept rides or delivery jobs that are officially assigned through the registered Ryde platform.
+- Maintain Account Exclusivity: Driver accounts are strictly personal.
+- Keep Documents Updated: Ensure driving licence, vehicle details, and insurance are always current and valid.
+- Adhere to Safety Rules: Obey traffic laws, drive safely, and prioritise own safety as well as the safety of passengers and the public.
+- Report Suspicious Activity: Report any suspicious or illegal platform work to protect the broader community.
+
+### 4.2 Prohibited Behaviors
+
+- No Off-Platform Jobs: Must not accept private rides or delivery jobs that bypass the approved platform system.
+- No Account Sharing or Renting: Sharing or renting out a driver account is illegal and subject to enforcement action.
+- No Unauthorized Operation: Must not operate without valid registrations or permits.
+- No Promotion of Illegal Services: Must not encourage, promote, or participate in any unlicensed or unauthorized ride-hailing or delivery services.
+
+### 4.3 Penalties for Violations
+
+Engaging in illegal ride-hailing or platform delivery work can result in:
+
+- Monetary fines for providing or assisting in illegal services.
+- Temporary suspension or permanent ban from platform work.
+- Vehicle impoundment in serious cases.
+- Action against the driver's operating licence by authorities.
+
+### 4.4 Reporting Mechanisms
+
+Confidential reporting channels:
+
+- Illegal Ride-Hailing Services: go.gov.sg/report-illegal-rides
+- Illegal Platform Delivery Work: go.gov.sg/report-illegal-platform-delivery-work
+- General Infringement Reporting: Ministry of Manpower (MOM) — mom.gov.sg/eservices/services/report-an-infringement
+- Direct to Ryde: Through the Ryde Driver App or support@rydesharing.com
+
+All reports are kept confidential.
+
+## 5. Zero Commission Model
+
+### 5.1 Driver Earnings
+
+- Ryde operates on a 0% commission model for drivers.
+- Drivers take home 100% of their earnings.
+- Ryde charges a Service Fee of up to 20% of the User Charges, unless otherwise communicated and accepted.
+- Drivers are classified as independent contractors, not employees.
+- Drivers are responsible for their own income tax filings.
+- Instant Cashout: Drivers can get paid anytime, anywhere.
+
+### 5.2 Instant Cashout
+
+- Drivers can request instant cashout for immediate payment.
+- Instant cashout may be disabled or suspended for accounts with issues.
+- Standard cashout is also available as an alternative.
+
+## 6. Vehicle Damage by Rider / Cleaning Claims
+
+### 6.1 Claimable Incidents
+
+Drivers can appeal for cleaning compensation for:
+
+1. Vomit
+2. Seat stains
+3. Spillage
+4. Soil
+
+### 6.2 Required Evidence
+
+- Photo evidence (e.g., a picture of the vomit/stain with timestamp).
+- Receipt from the Cleaning Company including:
+  - Name, contact number & address of the cleaning company.
+  - Date of cleaning.
+  - Authorised personnel's signature/company stamp.
+
+### 6.3 Cleaning Fee
+
+- Riders may be subject to a cleaning fee of up to S$200 for incidents requiring professional cleaning.
+- Non-payment of verified cleaning fees may result in temporary suspension or permanent deactivation of the rider's account.
+
+### 6.4 Tips for Drivers
+
+- Keep plastic bags handy for nauseous passengers.
+- Use newspapers to protect seats when transporting pets.
+
+## 7. ERP (Electronic Road Pricing) Claims
+
+Drivers who forgot to include ERP charges in fares can file a claim with:
+
+- Name of ERP Gantry
+- Time of Entry
+- Screenshot of Cashcard Statement
+
+**Important:** RydePOOL, RydeHIRE, and RydeSEND trips already include ERP — no separate claim is needed for these services.
