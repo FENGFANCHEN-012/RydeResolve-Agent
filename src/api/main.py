@@ -17,6 +17,8 @@ from src.rag.document_parser import document_parser
 from src.rag.indexer import DocumentIndexer
 from src.rag.retriever import DocumentRetriever
 from src.rag.qa_engine import rag_qa_engine
+from src.rag.advanced_qa_engine import advanced_rag_qa_engine
+from src.rag.advanced_retriever import advanced_retriever
 from src.rag.embedding import embedding_manager
 
 app = FastAPI(
@@ -204,6 +206,9 @@ async def upload_multiple_documents(
                 file_type=ext,
                 collection_name=collection_name,
             )
+            # Invalidate hybrid search index after new documents
+            from src.rag.advanced_retriever import advanced_retriever
+            advanced_retriever.invalidate_indexes()
             results.append({
                 "filename": file.filename,
                 "status": "success",
@@ -259,20 +264,38 @@ async def search_documents(
     query: str,
     top_k: int = 5,
     collection_name: str | None = None,
+    advanced: bool = True,
 ):
     """Search the knowledge base and return matching chunks (no LLM generation)."""
-    retriever = DocumentRetriever()
-    results = retriever.retrieve(
-        query=query,
-        top_k=top_k,
-        collection_name=collection_name,
-    )
-    return {
-        "query": query,
-        "top_k": top_k,
-        "results": results,
-        "total": len(results),
-    }
+    if advanced:
+        retrieval = await advanced_retriever.retrieve(
+            query=query,
+            top_k=top_k,
+            collection_name=collection_name,
+        )
+        return {
+            "query": query,
+            "top_k": top_k,
+            "results": retrieval["results"],
+            "total": len(retrieval["results"]),
+            "confidence": retrieval["confidence"],
+            "should_answer": retrieval["should_answer"],
+            "metrics": retrieval["metrics"],
+            "query_variants": retrieval["query_variants"],
+        }
+    else:
+        retriever = DocumentRetriever()
+        results = retriever.retrieve(
+            query=query,
+            top_k=top_k,
+            collection_name=collection_name,
+        )
+        return {
+            "query": query,
+            "top_k": top_k,
+            "results": results,
+            "total": len(results),
+        }
 
 
 # ============================================================
@@ -280,17 +303,25 @@ async def search_documents(
 # ============================================================
 
 @app.post("/api/rag/ask")
-async def rag_ask(request: QARequest):
+async def rag_ask(request: QARequest, advanced: bool = True):
     """
     Ask a question and get a RAG-grounded answer.
 
     Flow: question → vector search → context assembly → LLM answer
+    Set advanced=false to use basic retrieval (faster, less accurate).
     """
-    result = await rag_qa_engine.answer(
-        question=request.question,
-        top_k=request.top_k,
-        collection_name=request.collection_name,
-    )
+    if advanced:
+        result = await advanced_rag_qa_engine.answer(
+            question=request.question,
+            top_k=request.top_k,
+            collection_name=request.collection_name,
+        )
+    else:
+        result = await rag_qa_engine.answer(
+            question=request.question,
+            top_k=request.top_k,
+            collection_name=request.collection_name,
+        )
     return result
 
 
