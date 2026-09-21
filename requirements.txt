@@ -1,26 +1,40 @@
-# Tencent Cloud AI Hackathon - RydeResolve-Agent dependencies
+# ============================================================
+# RydeResolve-Agent — Python Dependencies
+# ============================================================
 
-# Core
+# --- Core Web Framework ---
 fastapi==0.115.0
-uvicorn==0.30.0
+uvicorn[standard]==0.30.0
 pydantic==2.9.0
+python-multipart==0.0.12
 
-# LLM & Agent
+# --- LLM & Agent Framework ---
 langchain==0.3.0
+langchain-core==0.3.0
+langchain-openai==0.2.0
+langchain-community==0.3.0
 langgraph==0.2.0
-openai==1.50.0  # for Tencent Hunyuan API compatibility
+openai==1.50.0
 
-# RAG
+# --- RAG / Vector Store ---
 chromadb==0.5.0
-tencentcloud-sdk-python==3.0.1000
 
-# Database
+# --- Database ---
 sqlalchemy==2.0.0
 psycopg2-binary==2.9.9
+alembic==1.13.0
 
-# Queue
+# --- Queue ---
 redis==5.0.0
 
-# Utils
+# --- Utils ---
 python-dotenv==1.0.0
 httpx==0.27.0
+numpy==1.26.0
+
+# --- Testing ---
+pytest==8.3.0
+pytest-asyncio==0.24.0
+
+# --- Tencent Cloud SDK ---
+tencentcloud-sdk-python==3.0.1000
