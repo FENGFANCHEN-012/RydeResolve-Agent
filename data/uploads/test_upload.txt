@@ -1,0 +1,18 @@
+Test file for RAG upload.
+
+Ryde Refund Policy:
+- Full refund if driver cancels the ride
+- 50% refund if passenger cancels after 2 minutes
+- No charge if passenger cancels within 2 minutes
+- Refunds processed within 3-5 business days
+
+Ryde Driver Code of Conduct:
+- Drivers must arrive within 10 minutes of acceptance
+- Drivers must not ask passengers to cancel
+- Drivers must maintain a 4.5+ rating
+- Three violations may result in account suspension
+
+Ryde Safety Guidelines:
+- All rides are GPS tracked
+- Passengers can share trip details with emergency contacts
+- SOS button available in-app

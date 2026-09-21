@@ -1,21 +1,29 @@
 """
 FastAPI Entry Point
-RydeResolve-Agent REST API service.
+RydeResolve-Agent REST API service with RAG endpoints.
 """
-from fastapi import FastAPI
+import os
+import tempfile
+import shutil
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from src.config import CORS_ORIGINS
+from src.config import CORS_ORIGINS, CHROMA_COLLECTION, BASE_DIR
 from src.core.orchestrator import Orchestrator
+from src.rag.document_parser import document_parser
+from src.rag.indexer import DocumentIndexer
+from src.rag.retriever import DocumentRetriever
+from src.rag.qa_engine import rag_qa_engine
+from src.rag.embedding import embedding_manager
 
 app = FastAPI(
     title="RydeResolve-Agent",
-    description="Multi-Agent Dispute Resolution System for Ryde Platform",
-    version="0.1.0",
+    description="Multi-Agent Dispute Resolution System for Ryde Platform with RAG",
+    version="0.2.0",
 )
 
-# CORS — allow frontend to connect
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -30,6 +38,16 @@ class DisputeRequest(BaseModel):
     order_id: str
 
 
+class QARequest(BaseModel):
+    question: str
+    top_k: int = 5
+    collection_name: str | None = None
+
+
+# ============================================================
+# Health & Root
+# ============================================================
+
 @app.get("/")
 async def root():
     return {
@@ -37,8 +55,210 @@ async def root():
         "status": "running",
         "competition": "Tencent Cloud AI CAN DO IT Hackathon Singapore 2026",
         "track": "Digital Native — Ryde",
+        "features": ["multi-agent", "rag", "file-upload"],
     }
 
+
+@app.get("/api/health")
+async def health():
+    return {"status": "healthy"}
+
+
+# ============================================================
+# RAG: File Upload & Document Management
+# ============================================================
+
+@app.post("/api/rag/upload")
+async def upload_document(
+    file: UploadFile = File(...),
+    collection_name: str | None = None,
+):
+    """
+    Upload a document file, parse it, chunk it, and index into vector DB.
+
+    Supported formats: PDF, Word (.docx/.doc), PowerPoint (.pptx),
+    Excel (.xlsx), TXT, Markdown, HTML.
+    """
+    # Validate file type
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in document_parser.SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file format: {ext}. "
+                   f"Supported: {', '.join(sorted(document_parser.SUPPORTED_EXTENSIONS))}",
+        )
+
+    # Read file content
+    content_bytes = await file.read()
+    if not content_bytes:
+        raise HTTPException(status_code=400, detail="Empty file")
+
+    # Parse document
+    import io
+    file_obj = io.BytesIO(content_bytes)
+    try:
+        text = document_parser.parse(file.filename, file_obj)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Failed to parse {file.filename}: {str(e)}")
+
+    if not text or not text.strip():
+        raise HTTPException(status_code=422, detail=f"No text content extracted from {file.filename}")
+
+    # Index into vector DB
+    indexer = DocumentIndexer()
+    chunk_count = indexer.index_file(
+        filename=file.filename,
+        content=text,
+        file_type=ext,
+        collection_name=collection_name,
+    )
+
+    # Also save original file to data/uploads for reference
+    upload_dir = os.path.join(BASE_DIR, "data", "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+    save_path = os.path.join(upload_dir, file.filename)
+    with open(save_path, "wb") as f:
+        f.write(content_bytes)
+
+    return {
+        "status": "success",
+        "filename": file.filename,
+        "file_type": ext,
+        "chunks_indexed": chunk_count,
+        "text_length": len(text),
+        "collection": collection_name or CHROMA_COLLECTION,
+        "embedding_mode": embedding_manager.mode,
+    }
+
+
+@app.post("/api/rag/upload-multiple")
+async def upload_multiple_documents(
+    files: list[UploadFile] = File(...),
+    collection_name: str | None = None,
+):
+    """Upload multiple documents at once."""
+    results = []
+    indexer = DocumentIndexer()
+    import io
+
+    for file in files:
+        ext = os.path.splitext(file.filename or "")[1].lower()
+        if ext not in document_parser.SUPPORTED_EXTENSIONS:
+            results.append({
+                "filename": file.filename,
+                "status": "error",
+                "error": f"Unsupported format: {ext}",
+            })
+            continue
+
+        content_bytes = await file.read()
+        if not content_bytes:
+            results.append({
+                "filename": file.filename,
+                "status": "error",
+                "error": "Empty file",
+            })
+            continue
+
+        file_obj = io.BytesIO(content_bytes)
+        try:
+            text = document_parser.parse(file.filename, file_obj)
+            chunk_count = indexer.index_file(
+                filename=file.filename,
+                content=text,
+                file_type=ext,
+                collection_name=collection_name,
+            )
+            results.append({
+                "filename": file.filename,
+                "status": "success",
+                "chunks_indexed": chunk_count,
+                "text_length": len(text),
+            })
+        except Exception as e:
+            results.append({
+                "filename": file.filename,
+                "status": "error",
+                "error": str(e),
+            })
+
+    total_chunks = sum(r.get("chunks_indexed", 0) for r in results)
+    return {
+        "total_files": len(files),
+        "successful": sum(1 for r in results if r["status"] == "success"),
+        "failed": sum(1 for r in results if r["status"] == "error"),
+        "total_chunks": total_chunks,
+        "results": results,
+    }
+
+
+@app.get("/api/rag/stats")
+async def rag_stats(collection_name: str | None = None):
+    """Get knowledge base statistics."""
+    indexer = DocumentIndexer()
+    stats = indexer.get_collection_stats(collection_name)
+    stats["embedding_mode"] = embedding_manager.mode
+    return stats
+
+
+@app.get("/api/rag/collections")
+async def list_collections():
+    """List all vector DB collections."""
+    indexer = DocumentIndexer()
+    return {"collections": indexer.list_collections()}
+
+
+@app.delete("/api/rag/collection")
+async def delete_collection(collection_name: str | None = None):
+    """Delete a collection (clear all documents)."""
+    indexer = DocumentIndexer()
+    indexer.clear_collection(collection_name)
+    return {"status": "deleted", "collection": collection_name or CHROMA_COLLECTION}
+
+
+@app.get("/api/rag/search")
+async def search_documents(
+    query: str,
+    top_k: int = 5,
+    collection_name: str | None = None,
+):
+    """Search the knowledge base and return matching chunks (no LLM generation)."""
+    retriever = DocumentRetriever()
+    results = retriever.retrieve(
+        query=query,
+        top_k=top_k,
+        collection_name=collection_name,
+    )
+    return {
+        "query": query,
+        "top_k": top_k,
+        "results": results,
+        "total": len(results),
+    }
+
+
+# ============================================================
+# RAG: Question-Answering
+# ============================================================
+
+@app.post("/api/rag/ask")
+async def rag_ask(request: QARequest):
+    """
+    Ask a question and get a RAG-grounded answer.
+
+    Flow: question → vector search → context assembly → LLM answer
+    """
+    result = await rag_qa_engine.answer(
+        question=request.question,
+        top_k=request.top_k,
+        collection_name=request.collection_name,
+    )
+    return result
+
+
+# ============================================================
+# Multi-Agent Dispute Resolution (existing)
+# ============================================================
 
 @app.post("/api/disputes/resolve")
 async def resolve_dispute(request: DisputeRequest):
@@ -50,7 +270,3 @@ async def resolve_dispute(request: DisputeRequest):
     )
     return result
 
-
-@app.get("/api/health")
-async def health():
-    return {"status": "healthy"}
