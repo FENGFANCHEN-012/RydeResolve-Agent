@@ -1,107 +1,141 @@
-# Ryde Rider Code of Conduct
+# Ryde Code of Conduct — 4 Simple Rules to a Better Ride
+
+**Source:** https://rydesharing.com/code-of-conduct/
+**Publisher:** Ryde Technologies Pte. Ltd.
 
 ## 1. Overview
 
-This document outlines the responsibilities and expectations for riders using the Ryde platform. By booking a ride, riders agree to abide by this code of conduct.
+This document outlines the Code of Conduct for all users of the Ryde platform — both riders and drivers. By using the Ryde platform, all users agree to abide by these four simple rules that ensure a safe, respectful, and efficient experience for everyone.
 
-## 2. Rider Responsibilities
+## 2. Rule 1: Safety First
 
-### 2.1 Booking and Pickup
-- Provide accurate pickup and dropoff locations
-- Be present at the designated pickup location within the grace period (5 minutes standard, 10 minutes for Ryde+)
-- If running late, communicate with the driver via in-app chat
-- Do not request the driver to stop at non-designated or illegal pickup points
-- Confirm the vehicle license plate and driver identity before entering
+### Driver Standards
 
-### 2.2 During the Ride
-- Wear seatbelts at all times
-- Do not eat, drink, or smoke in the vehicle
-- Treat the driver with respect and courtesy
-- Do not ask the driver to violate traffic laws (speeding, illegal stops, etc.)
-- Do not engage in behavior that could distract the driver
-- Keep noise levels reasonable (phone calls, music, etc.)
-- Do not touch the driver's personal belongings or vehicle controls
+- Adhere to all driving rules and regulations at all times.
+- Keep to speed limits.
+- Obey road signs.
+- Keep masks on during the entire ride (where required by current health regulations).
+- Refrain from using phones while on the road.
 
-### 2.3 Payment
-- Ensure sufficient funds are available in the linked payment method
-- Pay the full displayed fare, including surge pricing if accepted
-- Do not attempt to pay cash if the booking was made as a cashless ride
-- Promo codes must be applied before booking confirmation (not retroactively)
+### Rider Behavior Expectations
 
-### 2.4 Cancellation
-- Cancel as early as possible if plans change
-- Do not habitually book and cancel (monitored as "booking abuse")
-- If the driver is on time and present, do not cancel to avoid the cancellation fee
-- 3+ unjustified cancellations in a 7-day period may result in reduced booking priority
+- Must have their masks on (where required).
+- Must have their seatbelts on at all times.
+- When traveling with a child below the height of 1.35m, parents/guardians are required to ensure the child is secured with a child restraint appropriate for their height and weight.
+- Riders are strongly encouraged to practice general safety and prudence, such as:
+  - Ensuring their pets stay within the car during a RydePET ride.
+  - Keeping the windows rolled up during the entire RydePET ride.
+  - Among other safety practices.
 
-## 3. Prohibited Conduct
+## 3. Rule 2: Be Punctual
 
-The following behaviors are strictly prohibited:
+### Driver Standards
 
-### 3.1 Safety Violations
-- Verbal or physical abuse toward the driver
-- Entering the vehicle under the influence of alcohol or drugs to the point of being a safety risk
-- Refusing to wear a seatbelt
-- Opening doors while the vehicle is in motion
-- Any action that endangers the driver, other passengers, or the public
+- Drivers must travel directly to the rider's pick-up location once they have accepted the trip.
+- Must arrive at the pickup location within the estimated time.
 
-### 3.2 Property Violations
-- Damaging the vehicle interior (spills, stains, tears, etc.)
-- Leaving trash in the vehicle
-- Vomiting in the vehicle (cleaning fee applies)
-- Taking items that belong to the driver
+### Rider Behavior Expectations
 
-### 3.3 Platform Violations
-- Filing fraudulent or bad-faith disputes
-- Creating multiple accounts to abuse promo codes
-- Coordinating with drivers to inflate fares (collusion)
-- Sharing account credentials with non-registered users
-- Rating retaliation (giving unfairly low ratings in response to receiving one)
+- Passengers must be prepared to wait for the driver at the pick-up location once matched with a driver.
+- Failure to be ready may result in being charged Cancellation and Waiting Time fees.
+- Grace period: 3 minutes from driver arrival. If the rider is not present within this period, the driver may mark a no-show.
 
-## 4. Property Damage by Rider
+## 4. Rule 3: Communicate
 
-### 4.1 Cleaning Fee Structure
-If a rider causes mess or damage to the vehicle:
-| Damage Type | Fee Range (SGD) |
-|-------------|-----------------|
-| Spill (minor, cleanable) | $20 - $50 |
-| Vomit | $50 - $150 |
-| Stain (requires detailing) | $50 - $100 |
-| Physical damage (tears, burns) | $100 - $500+ (actual cost) |
+### Driver Standards
 
-### 4.2 Claim Process
-1. Driver takes photos with timestamp immediately after the trip
-2. Driver files a damage claim through the Ryde app within 24 hours
-3. Driver obtains cleaning/repair receipts
-4. Ryde's dispute resolution system reviews the claim
-5. If upheld, the fee is charged to the rider's payment method
-6. The rider may dispute the claim with evidence (e.g., photos showing the vehicle was already dirty)
+- Drop the passenger a message to let them know they are on the way, along with the estimated time of arrival.
+- Upon arrival, confirm the destination with the passenger.
+- If traffic or road conditions require a detour, inform the rider via in-app chat.
 
-### 4.3 Disputing a Damage Claim
-A rider may dispute a damage claim if:
-- The damage was pre-existing (rider should have noted it at the start of the trip)
-- The photo timestamp does not match the trip time
-- The claimed amount is disproportionate to the damage
-- The damage was caused by a previous rider
+### Rider Behavior Expectations
 
-## 5. Rating System
+- Drop the driver a message to acknowledge the upcoming trip.
+- Add details to help drivers navigate to the specific pick-up point.
+- If passengers have additional requests (e.g., a preferred travel route), they must communicate this with the driver and come to a mutual agreement prior to starting the trip.
 
-### 5.1 Rating Riders
-Drivers rate riders on a scale of 1-5 stars after each trip. Low ratings may affect:
-- Booking priority (lower-rated riders may wait longer for matches)
-- Account eligibility (consistently low-rated riders may face account review)
+## 5. Rule 4: Mutual Respect
 
-### 5.2 Fair Rating
-- Rate based on actual behavior during the trip
-- Do not use ratings punitively
-- Constructive feedback in the comments is encouraged
+### Driver Standards
 
-## 6. Consequences of Violations
+- Be kind to their passenger.
+- Physical and verbal assault or harassment is strictly not tolerated on the platform.
+- Avoid passing comments on anyone's appearance.
+- Must not make remarks on race, religion, or other forms of personal beliefs.
+- Contacting the passenger after the trip has ended is strictly prohibited.
 
-| Violation Severity | Consequence |
-|--------------------|-------------|
-| First minor violation | Warning |
-| Repeated minor violations | Reduced booking priority, mandatory training |
-| Major violation (safety) | Temporary suspension (7-30 days) |
-| Severe violation (assault, fraud) | Permanent account termination |
-| Criminal behavior | Report to Singapore Police |
+### Rider Behavior Expectations
+
+- Be nice to their driver and thank them after the ride.
+- Give the driver a compliment on their service for a pleasant ride.
+- If the driver was less than excellent, leave a respectful and constructive comment so the driver may improve.
+- Passengers must avoid slurs or personal insults.
+
+## 6. Platform Rules and Prohibited Conduct
+
+By using the Ryde Service/Platform, users agree they will not:
+
+- Send spam, duplicative, or unsolicited messages.
+- Send or store infringing, obscene, threatening, libelous, or unlawful material.
+- Send material containing software viruses or harmful code.
+- Interfere with or disrupt the integrity or performance of the Platform.
+- Attempt to gain unauthorized access to the Platform.
+- Impersonate any person or entity.
+- Engage in conduct that could damage Ryde's reputation.
+- Use automated programs to burden or hinder the operation of the Platform.
+- Commercially exploit any part of the Platform without written permission.
+- Copy, reproduce, or distribute the Platform.
+- Conduct data mining or scraping activities.
+- Disassemble, decompile, or reverse engineer the Platform.
+- Utilize modified devices to evade detection or defraud Ryde.
+- Use the Platform for unlawful or fraudulent purposes.
+- Cause nuisance or behave inappropriately or disrespectfully.
+
+## 7. Contacting Other Users
+
+### Driver Rules
+
+- Shall not contact the User for purposes other than in connection with the Service.
+- Shall not reverse look-up, trace, or exploit the Platform to reveal information about other Users.
+- Contacting the passenger after the trip has ended is strictly prohibited.
+
+### Rider Rules
+
+- Shall not contact the Partner for purposes other than the Service.
+
+## 8. Account Consequences
+
+### 8.1 For Drivers
+
+- Failing service standards leads to a temporary hold (suspension).
+- Repeated failure to abide by community standards leads to permanent removal from the platform.
+- Unacceptable cancellations or ignoring bookings may result in temporary suspension.
+- Non-payment of verified cleaning fees may result in temporary suspension or permanent deactivation.
+
+### 8.2 For Riders
+
+- Non-payment of verified cleaning fees may result in temporary suspension or permanent deactivation.
+- Accounts may be suspended or deactivated for dormancy (no transaction for 6 months).
+- Repeated unjustified cancellations may result in reduced booking priority.
+- Habitual booking and cancelling is monitored as "booking abuse."
+
+### 8.3 Account Restoration
+
+1. Check your Ryde-registered email for details regarding the temporary hold.
+2. Submit an appeal via email to support@rydesharing.com.
+3. Ryde strives to resolve within 3 days.
+4. If approved, account is restored. Processing fee of S$10.00 (excluding GST) is waived if appeal is approved.
+5. Upon reinstatement, ratings reset to 4.90 and CR (Cancel/Completion Rate) resets to 0%.
+
+## 9. PUDO (Pick-Up and Drop-Off) Content Rules
+
+When submitting PUDO Content, it must not be:
+
+- Inaccurate or defamatory.
+- Obscene or discriminatory.
+- Promoting the sale of regulated or prohibited items.
+- Containing sexually explicit content.
+- Containing personal data or images of persons.
+- Containing images of restricted or protected areas.
+
+Users grant Ryde an irrevocable, worldwide, non-exclusive, and royalty-free license to use, modify, and sub-license the PUDO Content.

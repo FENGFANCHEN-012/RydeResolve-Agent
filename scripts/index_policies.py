@@ -54,7 +54,7 @@ def main():
         return
 
     print(f"\nIndexing into ChromaDB (collection: {indexer.get_or_create_collection().name})...")
-    count = indexer.index_policies(docs)
+    count = indexer.index_documents(docs)
     print(f"\nIndexed {count} chunks total.")
 
     stats = indexer.get_collection_stats()

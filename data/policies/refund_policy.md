@@ -1,86 +1,120 @@
 # Ryde Refund Policy
 
+**Source:** Ryde Terms of Use (Section: Refunds and Repair/Cleaning Fees)
+**URL:** https://rydesharing.com/terms-of-use/
+**Publisher:** Ryde Technologies Pte. Ltd.
+**Last Modified:** 6th April 2022
+
 ## 1. Overview
 
-This policy defines the conditions under which riders are eligible for refunds on the Ryde platform, including fare disputes, cancellation refunds, and service quality compensation.
+This policy defines the conditions under which riders are eligible for refunds on the Ryde platform, including cancellation fee refunds, cleaning fee disputes, and RydeCoins/Voucher terms.
 
-## 2. Refund Eligibility
+## 2. Ryde's Discretionary Refund Authority
 
-### 2.1 Route Deviation Refunds
-If a driver takes a route that is more than **10% longer** than the optimal route without justification:
-- The rider is eligible for a refund of the **fare difference** between the actual route and the optimal route
-- The refund is calculated as: `(actual_fare - optimal_route_fare) = refund_amount`
-- The driver may also receive a warning or rating impact
+Ryde retains absolute discretion over refunds for cancellation fees. Refunds may be credited to:
 
-**Example**: If the actual fare was $15.00 and the optimal route fare would have been $11.50, the refund is $3.50.
+- The payment card used for the original transaction.
+- The user's RydeCoins wallet.
+- Another reasonable method determined by Ryde.
 
-### 2.2 No-Show Charge Refunds
-A rider is eligible for a full refund of the no-show/cancellation fee if:
-- The rider was present at the pickup location within the grace period
-- The driver did not arrive at the correct pickup location
-- The driver marked the no-show before the grace period expired
-- The rider was unable to reach the driver via in-app chat or phone
+If a user feels they were incorrectly charged, they may contact support@rydesharing.com for review.
 
-### 2.3 Surge Pricing Disputes
-Surge pricing disputes are eligible for refund only if:
-- The surge multiplier was not displayed before booking confirmation
-- The surge multiplier displayed was lower than what was actually charged
-- The rider can provide a screenshot or evidence of the displayed price
+## 3. Refund Eligibility
 
-### 2.4 Service Quality Compensation
-In cases of severe service quality issues (proven rudeness, unsafe driving, deliberate detour), Ryde may offer:
-- Partial fare refund (up to 50%)
-- Ryde+ credit for future rides
-- Formal apology from the driver (mediated by Ryde)
+### 3.1 Incorrect Cancellation Fees
 
-### 2.5 Property Damage
-If a rider causes damage to the vehicle:
-- The driver may claim a cleaning/repair fee
-- The rider is responsible for the cost (deducted from payment method on file)
-- The driver must provide evidence (photos, receipts for cleaning/repair)
-- Disputes over damage claims require photo evidence and timestamp verification
+A rider is eligible for a full refund of the cancellation/no-show fee if:
 
-## 3. Refund Not Eligible
+- The rider was present at the pickup location within the grace period (3 minutes).
+- The driver did not arrive at the correct pickup location.
+- The driver marked the no-show before the grace period expired.
+- The rider was unable to reach the driver via in-app chat or phone.
+- The driver cancelled first (no rider cancellation fee should apply).
+- The driver was significantly delayed (more than 10 minutes beyond estimated arrival).
 
-Refunds will **not** be issued for:
-- Disputes filed after the 7-day window
-- Cases where the rider accepted the surge price before booking
-- Cases where the route deviation was justified (road closures, traffic, rider request)
-- Cases where the rider was genuinely a no-show (confirmed by GPS and timestamps)
-- Promo codes that were not applied before booking (cannot be applied retroactively)
+**Evidence required:** Chat logs, GPS location of rider at pickup time, attempted call records, timestamp comparison.
 
-## 4. Refund Calculation Methods
+### 3.2 RydeSEND Cancellation Refunds
 
-### 4.1 Route Deviation Refund
-```
-refund = actual_fare - optimal_route_fare
-```
-Where `optimal_route_fare` is calculated based on the shortest time/distance route at the time of the trip.
+- If a RydeSEND order was cancelled incorrectly, the user may dispute the cancellation fee.
+- If the recipient was reachable and present, the delivery booking fee should not be charged in full.
 
-### 4.2 Full Cancellation Fee Refund
-```
-refund = cancellation_fee_charged
-```
+### 3.3 Cleaning Fee Disputes
 
-### 4.3 Partial Refund
-```
-refund = cancellation_fee * percentage_eligible
-```
-Where `percentage_eligible` is determined by the judge agent based on evidence (e.g., if driver was 5 minutes late, 50% refund may be appropriate).
+A rider may dispute a cleaning/repair fee if:
 
-## 5. Refund Processing Timeline
+- The damage was pre-existing (rider should have noted it at the start of the trip).
+- The photo timestamp does not match the trip time.
+- The claimed amount is disproportionate to the damage.
+- The damage was caused by a previous rider.
+
+### 3.4 Account Restoration Fee
+
+- A processing fee of S$10.00 (excluding GST) is applied for account restoration.
+- If the user's appeal for account reinstatement is approved, the S$10.00 processing fee is waived.
+
+## 4. Non-Refundable Items
+
+The following are strictly non-refundable, non-transferable, and cannot be exchanged for cash:
+
+- **RydeCoins** — Valid for six (6) months from the date of the last transaction. Cannot be redeemed for cash. Cannot be used for transactions outside of Ryde's services. If an account is suspended, RydeCoins cannot be used unless the account is successfully reinstated.
+- **Vouchers** — Non-refundable, non-transferable.
+- **Payments** — Under the Terms of Use, payments are non-refundable and irrevocable, except where Ryde exercises its discretion to issue a refund.
+- **Service Fees (for Partners)** — Service Fees are payable immediately and are non-refundable.
+
+## 5. Repair and Cleaning Fees
+
+### 5.1 User Responsibility
+
+Users are responsible for the cost of repairing damage or necessary cleaning of the Partner's property resulting from misuse or breach of Terms.
+
+### 5.2 Cleaning Fee
+
+- Riders may be subject to a cleaning fee of up to S$200 for incidents requiring professional cleaning.
+- Applicable incidents include: stains, bodily fluids, vomit, spillage, soil.
+
+### 5.3 Required Evidence for Cleaning Claims
+
+Drivers must provide:
+
+- Photo evidence (e.g., a picture of the vomit/stain with timestamp).
+- Receipt from the Cleaning Company including:
+  - Name, contact number & address of the cleaning company.
+  - Date of cleaning.
+  - Authorised personnel's signature/company stamp.
+
+### 5.4 Non-Payment Consequences
+
+Non-payment of verified cleaning fees may result in:
+
+- Temporary suspension of the user's account.
+- Permanent deactivation of the user's account.
+
+## 6. Refund Processing Timeline
 
 | Step | Timeline |
 |------|----------|
 | Dispute filed | Day 0 |
-| Automated review | Within 24 hours |
-| Verdict issued | Within 24-72 hours |
-| Refund processed | 3-5 business days after verdict |
-| Ryde+ expedited | 1-2 business days after verdict |
+| Ryde support review | Within 3 days (Ryde strives to resolve) |
+| Refund processed (if approved) | Credited to payment card, RydeCoins wallet, or other method |
+| RydeCoins expiry | 6 months from last transaction |
 
-## 6. Multi-Party Compensation
+## 7. Dispute Resolution
 
-In cases where both parties share responsibility:
-- Compensation may be split between rider and driver
-- The judge agent determines the proportional responsibility
-- Example: Driver took a longer route (60% at fault) but rider was also delayed (40% at fault) — partial refund of 60% of the fare difference
+### 7.1 Governing Law
+
+These Terms of Service are governed by Singapore law.
+
+### 7.2 Arbitration
+
+Any disputes shall be referred to the Singapore International Arbitration Centre (SIAC), in accordance with SIAC Rules, by a sole arbitrator. The seat and venue of arbitration is Singapore. The language is English.
+
+### 7.3 Partner Mediation Option
+
+Partners may choose to submit a Dispute for mediation at the Singapore Mediation Centre and/or Small Claims Tribunal, subject to their rules and guidelines.
+
+## 8. Promotion-Related Refunds
+
+- Ryde may make promotional offers that Partners must honor.
+- If a promotion was applied incorrectly, users may contact support@rydesharing.com for review.
+- Ryde+ subscription charges are recurring until canceled; users authorize Ryde to automatically charge their saved payment method.
