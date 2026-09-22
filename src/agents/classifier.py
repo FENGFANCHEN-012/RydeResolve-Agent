@@ -1,16 +1,20 @@
 """
 Agent 2: Dispute Classification Agent
-Deterministic keyword/rule-based classification of dispute type and urgency.
-Works fully offline without any LLM API key.
 
-The policies and dispute categories used here are synthetic hackathon demo
-data and do not represent any official company policies.
+Hybrid classification: fast keyword-based P0 safety detection + LLM-based
+classification for nuanced dispute types. Works offline for safety checks,
+uses Gemini LLM for accurate type/urgency classification.
 """
+import json
+import logging
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, field_validator
 
 from src.agents.collector import DisputeContext, DisputeType
+from src.core.llm_client import LLMClient
+
+logger = logging.getLogger(__name__)
 
 
 class UrgencyLevel(str, Enum):
@@ -39,10 +43,8 @@ class ClassificationResult(BaseModel):
 
 
 # ------------------------------------------------------------------ #
-# Keyword rules                                                       #
+# P0 critical-safety keywords — checked first for immediate escalation
 # ------------------------------------------------------------------ #
-
-# P0 critical-safety keywords — checked first regardless of context.type
 _P0_KEYWORDS: list[str] = [
     "accident", "injury", "injured", "assault", "assaulted",
     "crash", "collision", "hospital", "ambulance",
@@ -53,223 +55,188 @@ _P0_KEYWORDS: list[str] = [
     "harm", "hurt", "wounded", "stab", "struck",
 ]
 
-_ROUTE_KEYWORDS: list[str] = [
-    "route", "detour", "deviation", "deviate", "longer route",
-    "wrong way", "opposite direction", "missed exit", "missed turn",
-    "scenic route", "out of the way", "unnecessary detour",
-]
 
-_NO_SHOW_KEYWORDS: list[str] = [
-    "no show", "no-show", "didn't show", "did not show", "never showed",
-    "never arrived", "didn't arrive", "did not arrive",
-    "didn't come", "did not come", "never came",
-    "driver didn't", "driver did not", "rider didn't", "rider did not",
-    "absent", "not there", "not at the pickup", "waited and waited",
-]
-
-_FARE_KEYWORDS: list[str] = [
-    "fare", "overcharge", "overcharged", "overcharging",
-    "too expensive", "charged more", "excessive charge",
-    "wrong price", "price", "amount", "surge", "promo code",
-    "discount", "double charged", "charged twice",
-]
-
-_CANCELLATION_KEYWORDS: list[str] = [
-    "cancel", "cancellation", "cancelled", "canceled",
-    "refund", "reimburse", "reimbursement", "cancellation fee",
-    "cancel fee", "cancel charge",
-]
-
-_SERVICE_KEYWORDS: list[str] = [
-    "rude", "impolite", "unprofessional", "dirty", "messy",
-    "smelly", "bad smell", "unsafe driving", "reckless",
-    "speeding", "harsh braking", "rating", "rated",
-    "retaliation", "retaliated", "discrimination", "discriminatory",
-    "attitude", "behavior", "behaviour", "complaint about driver",
-    "complaint about rider", "yelled", "shouted", "swore",
-    "profanity",
-]
-
-_DELIVERY_KEYWORDS: list[str] = [
-    "delivery", "parcel", "package", "item", "goods",
-    "damaged item", "lost item", "missing item",
-    "delivered to wrong", "wrong address", "late delivery",
-    "package damaged", "item broken", "lost package",
-]
-
-_DRIVER_RIGHTS_KEYWORDS: list[str] = [
-    "driver rights", "unfair", "wrongfully", "wrongfully charged",
-    "driver charged", "driver blamed", "blamed the driver",
-    "false accusation", "false claim", "unjustified",
-    "driver penalized", "driver penalised", "suspended",
-    "deactivated", "account suspended", "wrongful deactivation",
-]
-
-# Ordered list of (DisputeType, keywords, urgency) for keyword matching
-_TYPE_RULES: list[tuple[DisputeType, list[str], UrgencyLevel]] = [
-    (DisputeType.ACCIDENT, _P0_KEYWORDS, UrgencyLevel.P0),
-    (DisputeType.ROUTE_DEVIATION, _ROUTE_KEYWORDS, UrgencyLevel.P1),
-    (DisputeType.NO_SHOW, _NO_SHOW_KEYWORDS, UrgencyLevel.P1),
-    (DisputeType.FARE, _FARE_KEYWORDS, UrgencyLevel.P1),
-    (DisputeType.CANCELLATION, _CANCELLATION_KEYWORDS, UrgencyLevel.P1),
-    (DisputeType.SERVICE_QUALITY, _SERVICE_KEYWORDS, UrgencyLevel.P2),
-    (DisputeType.DELIVERY, _DELIVERY_KEYWORDS, UrgencyLevel.P2),
-    (DisputeType.DRIVER_RIGHTS, _DRIVER_RIGHTS_KEYWORDS, UrgencyLevel.P2),
-]
-
-# Urgency mapping by dispute type (used when context.type is supplied)
-_URGENCY_BY_TYPE: dict[DisputeType, UrgencyLevel] = {
-    DisputeType.ACCIDENT: UrgencyLevel.P0,
-    DisputeType.ROUTE_DEVIATION: UrgencyLevel.P1,
-    DisputeType.NO_SHOW: UrgencyLevel.P1,
-    DisputeType.FARE: UrgencyLevel.P1,
-    DisputeType.CANCELLATION: UrgencyLevel.P1,
-    DisputeType.SERVICE_QUALITY: UrgencyLevel.P2,
-    DisputeType.DELIVERY: UrgencyLevel.P2,
-    DisputeType.DRIVER_RIGHTS: UrgencyLevel.P2,
-}
-
-# Confidence per number of matched keywords
-_CONFIDENCE_STEPS: list[float] = [0.0, 0.55, 0.7, 0.8, 0.9]
-
-
-def _count_matches(text_lower: str, keywords: list[str]) -> int:
-    """Count how many keywords from the list appear in the text."""
-    return sum(1 for kw in keywords if kw in text_lower)
-
-
-def _confidence_for_match_count(count: int) -> float:
-    """Map a match count to a confidence value (capped at 0.9)."""
-    if count <= 0:
-        return 0.0
-    idx = min(count, len(_CONFIDENCE_STEPS) - 1)
-    return _CONFIDENCE_STEPS[idx]
+def _has_p0_keywords(text: str) -> tuple[bool, list[str]]:
+    """Check if text contains any P0 safety keywords."""
+    text_lower = text.lower()
+    matched = [kw for kw in _P0_KEYWORDS if kw in text_lower]
+    return len(matched) > 0, matched
 
 
 class ClassifierAgent:
-    """Classifies disputes into categories and urgency levels using keyword rules."""
+    """
+    Hybrid dispute classifier.
 
-    def __init__(self):
+    1. Fast keyword scan for P0 safety issues (offline, instant).
+    2. LLM-based classification for nuanced dispute types and urgency.
+    """
+
+    def __init__(self, llm_client: LLMClient | None = None):
         self.name = "Classifier"
+        self._llm = llm_client
+
+    def _get_llm(self) -> LLMClient:
+        if self._llm is None:
+            self._llm = LLMClient()
+        return self._llm
 
     async def classify(self, context: DisputeContext) -> ClassificationResult:
         """
-        Classify a dispute deterministically using keyword/rule-based matching.
-
-        Logic:
-        1. Normalise the description to lowercase for keyword matching.
-        2. Check for P0 safety keywords first. If found, the result is always
-           P0 with requires_human=True regardless of any supplied context.type.
-        3. If context.type is already supplied AND no P0 keywords were found,
-           trust the supplied type and look up its urgency level.
-        4. Otherwise, run keyword matching against all dispute-type rule sets
-           and select the type with the highest match count.
-        5. If no keywords match at all, return an unknown/ambiguous result
-           with confidence <= 0.5 and requires_human=True.
+        Classify a dispute using hybrid approach:
+        1. P0 keyword scan (instant, offline).
+        2. LLM classification for type, urgency, and confidence.
         """
         description = context.description or ""
-        text = description.lower()
 
-        # -- Step 1: P0 safety check (always takes priority) -----------
-        p0_matches = _count_matches(text, _P0_KEYWORDS)
-        if p0_matches > 0:
-            conf = _confidence_for_match_count(p0_matches)
-            # If context.type was already set to something other than accident,
-            # we still override to accident because safety takes priority.
-            matched_kw = [kw for kw in _P0_KEYWORDS if kw in text]
+        # -- Step 1: Fast P0 safety check --------------------------------
+        has_p0, p0_matched = _has_p0_keywords(description)
+        if has_p0:
             return ClassificationResult(
                 dispute_type=DisputeType.ACCIDENT,
                 urgency=UrgencyLevel.P0,
                 requires_human=True,
-                confidence=conf,
+                confidence=min(0.5 + 0.1 * len(p0_matched), 0.95),
                 reasoning=(
-                    f"P0 safety keywords detected in the description "
-                    f"({', '.join(matched_kw[:3])}). This dispute involves a "
-                    "critical safety or legal issue and requires immediate "
-                    "human review. P0 urgency overrides any other classification."
+                    f"P0 safety keywords detected ({', '.join(p0_matched[:3])}). "
+                    "This dispute involves a critical safety or legal issue and "
+                    "requires immediate human review."
                 ),
             )
 
-        # -- Step 2: Use supplied context.type if available -----------
-        if context.type is not None:
-            dt = context.type
-            urgency = _URGENCY_BY_TYPE.get(dt, UrgencyLevel.P2)
-            # Even when type is supplied, we still do keyword matching to
-            # compute a confidence score and to enrich the reasoning.
-            typed_keywords = self._keywords_for_type(dt)
-            match_count = _count_matches(text, typed_keywords) if typed_keywords else 0
-            confidence = _confidence_for_match_count(match_count) if match_count > 0 else 0.6
+        # -- Step 2: LLM-based classification ----------------------------
+        return await self._llm_classify(context)
 
-            # If the supplied type doesn't match any keywords, lower confidence
-            if match_count == 0:
-                confidence = 0.5
+    async def _llm_classify(self, context: DisputeContext) -> ClassificationResult:
+        """Use Gemini LLM to classify the dispute type and urgency."""
 
-            return ClassificationResult(
-                dispute_type=dt,
-                urgency=urgency,
-                requires_human=False,
-                confidence=confidence,
-                reasoning=(
-                    f"Dispute type was pre-supplied as '{dt.value}'. "
-                    f"Keyword matching found {match_count} supporting keyword(s). "
-                    f"Urgency set to {urgency.value} based on the dispute type."
-                ),
-            )
-
-        # -- Step 3: Keyword-based classification -----------
-        best_type: Optional[DisputeType] = None
-        best_count = 0
-        best_keywords: list[str] = []
-
-        for dt, keywords, urgency in _TYPE_RULES:
-            if dt == DisputeType.ACCIDENT:
-                continue  # already handled in P0 check
-            count = _count_matches(text, keywords)
-            if count > best_count:
-                best_type = dt
-                best_count = count
-                best_keywords = [kw for kw in keywords if kw in text]
-
-        # -- Step 4: Unknown / ambiguous fallback -----------
-        if best_type is None or best_count == 0:
-            return ClassificationResult(
-                dispute_type=None,
-                urgency=UrgencyLevel.P3,
-                requires_human=True,
-                confidence=0.3,
-                reasoning=(
-                    "No keywords matched any known dispute type. The input is "
-                    "ambiguous or does not fit any defined category. "
-                    "Requires human review for manual classification."
-                ),
-            )
-
-        confidence = _confidence_for_match_count(best_count)
-        urgency = _URGENCY_BY_TYPE.get(best_type, UrgencyLevel.P2)
-
-        return ClassificationResult(
-            dispute_type=best_type,
-            urgency=urgency,
-            requires_human=False,
-            confidence=confidence,
-            reasoning=(
-                f"Matched {best_count} keyword(s) for '{best_type.value}' "
-                f"({', '.join(best_keywords[:3])}). Classified as {urgency.value} "
-                f"urgency. No P0 safety keywords were detected."
-            ),
+        system_prompt = (
+            "You are a dispute classification expert for the Ryde ride-hailing "
+            "platform in Singapore. Analyze the dispute report and classify it "
+            "into one of the following categories:\n\n"
+            "1. route_deviation — Driver took a longer/wrong route causing overcharge\n"
+            "2. no_show — Driver or rider did not show up at pickup\n"
+            "3. fare_dispute — Incorrect fare calculation, surge pricing issue, overcharge\n"
+            "4. cancellation_refund — Dispute over cancellation fees or refund eligibility\n"
+            "5. service_quality — Rude behavior, unsafe driving, cleanliness, attitude\n"
+            "6. delivery_dispute — Issues with RydeSEND delivery (damaged/lost items, wrong address)\n"
+            "7. driver_rights — Driver unfairly penalized, wrongfully charged, account issues\n"
+            "8. accident_liability — Physical injury, vehicle damage, collision\n\n"
+            "Urgency levels:\n"
+            "- P0: Critical safety/legal (assault, injury, harassment, police involved)\n"
+            "- P1: High financial impact (fare disputes, cancellation fees, route overcharge)\n"
+            "- P2: Medium service complaint (rudeness, cleanliness, minor delays)\n"
+            "- P3: Low minor issue (questions, feedback, non-urgent requests)\n\n"
+            "Respond ONLY with a valid JSON object (no markdown, no extra text) with:\n"
+            "  \"dispute_type\": string (one of the 8 types above, or null if unclear),\n"
+            "  \"urgency\": string (P0/P1/P2/P3),\n"
+            "  \"requires_human\": boolean (true for P0 or ambiguous cases),\n"
+            "  \"confidence\": float (0.0-1.0),\n"
+            "  \"reasoning\": string (concise explanation of classification)\n\n"
+            "Guidelines:\n"
+            "- If the description is ambiguous or doesn't fit any category, set dispute_type to null.\n"
+            "- requires_human=true for P0 urgency or when confidence < 0.6.\n"
+            "- Be precise: route_deviation is about wrong/longer route, not general fare issues.\n"
+            "- cancellation_refund is about cancellation fees, not general refunds.\n"
+            "- service_quality covers attitude, driving behavior, cleanliness.\n"
         )
 
-    @staticmethod
-    def _keywords_for_type(dt: DisputeType) -> list[str]:
-        """Return the keyword list associated with a given dispute type."""
-        mapping = {
-            DisputeType.ROUTE_DEVIATION: _ROUTE_KEYWORDS,
-            DisputeType.NO_SHOW: _NO_SHOW_KEYWORDS,
-            DisputeType.FARE: _FARE_KEYWORDS,
-            DisputeType.CANCELLATION: _CANCELLATION_KEYWORDS,
-            DisputeType.SERVICE_QUALITY: _SERVICE_KEYWORDS,
-            DisputeType.DELIVERY: _DELIVERY_KEYWORDS,
-            DisputeType.DRIVER_RIGHTS: _DRIVER_RIGHTS_KEYWORDS,
-            DisputeType.ACCIDENT: _P0_KEYWORDS,
-        }
-        return mapping.get(dt, [])
+        # Build context-rich user prompt
+        user_prompt_parts = [
+            f"Dispute Description: {context.description}",
+            f"Reporter: {context.reporter}",
+            f"Order ID: {context.order_id}",
+        ]
+
+        if context.trip:
+            user_prompt_parts.append(f"Trip Details: {json.dumps(context.trip)}")
+        if context.payment:
+            user_prompt_parts.append(f"Payment Details: {json.dumps(context.payment)}")
+        if context.chat_log:
+            user_prompt_parts.append(f"Chat Log: {json.dumps(context.chat_log)}")
+        if context.gps_trace:
+            user_prompt_parts.append(f"GPS Trace Available: Yes")
+        if context.ratings:
+            user_prompt_parts.append(f"Ratings: {json.dumps(context.ratings)}")
+
+        user_prompt = "\n".join(user_prompt_parts)
+
+        try:
+            llm = self._get_llm()
+            raw_response = await llm.chat_json(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.2,
+            )
+
+            parsed = json.loads(raw_response)
+
+            # Validate and map dispute_type
+            type_str = parsed.get("dispute_type")
+            dispute_type = None
+            if type_str:
+                try:
+                    dispute_type = DisputeType(type_str)
+                except ValueError:
+                    # Try to fuzzy match
+                    type_lower = type_str.lower().replace(" ", "_").replace("-", "_")
+                    for dt in DisputeType:
+                        if type_lower in dt.value.lower() or dt.value.lower() in type_lower:
+                            dispute_type = dt
+                            break
+
+            # Validate urgency
+            urgency_str = parsed.get("urgency", "P2")
+            try:
+                urgency = UrgencyLevel(urgency_str.upper())
+            except ValueError:
+                urgency = UrgencyLevel.P2
+
+            # Override: if P0 keywords somehow missed, force P0
+            if urgency == UrgencyLevel.P0 and dispute_type != DisputeType.ACCIDENT:
+                dispute_type = DisputeType.ACCIDENT
+
+            confidence = float(parsed.get("confidence", 0.5))
+            requires_human = parsed.get("requires_human", confidence < 0.6)
+
+            # Force human review for P0 regardless of LLM output
+            if urgency == UrgencyLevel.P0:
+                requires_human = True
+
+            return ClassificationResult(
+                dispute_type=dispute_type,
+                urgency=urgency,
+                requires_human=requires_human,
+                confidence=confidence,
+                reasoning=parsed.get("reasoning", "LLM classification completed."),
+            )
+
+        except json.JSONDecodeError as exc:
+            logger.warning("LLM returned invalid JSON: %s", exc)
+            return self._fallback_classification(
+                context, f"LLM returned invalid JSON: {exc}"
+            )
+        except Exception as exc:
+            logger.warning("LLM classification failed: %s", exc)
+            return self._fallback_classification(
+                context, f"LLM classification failed: {exc}"
+            )
+
+    def _fallback_classification(
+        self, context: DisputeContext, reason: str
+    ) -> ClassificationResult:
+        """
+        Safe fallback when LLM fails.
+        Returns ambiguous result requiring human review.
+        """
+        return ClassificationResult(
+            dispute_type=None,
+            urgency=UrgencyLevel.P3,
+            requires_human=True,
+            confidence=0.3,
+            reasoning=(
+                f"Classification failed: {reason}. "
+                "The dispute requires human review for manual classification."
+            ),
+        )
