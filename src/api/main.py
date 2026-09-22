@@ -37,9 +37,19 @@ app.add_middleware(
 )
 
 
+class EvidenceItem(BaseModel):
+    evidence_type: str  # screenshot, photo, receipt, video, audio, document
+    description: str
+    file_url: str
+    uploaded_by: str  # rider, driver
+
+
 class DisputeRequest(BaseModel):
     report_text: str
     order_id: str
+    reporter: str = "passenger"  # passenger or driver
+    evidence: list[EvidenceItem] = []
+    language: str = "en"  # en, zh, ms, ta
 
 
 class QARequest(BaseModel):
@@ -326,16 +336,127 @@ async def rag_ask(request: QARequest, advanced: bool = True):
 
 
 # ============================================================
-# Multi-Agent Dispute Resolution (existing)
+# Multi-Agent Dispute Resolution
 # ============================================================
 
 @app.post("/api/disputes/resolve")
 async def resolve_dispute(request: DisputeRequest):
-    """Submit a dispute for automated resolution."""
+    """
+    Submit a dispute for automated resolution with full platform context.
+
+    Fetches real order data from Ryde platform API including:
+    - Trip details (pickup, dropoff, route, timing)
+    - Payment/fare breakdown
+    - In-app chat logs
+    - GPS trace
+    - Rider and driver profiles
+    - Uploaded evidence (screenshots, photos, receipts)
+    """
     orchestrator = Orchestrator()
     result = await orchestrator.resolve(
         report_text=request.report_text,
         order_id=request.order_id,
+        reporter=request.reporter,
+        evidence=request.evidence,
+        language=request.language,
     )
     return result
+
+
+@app.post("/api/disputes/resolve-with-files")
+async def resolve_dispute_with_files(
+    report_text: str,
+    order_id: str,
+    reporter: str = "passenger",
+    language: str = "en",
+    evidence_files: list[UploadFile] = File(default=[]),
+):
+    """
+    Submit a dispute with evidence file uploads.
+
+    Evidence files (screenshots, photos, receipts) are saved and their
+    URLs are passed to the dispute resolution pipeline.
+    """
+    from src.agents.collector import EvidenceItem
+
+    # Save uploaded evidence files
+    evidence_items = []
+    upload_dir = os.path.join(BASE_DIR, "data", "evidence", order_id)
+    os.makedirs(upload_dir, exist_ok=True)
+
+    for file in evidence_files:
+        if not file.filename:
+            continue
+        content = await file.read()
+        save_path = os.path.join(upload_dir, file.filename)
+        with open(save_path, "wb") as f:
+            f.write(content)
+
+        evidence_items.append(EvidenceItem(
+            evidence_type=_detect_evidence_type(file.filename),
+            description=f"Uploaded evidence: {file.filename}",
+            file_url=f"/data/evidence/{order_id}/{file.filename}",
+            uploaded_by=reporter,
+        ))
+
+    orchestrator = Orchestrator()
+    result = await orchestrator.resolve(
+        report_text=report_text,
+        order_id=order_id,
+        reporter=reporter,
+        evidence=evidence_items,
+        language=language,
+    )
+    return result
+
+
+def _detect_evidence_type(filename: str) -> str:
+    """Detect evidence type from file extension."""
+    ext = os.path.splitext(filename)[1].lower()
+    image_exts = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
+    video_exts = {".mp4", ".mov", ".avi", ".mkv"}
+    audio_exts = {".mp3", ".wav", ".m4a", ".ogg"}
+    doc_exts = {".pdf", ".doc", ".docx", ".txt", ".md"}
+
+    if ext in image_exts:
+        return "photo" if "screenshot" not in filename.lower() else "screenshot"
+    if ext in video_exts:
+        return "video"
+    if ext in audio_exts:
+        return "audio"
+    if ext in doc_exts:
+        return "receipt" if "receipt" in filename.lower() or "invoice" in filename.lower() else "document"
+    return "document"
+
+
+@app.get("/api/disputes/order-context/{order_id}")
+async def get_order_context(order_id: str):
+    """
+    Fetch full order context from Ryde platform API.
+
+    Returns trip, payment, chat, GPS, profiles, and evidence for a given order.
+    This is useful for previewing the data before submitting a dispute.
+    """
+    from src.integrations.ryde_api import RydeAPIClient
+
+    api = RydeAPIClient()
+    context = await api.get_full_order_context(order_id)
+
+    if not context:
+        raise HTTPException(status_code=404, detail=f"Order {order_id} not found")
+
+    # Convert Pydantic models to dicts for JSON serialization
+    result = {}
+    for key, value in context.items():
+        if hasattr(value, "model_dump"):
+            result[key] = value.model_dump()
+        elif isinstance(value, list):
+            result[key] = [
+                item.model_dump() if hasattr(item, "model_dump") else item
+                for item in value
+            ]
+        else:
+            result[key] = value
+
+    return {"order_id": order_id, "context": result}
 
