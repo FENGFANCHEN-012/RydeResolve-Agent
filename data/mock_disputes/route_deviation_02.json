@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "data_type": "synthetic_demo",
+  "dispute_id": "RD-002",
+  "dispute_type": "route_deviation",
+  "reporter": "rider",
+  "order_id": "RYDE-DEMO-002",
+  "description": "The driver took a longer route due to a road closure. The rider disputes the higher fare despite being informed in advance.",
+  "trip": {
+    "pickup_name": "Tampines Mall",
+    "dropoff_name": "Changi Airport Terminal 2",
+    "estimated_distance_km": 10.5,
+    "actual_distance_km": 12.4,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 28,
+    "route_deviation_percent": 18.1,
+    "driver_reported_reason": "Verified road closure on the planned route; detour taken after informing the rider"
+  },
+  "payment": {
+    "currency": "SGD",
+    "estimated_fare": 17.0,
+    "charged_fare": 20.1,
+    "disputed_amount": 3.1
+  },
+  "chat_log": [
+    {
+      "timestamp": "2026-09-21T14:05:00+08:00",
+      "sender": "driver",
+      "message": "There's a road closure ahead on the usual route. I'll take a detour through Upper Changi Road. It'll be a bit longer but it's the fastest alternative."
+    },
+    {
+      "timestamp": "2026-09-21T14:06:00+08:00",
+      "sender": "rider",
+      "message": "OK, go ahead if there's no other way."
+    },
+    {
+      "timestamp": "2026-09-21T14:07:00+08:00",
+      "sender": "driver",
+      "message": "Thanks, I'll keep you updated. The detour should add about 6 minutes."
+    }
+  ],
+  "gps_trace": [
+    {
+      "timestamp": "2026-09-21T14:00:00+08:00",
+      "latitude": 1.3526,
+      "longitude": 103.9444
+    },
+    {
+      "timestamp": "2026-09-21T14:05:00+08:00",
+      "latitude": 1.3551,
+      "longitude": 103.9512
+    },
+    {
+      "timestamp": "2026-09-21T14:10:00+08:00",
+      "latitude": 1.3618,
+      "longitude": 103.9635
+    },
+    {
+      "timestamp": "2026-09-21T14:20:00+08:00",
+      "latitude": 1.3664,
+      "longitude": 103.9772
+    },
+    {
+      "timestamp": "2026-09-21T14:28:00+08:00",
+      "latitude": 1.3602,
+      "longitude": 103.9896
+    }
+  ],
+  "behavior_profiles": {
+    "rider": {
+      "account_age_months": 12,
+      "rating": 4.6,
+      "previous_disputes": 0
+    },
+    "driver": {
+      "account_age_months": 34,
+      "rating": 4.9,
+      "previous_route_disputes": 0
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The driver informed the rider via chat before the detour, GPS timestamps confirm the road closure detour, and the deviation was caused by verified road conditions outside the driver's control."
+  }
+}

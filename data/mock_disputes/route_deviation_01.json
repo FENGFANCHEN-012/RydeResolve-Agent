@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "data_type": "synthetic_demo",
+  "dispute_id": "RD-001",
+  "dispute_type": "route_deviation",
+  "reporter": "rider",
+  "order_id": "RYDE-DEMO-001",
+  "description": "The driver missed an exit and took a longer route, causing a higher fare.",
+  "trip": {
+    "pickup_name": "Singapore Polytechnic",
+    "dropoff_name": "Orchard Road",
+    "estimated_distance_km": 8.2,
+    "actual_distance_km": 10.4,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 27,
+    "route_deviation_percent": 26.8,
+    "driver_reported_reason": "Missed the correct exit"
+  },
+  "payment": {
+    "currency": "SGD",
+    "estimated_fare": 14.5,
+    "charged_fare": 18.2,
+    "disputed_amount": 3.7
+  },
+  "chat_log": [
+    {
+      "timestamp": "2026-09-21T10:12:00+08:00",
+      "sender": "rider",
+      "message": "Why are we going in the opposite direction?"
+    },
+    {
+      "timestamp": "2026-09-21T10:13:00+08:00",
+      "sender": "driver",
+      "message": "Sorry, I missed the exit. I will turn back."
+    }
+  ],
+  "gps_trace": [
+    {
+      "timestamp": "2026-09-21T10:00:00+08:00",
+      "latitude": 1.3098,
+      "longitude": 103.7775
+    },
+    {
+      "timestamp": "2026-09-21T10:10:00+08:00",
+      "latitude": 1.3188,
+      "longitude": 103.8057
+    },
+    {
+      "timestamp": "2026-09-21T10:20:00+08:00",
+      "latitude": 1.3048,
+      "longitude": 103.8318
+    }
+  ],
+  "behavior_profiles": {
+    "rider": {
+      "account_age_months": 18,
+      "rating": 4.8,
+      "previous_disputes": 0
+    },
+    "driver": {
+      "account_age_months": 26,
+      "rating": 4.7,
+      "previous_route_disputes": 1
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund",
+    "refund_amount": 3.7,
+    "requires_human_review": false,
+    "reason": "The route was substantially longer because the driver missed an exit, and the chat log confirms the mistake."
+  }
+}

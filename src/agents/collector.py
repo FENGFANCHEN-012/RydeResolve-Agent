@@ -8,6 +8,8 @@ from enum import Enum
 
 
 class DisputeType(str, Enum):
+    ROUTE_DEVIATION = "route_deviation"
+    NO_SHOW = "no_show"
     FARE = "fare_dispute"
     CANCELLATION = "cancellation_refund"
     SERVICE_QUALITY = "service_quality"
