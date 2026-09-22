@@ -1,11 +1,11 @@
 """
 Agent 3: Passenger Perspective Agent
-
 Advocates the passenger's viewpoint in a ride-hailing dispute while remaining
-evidence-grounded. Never invents facts, GPS records, chat messages, payment
+evidence-grounded.  Never invents facts, GPS records, chat messages, payment
 values or policy references.
 
-Uses real Ryde policies retrieved via RAG.
+The policies referenced by this agent are synthetic hackathon demo policies
+and do not represent official Ryde records or policies.
 """
 import json
 import logging
@@ -43,9 +43,9 @@ class PassengerAgent:
         Initialise with optional dependency injection.
 
         Args:
-            llm_client: An LLMClient instance (or mock). If None, a real
+            llm_client: An LLMClient instance (or mock).  If None, a real
                         LLMClient is created lazily on first use.
-            retriever: A DocumentRetriever instance (or mock). If None, a
+            retriever: A DocumentRetriever instance (or mock).  If None, a
                        real DocumentRetriever is created lazily on first use.
         """
         self.name = "Passenger"
@@ -318,16 +318,16 @@ class PassengerAgent:
             "- Do not use any field named 'expected_outcome' or similar answer keys.\n\n"
             "Respond ONLY with a valid JSON object (no markdown, no extra text) "
             "with exactly these keys:\n"
-            '  "stance": string (passenger\'s position on the dispute),\n'
-            '  "evidence": list of strings (verified supporting evidence from context),\n'
-            '  "contradictory_evidence": list of strings (evidence that contradicts passenger\'s position),\n'
-            '  "missing_evidence": list of strings (gaps that would strengthen the case),\n'
-            '  "obligations": list of strings (passenger obligations),\n'
-            '  "remedy_requested": string (what the passenger is asking for),\n'
-            '  "policy_references": list of strings (references from provided clauses only),\n'
-            '  "reasoning": string (concise, evidence-based -- no chain-of-thought),\n'
-            '  "confidence": float (0.0-1.0),\n'
-            '  "requires_human_review": boolean\n'
+            "  \"stance\": string (passenger's position on the dispute),\n"
+            "  \"evidence\": list of strings (verified supporting evidence from context),\n"
+            "  \"contradictory_evidence\": list of strings (evidence that contradicts passenger's position),\n"
+            "  \"missing_evidence\": list of strings (gaps that would strengthen the case),\n"
+            "  \"obligations\": list of strings (passenger obligations),\n"
+            "  \"remedy_requested\": string (what the passenger is asking for),\n"
+            "  \"policy_references\": list of strings (references from provided clauses only),\n"
+            "  \"reasoning\": string (concise, evidence-based — no chain-of-thought),\n"
+            "  \"confidence\": float (0.0–1.0),\n"
+            "  \"requires_human_review\": boolean\n"
         )
 
         dispute_type = self._extract_dispute_type(context)
