@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "data_type": "synthetic_demo",
+  "dispute_id": "NS-001",
+  "dispute_type": "no_show",
+  "reporter": "rider",
+  "order_id": "RYDE-DEMO-003",
+  "description": "The rider was present at the pickup point but the driver never arrived. The rider was charged a SGD 8 cancellation fee despite not being at fault.",
+  "trip": {
+    "pickup_name": "Bugis Junction",
+    "dropoff_name": "Marina Bay Sands",
+    "estimated_distance_km": 3.1,
+    "actual_distance_km": 0.0,
+    "estimated_duration_min": 7,
+    "actual_duration_min": 0,
+    "route_deviation_percent": 0.0,
+    "driver_reported_reason": "Driver claimed the rider was a no-show"
+  },
+  "payment": {
+    "currency": "SGD",
+    "estimated_fare": 8.0,
+    "charged_fare": 8.0,
+    "disputed_amount": 8.0
+  },
+  "chat_log": [
+    {
+      "timestamp": "2026-09-21T09:05:00+08:00",
+      "sender": "rider",
+      "message": "Hi, I'm at the pickup point at Bugis Junction, near the main entrance."
+    },
+    {
+      "timestamp": "2026-09-21T09:08:00+08:00",
+      "sender": "rider",
+      "message": "Are you coming? I've been waiting for a while."
+    },
+    {
+      "timestamp": "2026-09-21T09:12:00+08:00",
+      "sender": "rider",
+      "message": "I've tried calling but no response. Please let me know what's happening."
+    }
+  ],
+  "gps_trace": [
+    {
+      "timestamp": "2026-09-21T09:00:00+08:00",
+      "latitude": 1.2975,
+      "longitude": 103.8535
+    },
+    {
+      "timestamp": "2026-09-21T09:05:00+08:00",
+      "latitude": 1.2973,
+      "longitude": 103.8537
+    },
+    {
+      "timestamp": "2026-09-21T09:10:00+08:00",
+      "latitude": 1.2974,
+      "longitude": 103.8536
+    },
+    {
+      "timestamp": "2026-09-21T09:15:00+08:00",
+      "latitude": 1.2972,
+      "longitude": 103.8535
+    }
+  ],
+  "behavior_profiles": {
+    "rider": {
+      "account_age_months": 9,
+      "rating": 4.9,
+      "previous_disputes": 0
+    },
+    "driver": {
+      "account_age_months": 5,
+      "rating": 4.1,
+      "previous_route_disputes": 0
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "full_refund",
+    "refund_amount": 8.0,
+    "requires_human_review": false,
+    "reason": "Rider GPS and timestamps confirm the rider was present at the pickup point throughout. Driver GPS shows the driver never arrived. The rider attempted to contact the driver with no response. The SGD 8 cancellation charge is unjustified."
+  }
+}
