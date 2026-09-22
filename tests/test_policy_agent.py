@@ -50,7 +50,12 @@ def make_context(**overrides) -> DisputeContext:
         description="The driver took a longer route and overcharged me.",
         trip={"estimated_distance_km": 8.0, "actual_distance_km": 10.0},
         payment={"currency": "SGD", "charged_fare": 18.0, "estimated_fare": 14.0},
-        chat_log=["Why are we going this way?", "Sorry, I missed the exit."],
+        chat_log=[
+            {"sender": "rider", "message": "Why are we going this way?",
+             "timestamp": "2026-09-21T10:12:00+08:00"},
+            {"sender": "driver", "message": "Sorry, I missed the exit.",
+             "timestamp": "2026-09-21T10:13:00+08:00"},
+        ],
         gps_trace=[{"lat": 1.31, "lng": 103.78}],
     )
     defaults.update(overrides)
