@@ -12,7 +12,7 @@ from src.config import MAX_DEBATE_ROUNDS
 class DebateEngine:
     """
     Orchestrates multi-round adversarial debate:
-
+    
     Round structure:
     1. Passenger Agent states position + evidence
     2. Driver Agent states position + evidence
