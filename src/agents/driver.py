@@ -317,7 +317,9 @@ class DriverAgent:
             "- Do not reveal unnecessary personal information.\n"
             "- Do not claim evidence is verified when it is merely alleged.\n"
             "- Only use policy references that appear in the provided clauses.\n"
-            "- Do not use any field named 'expected_outcome' or similar answer keys.\n\n"
+            "- Do not use any field named 'expected_outcome' or similar answer keys.\n"
+            "- Ratings, account age, and trip counts are background context only "
+            "and are NOT proof of fault or innocence.\n\n"
             "Respond ONLY with a valid JSON object (no markdown, no extra text) "
             "with exactly these keys:\n"
             '  "stance": string (driver\'s position on the dispute),\n'
@@ -460,6 +462,10 @@ class DriverAgent:
             parts.append(f"GPS trace: {json.dumps(context.gps_trace)}")
         else:
             parts.append("GPS trace: N/A")
+        if context.rider_profile:
+            parts.append(f"Rider profile (background context only -- not proof of fault):\n{json.dumps(context.rider_profile)}")
+        if context.driver_profile:
+            parts.append(f"Driver profile (background context only -- not proof of fault):\n{json.dumps(context.driver_profile)}")
         if context.evidence:
             parts.append(f"Uploaded evidence: {len(context.evidence)} item(s)")
             for ev in context.evidence:
