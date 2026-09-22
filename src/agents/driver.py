@@ -499,7 +499,7 @@ class DriverAgent:
         if context.gps_trace:
             parts.append(f"- GPS trace: {len(context.gps_trace)} data points")
         if context.evidence:
-            parts.append(f"- Uploaded evidence: {len(context.evidence)} item(s)")
+            parts.append(f"- {len(context.evidence)} uploaded evidence item(s)")
         if not parts:
             parts.append("- No additional evidence available.")
         return "\n".join(parts)
