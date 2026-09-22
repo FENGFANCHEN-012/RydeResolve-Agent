@@ -61,7 +61,12 @@ def make_context(**overrides) -> DisputeContext:
             "disputed_amount": 3.7,
         },
         ratings={"rider_rating": 4.8, "driver_rating": 4.7},
-        chat_log=["Why are we going this way?", "Sorry, I missed the exit."],
+        chat_log=[
+            {"sender": "rider", "message": "Why are we going this way?",
+             "timestamp": "2026-09-21T10:12:00+08:00"},
+            {"sender": "driver", "message": "Sorry, I missed the exit.",
+             "timestamp": "2026-09-21T10:13:00+08:00"},
+        ],
         gps_trace=[
             {"timestamp": "2026-09-21T10:00:00+08:00",
              "latitude": 1.3098, "longitude": 103.7775},
@@ -159,7 +164,12 @@ async def test_route_deviation_evidence_in_prompt():
             "actual_distance_km": 10.4,
             "route_deviation_percent": 30.0,
         },
-        chat_log=["Why are we going this way?", "Sorry, I missed the exit."],
+        chat_log=[
+            {"sender": "rider", "message": "Why are we going this way?",
+             "timestamp": "2026-09-21T10:12:00+08:00"},
+            {"sender": "driver", "message": "Sorry, I missed the exit.",
+             "timestamp": "2026-09-21T10:13:00+08:00"},
+        ],
     )
     await agent.analyze(context)
 
@@ -197,7 +207,12 @@ async def test_no_show_evidence_in_prompt():
         description="The driver never arrived at the pickup point. I waited "
         "for 15 minutes and the driver did not show up.",
         trip={"estimated_distance_km": 0, "actual_distance_km": 0},
-        chat_log=["Are you coming?", "I've been waiting."],
+        chat_log=[
+            {"sender": "rider", "message": "Are you coming?",
+             "timestamp": "2026-09-21T09:00:00+08:00"},
+            {"sender": "rider", "message": "I've been waiting.",
+             "timestamp": "2026-09-21T09:05:00+08:00"},
+        ],
         gps_trace=[
             {"timestamp": "2026-09-21T09:00:00+08:00",
              "latitude": 1.2975, "longitude": 103.8535},
