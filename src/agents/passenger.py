@@ -202,8 +202,6 @@ class PassengerAgent:
             evidence.append("Payment details available")
         if context.trip:
             evidence.append("Trip details available")
-        if context.evidence:
-            evidence.append(f"{len(context.evidence)} uploaded evidence item(s) available")
 
         return {
             "stance": "Insufficient policy basis to fully evaluate the passenger's position.",
@@ -460,12 +458,6 @@ class PassengerAgent:
             parts.append(f"GPS trace: {json.dumps(context.gps_trace)}")
         else:
             parts.append("GPS trace: N/A")
-        if context.evidence:
-            parts.append(f"Uploaded evidence: {len(context.evidence)} item(s)")
-            for ev in context.evidence:
-                parts.append(f"  - [{ev.evidence_type}] {ev.description}")
-        else:
-            parts.append("Uploaded evidence: N/A")
 
         parts.append(f"\nRetrieved policy clauses (JSON):\n{json.dumps(clause_summaries, indent=2)}")
         parts.append("\nAnalyze from the passenger's perspective now. "
@@ -486,8 +478,6 @@ class PassengerAgent:
             parts.append(f"- Chat log: {json.dumps(context.chat_log)}")
         if context.gps_trace:
             parts.append(f"- GPS trace: {len(context.gps_trace)} data points")
-        if context.evidence:
-            parts.append(f"- Uploaded evidence: {len(context.evidence)} item(s)")
         if not parts:
             parts.append("- No additional evidence available.")
         return "\n".join(parts)
