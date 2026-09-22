@@ -451,7 +451,7 @@ class DriverAgent:
         else:
             parts.append("Payment details: N/A")
         if context.ratings:
-            parts.append(f"Ratings: {json.dumps(context.ratings)}")
+            parts.append(f"Ratings (background context only -- not proof of fault): {json.dumps(context.ratings)}")
         else:
             parts.append("Ratings: N/A")
         if context.chat_log:
@@ -462,16 +462,20 @@ class DriverAgent:
             parts.append(f"GPS trace: {json.dumps(context.gps_trace)}")
         else:
             parts.append("GPS trace: N/A")
-        if context.ratings:
-            parts.append(f"Ratings (background context only -- not proof of fault): {json.dumps(context.ratings)}")
         if context.rider_profile:
             parts.append(f"Rider profile (background context only -- not proof of fault):\n{json.dumps(context.rider_profile)}")
+        else:
+            parts.append("Rider profile: N/A")
         if context.driver_profile:
             parts.append(f"Driver profile (background context only -- not proof of fault):\n{json.dumps(context.driver_profile)}")
+        else:
+            parts.append("Driver profile: N/A")
         if context.evidence:
-            parts.append(f"Uploaded evidence: {len(context.evidence)} item(s)")
-            for ev in context.evidence:
-                parts.append(f"  - [{ev.evidence_type}] {ev.description}")
+            evidence_summaries = [
+                {"type": e.evidence_type, "description": e.description, "uploaded_by": e.uploaded_by}
+                for e in context.evidence
+            ]
+            parts.append(f"Uploaded evidence: {json.dumps(evidence_summaries)}")
         else:
             parts.append("Uploaded evidence: N/A")
 
