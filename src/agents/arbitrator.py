@@ -42,7 +42,7 @@ class ArbitrationAgent:
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision.
-
+        
         Confidence = w1 * evidence_strength + w2 * policy_alignment + w3 * agent_agreement
         """
         # TODO: Integrate Hunyuan LLM with arbitration prompt

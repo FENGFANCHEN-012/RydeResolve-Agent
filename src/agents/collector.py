@@ -42,8 +42,8 @@ class DisputeContext(BaseModel):
     trip: Optional[dict] = None
     payment: Optional[dict] = None
     ratings: Optional[dict] = None
-    chat_log: Optional[list] = None
-    gps_trace: Optional[list] = None
+    chat_log: Optional[list[dict]] = None
+    gps_trace: Optional[list[dict]] = None
     rider_profile: Optional[dict] = None
     driver_profile: Optional[dict] = None
     # Evidence
