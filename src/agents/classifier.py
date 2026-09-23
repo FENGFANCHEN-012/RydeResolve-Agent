@@ -7,6 +7,7 @@ uses Gemini LLM for accurate type/urgency classification.
 """
 import json
 import logging
+import re
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, field_validator
@@ -59,7 +60,9 @@ _P0_KEYWORDS: list[str] = [
 def _has_p0_keywords(text: str) -> tuple[bool, list[str]]:
     """Check if text contains any P0 safety keywords."""
     text_lower = text.lower()
-    matched = [kw for kw in _P0_KEYWORDS if kw in text_lower]
+    # Whole-word match only: plain substring matching flagged "issue" (sue),
+    # "stable" (stab), "begun" (gun) etc. as safety incidents.
+    matched = [kw for kw in _P0_KEYWORDS if re.search(rf"\b{re.escape(kw)}\b", text_lower)]
     return len(matched) > 0, matched
 
 
@@ -79,6 +82,8 @@ class ClassifierAgent:
         if self._llm is None:
             self._llm = LLMClient()
         return self._llm
+
+
 
     async def classify(self, context: DisputeContext) -> ClassificationResult:
         """
