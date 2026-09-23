@@ -14,3 +14,10 @@ frontend/dist/
 # ChromaDB local data
 chroma_data/
 chroma.sqlite3
+
+# Local scratch / logs
+uvicorn.log
+*.log
+_verify.txt
+docs/_verify_names.txt
+docs/_rewrite_section4.py
