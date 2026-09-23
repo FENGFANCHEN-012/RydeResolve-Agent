@@ -269,6 +269,22 @@ async def test_p0_overrides_normal_categories():
     assert result.requires_human is True
 
 
+# Ported from PR #3 (feature/classifier-agent)
+@pytest.mark.asyncio
+async def test_supplied_type_overridden_by_p0_safety():
+    """Even if context.type is pre-supplied, a P0 safety keyword overrides it."""
+    agent = ClassifierAgent()
+    ctx = make_context(
+        "There was an accident and the rider was injured.",
+        type=DisputeType.ROUTE_DEVIATION,  # supplied type, but P0 detected
+    )
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type == DisputeType.ACCIDENT
+    assert result.urgency == UrgencyLevel.P0
+    assert result.requires_human is True
+
+
 # ---------------------------------------------------------------------------
 # Unknown / Safe Fallback Tests
 # ---------------------------------------------------------------------------
