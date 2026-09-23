@@ -320,19 +320,53 @@ async def rag_ask(request: QARequest, advanced: bool = True):
     Flow: question → vector search → context assembly → LLM answer
     Set advanced=false to use basic retrieval (faster, less accurate).
     """
-    if advanced:
-        result = await advanced_rag_qa_engine.answer(
-            question=request.question,
-            top_k=request.top_k,
-            collection_name=request.collection_name,
+    try:
+        if advanced:
+            result = await advanced_rag_qa_engine.answer(
+                question=request.question,
+                top_k=request.top_k,
+                collection_name=request.collection_name,
+            )
+        else:
+            result = await rag_qa_engine.answer(
+                question=request.question,
+                top_k=request.top_k,
+                collection_name=request.collection_name,
+            )
+        return result
+    except Exception as e:
+        # Catch any LLM / Gemini / internal error and return a graceful error
+        # so the frontend gets a proper HTTP response (instead of an aborted connection).
+        import traceback as _tb
+        print(f"[rag_ask] EXCEPTION: {type(e).__name__}: {e}", flush=True)
+        print(_tb.format_exc(), flush=True)
+        err_type = type(e).__name__
+        err_msg = str(e) or repr(e)
+        # Detect Gemini quota errors specifically
+        is_quota = (
+            "quota" in err_msg.lower()
+            or "ResourceExhausted" in err_type
+            or "429" in err_msg
         )
-    else:
-        result = await rag_qa_engine.answer(
-            question=request.question,
-            top_k=request.top_k,
-            collection_name=request.collection_name,
+        if is_quota:
+            user_msg = (
+                "LLM API quota exceeded (Gemini free tier is 20 requests/day). "
+                "Please wait until tomorrow or switch to a paid API key in your .env (LLM_API_KEY)."
+            )
+        else:
+            user_msg = f"{err_type}: {err_msg[:300]}"
+        return JSONResponse(
+            status_code=500,
+            content={
+                "answer": user_msg,
+                "sources": [],
+                "question": request.question,
+                "confidence": 0.0,
+                "should_answer": False,
+                "error": user_msg,
+                "error_type": err_type,
+            },
         )
-    return result
 
 
 # ============================================================

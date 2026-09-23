@@ -32,6 +32,9 @@ class EvidenceItem(BaseModel):
     uploaded_by: str  # rider, driver
 
 
+
+# get the dispute context from ryde app as proof to support judgement 
+
 class DisputeContext(BaseModel):
     dispute_id: str
     type: Optional[DisputeType] = None
@@ -91,6 +94,8 @@ class CollectorAgent:
 
         # Step 1: Base context
         context = DisputeContext(
+            
+            # get the report id
             dispute_id=f"DRP-{order_id}",
             reporter=reporter,
             order_id=order_id,

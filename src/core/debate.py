@@ -58,7 +58,10 @@ class DebateEngine:
         # Debate rounds
         for round_num in range(1, self.max_rounds + 1):
             # Passenger rebuts driver's latest argument
-            driver_arg = history[-2]["content"] if isinstance(history[-2]["content"], str) else str(history[-2]["content"])
+            # Round 1: history[-1] is policy, so take the driver's initial analysis (-2).
+            # Later rounds: history[-1] is the driver's latest rebuttal.
+            last_driver = history[-2] if round_num == 1 else history[-1]
+            driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
             p_rebuttal = await self.passenger_agent.rebut(driver_arg, context)
             history.append({
                 "round": round_num,
