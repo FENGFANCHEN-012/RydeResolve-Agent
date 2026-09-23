@@ -1,10 +1,13 @@
 """
-Tests for ClassifierAgent — hybrid approach: fast P0 keyword scan + LLM classification.
+Tests for ClassifierAgent — hybrid approach: fast P0 keyword scan +
+deterministic keyword classification + optional LLM classification.
 
-P0 safety tests run offline without API keys.
-LLM-based tests require a valid GEMINI_API_KEY environment variable.
+All tests run offline without API keys, network, or ChromaDB.
+LLM-based tests use AsyncMock / fake injected LLM clients.
 """
+import json
 import sys
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -29,8 +32,39 @@ def make_context(description: str, **overrides) -> DisputeContext:
     return DisputeContext(**defaults)
 
 
+def make_mock_llm(response_text: str = "{}") -> AsyncMock:
+    """Create a mock LLM client whose chat_json returns the given text."""
+    llm = AsyncMock()
+    llm.chat_json = AsyncMock(return_value=response_text)
+    return llm
+
+
+def make_mock_llm_exception(exc: Exception = RuntimeError("API timeout")) -> AsyncMock:
+    """Create a mock LLM client whose chat_json raises an exception."""
+    llm = AsyncMock()
+    llm.chat_json = AsyncMock(side_effect=exc)
+    return llm
+
+
+def llm_response(
+    dispute_type: str | None = None,
+    urgency: str = "P2",
+    requires_human: bool = False,
+    confidence: float = 0.8,
+    reasoning: str = "LLM classification.",
+) -> str:
+    """Build a JSON LLM response string."""
+    return json.dumps({
+        "dispute_type": dispute_type,
+        "urgency": urgency,
+        "requires_human": requires_human,
+        "confidence": confidence,
+        "reasoning": reasoning,
+    })
+
+
 # ---------------------------------------------------------------------------
-# P0 Safety Keyword Tests (offline, no API key needed)
+# P0 Safety Keyword Tests (offline, no API key, no LLM)
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
@@ -80,12 +114,12 @@ async def test_p0_harassment_keyword():
 
 
 # ---------------------------------------------------------------------------
-# LLM-Based Classification Tests (require GEMINI_API_KEY)
+# Offline Keyword Classification Tests (no API key, no LLM)
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_llm_route_deviation():
-    """LLM should classify route deviation correctly."""
+async def test_keyword_route_deviation():
+    """Route deviation keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "The driver took a longer route and deviated from the GPS. "
@@ -94,14 +128,14 @@ async def test_llm_route_deviation():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.ROUTE_DEVIATION
-    assert result.urgency in (UrgencyLevel.P1, UrgencyLevel.P2)
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
     assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_no_show():
-    """LLM should classify no-show correctly."""
+async def test_keyword_no_show():
+    """No-show keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "The driver never showed up. I waited at the pickup for 15 minutes "
@@ -110,13 +144,14 @@ async def test_llm_no_show():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.NO_SHOW
-    assert result.urgency in (UrgencyLevel.P1, UrgencyLevel.P2)
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_fare_dispute():
-    """LLM should classify fare dispute correctly."""
+async def test_keyword_fare_dispute():
+    """Fare dispute keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "I was overcharged. The fare was S$25 but the app showed S$15 "
@@ -125,27 +160,31 @@ async def test_llm_fare_dispute():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.FARE
-    assert result.urgency in (UrgencyLevel.P1, UrgencyLevel.P2)
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_cancellation_refund():
-    """LLM should classify cancellation refund correctly."""
+async def test_keyword_cancellation_refund():
+    """Cancellation refund keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
-        "I cancelled the ride within 2 minutes but was still charged S$5. "
-        "The driver hadn't even been assigned yet. I want my refund."
+        "I cancelled the ride within 2 minutes but was still charged a "
+        "cancellation fee of S$5. The driver hadn't even been assigned yet. "
+        "I want my refund."
     )
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.CANCELLATION
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_service_quality():
-    """LLM should classify service quality correctly."""
+async def test_keyword_service_quality():
+    """Service quality keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "The driver was very rude and shouted at me. The car was dirty "
@@ -154,13 +193,14 @@ async def test_llm_service_quality():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.SERVICE_QUALITY
-    assert result.urgency in (UrgencyLevel.P1, UrgencyLevel.P2, UrgencyLevel.P3)
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_driver_rights():
-    """LLM should classify driver rights dispute correctly."""
+async def test_keyword_driver_rights():
+    """Driver rights keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "I am a driver and my account was wrongfully suspended. "
@@ -170,12 +210,14 @@ async def test_llm_driver_rights():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.DRIVER_RIGHTS
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 @pytest.mark.asyncio
-async def test_llm_delivery_dispute():
-    """LLM should classify delivery dispute correctly."""
+async def test_keyword_delivery():
+    """Delivery keywords classify correctly without LLM."""
     agent = ClassifierAgent()
     ctx = make_context(
         "My RydeSEND package was delivered to the wrong address. "
@@ -184,16 +226,36 @@ async def test_llm_delivery_dispute():
     result = await agent.classify(ctx)
 
     assert result.dispute_type == DisputeType.DELIVERY
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
+    assert result.confidence <= 0.80
+    assert result.requires_human is False
 
 
 # ---------------------------------------------------------------------------
-# Edge Cases
+# Keyword Priority Tests
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_p0_overrides_llm():
-    """Even if description sounds like another type, P0 keywords take priority."""
+async def test_no_show_priority_over_cancellation_refund():
+    """no_show should win over cancellation_refund when both match."""
+    agent = ClassifierAgent()
+    ctx = make_context(
+        "The driver never arrived at the pickup. I waited 15 minutes "
+        "and was charged a cancellation fee. I want a refund."
+    )
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type == DisputeType.NO_SHOW
+    assert result.confidence >= 0.65
+
+
+# ---------------------------------------------------------------------------
+# P0 Override Tests
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_p0_overrides_normal_categories():
+    """P0 safety keywords take priority over all other categories."""
     agent = ClassifierAgent()
     ctx = make_context(
         "The driver took a longer route AND then assaulted me. "
@@ -201,11 +263,32 @@ async def test_p0_overrides_llm():
     )
     result = await agent.classify(ctx)
 
-    # P0 safety check happens before LLM, so this should be ACCIDENT/P0
+    # P0 safety check happens before keyword classification
     assert result.dispute_type == DisputeType.ACCIDENT
     assert result.urgency == UrgencyLevel.P0
     assert result.requires_human is True
 
+
+# ---------------------------------------------------------------------------
+# Unknown / Safe Fallback Tests
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_unknown_input_safe_fallback():
+    """Unknown input with no keywords and no API key produces safe fallback."""
+    agent = ClassifierAgent()
+    ctx = make_context("something vague and unclear")
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type is None
+    assert result.urgency == UrgencyLevel.P3
+    assert result.confidence == 0.3
+    assert result.requires_human is True
+
+
+# ---------------------------------------------------------------------------
+# Confidence Range Tests
+# ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
 async def test_confidence_range():
@@ -245,12 +328,103 @@ async def test_confidence_range():
     assert clamped_low.confidence == 0.0
 
 
+# ---------------------------------------------------------------------------
+# Injected Mock LLM Tests
+# ---------------------------------------------------------------------------
+
 @pytest.mark.asyncio
-async def test_rich_context_improves_classification():
-    """Providing more context (trip, payment, chat) should help LLM classify better."""
+async def test_injected_llm_route_deviation():
+    """Injected mock LLM classifies route deviation correctly."""
+    llm = make_mock_llm(llm_response(
+        dispute_type="route_deviation",
+        urgency="P1",
+        confidence=0.85,
+        requires_human=False,
+    ))
+    agent = ClassifierAgent(llm_client=llm)
+    ctx = make_context("The driver took a weird route.")
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type == DisputeType.ROUTE_DEVIATION
+    assert result.urgency == UrgencyLevel.P1
+    assert result.confidence == 0.85
+    assert result.requires_human is False
+    llm.chat_json.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_injected_llm_invalid_json_falls_back():
+    """Invalid JSON from injected LLM produces safe fallback."""
+    llm = make_mock_llm("This is not JSON at all.")
+    agent = ClassifierAgent(llm_client=llm)
+    ctx = make_context("something ambiguous and unclear")
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type is None
+    assert result.urgency == UrgencyLevel.P3
+    assert result.confidence == 0.3
+    assert result.requires_human is True
+    assert "invalid JSON" in result.reasoning or "failed" in result.reasoning.lower()
+
+
+@pytest.mark.asyncio
+async def test_injected_llm_exception_falls_back():
+    """Exception from injected LLM produces safe fallback."""
+    llm = make_mock_llm_exception(RuntimeError("API timeout"))
+    agent = ClassifierAgent(llm_client=llm)
+    ctx = make_context("something ambiguous and unclear")
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type is None
+    assert result.urgency == UrgencyLevel.P3
+    assert result.confidence == 0.3
+    assert result.requires_human is True
+    assert "failed" in result.reasoning.lower() or "timeout" in result.reasoning.lower()
+
+
+# ---------------------------------------------------------------------------
+# Context Type Pre-Set Tests
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_context_type_preset_with_keyword_corroboration():
+    """When context.type is set and keywords agree, confidence is boosted."""
     agent = ClassifierAgent()
     ctx = make_context(
-        "The fare was wrong.",
+        "The driver took a longer route and I was overcharged.",
+        type=DisputeType.ROUTE_DEVIATION,
+    )
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type == DisputeType.ROUTE_DEVIATION
+    assert result.confidence >= 0.75
+    assert result.requires_human is False
+
+
+@pytest.mark.asyncio
+async def test_context_type_preset_without_keyword():
+    """When context.type is set but no keywords match, still trust it."""
+    agent = ClassifierAgent()
+    ctx = make_context(
+        "I have an issue with my trip.",
+        type=DisputeType.FARE,
+    )
+    result = await agent.classify(ctx)
+
+    assert result.dispute_type == DisputeType.FARE
+    assert result.confidence >= 0.65
+
+
+# ---------------------------------------------------------------------------
+# Rich Context Test
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_rich_context_keyword_classification():
+    """Rich context with trip and payment data should still classify via keywords."""
+    agent = ClassifierAgent()
+    ctx = make_context(
+        "The fare was wrong and I was overcharged.",
         trip={
             "pickup": "Orchard Road",
             "dropoff": "Changi Airport",
@@ -265,6 +439,5 @@ async def test_rich_context_improves_classification():
     )
     result = await agent.classify(ctx)
 
-    # With rich context, should still classify as fare dispute
     assert result.dispute_type == DisputeType.FARE
-    assert result.confidence > 0.5
+    assert result.confidence >= 0.65
