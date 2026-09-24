@@ -1,0 +1,146 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "CR-002",
+    "trip_id": "RYDE-DEMO-008",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I cancelled within a few minutes and the driver hadn't even arrived yet. Why do I have to pay $4.00? I want it refunded.",
+    "filed_at": "2026-09-20T15:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9021",
+    "name": "Farhan Iskandar",
+    "account_age_days": 200,
+    "total_trips": 45,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 1,
+    "fraud_flag_details": "flagged_for_frequent_cancellations_after_assignment",
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-1530",
+    "name": "Lim Hui Min",
+    "account_age_days": 980,
+    "total_trips": 5120,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Nissan Sylphy (SKX 1290 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-008",
+    "rider_id": "R-9021",
+    "driver_id": "D-1530",
+    "pickup_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3249,
+      "lng": 103.9291
+    },
+    "dropoff_location": {
+      "name": "East Coast Park (Carpark C2)",
+      "lat": 1.301,
+      "lng": 103.933
+    },
+    "scheduled_time": "2026-09-20T14:36:20+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-09-20T14:34:20+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled_after_assignment"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-20T14:31:00+08:00",
+      "lat": 1.333,
+      "lng": 103.939,
+      "speed_kmh": 40,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-20T14:33:00+08:00",
+      "lat": 1.33,
+      "lng": 103.935,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-20T14:34:20+08:00",
+      "lat": 1.328,
+      "lng": 103.932,
+      "speed_kmh": 30,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-20T14:31:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, on the way, see you in 5 minutes."
+    },
+    {
+      "timestamp": "2026-09-20T14:34:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry found a taxi already."
+    },
+    {
+      "timestamp": "2026-09-20T14:34:20+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider. Cancellation fee of $4.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-20T14:30:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9021 booked trip RYDE-DEMO-008 from Bedok Mall to East Coast Park."
+    },
+    {
+      "timestamp": "2026-09-20T14:30:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1530 (Lim Hui Min, Nissan Sylphy SKX 1290 G) assigned. ETA 6 min (14:36:20)."
+    },
+    {
+      "timestamp": "2026-09-20T14:30:30+08:00",
+      "event_type": "driver_en_route",
+      "details": "Driver started navigating to pickup location."
+    },
+    {
+      "timestamp": "2026-09-20T14:34:20+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled 4 min after driver assignment. Driver on schedule, 0.5 km from pickup, ETA 2 min."
+    },
+    {
+      "timestamp": "2026-09-20T14:34:25+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$4.00 cancellation fee charged to rider payment method (e-wallet)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 4.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation",
+    "free_cancellation_before_driver_assignment": true,
+    "no_fee_if_driver_delayed_beyond_eta_min": 10
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. The fee is valid under the cancellation policy."
+  }
+}

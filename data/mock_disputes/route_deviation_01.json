@@ -1,73 +1,172 @@
 {
-  "schema_version": "1.0",
-  "data_type": "synthetic_demo",
-  "dispute_id": "RD-001",
-  "dispute_type": "route_deviation",
-  "reporter": "rider",
-  "order_id": "RYDE-DEMO-001",
-  "description": "The driver missed an exit and took a longer route, causing a higher fare.",
-  "trip": {
-    "pickup_name": "Singapore Polytechnic",
-    "dropoff_name": "Orchard Road",
+  "dispute_ticket": {
+    "dispute_id": "RD-001",
+    "trip_id": "RYDE-DEMO-001",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "My driver missed the exit on the AYE and drove the wrong way before turning back. The trip took 27 minutes instead of 18 and I was charged $18.20 instead of the $14.50 quoted. I want the extra $3.70 refunded.",
+    "filed_at": "2026-09-21T11:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5102",
+    "name": "Priya Nair",
+    "account_age_days": 540,
+    "total_trips": 212,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3310",
+    "name": "Tan Kok Leong",
+    "account_age_days": 780,
+    "total_trips": 4120,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SLK 7734 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-001",
+    "rider_id": "R-5102",
+    "driver_id": "D-3310",
+    "pickup_location": {
+      "name": "Singapore Polytechnic",
+      "lat": 1.3099,
+      "lng": 103.7775
+    },
+    "dropoff_location": {
+      "name": "Orchard Road (ION Orchard)",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-09-21T10:00:00+08:00",
+    "pickup_time": "2026-09-21T10:00:00+08:00",
+    "dropoff_time": "2026-09-21T10:27:00+08:00",
     "estimated_distance_km": 8.2,
     "actual_distance_km": 10.4,
     "estimated_duration_min": 18,
     "actual_duration_min": 27,
     "route_deviation_percent": 26.8,
+    "estimated_fare": 14.5,
+    "total_fare": 18.2,
     "driver_reported_reason": "Missed the correct exit"
   },
-  "payment": {
-    "currency": "SGD",
-    "estimated_fare": 14.5,
-    "charged_fare": 18.2,
-    "disputed_amount": 3.7
-  },
-  "chat_log": [
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-21T10:00:00+08:00",
+      "lat": 1.3099,
+      "lng": 103.7775,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:05:00+08:00",
+      "lat": 1.307,
+      "lng": 103.79,
+      "speed_kmh": 62,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:10:00+08:00",
+      "lat": 1.3188,
+      "lng": 103.8057,
+      "speed_kmh": 55,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:14:00+08:00",
+      "lat": 1.315,
+      "lng": 103.812,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:20:00+08:00",
+      "lat": 1.308,
+      "lng": 103.823,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:27:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
     {
       "timestamp": "2026-09-21T10:12:00+08:00",
       "sender": "rider",
-      "message": "Why are we going in the opposite direction?"
+      "type": "message",
+      "content": "Why are we going in the opposite direction?"
     },
     {
       "timestamp": "2026-09-21T10:13:00+08:00",
       "sender": "driver",
-      "message": "Sorry, I missed the exit. I will turn back."
+      "type": "message",
+      "content": "Sorry, I missed the exit. I will turn back."
     }
   ],
-  "gps_trace": [
+  "app_events": [
+    {
+      "timestamp": "2026-09-21T09:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5102 booked trip RYDE-DEMO-001 from Singapore Polytechnic to ION Orchard. Upfront fare estimate S$14.50, 8.2 km, 18 min."
+    },
+    {
+      "timestamp": "2026-09-21T09:52:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3310 (Tan Kok Leong, Toyota Prius SLK 7734 C) assigned."
+    },
     {
       "timestamp": "2026-09-21T10:00:00+08:00",
-      "latitude": 1.3098,
-      "longitude": 103.7775
+      "event_type": "trip_started",
+      "details": "Rider picked up. Navigation route: AYE eastbound, exit to Alexandra Rd."
     },
     {
-      "timestamp": "2026-09-21T10:10:00+08:00",
-      "latitude": 1.3188,
-      "longitude": 103.8057
+      "timestamp": "2026-09-21T10:08:00+08:00",
+      "event_type": "route_deviation_alert",
+      "details": "Vehicle passed the recommended exit and continued off the planned route. No road incidents reported on the planned route."
     },
     {
-      "timestamp": "2026-09-21T10:20:00+08:00",
-      "latitude": 1.3048,
-      "longitude": 103.8318
+      "timestamp": "2026-09-21T10:14:00+08:00",
+      "event_type": "route_recalculated",
+      "details": "Route recalculated after U-turn. New ETA 10:27."
+    },
+    {
+      "timestamp": "2026-09-21T10:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 10.4 km (planned 8.2 km, +26.8%). Duration 27 min."
+    },
+    {
+      "timestamp": "2026-09-21T10:27:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$18.20 charged to credit card (estimate S$14.50)."
     }
   ],
-  "behavior_profiles": {
-    "rider": {
-      "account_age_months": 18,
-      "rating": 4.8,
-      "previous_disputes": 0
-    },
-    "driver": {
-      "account_age_months": 26,
-      "rating": 4.7,
-      "previous_route_disputes": 1
-    }
+  "platform_policy": {
+    "refund_at_ryde_discretion": true,
+    "rider_route_requests_must_be_agreed_before_trip": true
   },
   "expected_outcome": {
     "verdict": "upheld",
     "recommended_action": "refund",
     "refund_amount": 3.7,
     "requires_human_review": false,
-    "reason": "The route was substantially longer because the driver missed an exit, and the chat log confirms the mistake."
+    "reason": "GPS and the route_deviation_alert show the driver missed the exit with no road incident on the planned route, and the driver admitted it in chat. The extra S$3.70 over the estimate is the driver's fault."
   }
 }

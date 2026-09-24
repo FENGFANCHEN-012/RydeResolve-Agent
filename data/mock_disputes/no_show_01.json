@@ -1,83 +1,180 @@
 {
-  "schema_version": "1.0",
-  "data_type": "synthetic_demo",
-  "dispute_id": "NS-001",
-  "dispute_type": "no_show",
-  "reporter": "rider",
-  "order_id": "RYDE-DEMO-003",
-  "description": "The rider was present at the pickup point but the driver never arrived. The rider was charged a SGD 8 cancellation fee despite not being at fault.",
-  "trip": {
-    "pickup_name": "Bugis Junction",
-    "dropoff_name": "Marina Bay Sands",
-    "estimated_distance_km": 3.1,
-    "actual_distance_km": 0.0,
-    "estimated_duration_min": 7,
-    "actual_duration_min": 0,
-    "route_deviation_percent": 0.0,
-    "driver_reported_reason": "Driver claimed the rider was a no-show"
+  "dispute_ticket": {
+    "dispute_id": "NS-001",
+    "trip_id": "RYDE-DEMO-003",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was waiting at the main entrance of Bugis Junction from before 9am. The driver never came and didn't answer my call, then cancelled saying I was a no-show. I was charged an $8.00 cancellation fee even though I was there the whole time. Please refund it.",
+    "filed_at": "2026-09-21T09:30:00+08:00",
+    "status": "open"
   },
-  "payment": {
-    "currency": "SGD",
-    "estimated_fare": 8.0,
-    "charged_fare": 8.0,
-    "disputed_amount": 8.0
+  "rider_profile": {
+    "rider_id": "R-4410",
+    "name": "Chloe Tan",
+    "account_age_days": 270,
+    "total_trips": 96,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
   },
-  "chat_log": [
+  "driver_profile": {
+    "driver_id": "D-5521",
+    "name": "Ravi Kumar",
+    "account_age_days": 150,
+    "total_trips": 610,
+    "avg_rating": 4.1,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Niro (SNG 9012 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-003",
+    "rider_id": "R-4410",
+    "driver_id": "D-5521",
+    "pickup_location": {
+      "name": "Bugis Junction (main entrance)",
+      "lat": 1.2993,
+      "lng": 103.8555
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-09-21T09:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-09-21T09:12:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
     {
-      "timestamp": "2026-09-21T09:05:00+08:00",
-      "sender": "rider",
-      "message": "Hi, I'm at the pickup point at Bugis Junction, near the main entrance."
+      "timestamp": "2026-09-21T08:53:00+08:00",
+      "lat": 1.3072,
+      "lng": 103.863,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-21T08:58:00+08:00",
+      "lat": 1.3101,
+      "lng": 103.8665,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-21T09:03:00+08:00",
+      "lat": 1.3105,
+      "lng": 103.867,
+      "speed_kmh": 0,
+      "status": "en_route"
     },
     {
       "timestamp": "2026-09-21T09:08:00+08:00",
-      "sender": "rider",
-      "message": "Are you coming? I've been waiting for a while."
+      "lat": 1.3104,
+      "lng": 103.8669,
+      "speed_kmh": 0,
+      "status": "en_route"
     },
     {
       "timestamp": "2026-09-21T09:12:00+08:00",
-      "sender": "rider",
-      "message": "I've tried calling but no response. Please let me know what's happening."
+      "lat": 1.3104,
+      "lng": 103.8669,
+      "speed_kmh": 0,
+      "status": "cancelled"
     }
   ],
-  "gps_trace": [
+  "chat_logs": [
     {
-      "timestamp": "2026-09-21T09:00:00+08:00",
-      "latitude": 1.2975,
-      "longitude": 103.8535
+      "timestamp": "2026-09-21T09:01:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi, I'm at the pickup point at Bugis Junction, near the main entrance."
     },
     {
       "timestamp": "2026-09-21T09:05:00+08:00",
-      "latitude": 1.2973,
-      "longitude": 103.8537
+      "sender": "rider",
+      "type": "call",
+      "content": "Outgoing call to driver — not answered (rang 30s, no response)."
+    },
+    {
+      "timestamp": "2026-09-21T09:06:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Are you coming? I've been waiting for a while."
     },
     {
       "timestamp": "2026-09-21T09:10:00+08:00",
-      "latitude": 1.2974,
-      "longitude": 103.8536
+      "sender": "rider",
+      "type": "message",
+      "content": "I've tried calling but no response. Please let me know what's happening."
     },
     {
-      "timestamp": "2026-09-21T09:15:00+08:00",
-      "latitude": 1.2972,
-      "longitude": 103.8535
+      "timestamp": "2026-09-21T09:12:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $8.00 applied."
     }
   ],
-  "behavior_profiles": {
-    "rider": {
-      "account_age_months": 9,
-      "rating": 4.9,
-      "previous_disputes": 0
+  "app_events": [
+    {
+      "timestamp": "2026-09-21T08:51:40+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-4410 booked trip RYDE-DEMO-003 from Bugis Junction to Marina Bay Sands. Pickup 09:00."
     },
-    "driver": {
-      "account_age_months": 5,
-      "rating": 4.1,
-      "previous_route_disputes": 0
+    {
+      "timestamp": "2026-09-21T08:52:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-5521 (Ravi Kumar, Kia Niro SNG 9012 K) assigned. ETA 8 min."
+    },
+    {
+      "timestamp": "2026-09-21T08:52:10+08:00",
+      "event_type": "driver_en_route",
+      "details": "Driver started navigating to pickup location. Live tracking enabled."
+    },
+    {
+      "timestamp": "2026-09-21T09:00:00+08:00",
+      "event_type": "eta_updated",
+      "details": "ETA recalculated: driver 1.8 km from pickup and stationary since 08:58."
+    },
+    {
+      "timestamp": "2026-09-21T09:05:00+08:00",
+      "event_type": "rider_called_driver",
+      "details": "Rider initiated in-app call to driver. Call rang 30s, no answer."
+    },
+    {
+      "timestamp": "2026-09-21T09:12:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show. Driver GPS 1.8 km from pickup. No driver_arrived event recorded for this trip."
+    },
+    {
+      "timestamp": "2026-09-21T09:12:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$8.00 cancellation fee charged to rider payment method (credit card)."
     }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 8.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
   },
   "expected_outcome": {
     "verdict": "upheld",
     "recommended_action": "full_refund",
     "refund_amount": 8.0,
     "requires_human_review": false,
-    "reason": "Rider GPS and timestamps confirm the rider was present at the pickup point throughout. Driver GPS shows the driver never arrived. The rider attempted to contact the driver with no response. The SGD 8 cancellation charge is unjustified."
+    "reason": "Driver GPS never came within 1.8 km of the pickup and there is no driver_arrived event, so the no-show condition (driver arrived and waited) was never met. The rider messaged and called the driver. The S$8.00 fee is unjustified."
   }
 }
