@@ -1,0 +1,176 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SI-001",
+    "trip_id": "RYDE-DEMO-010",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "During the trip the driver kept commenting on my body and asked if I had a boyfriend. After dropping me off he kept messaging me in the app and said he knows where I stay. I feel unsafe going home. This is harassment.",
+    "filed_at": "2026-09-14T23:58:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5530",
+    "name": "Nur Aisyah",
+    "account_age_days": 400,
+    "total_trips": 180,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9102",
+    "name": "Koh Beng Chye",
+    "account_age_days": 300,
+    "total_trips": 1400,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SMH 2231 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-010",
+    "rider_id": "R-5530",
+    "driver_id": "D-9102",
+    "pickup_location": {
+      "name": "Clarke Quay",
+      "lat": 1.2906,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Punggol (Blk 268C)",
+      "lat": 1.4043,
+      "lng": 103.9022
+    },
+    "scheduled_time": "2026-09-14T23:05:00+08:00",
+    "pickup_time": "2026-09-14T23:05:00+08:00",
+    "dropoff_time": "2026-09-14T23:35:00+08:00",
+    "estimated_distance_km": 18.6,
+    "actual_distance_km": 18.9,
+    "estimated_duration_min": 29,
+    "actual_duration_min": 30,
+    "estimated_fare": 24.8,
+    "total_fare": 24.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-14T23:05:00+08:00",
+      "lat": 1.2906,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T23:15:00+08:00",
+      "lat": 1.33,
+      "lng": 103.87,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T23:25:00+08:00",
+      "lat": 1.375,
+      "lng": 103.895,
+      "speed_kmh": 65,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-14T23:35:00+08:00",
+      "lat": 1.4043,
+      "lng": 103.9022,
+      "speed_kmh": 0,
+      "status": "completed"
+    },
+    {
+      "timestamp": "2026-09-14T23:44:00+08:00",
+      "lat": 1.404,
+      "lng": 103.9018,
+      "speed_kmh": 0,
+      "status": "offline_idle"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-14T23:41:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You look very nice tonight. Can I get your number?"
+    },
+    {
+      "timestamp": "2026-09-14T23:44:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Why you never reply? I know where you stay already haha"
+    },
+    {
+      "timestamp": "2026-09-14T23:52:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Next time I fetch you again ok"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-14T22:59:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5530 booked trip RYDE-DEMO-010 from Clarke Quay to Punggol."
+    },
+    {
+      "timestamp": "2026-09-14T22:59:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-9102 (Koh Beng Chye, Mazda 3 SMH 2231 P) assigned."
+    },
+    {
+      "timestamp": "2026-09-14T23:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-09-14T23:35:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at Punggol Blk 268C."
+    },
+    {
+      "timestamp": "2026-09-14T23:41:00+08:00",
+      "event_type": "post_trip_message_sent",
+      "details": "Driver sent in-app message to rider 6 min after trip completion."
+    },
+    {
+      "timestamp": "2026-09-14T23:44:00+08:00",
+      "event_type": "post_trip_message_sent",
+      "details": "Driver sent in-app message to rider 9 min after trip completion. Driver vehicle stationary 40 m from drop-off point."
+    },
+    {
+      "timestamp": "2026-09-14T23:52:00+08:00",
+      "event_type": "post_trip_message_sent",
+      "details": "Driver sent in-app message to rider 17 min after trip completion."
+    },
+    {
+      "timestamp": "2026-09-14T23:58:00+08:00",
+      "event_type": "rider_reported_safety",
+      "details": "Rider used 'Report a safety issue' for this trip."
+    }
+  ],
+  "platform_policy": {
+    "p0_response": "immediate_human_review",
+    "driver_may_be_suspended_pending_investigation": true,
+    "contacting_passenger_after_trip_prohibited": true
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "recommended_action": "escalate_to_human_p0_suspend_driver_pending_investigation",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "Sexual comments plus repeated post-trip messages stating the driver knows where the rider lives, while parked near the drop-off, is a P0 safety incident (harassment and possible stalking). It must go straight to human review, not automated arbitration; the driver should be suspended pending investigation and the rider advised on a police report.",
+    "priority": "P0"
+  }
+}

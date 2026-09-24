@@ -1,88 +1,171 @@
 {
-  "schema_version": "1.0",
-  "data_type": "synthetic_demo",
-  "dispute_id": "RD-002",
-  "dispute_type": "route_deviation",
-  "reporter": "rider",
-  "order_id": "RYDE-DEMO-002",
-  "description": "The driver took a longer route due to a road closure. The rider disputes the higher fare despite being informed in advance.",
-  "trip": {
-    "pickup_name": "Tampines Mall",
-    "dropoff_name": "Changi Airport Terminal 2",
+  "dispute_ticket": {
+    "dispute_id": "RD-002",
+    "trip_id": "RYDE-DEMO-002",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a longer way to the airport and I paid $20.10 instead of the $17.00 estimate. I don't think I should pay for the detour.",
+    "filed_at": "2026-09-21T15:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6614",
+    "name": "Daniel Lee",
+    "account_age_days": 360,
+    "total_trips": 88,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-1187",
+    "name": "Muhammad Faizal",
+    "account_age_days": 1020,
+    "total_trips": 5630,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMB 2280 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-002",
+    "rider_id": "R-6614",
+    "driver_id": "D-1187",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3526,
+      "lng": 103.9447
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 2",
+      "lat": 1.3554,
+      "lng": 103.9884
+    },
+    "scheduled_time": "2026-09-21T14:00:00+08:00",
+    "pickup_time": "2026-09-21T14:00:00+08:00",
+    "dropoff_time": "2026-09-21T14:28:00+08:00",
     "estimated_distance_km": 10.5,
     "actual_distance_km": 12.4,
     "estimated_duration_min": 22,
     "actual_duration_min": 28,
     "route_deviation_percent": 18.1,
+    "estimated_fare": 17.0,
+    "total_fare": 20.1,
     "driver_reported_reason": "Verified road closure on the planned route; detour taken after informing the rider"
   },
-  "payment": {
-    "currency": "SGD",
-    "estimated_fare": 17.0,
-    "charged_fare": 20.1,
-    "disputed_amount": 3.1
-  },
-  "chat_log": [
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-21T14:00:00+08:00",
+      "lat": 1.3526,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T14:05:00+08:00",
+      "lat": 1.3551,
+      "lng": 103.9512,
+      "speed_kmh": 38,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T14:10:00+08:00",
+      "lat": 1.3618,
+      "lng": 103.9635,
+      "speed_kmh": 44,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T14:20:00+08:00",
+      "lat": 1.3664,
+      "lng": 103.9772,
+      "speed_kmh": 50,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T14:28:00+08:00",
+      "lat": 1.3554,
+      "lng": 103.9884,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
     {
       "timestamp": "2026-09-21T14:05:00+08:00",
       "sender": "driver",
-      "message": "There's a road closure ahead on the usual route. I'll take a detour through Upper Changi Road. It'll be a bit longer but it's the fastest alternative."
+      "type": "message",
+      "content": "There's a road closure ahead on the usual route. I'll take a detour through Upper Changi Road. It'll be a bit longer but it's the fastest alternative."
     },
     {
       "timestamp": "2026-09-21T14:06:00+08:00",
       "sender": "rider",
-      "message": "OK, go ahead if there's no other way."
+      "type": "message",
+      "content": "OK, go ahead if there's no other way."
     },
     {
       "timestamp": "2026-09-21T14:07:00+08:00",
       "sender": "driver",
-      "message": "Thanks, I'll keep you updated. The detour should add about 6 minutes."
+      "type": "message",
+      "content": "Thanks, I'll keep you updated. The detour should add about 6 minutes."
     }
   ],
-  "gps_trace": [
+  "app_events": [
+    {
+      "timestamp": "2026-09-21T13:54:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6614 booked trip RYDE-DEMO-002 from Tampines Mall to Changi Airport T2. Upfront fare estimate S$17.00."
+    },
+    {
+      "timestamp": "2026-09-21T13:54:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1187 (Muhammad Faizal, Hyundai Ioniq SMB 2280 T) assigned."
+    },
     {
       "timestamp": "2026-09-21T14:00:00+08:00",
-      "latitude": 1.3526,
-      "longitude": 103.9444
+      "event_type": "trip_started",
+      "details": "Rider picked up."
     },
     {
-      "timestamp": "2026-09-21T14:05:00+08:00",
-      "latitude": 1.3551,
-      "longitude": 103.9512
+      "timestamp": "2026-09-21T14:04:00+08:00",
+      "event_type": "traffic_incident_alert",
+      "details": "Traffic feed: road closure on the planned route (Airport Blvd slip road) due to emergency road works."
     },
     {
-      "timestamp": "2026-09-21T14:10:00+08:00",
-      "latitude": 1.3618,
-      "longitude": 103.9635
-    },
-    {
-      "timestamp": "2026-09-21T14:20:00+08:00",
-      "latitude": 1.3664,
-      "longitude": 103.9772
+      "timestamp": "2026-09-21T14:05:30+08:00",
+      "event_type": "route_recalculated",
+      "details": "Route recalculated around closure via Upper Changi Road. Added ~1.9 km / ~6 min."
     },
     {
       "timestamp": "2026-09-21T14:28:00+08:00",
-      "latitude": 1.3602,
-      "longitude": 103.9896
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 12.4 km (planned 10.5 km, +18.1%)."
+    },
+    {
+      "timestamp": "2026-09-21T14:28:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$20.10 charged to credit card (estimate S$17.00)."
     }
   ],
-  "behavior_profiles": {
-    "rider": {
-      "account_age_months": 12,
-      "rating": 4.6,
-      "previous_disputes": 0
-    },
-    "driver": {
-      "account_age_months": 34,
-      "rating": 4.9,
-      "previous_route_disputes": 0
-    }
+  "platform_policy": {
+    "refund_at_ryde_discretion": true,
+    "rider_route_requests_must_be_agreed_before_trip": true
   },
   "expected_outcome": {
     "verdict": "dismissed",
     "recommended_action": "no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "The driver informed the rider via chat before the detour, GPS timestamps confirm the road closure detour, and the deviation was caused by verified road conditions outside the driver's control."
+    "reason": "A road closure on the planned route is confirmed by the traffic alert and GPS. The driver explained the detour in chat before taking it and the rider agreed. The extra fare comes from road conditions outside the driver's control."
   }
 }

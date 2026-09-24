@@ -1,83 +1,203 @@
 {
-  "schema_version": "1.0",
-  "data_type": "synthetic_demo",
-  "dispute_id": "NS-002",
-  "dispute_type": "no_show",
-  "reporter": "rider",
-  "order_id": "RYDE-DEMO-004",
-  "description": "The driver arrived at the pickup point and waited for 7 minutes. The rider did not appear or respond to messages. A SGD 8 cancellation charge was applied and the rider disputes it.",
-  "trip": {
-    "pickup_name": "NEX Shopping Mall",
-    "dropoff_name": "Singapore Expo",
-    "estimated_distance_km": 6.8,
-    "actual_distance_km": 0.0,
-    "estimated_duration_min": 15,
-    "actual_duration_min": 0,
-    "route_deviation_percent": 0.0,
-    "driver_reported_reason": "Rider was a no-show; driver waited 7 minutes and cancelled"
+  "dispute_ticket": {
+    "dispute_id": "NS-002",
+    "trip_id": "RYDE-DEMO-004",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was only a few minutes late coming down from the food court and by the time I reached the taxi stand the driver had already cancelled. I was charged $8.00 which is unfair because I was on my way.",
+    "filed_at": "2026-09-21T18:40:00+08:00",
+    "status": "open"
   },
-  "payment": {
-    "currency": "SGD",
-    "estimated_fare": 8.0,
-    "charged_fare": 8.0,
-    "disputed_amount": 8.0
+  "rider_profile": {
+    "rider_id": "R-8830",
+    "name": "Jason Ong",
+    "account_age_days": 90,
+    "total_trips": 14,
+    "avg_rating": 3.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e-wallet"
   },
-  "chat_log": [
+  "driver_profile": {
+    "driver_id": "D-2045",
+    "name": "Goh Siew Ling",
+    "account_age_days": 660,
+    "total_trips": 3890,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SKP 6617 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-004",
+    "rider_id": "R-8830",
+    "driver_id": "D-2045",
+    "pickup_location": {
+      "name": "NEX Shopping Mall (taxi stand)",
+      "lat": 1.3507,
+      "lng": 103.8722
+    },
+    "dropoff_location": {
+      "name": "Singapore Expo",
+      "lat": 1.335,
+      "lng": 103.961
+    },
+    "scheduled_time": "2026-09-21T18:00:00+08:00",
+    "driver_arrival_time": "2026-09-21T17:59:00+08:00",
+    "driver_wait_start": "2026-09-21T17:59:00+08:00",
+    "cancellation_time": "2026-09-21T18:07:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-21T17:52:00+08:00",
+      "lat": 1.356,
+      "lng": 103.879,
+      "speed_kmh": 40,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-21T17:56:00+08:00",
+      "lat": 1.353,
+      "lng": 103.875,
+      "speed_kmh": 22,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-21T17:59:00+08:00",
+      "lat": 1.3507,
+      "lng": 103.8722,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-09-21T18:02:00+08:00",
+      "lat": 1.3507,
+      "lng": 103.8722,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-21T18:05:00+08:00",
+      "lat": 1.3507,
+      "lng": 103.8722,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-09-21T18:07:00+08:00",
+      "lat": 1.3507,
+      "lng": 103.8722,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
     {
       "timestamp": "2026-09-21T18:00:00+08:00",
       "sender": "driver",
-      "message": "Hi, I've arrived at NEX Shopping Mall. I'm at the pickup point near the taxi stand."
+      "type": "message",
+      "content": "Hi, I've arrived at NEX Shopping Mall. I'm at the pickup point near the taxi stand."
     },
     {
       "timestamp": "2026-09-21T18:03:00+08:00",
       "sender": "driver",
-      "message": "I'm still waiting at the pickup point. Please come when you're ready."
+      "type": "message",
+      "content": "I'm still waiting at the pickup point. Please come when you're ready."
     },
     {
-      "timestamp": "2026-09-21T18:07:00+08:00",
+      "timestamp": "2026-09-21T18:05:00+08:00",
       "sender": "driver",
-      "message": "I've waited 7 minutes and you haven't arrived. I'll have to cancel the trip and a cancellation fee will apply."
-    }
-  ],
-  "gps_trace": [
-    {
-      "timestamp": "2026-09-21T17:58:00+08:00",
-      "latitude": 1.3509,
-      "longitude": 103.9365
+      "type": "call",
+      "content": "Outgoing call to rider — not answered (rang 25s, no response)."
     },
     {
-      "timestamp": "2026-09-21T18:00:00+08:00",
-      "latitude": 1.3511,
-      "longitude": 103.9370
-    },
-    {
-      "timestamp": "2026-09-21T18:03:00+08:00",
-      "latitude": 1.3510,
-      "longitude": 103.9371
+      "timestamp": "2026-09-21T18:06:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I've waited 7 minutes and you haven't arrived. I'll have to cancel the trip and a cancellation fee will apply."
     },
     {
       "timestamp": "2026-09-21T18:07:00+08:00",
-      "latitude": 1.3511,
-      "longitude": 103.9369
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $8.00 applied."
+    },
+    {
+      "timestamp": "2026-09-21T18:10:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the taxi stand now, where are you?"
     }
   ],
-  "behavior_profiles": {
-    "rider": {
-      "account_age_months": 3,
-      "rating": 3.8,
-      "previous_disputes": 1
+  "app_events": [
+    {
+      "timestamp": "2026-09-21T17:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8830 booked trip RYDE-DEMO-004 from NEX to Singapore Expo. Pickup 18:00."
     },
-    "driver": {
-      "account_age_months": 22,
-      "rating": 4.8,
-      "previous_route_disputes": 0
+    {
+      "timestamp": "2026-09-21T17:50:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2045 (Goh Siew Ling, Toyota Corolla Altis SKP 6617 H) assigned. ETA 9 min."
+    },
+    {
+      "timestamp": "2026-09-21T17:59:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point. Speed 0 km/h. Auto-arrival confirmed."
+    },
+    {
+      "timestamp": "2026-09-21T17:59:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-09-21T17:59:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Free wait timer started. 5 min free wait period ends at 18:04."
+    },
+    {
+      "timestamp": "2026-09-21T18:04:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 5-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-09-21T18:05:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Call rang 25s, no answer."
+    },
+    {
+      "timestamp": "2026-09-21T18:07:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "No-show threshold (8 min) reached. $8.00 cancellation fee charged to rider payment method (e-wallet)."
+    },
+    {
+      "timestamp": "2026-09-21T18:07:05+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-2045 released from trip. Trip status: cancelled (rider_no_show)."
     }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 8.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
   },
   "expected_outcome": {
     "verdict": "dismissed",
     "recommended_action": "cancellation_charge_upheld_no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "Driver GPS confirms the driver arrived at the pickup point and remained stationary for 7 minutes. The driver sent two messages to the rider who neither appeared nor responded. The SGD 8 cancellation charge is justified."
+    "reason": "Driver GPS and the driver_arrived event show the driver at the pickup from 17:59 to 18:07 (8 min, meeting the no-show threshold). The driver messaged twice and called; the rider only replied at 18:10, after the cancellation. The S$8.00 charge is justified."
   }
 }

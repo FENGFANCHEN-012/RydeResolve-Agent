@@ -1,0 +1,149 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "CF-001",
+    "trip_id": "RYDE-DEMO-012",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged a $150 cleaning fee for a stain on the back seat. I didn't eat or drink anything in the car and the stain was already there when I got in. Please remove this charge.",
+    "filed_at": "2026-09-16T08:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3372",
+    "name": "Benjamin Teo",
+    "account_age_days": 950,
+    "total_trips": 460,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4190",
+    "name": "Sim Kah Wee",
+    "account_age_days": 500,
+    "total_trips": 2300,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLB 9905 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-012",
+    "rider_id": "R-3372",
+    "driver_id": "D-4190",
+    "pickup_location": {
+      "name": "Novena Square",
+      "lat": 1.32,
+      "lng": 103.8437
+    },
+    "dropoff_location": {
+      "name": "Great World",
+      "lat": 1.2934,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-09-15T15:20:00+08:00",
+    "pickup_time": "2026-09-15T15:20:00+08:00",
+    "dropoff_time": "2026-09-15T15:36:00+08:00",
+    "estimated_distance_km": 5.1,
+    "actual_distance_km": 5.2,
+    "estimated_duration_min": 15,
+    "actual_duration_min": 16,
+    "estimated_fare": 11.8,
+    "total_fare": 11.8,
+    "cleaning_fee": 150.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-15T15:20:00+08:00",
+      "lat": 1.32,
+      "lng": 103.8437,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-15T15:28:00+08:00",
+      "lat": 1.306,
+      "lng": 103.838,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-15T15:36:00+08:00",
+      "lat": 1.2934,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-15T15:17:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arriving in 2 min, white Vezel."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-15T15:12:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-3372 booked trip RYDE-DEMO-012 from Novena Square to Great World."
+    },
+    {
+      "timestamp": "2026-09-15T15:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-09-15T15:36:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-09-15T16:10:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$150.00 with 2 photos of a brown stain on the rear seat. Photo metadata timestamps: 2026-09-15 11:02 and 11:03 (before this trip started at 15:20)."
+    },
+    {
+      "timestamp": "2026-09-15T16:10:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning company receipt attached."
+    },
+    {
+      "timestamp": "2026-09-15T16:30:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$150.00 cleaning fee auto-charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": 200.0,
+    "cleaning_claim_evidence_required": [
+      "timestamped photos",
+      "cleaning company receipt with name, contact, address and date"
+    ],
+    "rider_may_dispute_if": [
+      "damage pre-existing",
+      "wrong timestamp",
+      "disproportionate amount",
+      "caused by previous rider"
+    ]
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "waive_cleaning_fee_full_refund",
+    "refund_amount": 150.0,
+    "requires_human_review": false,
+    "reason": "Both photos were taken at 11:02-11:03, more than four hours before this trip started, so the stain was pre-existing. No cleaning receipt was provided. The claim fails the evidence requirements and the S$150 fee should be refunded.",
+    "driver_penalty": "review_driver_for_invalid_claim"
+  }
+}

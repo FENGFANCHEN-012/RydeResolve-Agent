@@ -1,0 +1,183 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DR-001",
+    "trip_id": "RYDE-DEMO-011",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "My passenger vomited on the back seat and floor mat. I stopped the car for her during the trip. I submitted photos right after the trip and the receipt from the car detailing shop ($120) the next day, but I still have not received any cleaning compensation.",
+    "filed_at": "2026-09-16T10:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4786",
+    "name": "Melissa Chua",
+    "account_age_days": 150,
+    "total_trips": 62,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2267",
+    "name": "Yusof Hamid",
+    "account_age_days": 1400,
+    "total_trips": 7300,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Cross (SMJ 6613 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-011",
+    "rider_id": "R-4786",
+    "driver_id": "D-2267",
+    "pickup_location": {
+      "name": "Club Street",
+      "lat": 1.2812,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Bukit Batok (Blk 150)",
+      "lat": 1.349,
+      "lng": 103.7495
+    },
+    "scheduled_time": "2026-09-13T00:55:00+08:00",
+    "pickup_time": "2026-09-13T00:55:00+08:00",
+    "dropoff_time": "2026-09-13T01:20:00+08:00",
+    "estimated_distance_km": 17.2,
+    "actual_distance_km": 17.4,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 25,
+    "estimated_fare": 26.3,
+    "total_fare": 26.3,
+    "cleaning_fee_claimed": 120.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-13T00:55:00+08:00",
+      "lat": 1.2812,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-13T01:05:00+08:00",
+      "lat": 1.3,
+      "lng": 103.8,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-13T01:12:00+08:00",
+      "lat": 1.325,
+      "lng": 103.77,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-13T01:15:00+08:00",
+      "lat": 1.326,
+      "lng": 103.768,
+      "speed_kmh": 50,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-13T01:20:00+08:00",
+      "lat": 1.349,
+      "lng": 103.7495,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-13T01:11:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry uncle feeling sick, can stop?"
+    },
+    {
+      "timestamp": "2026-09-13T01:11:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "OK stopping at the side now."
+    },
+    {
+      "timestamp": "2026-09-13T01:27:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "So sorry about your car."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-13T00:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-4786 booked trip RYDE-DEMO-011 from Club Street to Bukit Batok."
+    },
+    {
+      "timestamp": "2026-09-13T00:50:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2267 (Yusof Hamid, Toyota Corolla Cross SMJ 6613 L) assigned."
+    },
+    {
+      "timestamp": "2026-09-13T00:55:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-09-13T01:12:00+08:00",
+      "event_type": "unscheduled_stop",
+      "details": "Vehicle stopped on the road shoulder for 3 min mid-trip."
+    },
+    {
+      "timestamp": "2026-09-13T01:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-09-13T01:24:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim with 3 photos (timestamped 01:22-01:23, after trip completion) showing vomit on rear seat and floor mat."
+    },
+    {
+      "timestamp": "2026-09-13T11:40:00+08:00",
+      "event_type": "cleaning_receipt_uploaded",
+      "details": "Receipt uploaded: SparkleAuto Detailing, 21 Kaki Bukit Rd, tel 6741 2288, dated 2026-09-13, interior shampoo + deodorise S$120.00."
+    },
+    {
+      "timestamp": "2026-09-13T11:45:00+08:00",
+      "event_type": "cleaning_claim_status",
+      "details": "Claim pending: not yet reviewed. No compensation credited to driver."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": 200.0,
+    "cleaning_claim_evidence_required": [
+      "timestamped photos",
+      "cleaning company receipt with name, contact, address and date"
+    ],
+    "typical_vomit_cleaning_range": [
+      50.0,
+      150.0
+    ]
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver_120",
+    "refund_amount": null,
+    "requires_human_review": false,
+    "reason": "Timestamped photos taken right after the trip, a detailing receipt with the required company details, the mid-trip stop and the rider's own messages all support the claim. S$120 is within the S$50-150 vomit range and under the S$200 cap, so the driver should be compensated and the rider charged.",
+    "charge_amount": 120.0
+  }
+}

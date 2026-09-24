@@ -1,0 +1,171 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "CR-001",
+    "trip_id": "RYDE-DEMO-007",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "The app said my driver was 5 minutes away but he kept going the other way. After waiting over 15 minutes I cancelled because I was going to be late for work, and I was charged a $4.00 cancellation fee. The driver was the one who was late, so I shouldn't pay.",
+    "filed_at": "2026-09-16T08:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-1843",
+    "name": "Wong Mei Ling",
+    "account_age_days": 1100,
+    "total_trips": 530,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7719",
+    "name": "Abdul Rahman",
+    "account_age_days": 240,
+    "total_trips": 950,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SLR 4402 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-007",
+    "rider_id": "R-1843",
+    "driver_id": "D-7719",
+    "pickup_location": {
+      "name": "Blk 177 Toa Payoh Central",
+      "lat": 1.3343,
+      "lng": 103.8563
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-09-16T07:55:30+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-09-16T08:08:00+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled_after_assignment"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-16T07:51:00+08:00",
+      "lat": 1.348,
+      "lng": 103.874,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-16T07:56:00+08:00",
+      "lat": 1.351,
+      "lng": 103.869,
+      "speed_kmh": 20,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-16T08:01:00+08:00",
+      "lat": 1.347,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-16T08:06:00+08:00",
+      "lat": 1.344,
+      "lng": 103.864,
+      "speed_kmh": 15,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-09-16T08:08:00+08:00",
+      "lat": 1.344,
+      "lng": 103.864,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-16T07:59:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi, are you nearby? The app shows you going the other way."
+    },
+    {
+      "timestamp": "2026-09-16T08:02:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, stuck at a junction, coming in 5 min."
+    },
+    {
+      "timestamp": "2026-09-16T08:07:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "It's been over 15 minutes and I'm going to be late. Cancelling."
+    },
+    {
+      "timestamp": "2026-09-16T08:08:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider. Cancellation fee of $4.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-16T07:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-1843 booked trip RYDE-DEMO-007 from Toa Payoh Central to Raffles Place."
+    },
+    {
+      "timestamp": "2026-09-16T07:50:30+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-7719 (Abdul Rahman, Toyota Sienta SLR 4402 B) assigned. ETA 5 min (07:55:30)."
+    },
+    {
+      "timestamp": "2026-09-16T07:58:00+08:00",
+      "event_type": "eta_updated",
+      "details": "ETA revised to 08:04. Driver moving away from pickup."
+    },
+    {
+      "timestamp": "2026-09-16T08:04:00+08:00",
+      "event_type": "eta_updated",
+      "details": "ETA revised to 08:10. Driver 1.4 km from pickup."
+    },
+    {
+      "timestamp": "2026-09-16T08:08:00+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled 17.5 min after driver assignment, 12.5 min after the original ETA. Driver had not arrived (1.4 km from pickup)."
+    },
+    {
+      "timestamp": "2026-09-16T08:08:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$4.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 4.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation",
+    "free_cancellation_before_driver_assignment": true,
+    "no_fee_if_driver_delayed_beyond_eta_min": 10
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "full_refund",
+    "refund_amount": 4.0,
+    "requires_human_review": false,
+    "reason": "The rider cancelled 12.5 minutes after the original ETA while the driver was still 1.4 km away and had been moving away from the pickup. A driver delay of more than 10 minutes beyond the estimated arrival means no cancellation fee applies."
+  }
+}

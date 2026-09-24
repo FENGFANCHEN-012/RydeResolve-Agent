@@ -1,0 +1,144 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-003",
+    "trip_id": "RYDE-DEMO-013",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was standing at the taxi stand at Woodlands Civic Centre the whole time. The driver said he was at the main entrance in a grey Corolla but there was no such car. He cancelled and I was charged $5.00. I don't think he ever came.",
+    "filed_at": "2026-09-22T08:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3907",
+    "name": "Siti Rahimah",
+    "account_age_days": 480,
+    "total_trips": 150,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 1,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6620",
+    "name": "Chong Wai Kit",
+    "account_age_days": 420,
+    "total_trips": 1980,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SLA 3345 E)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-013",
+    "rider_id": "R-3907",
+    "driver_id": "D-6620",
+    "pickup_location": {
+      "name": "Woodlands Civic Centre (taxi stand)",
+      "lat": 1.436,
+      "lng": 103.7865
+    },
+    "dropoff_location": {
+      "name": "Northpoint City, Yishun",
+      "lat": 1.4295,
+      "lng": 103.835
+    },
+    "scheduled_time": "2026-09-22T07:30:00+08:00",
+    "driver_arrival_time": "2026-09-22T07:29:00+08:00",
+    "driver_wait_start": "2026-09-22T07:29:00+08:00",
+    "cancellation_time": "2026-09-22T07:37:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-22T07:31:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the taxi stand at Woodlands Civic Centre."
+    },
+    {
+      "timestamp": "2026-09-22T07:33:00+08:00",
+      "sender": "rider",
+      "type": "call",
+      "content": "Outgoing call to driver — not answered (rang 20s, no response)."
+    },
+    {
+      "timestamp": "2026-09-22T07:34:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the main entrance, grey Toyota Corolla."
+    },
+    {
+      "timestamp": "2026-09-22T07:35:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "There's no grey Corolla here. Which entrance?"
+    },
+    {
+      "timestamp": "2026-09-22T07:37:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-22T07:18:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-3907 booked trip RYDE-DEMO-013 from Woodlands Civic Centre to Northpoint City. Pickup 07:30."
+    },
+    {
+      "timestamp": "2026-09-22T07:18:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-6620 (Chong Wai Kit, Toyota Corolla Altis SLA 3345 E) assigned. ETA 11 min."
+    },
+    {
+      "timestamp": "2026-09-22T07:19:00+08:00",
+      "event_type": "gps_signal_lost",
+      "details": "Driver device stopped reporting location. Live tracking unavailable."
+    },
+    {
+      "timestamp": "2026-09-22T07:29:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Manual arrival: driver tapped 'Arrived'. GPS unavailable, arrival location not verified."
+    },
+    {
+      "timestamp": "2026-09-22T07:29:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Free wait timer started. 5 min free wait period ends at 07:34."
+    },
+    {
+      "timestamp": "2026-09-22T07:34:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 5-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-09-22T07:37:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "No-show threshold (8 min) reached. $5.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "recommended_action": "human_review_request_more_evidence",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "There is no driver GPS for the whole trip and the arrival was entered manually, so it cannot be verified that the driver was at the pickup. Both sides tried to make contact and their accounts conflict. The evidence is insufficient either way; a human should review and request dashcam or location evidence."
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SQ-001",
+    "trip_id": "RYDE-DEMO-009",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver was speeding on the PIE and kept braking hard. When I asked him to slow down he was rude and told me not to tell him how to drive. I felt very uncomfortable for the whole trip. I want my fare refunded.",
+    "filed_at": "2026-09-17T21:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6048",
+    "name": "Rachel Lim",
+    "account_age_days": 640,
+    "total_trips": 305,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8813",
+    "name": "Heng Chee Keong",
+    "account_age_days": 1800,
+    "total_trips": 9020,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SGX 7781 D)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-009",
+    "rider_id": "R-6048",
+    "driver_id": "D-8813",
+    "pickup_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3176,
+      "lng": 103.8927
+    },
+    "dropoff_location": {
+      "name": "Jurong Point",
+      "lat": 1.3398,
+      "lng": 103.7066
+    },
+    "scheduled_time": "2026-09-17T20:10:00+08:00",
+    "pickup_time": "2026-09-17T20:10:00+08:00",
+    "dropoff_time": "2026-09-17T20:52:00+08:00",
+    "estimated_distance_km": 24.1,
+    "actual_distance_km": 24.3,
+    "estimated_duration_min": 38,
+    "actual_duration_min": 42,
+    "estimated_fare": 27.4,
+    "total_fare": 27.4
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-17T20:10:00+08:00",
+      "lat": 1.3176,
+      "lng": 103.8927,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-17T20:18:00+08:00",
+      "lat": 1.333,
+      "lng": 103.861,
+      "speed_kmh": 78,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-17T20:24:00+08:00",
+      "lat": 1.338,
+      "lng": 103.82,
+      "speed_kmh": 104,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-17T20:31:00+08:00",
+      "lat": 1.34,
+      "lng": 103.78,
+      "speed_kmh": 35,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-17T20:38:00+08:00",
+      "lat": 1.342,
+      "lng": 103.745,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-17T20:52:00+08:00",
+      "lat": 1.3398,
+      "lng": 103.7066,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-17T20:25:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Uncle please slow down, I'm not comfortable."
+    },
+    {
+      "timestamp": "2026-09-17T20:25:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You want to reach fast or not? Don't tell me how to drive."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-17T20:04:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6048 booked trip RYDE-DEMO-009 from Paya Lebar Quarter to Jurong Point. Upfront fare S$27.40."
+    },
+    {
+      "timestamp": "2026-09-17T20:04:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8813 (Heng Chee Keong, Toyota Wish SGX 7781 D) assigned."
+    },
+    {
+      "timestamp": "2026-09-17T20:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-09-17T20:24:00+08:00",
+      "event_type": "speeding_alert",
+      "details": "Telematics: 104 km/h recorded on PIE (posted limit 90 km/h) for 45 s."
+    },
+    {
+      "timestamp": "2026-09-17T20:31:00+08:00",
+      "event_type": "harsh_braking_detected",
+      "details": "Telematics: harsh braking event, deceleration 0.62 g."
+    },
+    {
+      "timestamp": "2026-09-17T20:38:00+08:00",
+      "event_type": "harsh_braking_detected",
+      "details": "Telematics: harsh braking event, deceleration 0.58 g."
+    },
+    {
+      "timestamp": "2026-09-17T20:52:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 24.3 km, 42 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-09-17T20:55:00+08:00",
+      "event_type": "rider_rating_submitted",
+      "details": "Rider rated 1 star: 'Driver was rude and drove way too fast.'"
+    }
+  ],
+  "platform_policy": {
+    "p1_incident_review_within_hours": 24,
+    "p1_first_action": "formal_warning",
+    "rider_compensation": "at_ryde_discretion"
+  },
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "recommended_action": "formal_warning_to_driver_and_discretionary_partial_refund_or_credit",
+    "refund_amount": null,
+    "requires_human_review": false,
+    "reason": "Telematics confirm speeding (104 km/h in a 90 zone) and two harsh braking events, and the chat shows a dismissive reply to the rider. This is a P1 incident: formal warning to the driver. The trip itself was completed on the correct route, so a full refund is not required; partial refund or credit is at Ryde's discretion.",
+    "priority": "P1",
+    "driver_penalty": "formal_warning"
+  }
+}
