@@ -13,6 +13,7 @@ Embedding strategy:
 import os
 import uuid
 import asyncio
+import threading
 import chromadb
 
 from src.config import (
@@ -22,22 +23,31 @@ from src.config import (
 from src.rag.embedding import embedding_manager
 
 
+_chroma_client_cache: tuple | None = None
+_chroma_client_lock = threading.Lock()
+
+
 def _get_chroma_client():
     """
-    Get a ChromaDB client.
+    Get a ChromaDB client (created once per process, then reused).
     Tries HttpClient first (for Docker/remote), falls back to PersistentClient (local dev).
-    """
-    try:
-        client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
-        client.heartbeat()
-        return client, "http"
-    except Exception:
-        pass
 
-    local_path = os.path.join(BASE_DIR, "chroma_data")
-    os.makedirs(local_path, exist_ok=True)
-    client = chromadb.PersistentClient(path=local_path)
-    return client, "local"
+    The HTTP probe takes several seconds to fail when no Chroma server is
+    running, so it must not be repeated for every retriever.
+    """
+    global _chroma_client_cache
+    with _chroma_client_lock:
+        if _chroma_client_cache is not None:
+            return _chroma_client_cache
+        try:
+            client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+            client.heartbeat()
+            _chroma_client_cache = (client, "http")
+        except Exception:
+            local_path = os.path.join(BASE_DIR, "chroma_data")
+            os.makedirs(local_path, exist_ok=True)
+            _chroma_client_cache = (chromadb.PersistentClient(path=local_path), "local")
+        return _chroma_client_cache
 
 
 class ManualEmbeddingFunction:
@@ -132,13 +142,18 @@ class DocumentIndexer:
 
         count = 0
         for doc in documents:
-            chunks = self._chunk_document(doc["content"])
-            for i, chunk_text in enumerate(chunks):
+            # Markdown is split on its "## " headings so one chunk never mixes
+            # two policy scenarios; other text uses plain word windows.
+            if doc.get("file_type") == ".md" or "\n## " in doc["content"]:
+                chunks = self._chunk_markdown(doc["content"])
+            else:
+                chunks = [(doc.get("section", ""), c) for c in self._chunk_document(doc["content"])]
+            for i, (section, chunk_text) in enumerate(chunks):
                 chunk_id = f"{doc['id']}_{i:04d}"
                 metadata = {
                     "title": doc["title"],
                     "source": doc.get("source", doc["title"]),
-                    "section": doc.get("section", ""),
+                    "section": section,
                     "file_type": doc.get("file_type", ""),
                     "chunk_index": i,
                     "total_chunks": len(chunks),
@@ -192,7 +207,8 @@ class DocumentIndexer:
             return documents
 
         for filename in sorted(os.listdir(POLICIES_DIR)):
-            if not filename.endswith(".md"):
+            # README describes the folder; it is not a policy
+            if not filename.endswith(".md") or filename.lower() == "readme.md":
                 continue
             filepath = os.path.join(POLICIES_DIR, filename)
             with open(filepath, "r", encoding="utf-8") as f:
@@ -229,6 +245,33 @@ class DocumentIndexer:
             chunk = " ".join(words[start:end])
             chunks.append(chunk)
             start = end - ol
+        return chunks
+
+    def _chunk_markdown(self, text: str) -> list[tuple[str, str]]:
+        """
+        Split markdown into (section heading, chunk text) pairs, one per "## "
+        section. The text before the first "## " is kept as "Overview".
+        A section longer than CHUNK_SIZE words is word-split, and every piece
+        keeps its heading on the first line so it still says what it is about.
+        """
+        sections: list[tuple[str, list[str]]] = [("Overview", [])]
+        for line in text.splitlines():
+            if line.startswith("## "):
+                sections.append((line[3:].strip(), []))
+            sections[-1][1].append(line)
+
+        chunks = []
+        for heading, lines in sections:
+            body = "\n".join(lines).strip()
+            if not body or body.lstrip("#").strip() == heading:
+                continue
+            if len(body.split()) <= self.CHUNK_SIZE:
+                chunks.append((heading, body))
+                continue
+            for piece in self._chunk_document(body):
+                if not piece.startswith("## "):
+                    piece = f"## {heading} (cont.)\n{piece}"
+                chunks.append((heading, piece))
         return chunks
 
     def get_collection_stats(self, collection_name: str | None = None) -> dict:

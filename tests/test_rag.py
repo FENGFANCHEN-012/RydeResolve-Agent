@@ -80,3 +80,19 @@ if __name__ == "__main__":
     print("=" * 60)
     print("All tests completed.")
     print("=" * 60)
+
+
+def test_markdown_chunks_follow_sections():
+    """Each chunk belongs to one '## ' section, so a route-deviation chunk
+    never also carries the no-show scenario (the bug that showed no-show
+    rules for every dispute type)."""
+    from src.rag.indexer import DocumentIndexer
+    text = (
+        "# Guide\nIntro text.\n\n"
+        "## Scenario 1: Route Deviation\nDriver took a longer route.\n\n"
+        "## Scenario 2: No-Show Charge\nRider was present.\n"
+    )
+    chunks = DocumentIndexer._chunk_markdown(DocumentIndexer.__new__(DocumentIndexer), text)
+    assert [s for s, _ in chunks] == ["Overview", "Scenario 1: Route Deviation", "Scenario 2: No-Show Charge"]
+    route = dict(chunks)["Scenario 1: Route Deviation"]
+    assert "No-Show" not in route and route.startswith("## Scenario 1")
