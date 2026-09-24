@@ -113,6 +113,58 @@ function rrJson(value) {
 }
 function rrClip(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 
+// The trace keeps full provider errors under Raw data. Summaries must not
+// mistake a quota fallback for an agent's analysis or a valid ruling.
+function rrStepIssue(step) {
+    if (!step || step.status === 'running') return null;
+    const out = rrParse(step.output);
+    const details = [
+        ...(step.llm || []).map(call => call.error),
+        typeof out === 'string' ? out : out?.error,
+        out?.reasoning, out?.reason,
+    ].filter(value => typeof value === 'string').join(' ');
+    if (/GenerateRequestsPerDay|requests per day|daily quota/i.test(details)) {
+        return { kind: 'daily', short: 'Gemini daily limit reached',
+            message: 'Gemini’s daily request limit was reached. This turn has no AI analysis; the run cannot produce a reliable verdict.' };
+    }
+    if (/GenerateRequestsPerMinute|requests per minute/i.test(details)) {
+        return { kind: 'minute', short: 'Gemini rate limit reached',
+            message: 'Gemini’s short-term request limit was reached. This turn has no AI analysis.' };
+    }
+    if (step.status === 'error' || (step.llm || []).some(call => call.error) ||
+            /LLM call failed|could not be generated automatically/i.test(details)) {
+        return { kind: 'error', short: 'AI analysis unavailable',
+            message: 'This turn could not be generated. Open Raw data for the technical details.' };
+    }
+    return null;
+}
+
+function rrRunIssue() {
+    const issues = rr.order.map(id => rrStepIssue(rr.steps[id])).filter(Boolean);
+    return issues.find(issue => issue.kind === 'daily') || null;
+}
+
+function rrDebateText(output, agent) {
+    const out = rrParse(output);
+    if (typeof out === 'string') {
+        return /^\s*(?:\{|```json\b)/i.test(out)
+            ? 'The reply was not readable. Select this turn to inspect its raw output.' : out;
+    }
+    if (!out || typeof out !== 'object') return 'No analysis was returned.';
+    if (agent === 'Policy') {
+        const yn = value => value === true ? 'complied' : value === false ? 'did not comply' : 'unclear';
+        return `Rider ${yn(out.passenger_compliant)}; driver ${yn(out.driver_compliant)}.` +
+            (out.violations?.length ? `\nPossible violations: ${out.violations.join('; ')}` : '') +
+            (out.reasoning ? `\n${out.reasoning}` : '');
+    }
+    const summary = [out.stance, out.reasoning, out.summary, out.rationale]
+        .filter(value => typeof value === 'string' && value.trim()).join('\n\n');
+    const refs = Array.isArray(out.policy_references)
+        ? out.policy_references.filter(value => typeof value === 'string').slice(0, 3) : [];
+    return (summary || 'No readable summary was returned. Select this turn to inspect its raw output.') +
+        (refs.length ? `\nPolicies: ${refs.join('; ')}` : '');
+}
+
 // ---------------------------------------------------------------- cases
 
 async function rrLoadCases() {
@@ -391,6 +443,8 @@ function rrNodeSummary(node) {
     const steps = rrStepsOf(node);
     const s = steps[0];
     if (!s || s.status === 'running' && node !== 'debate') return s ? 'Working…' : '';
+    const issue = steps.map(rrStepIssue).find(Boolean);
+    if (issue) return issue.short;
     const o = rrParse(s.output) || {};
     switch (node) {
         case 'collector': {
@@ -562,9 +616,12 @@ function rrRenderInspector() {
     }
 
     const out = rrParse(s.output);
+    const issue = rrStepIssue(s);
     let html = head + io;
     html += `<div class="rr-sec"><h5>Reasoning</h5>${s.status === 'running'
-        ? '<div class="rr-empty" style="padding:0">Agent is working…</div>' : rrReasoning(s.agent, out)}</div>`;
+        ? '<div class="rr-empty" style="padding:0">Agent is working…</div>'
+        : issue ? `<div class="rr-prose rr-issue">${rrEsc(issue.message)}</div>`
+        : rrReasoning(s.agent, out)}</div>`;
 
     const clauses = s.retrievals.flatMap(r => r.clauses);
     if (s.retrievals.length) {
@@ -633,19 +690,13 @@ function rrRenderDebate() {
         return;
     }
     let lastOther = { Passenger: 'Driver opening', Driver: 'Passenger rebuttal' };
-    el.innerHTML = turns.map(s => {
-        const out = rrParse(s.output);
+    const quotaIssue = rrRunIssue();
+    el.innerHTML = (quotaIssue ? `<div class="rr-run-alert">${rrEsc(quotaIssue.message)} Earlier completed turns remain visible below.</div>` : '') +
+    turns.map(s => {
         const isRound = /^Round /.test(s.title);
         const cls = s.agent === 'Passenger' ? 'p' : s.agent === 'Driver' ? 'd' : 'pol';
-        let text;
-        if (s.status === 'running') text = '';
-        else if (s.agent === 'Policy') {
-            const yn = v => v === true ? 'complied' : v === false ? 'did not comply' : 'unclear';
-            text = `Rider ${yn(out?.passenger_compliant)}, driver ${yn(out?.driver_compliant)}.` +
-                   (out?.violations?.length ? `\nViolations: ${out.violations.join('; ')}` : '') +
-                   (out?.reasoning ? `\n${out.reasoning}` : '');
-        } else if (typeof out === 'string') text = out;
-        else text = [out?.stance, out?.reasoning].filter(Boolean).join('\n\n') || JSON.stringify(out);
+        const issue = rrStepIssue(s);
+        const text = s.status === 'running' ? '' : issue ? issue.message : rrDebateText(s.output, s.agent);
         const reply = isRound ? `↳ replying to ${s.agent === 'Passenger' ? lastOther.Passenger : lastOther.Driver}` : '';
         if (isRound) {
             const r = s.title.match(/^Round (\d+)/)[1];
@@ -653,10 +704,10 @@ function rrRenderDebate() {
             else lastOther.Passenger = `Driver R${r}`;
         }
         const who = s.agent === 'Policy' ? 'Policy check' : `${s.agent} ${isRound ? s.title.replace(/:.*/, '') : 'opening'}`;
-        return `<button class="rr-bubble ${cls} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'typing' : ''}"
+        return `<button class="rr-bubble ${cls} ${issue ? 'failed' : ''} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'typing' : ''}"
                     onclick="rrSelect('${s.id}')">
             ${reply ? `<div class="reply">${rrEsc(reply)}</div>` : ''}
-            <div class="who">${rrEsc(who)}<span>${s.status === 'running' ? 'thinking' : ((s.duration || 0) / 1000).toFixed(1) + 's'}</span></div>
+            <div class="who">${rrEsc(who)}<span>${issue ? 'incomplete' : s.status === 'running' ? 'thinking' : ((s.duration || 0) / 1000).toFixed(1) + 's'}</span></div>
             <div class="txt">${rrEsc(rrClip(text, 900))}</div></button>`;
     }).join('');
     const sel = el.querySelector('.rr-bubble.selected');
@@ -669,6 +720,12 @@ function rrRenderVerdict() {
     const el = rrEl('rrVerdict');
     const res = rr.result;
     if (!res) { el.hidden = true; return; }
+    if (rrRunIssue()) {
+        el.innerHTML = `<div class="rr-verdict-main"><span class="rr-pill-lg escalated">Incomplete</span>
+            <div class="rr-verdict-text">Gemini’s daily request limit interrupted the debate. No reliable automated ruling was produced. Review the completed turns above and retry after the quota resets.</div></div>`;
+        el.hidden = false;
+        return;
+    }
     const exp = rr.detail?.expected_outcome;
     let main;
     const escalated = res.status === 'escalated_to_human';
