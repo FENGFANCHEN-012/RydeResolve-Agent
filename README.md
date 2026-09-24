@@ -66,7 +66,7 @@ Report -> [Collector Agent] -> [Classifier Agent] -> Parallel Investigation:
 
 ### Key Innovations
 
-1. **Adversarial Multi-Agent Debate** — Passenger Agent vs Driver Agent through 3 rounds of evidence-based argument
+1. **Adversarial Multi-Agent Debate** — Passenger Agent vs Driver Agent with one rebuttal round by default; set `MAX_DEBATE_ROUNDS=3` for a larger request budget. The default requires up to five model requests for the debate, plus any classifier, arbitration, and fairness requests.
 2. **Confidence-graded Processing** — High confidence auto-execute, low confidence escalates to human
 3. **RAG Policy Anchoring** — Every verdict must cite specific platform clauses
 4. **Full Audit Trail** — Complete reasoning chain for every decision
