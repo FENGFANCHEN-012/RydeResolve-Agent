@@ -23,6 +23,9 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 # Embedding Configuration (Google Gemini)
 # ============================================================
 # Embedding model: gemini-embedding-2 (3072 dimensions)
+# Keep the embedding provider identical for indexing and retrieval. The local
+# hash provider works even when LLM_API_KEY is set for dispute generation.
+EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "hash").strip().lower()
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "3072"))
 
