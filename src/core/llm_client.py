@@ -2,7 +2,11 @@
 Unified LLM Client
 Uses Google Gemini API for chat completions.
 """
+import asyncio
+import time
+
 import google.generativeai as genai
+from src.core.trace import record_llm_call
 from src.config import (
     LLM_API_KEY,
     LLM_MODEL,
@@ -82,12 +86,20 @@ class LLMClient:
         last_msg = gemini_messages[-1] if gemini_messages else {"parts": [""]}
         prompt = "\n".join(system_parts) + "\n" + last_msg["parts"][0] if system_parts else last_msg["parts"][0]
 
-        response = chat.send_message(
-            prompt,
-            generation_config=generation_config,
-        )
-
-        text = response.text
+        # send_message is blocking: run it in a thread so the event loop (and the
+        # live trace stream) keeps running during the call
+        t0 = time.perf_counter()
+        try:
+            response = await asyncio.to_thread(
+                chat.send_message,
+                prompt,
+                generation_config=generation_config,
+            )
+            text = response.text
+        except Exception as exc:
+            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc))
+            raise
+        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000))
 
         # Handle JSON response format request
         if response_format and response_format.get("type") == "json_object":

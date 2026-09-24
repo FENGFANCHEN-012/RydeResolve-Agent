@@ -35,6 +35,10 @@ Design principles:
   or shared Pydantic models in place.
 - ``build_dispute_graph(...)`` accepts optional agent instances purely for
   testing; production callers use the defaults.
+- **Traced**: each node body runs inside ``trace.step(...)`` so the dashboard
+  (/api/disputes/resolve-stream) sees every agent's input, output and LLM
+  calls live. Without an active tracer the steps are no-ops. Debate steps are
+  traced inside ``DebateEngine``.
 """
 from __future__ import annotations
 
@@ -53,6 +57,7 @@ from src.agents.executor import (
 )
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.core.debate import DebateEngine
+from src.core.trace import step
 from src.core.workflow_state import (
     STATUS_ESCALATED,
     STATUS_FAILED,
@@ -145,18 +150,28 @@ def build_dispute_graph(
 
     @_safe_node(NODE_COLLECTOR)
     async def collector_node(state: DisputeWorkflowState) -> dict:
-        context = await collector.collect(
-            report_text=state["report_text"],
-            order_id=state["order_id"],
-            reporter=state.get("reporter", "passenger"),
-            evidence=state.get("evidence") or [],
-            language=state.get("language", "en"),
-        )
+        async with step("Collector", "Collect dispute data", {
+            "order_id": state["order_id"], "reporter": state.get("reporter"),
+            "report_text": state["report_text"],
+            "uploaded_evidence": len(state.get("evidence") or []),
+        }) as s:
+            context = await collector.collect(
+                report_text=state["report_text"],
+                order_id=state["order_id"],
+                reporter=state.get("reporter", "passenger"),
+                evidence=state.get("evidence") or [],
+                language=state.get("language", "en"),
+            )
+            s["output"] = context
         return {"context": context, "status": STATUS_IN_PROGRESS}
 
     @_safe_node(NODE_CLASSIFIER)
     async def classifier_node(state: DisputeWorkflowState) -> dict:
-        result = await classifier.classify(state["context"])
+        async with step("Classifier", "Classify type & urgency", {
+            "description": state["context"].description, "type_from_data": state["context"].type,
+        }) as s:
+            result = await classifier.classify(state["context"])
+            s["output"] = result
         # Preserve the legacy orchestrator side-effect: propagate the
         # classified dispute type onto the context (immutably).
         context = state["context"].model_copy(
@@ -174,13 +189,18 @@ def build_dispute_graph(
         # Preserve the legacy orchestrator convention: the round-0 debate
         # entries carry the passenger / driver / policy analyses.
         history = state.get("debate_history") or []
-        decision = await arbitrator.arbitrate(
-            context=state["context"].model_dump(),
-            passenger_analysis=_as_analysis(history[0]["content"]) if len(history) > 0 else {},
-            driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
-            policy_evaluation=_as_analysis(history[2]["content"]) if len(history) > 2 else {},
-            debate_history=history,
-        )
+        async with step("Arbitrator", "Weigh both sides & rule", {
+            "sees": ["full dispute context", "passenger analysis", "driver analysis",
+                     "policy evaluation", f"debate history ({len(history)} turns)"],
+        }) as s:
+            decision = await arbitrator.arbitrate(
+                context=state["context"].model_dump(),
+                passenger_analysis=_as_analysis(history[0]["content"]) if len(history) > 0 else {},
+                driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
+                policy_evaluation=_as_analysis(history[2]["content"]) if len(history) > 2 else {},
+                debate_history=history,
+            )
+            s["output"] = decision
         return {"decision": decision}
 
     @_safe_node(NODE_FAIRNESS)
@@ -195,14 +215,21 @@ def build_dispute_graph(
             debate_history=history,
             context=state["context"].model_dump(),
         )
-        assessment = await fairness_agent.assess(payload)
+        async with step("Fairness", "Audit the decision for fairness", {
+            "sees": ["decision", "passenger & driver analyses", "policy evaluation",
+                     f"debate history ({len(history)} turns)", "dispute context"],
+        }) as s:
+            assessment = await fairness_agent.assess(payload)
+            s["output"] = assessment
         return {"fairness": assessment}
 
     @_safe_node(NODE_EXECUTOR)
     async def executor_node(state: DisputeWorkflowState) -> dict:
-        execution = await executor.execute(
-            state["decision"], state["context"].dispute_id
-        )
+        async with step("Executor", "Apply decision", {"decision": state["decision"]}) as s:
+            execution = await executor.execute(
+                state["decision"], state["context"].dispute_id
+            )
+            s["output"] = execution
         if not isinstance(execution, dict):
             raise ValueError("Executor returned no structured result")
         if execution.get("status") == EXECUTION_STATUS_EXECUTED and execution.get("executed") is True:

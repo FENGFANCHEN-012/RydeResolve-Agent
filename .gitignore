@@ -21,3 +21,4 @@ uvicorn.log
 _verify.txt
 docs/_verify_names.txt
 docs/_rewrite_section4.py
+data/traces/

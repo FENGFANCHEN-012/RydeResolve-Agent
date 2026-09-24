@@ -403,6 +403,8 @@
             font-weight: 700;
             color: var(--on-dark-muted);
             cursor: pointer;
+            background: transparent;
+            border: none;
             border-bottom: 2px solid transparent;
             transition: all 0.15s;
             text-transform: uppercase;
@@ -861,7 +863,9 @@
             .input-area { padding: var(--s-sm) var(--s-lg); }
             .msg { max-width: 90%; }
         }
+
     </style>
+    <link rel="stylesheet" href="dispute.css">
 </head>
 <body>
 
@@ -882,7 +886,7 @@
 </div>
 
 <!-- Layout -->
-<div class="layout">
+<div class="layout rr-wide">
 
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
@@ -948,13 +952,85 @@
     <main class="main">
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" data-tab="chat" onclick="switchTab('chat')">Chat &amp; QA</button>
+            <button class="tab active" data-tab="dispute" onclick="switchTab('dispute')">Dispute Resolution</button>
+            <button class="tab" data-tab="chat" onclick="switchTab('chat')">Chat &amp; QA</button>
             <button class="tab" data-tab="search" onclick="switchTab('search')">Search</button>
             <button class="tab" data-tab="test" onclick="switchTab('test')">Accuracy Test</button>
         </div>
 
+        <!-- Dispute Resolution Tab -->
+        <div class="tab-content active" id="tab-dispute">
+            <div class="rr">
+                <aside class="rr-library" aria-label="Mock dispute cases">
+                    <div class="rr-lib-head">
+                        <h3>Mock cases <span class="rr-count" id="rrCaseCount">0</span></h3>
+                        <input id="rrFilter" class="rr-input" type="search" placeholder="Filter by id, type or text…" aria-label="Filter cases">
+                    </div>
+                    <div class="rr-case-list" id="rrCaseList"><div class="rr-empty">Loading cases…</div></div>
+                    <div class="rr-lib-foot">
+                        <label for="rrTraces">Replay a saved run (no LLM quota)</label>
+                        <select id="rrTraces" class="rr-select"><option value="">Loading…</option></select>
+                    </div>
+                </aside>
+
+                <section class="rr-main">
+                    <header class="rr-casehead">
+                        <div id="rrCaseTitle"><h2>Pick a case</h2></div>
+                        <div class="rr-run">
+                            <span class="rr-status" id="rrStatus">Ready</span>
+                            <details class="rr-options">
+                                <summary class="rr-btn ghost">Options</summary>
+                                <div class="rr-options-panel">
+                                    <label for="rrReporter">Reporter</label>
+                                    <select id="rrReporter" class="rr-select">
+                                        <option value="">From case data</option>
+                                        <option value="passenger">Passenger</option>
+                                        <option value="driver">Driver</option>
+                                    </select>
+                                    <label for="rrReport">Complaint text override</label>
+                                    <textarea id="rrReport" class="rr-textarea" placeholder="Leave empty to send the complaint stored with the case"></textarea>
+                                    <div class="rr-hint">Trip, GPS, chat, app events and profiles always come from the case file. A live run makes ~12 LLM calls.</div>
+                                </div>
+                            </details>
+                            <button class="rr-btn primary" id="rrRunBtn" onclick="rrRun()" disabled>Run agents</button>
+                        </div>
+                    </header>
+
+                    <div class="rr-block">
+                        <div class="rr-block-head"><h3>1 · Case sent in</h3></div>
+                        <div class="rr-block-body" id="rrBrief"><div class="rr-empty">Pick a case on the left.</div></div>
+                    </div>
+
+                    <div class="rr-block">
+                        <div class="rr-block-head"><h3>2 · Agent flow</h3>
+                            <div class="rr-right rr-legend">
+                                <span><i></i>waiting</span><span><i class="active"></i>data flowing</span><span><i class="done"></i>delivered</span>
+                                <span>click any agent to inspect it</span>
+                            </div>
+                        </div>
+                        <div class="rr-graph-wrap"><div class="rr-graph" id="rrGraph"></div></div>
+                    </div>
+
+                    <div class="rr-block rr-verdict" id="rrVerdict" hidden></div>
+
+                    <div class="rr-split">
+                        <div class="rr-block">
+                            <div class="rr-block-head"><h3>3 · Agent inspector</h3></div>
+                            <div class="rr-block-body" id="rrInspector"></div>
+                        </div>
+                        <div class="rr-block">
+                            <div class="rr-block-head"><h3>4 · Debate</h3>
+                                <div class="rr-right rr-legend"><span style="color:var(--agent-passenger)">passenger</span><span style="color:var(--agent-policy)">policy</span><span style="color:var(--agent-driver)">driver</span></div>
+                            </div>
+                            <div class="rr-chat" id="rrDebate"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
         <!-- Chat Tab -->
-        <div class="tab-content active" id="tab-chat">
+        <div class="tab-content" id="tab-chat">
             <div class="chat-container" id="chatContainer">
                 <div class="msg assistant">
                     <div class="msg-body">Welcome to <span style="color:var(--accent-lime); font-weight:700;">RydeResolve</span> — the multi-agent dispute resolution knowledge base. Upload Ryde policy documents on the left, then ask questions about refunds, cancellations, safety standards, and more. Every answer is grounded in retrieved policy clauses with source citations.</div>
@@ -1051,7 +1127,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const API_BASE = 'http://localhost:8000';
+// ?api=http://localhost:8001 points the page at another backend (e.g. a test server)
+const API_BASE = new URLSearchParams(location.search).get('api') || 'http://localhost:8000';
 const chatContainer = document.getElementById('chatContainer');
 const questionInput = document.getElementById('questionInput');
 const askBtn = document.getElementById('askBtn');
@@ -1069,6 +1146,8 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
+    document.querySelector('.layout').classList.toggle('rr-wide', tabName === 'dispute');
+    if (tabName === 'dispute' && typeof rrDrawEdges === 'function') requestAnimationFrame(rrDrawEdges);
 }
 
 // ============================================================
@@ -1559,6 +1638,8 @@ function updateAccuracySummary() {
     `;
 }
 
+
+
 // ============================================================
 // Init
 // ============================================================
@@ -1566,5 +1647,6 @@ checkServerStatus();
 refreshStats();
 setInterval(checkServerStatus, 10000);
 </script>
+<script src="dispute.js"></script>
 </body>
 </html>

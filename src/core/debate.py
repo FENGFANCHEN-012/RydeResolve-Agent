@@ -7,6 +7,7 @@ from src.agents.passenger import PassengerAgent
 from src.agents.driver import DriverAgent
 from src.agents.policy import PolicyAgent
 from src.config import MAX_DEBATE_ROUNDS
+from src.core.trace import step
 
 
 class DebateEngine:
@@ -35,9 +36,16 @@ class DebateEngine:
         history = []
 
         # Initial analysis from both sides
-        passenger_analysis = await self.passenger_agent.analyze(context)
-        driver_analysis = await self.driver_agent.analyze(context)
-        policy_eval = await self.policy_agent.evaluate_compliance(context)
+        sees = ["dispute context", "retrieved policy clauses"]
+        async with step("Passenger", "Passenger advocate: opening analysis", {"sees": sees}) as s:
+            passenger_analysis = await self.passenger_agent.analyze(context)
+            s["output"] = passenger_analysis
+        async with step("Driver", "Driver advocate: opening analysis", {"sees": sees}) as s:
+            driver_analysis = await self.driver_agent.analyze(context)
+            s["output"] = driver_analysis
+        async with step("Policy", "Policy compliance check (RAG)", {"sees": sees}) as s:
+            policy_eval = await self.policy_agent.evaluate_compliance(context)
+            s["output"] = policy_eval
 
         history.append({
             "round": 0,
@@ -62,7 +70,10 @@ class DebateEngine:
             # Later rounds: history[-1] is the driver's latest rebuttal.
             last_driver = history[-2] if round_num == 1 else history[-1]
             driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
-            p_rebuttal = await self.passenger_agent.rebut(driver_arg, context)
+            async with step("Passenger", f"Round {round_num}: passenger rebuttal",
+                            {"rebutting": driver_arg}) as s:
+                p_rebuttal = await self.passenger_agent.rebut(driver_arg, context)
+                s["output"] = p_rebuttal
             history.append({
                 "round": round_num,
                 "speaker": "passenger",
@@ -70,7 +81,10 @@ class DebateEngine:
             })
 
             # Driver rebuts passenger's latest argument
-            d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context)
+            async with step("Driver", f"Round {round_num}: driver rebuttal",
+                            {"rebutting": p_rebuttal}) as s:
+                d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context)
+                s["output"] = d_rebuttal
             history.append({
                 "round": round_num,
                 "speaker": "driver",

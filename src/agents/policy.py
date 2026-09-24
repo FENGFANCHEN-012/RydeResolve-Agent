@@ -7,9 +7,11 @@ evaluation via LLM.
 All policies referenced by this agent are sourced from Ryde's official website
 (rydesharing.com) and help center (help.rydesharing.com).
 """
+import asyncio
 import json
 import logging
 
+from src.core.trace import record_retrieval
 from src.agents.collector import DisputeContext, DisputeType
 from src.rag.retriever import DocumentRetriever
 from src.core.llm_client import LLMClient
@@ -97,7 +99,9 @@ class PolicyAgent:
             return []
 
         try:
-            clauses = retriever.retrieve_for_dispute(
+            # Blocking (ChromaDB + embedding API): run off the event loop
+            clauses = await asyncio.to_thread(
+                retriever.retrieve_for_dispute,
                 dispute_type=dispute_type,
                 dispute_description=dispute_description,
             )
@@ -105,6 +109,7 @@ class PolicyAgent:
             logger.warning("Policy retrieval failed: %s", exc)
             return []
 
+        record_retrieval(dispute_type, clauses or [])
         return clauses or []
 
     async def evaluate_compliance(self, context: DisputeContext) -> dict:
