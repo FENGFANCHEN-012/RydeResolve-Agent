@@ -4,15 +4,20 @@ RydeResolve-Agent REST API service with RAG endpoints.
 """
 import os
 import io
+import re
+import json
+import asyncio
 import tempfile
 import shutil
+from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-from src.config import CORS_ORIGINS, CHROMA_COLLECTION, BASE_DIR
+from src.config import CORS_ORIGINS, CHROMA_COLLECTION, BASE_DIR, DATA_DIR
 from src.core.orchestrator import Orchestrator
+from src.core.trace import Tracer, set_tracer
 from src.rag.document_parser import document_parser
 from src.rag.indexer import DocumentIndexer
 from src.rag.retriever import DocumentRetriever
@@ -37,6 +42,11 @@ app.add_middleware(
 )
 
 
+# Saved pipeline runs for replay (see /api/disputes/traces)
+TRACES_DIR = os.path.join(DATA_DIR, "traces")
+_running_tasks: set = set()
+
+
 class EvidenceItem(BaseModel):
     evidence_type: str  # screenshot, photo, receipt, video, audio, document
     description: str
@@ -45,9 +55,9 @@ class EvidenceItem(BaseModel):
 
 
 class DisputeRequest(BaseModel):
-    report_text: str
+    report_text: str = ""  # "" = use the complaint from the order's dataset
     order_id: str
-    reporter: str = "passenger"  # passenger or driver
+    reporter: str | None = None  # passenger or driver; None = use the dataset's
     evidence: list[EvidenceItem] = []
     language: str = "en"  # en, zh, ms, ta
 
@@ -61,6 +71,18 @@ class QARequest(BaseModel):
 # ============================================================
 # Health & Root
 # ============================================================
+
+@app.on_event("startup")
+async def warm_up_vector_store():
+    """Open the ChromaDB client in the background so the first dispute doesn't
+    freeze the server while the client is created."""
+    from src.rag.indexer import _get_chroma_client
+
+    task = asyncio.create_task(asyncio.to_thread(_get_chroma_client))
+    _running_tasks.add(task)
+    task.add_done_callback(_running_tasks.discard)
+
+
 
 @app.get("/")
 async def root():
@@ -395,6 +417,115 @@ async def resolve_dispute(request: DisputeRequest):
         language=request.language,
     )
     return result
+
+
+@app.get("/api/disputes/cases")
+async def list_dispute_cases():
+    """Demo cases available on the (simulated) platform, for the dashboard picker."""
+    from src.integrations.ryde_api import RydeAPIClient
+
+    return {"cases": RydeAPIClient().list_orders()}
+
+
+@app.get("/api/disputes/cases/{order_id}")
+async def get_dispute_case(order_id: str):
+    """
+    One case for the dashboard: `dataset` is exactly what the agents receive
+    (answer keys stripped); `expected_outcome` is the answer key, shown only
+    for comparison after a run and never passed to any agent.
+    """
+    from src.integrations.ryde_api import RydeAPIClient, load_dispute_dataset
+
+    api = RydeAPIClient()
+    dataset = await api.get_order_dataset(order_id)
+    if dataset is None:
+        raise HTTPException(status_code=404, detail=f"Order {order_id} not found")
+    raw = load_dispute_dataset(api._index[order_id])
+    return {"order_id": order_id, "dataset": dataset,
+            "expected_outcome": raw.get("expected_outcome")}
+
+
+@app.post("/api/disputes/resolve-stream")
+async def resolve_dispute_stream(request: DisputeRequest):
+    """
+    Same pipeline as /api/disputes/resolve, streamed as Server-Sent Events.
+
+    Each agent step emits step_start / llm_call / step_end events (see
+    src/core/trace.py), then a final `result` (or `error`) and `done`.
+    The full trace is also saved to data/traces/ so it can be replayed
+    without spending LLM quota.
+    """
+    tracer = Tracer()
+
+    async def run():
+        set_tracer(tracer)  # only affects this task's context
+        tracer.emit({"type": "run_start", "request": request.model_dump()})
+        try:
+            result = await Orchestrator().resolve(
+                report_text=request.report_text,
+                order_id=request.order_id,
+                reporter=request.reporter,
+                evidence=request.evidence,
+                language=request.language,
+            )
+            tracer.emit({"type": "result", "result": result})
+        except Exception as exc:
+            tracer.emit({"type": "error", "message": str(exc)})
+        finally:
+            name = _save_trace(request.order_id, tracer.events)
+            tracer.emit({"type": "done", "trace_name": name})
+            tracer.close()
+
+    # Keep a reference so the task isn't garbage-collected mid-run
+    task = asyncio.create_task(run())
+    _running_tasks.add(task)
+    task.add_done_callback(_running_tasks.discard)
+
+    async def event_stream():
+        while True:
+            event = await tracer.queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+def _save_trace(order_id: str, events: list[dict]) -> str | None:
+    try:
+        os.makedirs(TRACES_DIR, exist_ok=True)
+        safe = re.sub(r"[^A-Za-z0-9_-]", "_", order_id)
+        name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_{safe}.json"
+        with open(os.path.join(TRACES_DIR, name), "w", encoding="utf-8") as f:
+            json.dump(events, f, ensure_ascii=False, indent=1)
+        return name
+    except Exception:
+        return None
+
+
+@app.get("/api/disputes/traces")
+async def list_traces():
+    """Saved pipeline runs, newest first."""
+    if not os.path.isdir(TRACES_DIR):
+        return {"traces": []}
+    names = sorted((n for n in os.listdir(TRACES_DIR) if n.endswith(".json")), reverse=True)
+    return {"traces": names[:50]}
+
+
+@app.get("/api/disputes/traces/{name}")
+async def get_trace(name: str):
+    """One saved run's events, for replay in the dashboard."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+\.json", name):
+        raise HTTPException(status_code=400, detail="Invalid trace name")
+    path = os.path.join(TRACES_DIR, name)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Trace not found")
+    with open(path, encoding="utf-8") as f:
+        return {"name": name, "events": json.load(f)}
 
 
 @app.post("/api/disputes/resolve-with-files")

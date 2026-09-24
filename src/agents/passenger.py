@@ -7,9 +7,11 @@ values or policy references.
 The policies referenced by this agent are synthetic hackathon demo policies
 and do not represent official Ryde records or policies.
 """
+import asyncio
 import json
 import logging
 
+from src.core.trace import record_retrieval
 from src.agents.collector import DisputeContext, DisputeType
 from src.rag.retriever import DocumentRetriever
 from src.core.llm_client import LLMClient
@@ -501,7 +503,9 @@ class PassengerAgent:
         dispute_description = context.description or ""
 
         try:
-            clauses = retriever.retrieve_for_dispute(
+            # Blocking (ChromaDB + embedding API): run off the event loop
+            clauses = await asyncio.to_thread(
+                retriever.retrieve_for_dispute,
                 dispute_type=dispute_type,
                 dispute_description=dispute_description,
             )
@@ -509,4 +513,5 @@ class PassengerAgent:
             logger.warning("Policy retrieval failed: %s", exc)
             return []
 
+        record_retrieval(dispute_type, clauses or [])
         return clauses or []
