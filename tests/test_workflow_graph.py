@@ -224,8 +224,9 @@ class StubFairness:
 
 
 class StubExecutor:
-    def __init__(self, raise_error: bool = False):
+    def __init__(self, raise_error: bool = False, result: dict | None = None):
         self.raise_error = raise_error
+        self.result = result
         self.calls = 0
         self.last_decision = None
 
@@ -234,6 +235,8 @@ class StubExecutor:
         self.last_decision = decision
         if self.raise_error:
             raise RuntimeError("executor boom")
+        if self.result is not None:
+            return self.result
         return {
             "dispute_id": dispute_id,
             "executed": True,
@@ -330,6 +333,43 @@ class TestGraphRouting:
         assert fairness.calls == 1
         assert executor.calls == 1
         assert final["status"] == STATUS_RESOLVED
+
+    @pytest.mark.asyncio
+    async def test_arbitrator_human_review_flag_skips_executor_even_if_fairness_passes(self):
+        arbitrator = StubArbitrator(decision=make_decision(human_review_needed=True))
+        fairness = StubFairness(assessment=make_fairness())
+        executor = StubExecutor()
+        graph = build_graph(arbitrator=arbitrator, fairness=fairness, executor=executor)
+
+        final = await graph.ainvoke(initial_state())
+
+        assert fairness.calls == 1  # preserve the fairness audit for the reviewer
+        assert executor.calls == 0
+        assert final["status"] == STATUS_ESCALATED
+        assert final["human_review_reason"] == "Arbitrator requested human review."
+        assert final["execution"] is None
+
+    @pytest.mark.asyncio
+    async def test_executor_escalation_does_not_mark_case_resolved(self):
+        executor = StubExecutor(result={"executed": False, "status": "escalated_to_human"})
+        graph = build_graph(executor=executor)
+
+        final = await graph.ainvoke(initial_state())
+
+        assert final["status"] == STATUS_ESCALATED
+        assert final["execution"]["executed"] is False
+        assert final["human_review_reason"] == "Executor requested human review."
+
+    @pytest.mark.asyncio
+    async def test_executor_failure_does_not_mark_case_resolved(self):
+        executor = StubExecutor(result={"executed": False, "status": "failed", "error": "refund simulation failed"})
+        graph = build_graph(executor=executor)
+
+        final = await graph.ainvoke(initial_state())
+
+        assert final["status"] == STATUS_FAILED
+        assert final["execution"]["executed"] is False
+        assert final["error"]["node"] == "executor"
 
     @pytest.mark.asyncio
     async def test_fairness_requires_human_review_never_runs_executor(self):
@@ -477,6 +517,26 @@ class TestOrchestratorApi:
         assert summary["trip_distance_km"] == 10.4
         assert summary["fare_discrepancy"] == 3.7
         assert summary["rider_rating"] == 4.9
+
+    @pytest.mark.asyncio
+    async def test_executor_failure_response_keeps_audit_trail(self):
+        executor = StubExecutor(result={
+            "executed": False,
+            "status": "failed",
+            "error": "refund simulation failed",
+        })
+        orchestrator = Orchestrator(workflow=build_graph(executor=executor))
+
+        response = await orchestrator.resolve(
+            report_text="Driver overcharged me.",
+            order_id="RYDE-001",
+        )
+
+        assert response["status"] == "failed"
+        assert response["error"]["node"] == "executor"
+        assert response["execution"]["executed"] is False
+        assert response["verdict"]["verdict"] == "partially_upheld"
+        assert response["fairness"]["recommendation"] == "proceed"
 
     @pytest.mark.asyncio
     async def test_classifier_escalation_response_shape_is_legacy_compatible(self):

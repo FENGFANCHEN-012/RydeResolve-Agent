@@ -15,11 +15,11 @@ Graph topology::
       -> [route_after_error]  -> fairness  (or human_review on failure)
       -> fairness
       -> [route_after_fairness]
-             requires_human_review=True, or recommendation is
+             arbitrator requests review, requires_human_review=True, or recommendation is
              AMEND_RECOMMENDED / ESCALATE / BLOCK, or node error
                                             -> human_review -> END
              PROCEED                        -> executor
-      -> executor -> END
+      -> executor -> END (resolved only when execution succeeds)
 
 Design principles:
 - **Reuse, don't rewrite**: every node is a thin async adapter around the
@@ -46,7 +46,11 @@ from langgraph.graph import END, START, StateGraph
 from src.agents.arbitrator import ArbitrationAgent
 from src.agents.classifier import ClassifierAgent
 from src.agents.collector import CollectorAgent
-from src.agents.executor import ExecutionAgent
+from src.agents.executor import (
+    ExecutionAgent,
+    STATUS_ESCALATED as EXECUTION_STATUS_ESCALATED,
+    STATUS_EXECUTED as EXECUTION_STATUS_EXECUTED,
+)
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.core.debate import DebateEngine
 from src.core.workflow_state import (
@@ -199,13 +203,36 @@ def build_dispute_graph(
         execution = await executor.execute(
             state["decision"], state["context"].dispute_id
         )
-        return {"execution": execution, "status": STATUS_RESOLVED}
+        if not isinstance(execution, dict):
+            raise ValueError("Executor returned no structured result")
+        if execution.get("status") == EXECUTION_STATUS_EXECUTED and execution.get("executed") is True:
+            return {"execution": execution, "status": STATUS_RESOLVED}
+        if execution.get("status") == EXECUTION_STATUS_ESCALATED and execution.get("executed") is False:
+            return {
+                "execution": execution,
+                "status": STATUS_ESCALATED,
+                "human_review_reason": "Executor requested human review.",
+            }
+        message = execution.get("error") or "Executor did not complete the decision."
+        return {
+            "execution": execution,
+            "status": STATUS_FAILED,
+            "error": {"node": NODE_EXECUTOR, "type": "ExecutionFailed", "message": str(message)},
+            "human_review_reason": f"Execution failed; human review required: {message}",
+        }
 
     async def human_review_node(state: DisputeWorkflowState) -> dict:
         """Terminal bookkeeping node for every non-execution exit path."""
         # A failed node already recorded status/error/reason — keep them.
         if state.get("status") == STATUS_FAILED:
             return {"execution": None}
+        decision = state.get("decision")
+        if decision is not None and decision.human_review_needed:
+            return {
+                "status": STATUS_ESCALATED,
+                "human_review_reason": "Arbitrator requested human review.",
+                "execution": None,
+            }
         # Fairness-driven escalation (arbitrator already ran).
         fairness = state.get("fairness")
         if fairness is not None:
@@ -244,10 +271,11 @@ def build_dispute_graph(
         return NODE_DEBATE
 
     def route_after_fairness(state: DisputeWorkflowState) -> str:
-        """Fairness gate: only PROCEED (with no human-review flag) may
-        reach the executor. AMEND_RECOMMENDED, ESCALATE, BLOCK, and any
-        requires_human_review=True all divert to human review."""
+        """Only decisions cleared by both the arbitrator and fairness may execute."""
         if state.get("error"):
+            return NODE_HUMAN_REVIEW
+        decision = state.get("decision")
+        if decision is None or decision.human_review_needed:
             return NODE_HUMAN_REVIEW
         fairness = state.get("fairness")
         if fairness is None:
