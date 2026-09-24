@@ -12,7 +12,7 @@ load_dotenv()
 # LLM Configuration (Google Gemini)
 # ============================================================
 # Gemini API Key: https://aistudio.google.com/app/apikey
-# Free tier: generous daily limits
+# Free-tier request limits vary by model and project; see AI Studio.
 # Chat model: gemini-3.6-flash (fast, cheap)
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.6-flash")
@@ -51,7 +51,9 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # ============================================================
 # Agent Settings
 # ============================================================
-MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "3"))
+# A single rebuttal round keeps one full dispute within a small daily quota.
+# Set MAX_DEBATE_ROUNDS=3 explicitly when a larger request budget is available.
+MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 
