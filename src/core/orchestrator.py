@@ -95,6 +95,12 @@ class Orchestrator:
                 response["order_id"] = context.order_id
             if classification is not None:
                 response["classification"] = classification.model_dump()
+            if decision is not None:
+                response["verdict"] = decision.model_dump()
+            if fairness is not None:
+                response["fairness"] = fairness.model_dump()
+            if execution is not None:
+                response["execution"] = execution
             return response
 
         # -- Escalation to human review --------------------------------
@@ -123,7 +129,7 @@ class Orchestrator:
                 response["verdict"] = decision.model_dump()
             if fairness is not None:
                 response["fairness"] = fairness.model_dump()
-            response["execution"] = execution  # None on this path
+            response["execution"] = execution  # Present if the executor requested review
             response["debate_rounds"] = len(debate_history)
             return response
 
