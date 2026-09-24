@@ -6,9 +6,9 @@ API: https://aistudio.google.com/app/apikey
 Model: gemini-embedding-2 (3072 dimensions)
 Free tier: generous daily limits
 
-Fallback chain:
-1. Gemini Embedding API (if LLM_API_KEY is set)
-2. Simple hash-based embedding (for local dev without API key)
+Default: deterministic local hash embedding, independent of the LLM API key.
+Set EMBEDDING_PROVIDER=gemini for both indexing and retrieval to opt in to
+Gemini embeddings, then re-index the policy collection.
 """
 import hashlib
 import numpy as np
@@ -16,6 +16,7 @@ import google.generativeai as genai
 
 from src.config import (
     LLM_API_KEY,
+    EMBEDDING_PROVIDER,
     EMBEDDING_MODEL,
     EMBEDDING_DIMENSION,
 )
@@ -69,7 +70,7 @@ class GeminiEmbeddingClient:
 
 class SimpleHashEmbedding:
     """
-    Fallback embedding for local dev without API keys.
+    Local embedding provider for reproducible policy retrieval.
     Uses word-level hashing to create a fixed-size vector.
     """
 
@@ -92,15 +93,17 @@ class SimpleHashEmbedding:
 
 class EmbeddingManager:
     """
-    Manages embedding generation with fallback chain:
-    1. Google Gemini Embedding (if LLM_API_KEY is set)
-    2. Simple hash-based (always available)
+    Uses the same provider for indexing and retrieval, regardless of whether
+    an LLM API key is configured for text generation.
     """
 
     def __init__(self):
         self.gemini_client = GeminiEmbeddingClient()
         self.hash_embedding = SimpleHashEmbedding()
-        self._mode = "gemini" if self.gemini_client.is_available else "hash"
+        self._mode = (
+            "gemini" if EMBEDDING_PROVIDER == "gemini" and self.gemini_client.is_available
+            else "hash"
+        )
 
     @property
     def mode(self) -> str:
@@ -113,26 +116,21 @@ class EmbeddingManager:
         return SimpleHashEmbedding.DIM
 
     async def embed(self, text: str) -> list[float]:
-        """Get embedding vector for text with fallback."""
+        """Get an embedding from the selected provider."""
         if self._mode == "gemini":
             vec = await self.gemini_client.embed(text)
-            if vec is not None:
-                return vec
-            print("Gemini embedding failed, falling back to hash embedding")
-            return self.hash_embedding._embed(text)
+            if vec is None:
+                raise RuntimeError("Gemini embedding failed; refusing to mix embedding providers")
+            return vec
         return self.hash_embedding._embed(text)
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Get embeddings for multiple texts."""
         if self._mode == "gemini":
             results = await self.gemini_client.embed_batch(texts)
-            final = []
-            for i, vec in enumerate(results):
-                if vec is not None:
-                    final.append(vec)
-                else:
-                    final.append(self.hash_embedding._embed(texts[i]))
-            return final
+            if any(vec is None for vec in results):
+                raise RuntimeError("Gemini embedding failed; refusing to mix embedding providers")
+            return results
         return self.hash_embedding(texts)
 
 
