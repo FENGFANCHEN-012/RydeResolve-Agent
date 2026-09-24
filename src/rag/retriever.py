@@ -71,12 +71,15 @@ class DocumentRetriever:
         """Retrieve document chunks relevant to a specific dispute type."""
         type_mapping = {
             "route_deviation": "driver took longer route overcharged fare route compliance",
-            "no_show_charge": "driver did not show up cancellation fee no-show rider absent",
+            "no_show": "no-show charge rider present driver arrival grace period cancellation fee",
+            "no_show_charge": "no-show charge rider present driver arrival grace period cancellation fee",
             "fare_dispute": "fare overcharging surge pricing promo code payment",
             "cancellation_refund": "cancellation refund fee rider driver cancel",
             "service_quality": "rude behavior unsafe driving detour rating retaliation",
             "property_damage": "rider damage vehicle mess cleaning fee spill",
             "safety_incident": "safety incident inappropriate behavior harassment",
+            "driver_rights": "driver appeal cleaning claim compensation receipt photo evidence",
+            "accident_liability": "safety incident P0 escalation injury accident human review",
         }
         type_context = type_mapping.get(dispute_type, "")
         query = f"{dispute_description} {type_context}".strip()
