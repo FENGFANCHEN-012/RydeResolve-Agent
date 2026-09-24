@@ -321,11 +321,14 @@
 .rr-bubble.p { --c: var(--agent-passenger); align-self: flex-start; border-bottom-left-radius: 4px; }
 .rr-bubble.d { --c: var(--agent-driver); align-self: flex-end; border-bottom-right-radius: 4px; }
 .rr-bubble.pol { --c: var(--agent-policy); align-self: center; max-width: 94%; border-style: dashed; }
+.rr-bubble.failed { --c: var(--accent-pink); border-color: var(--accent-pink); }
 .rr-bubble .who { font-size: 11px; font-weight: 700; color: var(--c); display: flex; gap: var(--s-sm); align-items: baseline; }
 .rr-bubble .who span { color: var(--on-dark-muted); font-weight: 400; }
 .rr-bubble .txt { font-size: 13px; line-height: 1.5; margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rr-bubble .reply { font-size: 11px; color: var(--on-dark-muted); margin-bottom: 3px; }
 .rr-bubble.typing .txt::after { content: "…"; animation: rrPulse 1s infinite; }
+.rr-run-alert, .rr-issue { color: var(--accent-pink); }
+.rr-run-alert { border: 1px solid var(--accent-pink); border-radius: var(--r-sm); padding: 10px 12px; line-height: 1.5; }
 
 @keyframes rrPulse { 50% { opacity: 0.3; } }
 @keyframes rrFlow { to { stroke-dashoffset: -11; } }
