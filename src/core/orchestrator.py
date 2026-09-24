@@ -1,29 +1,40 @@
 """
 Agent Orchestrator
-Coordinates the full dispute resolution pipeline.
+
+Thin wrapper around the LangGraph dispute-resolution workflow defined in
+``src/core/workflow.py``. It owns no pipeline logic: it translates the
+public ``resolve(...)`` API into an initial graph state, runs the graph,
+and translates the final state back into the legacy response shape so the
+FastAPI layer and frontend remain unchanged.
+
+Legacy behaviour preserved:
+- ``resolve(report_text, order_id, reporter, evidence, language) -> dict``
+- classifier escalations return ``status="escalated_to_human"`` with the
+  ``platform_data`` payload and the legacy reason string
+- the resolved path returns the same top-level keys as before, plus a new
+  additive ``"fairness"`` key for the audit trail
 """
-from src.agents.collector import CollectorAgent, DisputeContext, EvidenceItem
-from src.agents.classifier import ClassifierAgent, ClassificationResult
-from src.agents.passenger import PassengerAgent
-from src.agents.driver import DriverAgent
-from src.agents.policy import PolicyAgent
-from src.agents.arbitrator import ArbitrationAgent, Decision
-from src.agents.executor import ExecutionAgent
-from src.core.debate import DebateEngine
+from src.agents.collector import DisputeContext, EvidenceItem
+from src.core.workflow import build_dispute_graph
+from src.core.workflow_state import (
+    STATUS_ESCALATED,
+    STATUS_FAILED,
+    STATUS_RESOLVED,
+    DisputeWorkflowState,
+)
 
 
 class Orchestrator:
     """
-    Main pipeline:
-    1. Collect (with Ryde API + evidence) -> 2. Classify -> 3. Debate -> 4. Arbitrate -> 5. Execute
+    Public entry point for the dispute-resolution pipeline:
+
+    1. Collect -> 2. Classify -> 3. Debate -> 4. Arbitrate
+    -> 5. Fairness check -> 6. Execute / Escalate to human review
     """
 
-    def __init__(self):
-        self.collector = CollectorAgent()
-        self.classifier = ClassifierAgent()
-        self.debate_engine = DebateEngine()
-        self.arbitrator = ArbitrationAgent()
-        self.executor = ExecutionAgent()
+    def __init__(self, workflow=None):
+        # The compiled LangGraph; injectable for tests.
+        self.workflow = workflow or build_dispute_graph()
 
     async def resolve(
         self,
@@ -44,61 +55,96 @@ class Orchestrator:
             language: Language code (en, zh, ms, ta)
 
         Returns:
-            Full resolution result with classification, verdict, and execution status
+            Full resolution result with classification, verdict, fairness
+            assessment, and execution status
         """
-        # Step 1: Collect information (from Ryde API + user report + evidence)
-        context = await self.collector.collect(
-            report_text=report_text,
-            order_id=order_id,
-            reporter=reporter,
-            evidence=evidence or [],
-            language=language,
+        final_state: DisputeWorkflowState = await self.workflow.ainvoke(
+            {
+                "report_text": report_text,
+                "order_id": order_id,
+                "reporter": reporter,
+                "evidence": evidence or [],
+                "language": language,
+            }
         )
+        return self._to_response(final_state)
 
-        # Step 2: Classify dispute
-        classification = await self.classifier.classify(context)
-        context.type = classification.dispute_type
+    # ------------------------------------------------------------------
+    # Response translation
+    # ------------------------------------------------------------------
 
-        # Check if human intervention required (safety/legal)
-        if classification.requires_human:
+    def _to_response(self, state: DisputeWorkflowState) -> dict:
+        status = state.get("status")
+        context: DisputeContext | None = state.get("context")
+        classification = state.get("classification")
+        decision = state.get("decision")
+        fairness = state.get("fairness")
+        execution = state.get("execution")
+        debate_history = state.get("debate_history") or []
+
+        # -- Node failure: fail loudly but safely ----------------------
+        if status == STATUS_FAILED:
+            response: dict = {
+                "status": STATUS_FAILED,
+                "reason": state.get("human_review_reason")
+                or "Workflow failed; dispute routed to human review.",
+                "error": state.get("error"),
+            }
+            if context is not None:
+                response["dispute_id"] = context.dispute_id
+                response["order_id"] = context.order_id
+            if classification is not None:
+                response["classification"] = classification.model_dump()
+            return response
+
+        # -- Escalation to human review --------------------------------
+        if status == STATUS_ESCALATED:
+            if context is not None:
+                response = {
+                    "dispute_id": context.dispute_id,
+                    "order_id": context.order_id,
+                    "status": STATUS_ESCALATED,
+                    "reason": state.get("human_review_reason")
+                    or "Requires human review",
+                    "platform_data": self._platform_data(context),
+                }
+            else:
+                response = {
+                    "dispute_id": None,
+                    "status": STATUS_ESCALATED,
+                    "reason": state.get("human_review_reason")
+                    or "Requires human review",
+                }
+            if classification is not None:
+                response["classification"] = classification.model_dump()
+            # Fairness-driven escalation: expose the full audit trail
+            # (decision + fairness assessment) for the human reviewer.
+            if decision is not None:
+                response["verdict"] = decision.model_dump()
+            if fairness is not None:
+                response["fairness"] = fairness.model_dump()
+            response["execution"] = execution  # None on this path
+            response["debate_rounds"] = len(debate_history)
+            return response
+
+        # -- Resolved (executor ran) ------------------------------------
+        if context is None or decision is None:
+            # Defensive: should not happen on the resolved path.
             return {
-                "dispute_id": context.dispute_id,
-                "status": "escalated_to_human",
-                "reason": "Safety/legal issue requires human review",
-                "classification": classification.model_dump(),
-                "platform_data": {
-                    "trip": context.trip,
-                    "payment": context.payment,
-                    "chat_log": context.chat_log,
-                    "gps_trace": context.gps_trace,
-                    "rider_profile": context.rider_profile,
-                    "driver_profile": context.driver_profile,
-                    "evidence": [ev.model_dump() for ev in context.evidence],
-                },
+                "status": STATUS_FAILED,
+                "reason": "Workflow finished without a decision.",
+                "error": {"node": "orchestrator", "type": "InvariantError",
+                          "message": "resolved state missing context/decision"},
             }
 
-        # Step 3: Multi-agent debate
-        debate_history = await self.debate_engine.debate(context)
-
-        # Step 4: Arbitrate
-        decision = await self.arbitrator.arbitrate(
-            context=context.model_dump(),
-            passenger_analysis=debate_history[0]["content"],
-            driver_analysis=debate_history[1]["content"],
-            policy_evaluation=debate_history[2]["content"],
-            debate_history=debate_history,
-        )
-
-        # Step 5: Execute decision
-        execution_result = await self.executor.execute(decision, context.dispute_id)
-
-        return {
+        response = {
             "dispute_id": context.dispute_id,
             "order_id": context.order_id,
-            "status": "resolved",
-            "classification": classification.model_dump(),
+            "status": STATUS_RESOLVED,
+            "classification": classification.model_dump() if classification else None,
             "verdict": decision.model_dump(),
-            "execution": execution_result,
+            "fairness": fairness.model_dump() if fairness else None,
+            "execution": execution,
             "debate_rounds": len(debate_history),
             "platform_data_summary": {
                 "trip_distance_km": context.trip.get("actual_distance_km") if context.trip else None,
@@ -109,6 +155,24 @@ class Orchestrator:
                 "rider_rating": context.rider_profile.get("rating") if context.rider_profile else None,
                 "driver_rating": context.driver_profile.get("rating") if context.driver_profile else None,
             },
+        }
+        return response
+
+    # ------------------------------------------------------------------
+    # Legacy helpers (unchanged)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _platform_data(context: DisputeContext) -> dict:
+        """Legacy ``platform_data`` payload for escalated disputes."""
+        return {
+            "trip": context.trip,
+            "payment": context.payment,
+            "chat_log": context.chat_log,
+            "gps_trace": context.gps_trace,
+            "rider_profile": context.rider_profile,
+            "driver_profile": context.driver_profile,
+            "evidence": [ev.model_dump() for ev in context.evidence],
         }
 
     @staticmethod
