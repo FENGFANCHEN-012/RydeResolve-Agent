@@ -3,6 +3,8 @@ Unified LLM Client
 Uses Google Gemini API for chat completions.
 """
 import asyncio
+import os
+import re
 import time
 
 import google.generativeai as genai
@@ -13,6 +15,24 @@ from src.config import (
     LLM_TEMPERATURE,
     LLM_MAX_TOKENS,
 )
+
+
+# Free-tier default: 5 generate-content requests per minute, per project/model.
+# Space calls across all agent instances in this server process. Paid projects
+# can lower the interval via LLM_MIN_REQUEST_INTERVAL_SECONDS.
+_MIN_INTERVAL_SECONDS = max(0.0, float(os.getenv("LLM_MIN_REQUEST_INTERVAL_SECONDS", "13")))
+_rate_lock = asyncio.Lock()
+_next_request_at = 0.0
+
+
+async def _wait_for_request_slot() -> None:
+    global _next_request_at
+    async with _rate_lock:
+        delay = max(0.0, _next_request_at - time.monotonic())
+        if delay:
+            await asyncio.sleep(delay)
+        _next_request_at = time.monotonic() + _MIN_INTERVAL_SECONDS
+
 
 
 class LLMClient:
@@ -90,11 +110,23 @@ class LLMClient:
         # live trace stream) keeps running during the call
         t0 = time.perf_counter()
         try:
-            response = await asyncio.to_thread(
-                chat.send_message,
-                prompt,
-                generation_config=generation_config,
-            )
+            for attempt in range(2):
+                await _wait_for_request_slot()
+                try:
+                    response = await asyncio.to_thread(
+                        chat.send_message,
+                        prompt,
+                        generation_config=generation_config,
+                    )
+                    break
+                except Exception as exc:
+                    message = str(exc)
+                    if attempt == 0 and "GenerateRequestsPerMinute" in message:
+                        match = re.search(r"Please retry in ([0-9.]+)s", message)
+                        delay = float(match.group(1)) if match else 60.0
+                        await asyncio.sleep(min(120.0, max(1.0, delay + 1.0)))
+                        continue
+                    raise
             text = response.text
         except Exception as exc:
             record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc))
