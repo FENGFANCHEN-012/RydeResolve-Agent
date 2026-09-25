@@ -141,6 +141,33 @@ class TestArbitrationAgent:
         assert decision.human_review_needed is True
 
     @pytest.mark.asyncio
+    async def test_refs_verified_by_policy_agent_are_kept(self, minimal_inputs):
+        """The real PolicyAgent output lists verified refs in policy_references
+        (no policies/chunks list). Citing them must not force human review."""
+        minimal_inputs["policy_evaluation"] = {
+            "passenger_compliant": True,
+            "driver_compliant": False,
+            "violations": ["Driver cancelled as no-show without arriving"],
+            "policy_references": ["Cancellation Policy#4", "Dispute Resolution Guide#2"],
+            "reasoning": "Fee requires driver arrival.",
+        }
+        fake_response = json.dumps({
+            "verdict": "upheld",
+            "confidence": 0.94,
+            "rationale": "Driver never arrived.",
+            "refund_amount": 8.0,
+            "policy_references": ["Cancellation Policy#4", "Dispute Resolution Guide#2"],
+            "human_review_needed": False,
+            "escalation_recommended": False,
+        })
+        agent = ArbitrationAgent(llm_client=FakeLLMClient(fake_response))
+        decision = await agent.arbitrate(**minimal_inputs)
+
+        assert decision.policy_references == ["Cancellation Policy#4", "Dispute Resolution Guide#2"]
+        assert "unverified" not in decision.rationale.lower()
+        assert decision.human_review_needed is False
+
+    @pytest.mark.asyncio
     async def test_low_confidence_triggers_human_review(self, minimal_inputs):
         """Confidence <= threshold → human_review_needed enforced."""
         fake_response = json.dumps({

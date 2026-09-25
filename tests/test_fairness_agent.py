@@ -357,6 +357,21 @@ class TestPolicyReferenceHandling:
         assert "fake_policy#999" in assessment.audit_details.hallucinated_policy_refs
 
     @pytest.mark.asyncio
+    async def test_refs_verified_by_policy_agent_are_not_hallucinated(self):
+        # Real PolicyAgent output: verified refs in policy_references, no policies list
+        policy = make_policy_evaluation(policy_references=["Cancellation Policy#4"])
+        policy.pop("policies", None)
+        decision = make_decision(policy_references=["Cancellation Policy#4"])
+        inp = make_input(decision=decision, policy_evaluation=policy)
+        agent = FairnessAgent(llm_client=FakeLLMClient())
+        assessment = await agent.assess(inp)
+
+        codes = {i.code for i in assessment.issues}
+        assert FairnessIssueCode.HALLUCINATED_POLICY_REFS not in codes
+        assert FairnessIssueCode.NO_POLICY_SUPPORT not in codes
+        assert assessment.audit_details.hallucinated_policy_refs == []
+
+    @pytest.mark.asyncio
     async def test_no_policy_support_when_retrieval_empty_but_decision_cites(self):
         policy = make_policy_evaluation(policies=[], policy_references=[])
         decision = make_decision(policy_references=["something#1"])
