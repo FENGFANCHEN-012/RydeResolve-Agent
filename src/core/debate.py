@@ -10,6 +10,22 @@ from src.config import MAX_DEBATE_ROUNDS
 from src.core.trace import step
 
 
+def _fail_if_daily_quota_exhausted(result) -> None:
+    """Stop before subsequent agents spend requests on an incomplete debate."""
+    details = result if isinstance(result, str) else " ".join(
+        str(result.get(key, "")) for key in ("reasoning", "reason", "error")
+    ) if isinstance(result, dict) else ""
+    details = details.lower()
+    if "generaterequestsperday" in details or (
+        ("tokens per day" in details or "tpd" in details)
+        and ("429" in details or "rate_limit_exceeded" in details)
+    ):
+        raise RuntimeError(
+            "AI provider daily quota exhausted; no reliable automated ruling was produced."
+        )
+
+
+
 class DebateEngine:
     """
     Orchestrates multi-round adversarial debate:
@@ -40,12 +56,15 @@ class DebateEngine:
         async with step("Passenger", "Passenger advocate: opening analysis", {"sees": sees}) as s:
             passenger_analysis = await self.passenger_agent.analyze(context)
             s["output"] = passenger_analysis
+        _fail_if_daily_quota_exhausted(passenger_analysis)
         async with step("Driver", "Driver advocate: opening analysis", {"sees": sees}) as s:
             driver_analysis = await self.driver_agent.analyze(context)
             s["output"] = driver_analysis
+        _fail_if_daily_quota_exhausted(driver_analysis)
         async with step("Policy", "Policy compliance check (RAG)", {"sees": sees}) as s:
             policy_eval = await self.policy_agent.evaluate_compliance(context)
             s["output"] = policy_eval
+        _fail_if_daily_quota_exhausted(policy_eval)
 
         history.append({
             "round": 0,
@@ -74,6 +93,7 @@ class DebateEngine:
                             {"rebutting": driver_arg}) as s:
                 p_rebuttal = await self.passenger_agent.rebut(driver_arg, context)
                 s["output"] = p_rebuttal
+            _fail_if_daily_quota_exhausted(p_rebuttal)
             history.append({
                 "round": round_num,
                 "speaker": "passenger",
@@ -85,6 +105,7 @@ class DebateEngine:
                             {"rebutting": p_rebuttal}) as s:
                 d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context)
                 s["output"] = d_rebuttal
+            _fail_if_daily_quota_exhausted(d_rebuttal)
             history.append({
                 "round": round_num,
                 "speaker": "driver",
