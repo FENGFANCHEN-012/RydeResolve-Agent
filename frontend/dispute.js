@@ -125,7 +125,7 @@ function rrStepIssue(step) {
         typeof out === 'string' ? out : out?.error,
         out?.reasoning, out?.reason,
     ].filter(value => typeof value === 'string').join(' ');
-    if (/tokens per day|\\bTPD\\b/i.test(details) && /rate_limit_exceeded|429/i.test(details)) {
+    if (/tokens per day|TPD/i.test(details) && /rate_limit_exceeded|429/i.test(details)) {
         return { kind: 'daily', short: 'Groq daily token limit reached',
             message: 'Groq’s daily token limit was reached. The remaining AI analysis was not completed, so this run has no reliable verdict.' };
     }
