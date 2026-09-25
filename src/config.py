@@ -19,6 +19,13 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.6-flash")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 
+# Chat provider: "gemini" (default) or "groq" (OpenAI-compatible API, free tier:
+# https://console.groq.com/keys). Embeddings always use Gemini; Groq has none.
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").strip().lower()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
+
 # ============================================================
 # Embedding Configuration (Google Gemini)
 # ============================================================
