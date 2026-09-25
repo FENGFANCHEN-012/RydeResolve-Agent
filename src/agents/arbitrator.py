@@ -197,6 +197,11 @@ class ArbitrationAgent:
                         source = item.get("source", "unknown")
                         chunk = item.get("chunk_index", idx)
                         refs.add(f"{source}#{chunk}")
+        # The Policy agent returns the references it already checked against
+        # the retrieved clauses; without these every citation would be stripped
+        for ref in policy_evaluation.get("policy_references") or []:
+            if isinstance(ref, str) and ref:
+                refs.add(ref)
         return refs
 
     def _sanitize_policy_refs(self, parsed: dict, valid_refs: set[str]) -> dict:

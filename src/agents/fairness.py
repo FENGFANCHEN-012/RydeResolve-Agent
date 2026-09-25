@@ -763,6 +763,11 @@ class FairnessAgent:
                         source = item.get("source", "unknown")
                         chunk = item.get("chunk_index", idx)
                         refs.add(f"{source}#{chunk}")
+        # The Policy agent returns the references it already checked against
+        # the retrieved clauses; without these every citation looks hallucinated
+        for ref in policy_evaluation.get("policy_references") or []:
+            if isinstance(ref, str) and ref:
+                refs.add(ref)
         return refs
 
     @staticmethod
