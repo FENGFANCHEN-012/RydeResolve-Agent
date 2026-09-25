@@ -1,6 +1,8 @@
 """
 Unified LLM Client
-Uses Google Gemini API for chat completions.
+Chat completions through Google Gemini (default) or Groq, picked by
+LLM_PROVIDER in .env. Groq uses the OpenAI-compatible API, so agents keep the
+same chat() / chat_json() calls whichever provider is active.
 """
 import asyncio
 import os
@@ -10,8 +12,12 @@ import time
 import google.generativeai as genai
 from src.core.trace import record_llm_call
 from src.config import (
+    GROQ_API_KEY,
+    GROQ_BASE_URL,
+    GROQ_MODEL,
     LLM_API_KEY,
     LLM_MODEL,
+    LLM_PROVIDER,
     LLM_TEMPERATURE,
     LLM_MAX_TOKENS,
 )
@@ -37,16 +43,48 @@ async def _wait_for_request_slot() -> None:
 
 class LLMClient:
     """
-    Unified LLM client wrapping Google Gemini API.
+    Unified LLM client wrapping Google Gemini or Groq.
     """
 
     def __init__(self):
-        self.api_key = LLM_API_KEY
-        self.model = LLM_MODEL
+        self.provider = LLM_PROVIDER
+        self.api_key = GROQ_API_KEY if self.provider == "groq" else LLM_API_KEY
+        self.model = GROQ_MODEL if self.provider == "groq" else LLM_MODEL
         self.temperature = LLM_TEMPERATURE
         self.max_tokens = LLM_MAX_TOKENS
         self._configured = False
         self._client = None
+        self._groq = None
+
+    def _get_groq(self):
+        if self._groq is None:
+            from openai import AsyncOpenAI
+            if not self.api_key:
+                raise RuntimeError("LLM_PROVIDER=groq but GROQ_API_KEY is not set in .env")
+            # max_retries: the SDK waits out 429s (honouring retry-after) before giving up
+            self._groq = AsyncOpenAI(api_key=self.api_key, base_url=GROQ_BASE_URL, max_retries=4)
+        return self._groq
+
+    async def _chat_groq(self, messages, temperature, max_tokens, response_format) -> str:
+        """One chat completion on Groq, recorded in the trace like the Gemini path."""
+        prompt = "\n\n".join(f"[{m.get('role', 'user')}]\n{m.get('content', '')}" for m in messages)
+        kwargs = {
+            "model": self.model,
+            "messages": [{"role": m.get("role", "user"), "content": m.get("content", "")} for m in messages],
+            "temperature": temperature if temperature is not None else self.temperature,
+            "max_tokens": max_tokens if max_tokens is not None else self.max_tokens,
+        }
+        if response_format:
+            kwargs["response_format"] = response_format
+        t0 = time.perf_counter()
+        try:
+            response = await self._get_groq().chat.completions.create(**kwargs)
+            text = response.choices[0].message.content or ""
+        except Exception as exc:
+            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc))
+            raise
+        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000))
+        return text
 
     def _ensure_configured(self):
         if not self._configured:
@@ -78,6 +116,9 @@ class LLMClient:
         Returns:
             The assistant's response text
         """
+        if self.provider == "groq":
+            return await self._chat_groq(messages, temperature, max_tokens, response_format)
+
         model = self._get_model()
 
         # Convert OpenAI-style messages to Gemini format
@@ -165,6 +206,7 @@ class LLMClient:
         return await self.chat(
             messages=json_messages,
             temperature=temperature,
+            response_format={"type": "json_object"} if self.provider == "groq" else None,
         )
 
 
