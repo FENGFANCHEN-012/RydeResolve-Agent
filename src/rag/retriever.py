@@ -1,8 +1,10 @@
 """
 RAG Retriever
-Retrieves relevant document chunks from ChromaDB via vector similarity search.
-Supports both HTTP client (Docker) and persistent local client (dev mode).
+Retrieves relevant document chunks via vector similarity search, from ChromaDB
+(HTTP or local persistent client) or, with VECTOR_BACKEND=qdrant, from Qdrant
+Cloud using hybrid dense + BM25 search.
 """
+from src import config
 from src.rag.indexer import _get_chroma_client, ManualEmbeddingFunction
 
 
@@ -10,7 +12,13 @@ class DocumentRetriever:
     """Retrieves document chunks via vector similarity search."""
 
     def __init__(self):
-        self.client, self.mode = _get_chroma_client()
+        self.store = None
+        if config.VECTOR_BACKEND == "qdrant":
+            from src.rag.qdrant_store import QdrantStore
+            self.store = QdrantStore()
+            self.client, self.mode = None, "qdrant"
+        else:
+            self.client, self.mode = _get_chroma_client()
         self.embedding_fn = ManualEmbeddingFunction()
 
     def _get_collection(self, collection_name: str | None = None):
@@ -31,6 +39,9 @@ class DocumentRetriever:
 
         Returns list of dicts with: clause, source, section, similarity, chunk_index
         """
+        if self.store is not None:
+            return self.store.search(query, top_k=top_k)
+
         try:
             collection = self._get_collection(collection_name)
         except Exception as e:
