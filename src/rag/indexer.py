@@ -16,6 +16,7 @@ import asyncio
 import threading
 import chromadb
 
+from src import config
 from src.config import (
     CHROMA_HOST, CHROMA_PORT, CHROMA_COLLECTION,
     POLICIES_DIR, BASE_DIR,
@@ -115,7 +116,14 @@ class DocumentIndexer:
     CHUNK_OVERLAP = 50  # words of overlap between chunks
 
     def __init__(self):
-        self.client, self.mode = _get_chroma_client()
+        # VECTOR_BACKEND=qdrant stores chunks in Qdrant Cloud instead of ChromaDB
+        self.store = None
+        if config.VECTOR_BACKEND == "qdrant":
+            from src.rag.qdrant_store import QdrantStore
+            self.store = QdrantStore()
+            self.client, self.mode = None, "qdrant"
+        else:
+            self.client, self.mode = _get_chroma_client()
         self.embedding_fn = ManualEmbeddingFunction()
 
     def get_or_create_collection(self, collection_name: str | None = None):
@@ -138,9 +146,7 @@ class DocumentIndexer:
         Returns:
             Number of chunks indexed.
         """
-        collection = self.get_or_create_collection(collection_name)
-
-        count = 0
+        records = []
         for doc in documents:
             # Markdown is split on its "## " headings so one chunk never mixes
             # two policy scenarios; other text uses plain word windows.
@@ -158,14 +164,15 @@ class DocumentIndexer:
                     "chunk_index": i,
                     "total_chunks": len(chunks),
                 }
-                collection.upsert(
-                    ids=[chunk_id],
-                    documents=[chunk_text],
-                    metadatas=[metadata],
-                )
-                count += 1
+                records.append({"id": chunk_id, "text": chunk_text, "metadata": metadata})
 
-        return count
+        if self.store is not None:
+            return self.store.upsert(records)
+
+        collection = self.get_or_create_collection(collection_name)
+        for r in records:
+            collection.upsert(ids=[r["id"]], documents=[r["text"]], metadatas=[r["metadata"]])
+        return len(records)
 
     def index_file(
         self,
@@ -276,6 +283,8 @@ class DocumentIndexer:
 
     def get_collection_stats(self, collection_name: str | None = None) -> dict:
         """Get statistics about the indexed collection."""
+        if self.store is not None:
+            return {"collection": self.store.collection, "chunk_count": self.store.count(), "mode": self.mode}
         name = collection_name or CHROMA_COLLECTION
         try:
             collection = self.client.get_collection(name)
@@ -295,6 +304,10 @@ class DocumentIndexer:
 
     def clear_collection(self, collection_name: str | None = None):
         """Delete the entire collection (for re-indexing)."""
+        if self.store is not None:
+            self.store.delete_collection()
+            print(f"Deleted collection: {self.store.collection}")
+            return
         name = collection_name or CHROMA_COLLECTION
         try:
             self.client.delete_collection(name)
@@ -303,8 +316,10 @@ class DocumentIndexer:
             pass
 
     def list_collections(self) -> list[str]:
-        """List all collections in ChromaDB."""
+        """List all collections in ChromaDB (or Qdrant)."""
         try:
+            if self.store is not None:
+                return [c.name for c in self.store.client.get_collections().collections]
             return [c.name for c in self.client.list_collections()]
         except Exception:
             return []

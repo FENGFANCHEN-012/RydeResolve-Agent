@@ -44,6 +44,19 @@ CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8200"))
 CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "ryde_policies")
 
 # ============================================================
+# Vector backend: "chroma" (local, default) or "qdrant" (Qdrant Cloud, shared)
+# ============================================================
+# Qdrant runs hybrid search (dense + BM25 sparse, fused with RRF). Both vectors
+# are made locally by fastembed, so indexing and search use no API quota and
+# give every teammate the same results.
+VECTOR_BACKEND = os.getenv("VECTOR_BACKEND", "chroma").strip().lower()
+QDRANT_URL = os.getenv("QDRANT_URL", "")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "ryde_policies")
+QDRANT_DENSE_MODEL = os.getenv("QDRANT_DENSE_MODEL", "BAAI/bge-small-en-v1.5")
+QDRANT_SPARSE_MODEL = os.getenv("QDRANT_SPARSE_MODEL", "Qdrant/bm25")
+
+# ============================================================
 # PostgreSQL
 # ============================================================
 DATABASE_URL = os.getenv(
