@@ -9,9 +9,10 @@
 // ============================================================
 
 const RR_TYPE_COLORS = {
-    route_deviation: '#9dc1f5', no_show: '#c2ef4e', no_show_charge: '#c2ef4e',
-    fare_dispute: '#f5a623', cancellation_refund: '#5fd3c6', service_quality: '#b7a9ff',
-    driver_rights: '#fa7faa', cleaning_fee: '#e8c8ff', accident_liability: '#fa7faa',
+    route_deviation: '#2563eb', no_show: '#0d9488', no_show_charge: '#0d9488',
+    fare_dispute: '#d97706', cancellation_refund: '#7c3aed', service_quality: '#db2777',
+    driver_rights: '#0891b2', cleaning_fee: '#65a30d', accident_liability: '#dc2626',
+    safety_incident: '#dc2626',
 };
 
 // Graph nodes: grid position + what flows in and out (shown in the inspector)
@@ -89,7 +90,7 @@ function rrEsc(value) {
 }
 function rrTypeBadge(type) {
     const t = type || 'unknown';
-    return `<span class="rr-type" style="--t:${RR_TYPE_COLORS[t] || '#bdb8c0'}">${rrEsc(t.replace(/_/g, ' '))}</span>`;
+    return `<span class="rr-type" style="--t:${RR_TYPE_COLORS[t] || '#9ca3af'}">${rrEsc(t.replace(/_/g, ' '))}</span>`;
 }
 function rrTime(iso) {
     if (!iso) return '—';
