@@ -121,9 +121,14 @@ function rrStepIssue(step) {
     const out = rrParse(step.output);
     const details = [
         ...(step.llm || []).map(call => call.error),
+        step.error,
         typeof out === 'string' ? out : out?.error,
         out?.reasoning, out?.reason,
     ].filter(value => typeof value === 'string').join(' ');
+    if (/tokens per day|TPD/i.test(details) && /rate_limit_exceeded|429/i.test(details)) {
+        return { kind: 'daily', short: 'Groq daily token limit reached',
+            message: 'Groq’s daily token limit was reached. The remaining AI analysis was not completed, so this run has no reliable verdict.' };
+    }
     if (/GenerateRequestsPerDay|requests per day|daily quota/i.test(details)) {
         return { kind: 'daily', short: 'Gemini daily limit reached',
             message: 'Gemini’s daily request limit was reached. This turn has no AI analysis; the run cannot produce a reliable verdict.' };
@@ -721,9 +726,10 @@ function rrRenderVerdict() {
     const el = rrEl('rrVerdict');
     const res = rr.result;
     if (!res) { el.hidden = true; return; }
-    if (rrRunIssue()) {
+    const quotaIssue = rrRunIssue();
+    if (quotaIssue) {
         el.innerHTML = `<div class="rr-verdict-main"><span class="rr-pill-lg escalated">Incomplete</span>
-            <div class="rr-verdict-text">Gemini’s daily request limit interrupted the debate. No reliable automated ruling was produced. Review the completed turns above and retry after the quota resets.</div></div>`;
+            <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review completed turns above and retry when the provider quota is available.</div></div>`;
         el.hidden = false;
         return;
     }
