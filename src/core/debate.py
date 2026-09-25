@@ -12,9 +12,14 @@ from src.core.trace import step
 
 def _fail_if_daily_quota_exhausted(result) -> None:
     """Stop before subsequent agents spend requests on an incomplete debate."""
-    details = result if isinstance(result, str) else " ".join(
-        str(result.get(key, "")) for key in ("reasoning", "reason", "error")
-    ) if isinstance(result, dict) else ""
+    if isinstance(result, str):
+        details = result
+    elif isinstance(result, dict):
+        details = " ".join(
+            str(result.get(key, "")) for key in ("reasoning", "reason", "error")
+        )
+    else:
+        return
     details = details.lower()
     if "generaterequestsperday" in details or (
         ("tokens per day" in details or "tpd" in details)
