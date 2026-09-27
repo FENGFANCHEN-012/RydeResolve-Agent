@@ -775,3 +775,31 @@ class TestAuditTrail:
         assert a1.fairness_passed == a2.fairness_passed
         assert a1.recommendation == a2.recommendation
         assert {i.code for i in a1.issues} == {i.code for i in a2.issues}
+
+@pytest.mark.asyncio
+async def test_case_policy_citation_is_not_hallucinated():
+    """Fairness must use the same case-policy whitelist as the Arbitrator."""
+    ref = "platform_policy.no_fee_if_driver_delayed_beyond_eta_min"
+    context = make_context(platform_policy={"no_fee_if_driver_delayed_beyond_eta_min": 10})
+    policy = make_policy_evaluation(policies=[], policy_references=[])
+    assessment = await FairnessAgent(llm_client=FakeLLMClient()).assess(make_input(
+        context=context,
+        policy_evaluation=policy,
+        decision=make_decision(policy_references=[ref]),
+    ))
+    assert FairnessIssueCode.HALLUCINATED_POLICY_REFS not in {i.code for i in assessment.issues}
+    assert FairnessIssueCode.NO_POLICY_SUPPORT not in {i.code for i in assessment.issues}
+    assert ref in assessment.audit_details.policies_retrieved
+
+
+@pytest.mark.asyncio
+async def test_nonexistent_case_policy_still_blocks_execution():
+    context = make_context(platform_policy={"grace_period": 3}, expected_outcome={"verdict": "upheld"})
+    policy = make_policy_evaluation(policies=[], policy_references=[])
+    assessment = await FairnessAgent(llm_client=FakeLLMClient()).assess(make_input(
+        context=context,
+        policy_evaluation=policy,
+        decision=make_decision(policy_references=["platform_policy.made_up"]),
+    ))
+    assert FairnessIssueCode.HALLUCINATED_POLICY_REFS in {i.code for i in assessment.issues}
+    assert assessment.recommendation == FairnessRecommendation.BLOCK
