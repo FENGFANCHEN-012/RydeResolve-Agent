@@ -154,6 +154,12 @@
     "recommended_action": "no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "The 1.8x surge and the S$21.60 fare were displayed before booking and the rider explicitly accepted the higher fare. The final charge equals the upfront quote and the route was normal."
+    "reason": "The 1.8x surge and the S$21.60 fare were displayed before booking and the rider explicitly accepted the higher fare. The final charge equals the upfront quote and the route was normal.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 3: Fare Dispute (Price Calculation Error / Surge Pricing)"
+    ],
+    "must_escalate": false
   }
 }

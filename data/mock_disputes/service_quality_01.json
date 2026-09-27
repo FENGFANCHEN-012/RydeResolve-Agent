@@ -173,6 +173,12 @@
     "requires_human_review": false,
     "reason": "Telematics confirm speeding (104 km/h in a 90 zone) and two harsh braking events, and the chat shows a dismissive reply to the rider. This is a P1 incident: formal warning to the driver. The trip itself was completed on the correct route, so a full refund is not required; partial refund or credit is at Ryde's discretion.",
     "priority": "P1",
-    "driver_penalty": "formal_warning"
+    "driver_penalty": "formal_warning",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 5: Service Quality (Driver Rudeness / Unsafe Driving)"
+    ],
+    "must_escalate": false
   }
 }

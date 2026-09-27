@@ -139,6 +139,12 @@
     "recommended_action": "human_review_request_more_evidence",
     "refund_amount": null,
     "requires_human_review": true,
-    "reason": "There is no driver GPS for the whole trip and the arrival was entered manually, so it cannot be verified that the driver was at the pickup. Both sides tried to make contact and their accounts conflict. The evidence is insufficient either way; a human should review and request dashcam or location evidence."
+    "reason": "There is no driver GPS for the whole trip and the arrival was entered manually, so it cannot be verified that the driver was at the pickup. Both sides tried to make contact and their accounts conflict. The evidence is insufficient either way; a human should review and request dashcam or location evidence.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
+    ],
+    "must_escalate": true
   }
 }

@@ -167,6 +167,12 @@
     "recommended_action": "refund",
     "refund_amount": 3.7,
     "requires_human_review": false,
-    "reason": "GPS and the route_deviation_alert show the driver missed the exit with no road incident on the planned route, and the driver admitted it in chat. The extra S$3.70 over the estimate is the driver's fault."
+    "reason": "GPS and the route_deviation_alert show the driver missed the exit with no road incident on the planned route, and the driver admitted it in chat. The extra S$3.70 over the estimate is the driver's fault.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 1: Route Deviation (Driver Takes Longer Route)"
+    ],
+    "must_escalate": false
   }
 }

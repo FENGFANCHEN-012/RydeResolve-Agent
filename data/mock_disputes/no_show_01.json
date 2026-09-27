@@ -175,6 +175,12 @@
     "recommended_action": "full_refund",
     "refund_amount": 8.0,
     "requires_human_review": false,
-    "reason": "Driver GPS never came within 1.8 km of the pickup and there is no driver_arrived event, so the no-show condition (driver arrived and waited) was never met. The rider messaged and called the driver. The S$8.00 fee is unjustified."
+    "reason": "Driver GPS never came within 1.8 km of the pickup and there is no driver_arrived event, so the no-show condition (driver arrived and waited) was never met. The rider messaged and called the driver. The S$8.00 fee is unjustified.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
+    ],
+    "must_escalate": false
   }
 }

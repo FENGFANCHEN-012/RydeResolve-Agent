@@ -11,7 +11,10 @@ Uses contextvars, so nothing needs to be passed through the agents:
 
 Events (all JSON-serialisable dicts with a "type" key):
     step_start  {id, agent, title, input}
-    llm_call    {step_id, prompt, response, duration_ms, error}
+    llm_call    {step_id, prompt, response, duration_ms, error, usage, wait_ms}
+                usage = {prompt_tokens, completion_tokens} when the provider reports it;
+                wait_ms = time spent waiting on rate limits (pacing, 429 retries),
+                already included in duration_ms
     retrieval   {step_id, dispute_type, clauses}
     step_end    {id, agent, output, duration_ms}
     step_error  {id, agent, error, duration_ms}
@@ -103,13 +106,15 @@ async def step(agent: str, title: str, input: Any = None):
         _step_id.reset(token)
 
 
-def record_llm_call(prompt: str, response: str | None, duration_ms: int, error: str | None = None) -> None:
+def record_llm_call(prompt: str, response: str | None, duration_ms: int, error: str | None = None,
+                    usage: dict | None = None, wait_ms: int = 0) -> None:
     """Called by LLMClient for every request; attaches it to the running step."""
     tracer = current_tracer()
     if tracer is None:
         return
     tracer.emit({"type": "llm_call", "step_id": _step_id.get(), "prompt": prompt,
-                 "response": response, "duration_ms": duration_ms, "error": error})
+                 "response": response, "duration_ms": duration_ms, "error": error,
+                 "usage": usage, "wait_ms": wait_ms})
 
 
 def record_retrieval(query_type: str, clauses: list[dict]) -> None:

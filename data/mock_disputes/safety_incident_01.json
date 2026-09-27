@@ -171,6 +171,13 @@
     "refund_amount": null,
     "requires_human_review": true,
     "reason": "Sexual comments plus repeated post-trip messages stating the driver knows where the rider lives, while parked near the drop-off, is a P0 safety incident (harassment and possible stalking). It must go straight to human review, not automated arbitration; the driver should be suspended pending investigation and the rider advised on a police report.",
-    "priority": "P0"
+    "priority": "P0",
+    "expected_dispute_type": null,
+    "expected_urgency": "P0",
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 7: Safety Incident (Harassment / Assault / Inappropriate Behavior)",
+      "Safety Standards > 2. Safety Incident Classification"
+    ],
+    "must_escalate": true
   }
 }

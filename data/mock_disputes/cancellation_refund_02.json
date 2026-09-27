@@ -141,6 +141,13 @@
     "recommended_action": "cancellation_charge_upheld_no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. The fee is valid under the cancellation policy."
+    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. The fee is valid under the cancellation policy.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 4: Cancellation Refund (Rider Wants Cancellation Fee Back)",
+      "Cancellation Policy > 5. Disputing a Cancellation Fee"
+    ],
+    "must_escalate": false
   }
 }

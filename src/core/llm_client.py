@@ -5,6 +5,7 @@ LLM_PROVIDER in .env. Groq uses the OpenAI-compatible API, so agents keep the
 same chat() / chat_json() calls whichever provider is active.
 """
 import asyncio
+import contextvars
 import os
 import re
 import time
@@ -31,13 +32,34 @@ _rate_lock = asyncio.Lock()
 _next_request_at = 0.0
 
 
-async def _wait_for_request_slot() -> None:
+async def _wait_for_request_slot() -> float:
+    """Wait for the next free request slot; returns the seconds spent waiting."""
     global _next_request_at
+    t0 = time.monotonic()
     async with _rate_lock:
         delay = max(0.0, _next_request_at - time.monotonic())
         if delay:
             await asyncio.sleep(delay)
         _next_request_at = time.monotonic() + _MIN_INTERVAL_SECONDS
+    return time.monotonic() - t0
+
+
+# Seconds the OpenAI SDK is told to wait on each 429 during the current Groq call
+# (read from the retry-after headers), so traces can report rate-limit waiting
+# separately from model time.
+_groq_rate_waits: contextvars.ContextVar[list | None] = contextvars.ContextVar("groq_rate_waits", default=None)
+
+
+async def _on_groq_response(response) -> None:
+    waits = _groq_rate_waits.get()
+    if waits is None or response.status_code != 429:
+        return
+    try:
+        ms = response.headers.get("retry-after-ms")
+        seconds = float(ms) / 1000 if ms else float(response.headers.get("retry-after", "1"))
+    except ValueError:
+        seconds = 1.0
+    waits.append(min(seconds, 60.0))
 
 
 
@@ -61,8 +83,12 @@ class LLMClient:
             from openai import AsyncOpenAI
             if not self.api_key:
                 raise RuntimeError("LLM_PROVIDER=groq but GROQ_API_KEY is not set in .env")
+            import httpx
             # max_retries: the SDK waits out 429s (honouring retry-after) before giving up
-            self._groq = AsyncOpenAI(api_key=self.api_key, base_url=GROQ_BASE_URL, max_retries=4)
+            self._groq = AsyncOpenAI(
+                api_key=self.api_key, base_url=GROQ_BASE_URL, max_retries=4,
+                http_client=httpx.AsyncClient(timeout=120, event_hooks={"response": [_on_groq_response]}),
+            )
         return self._groq
 
     async def _chat_groq(self, messages, temperature, max_tokens, response_format) -> str:
@@ -76,14 +102,24 @@ class LLMClient:
         }
         if response_format:
             kwargs["response_format"] = response_format
+        waits: list[float] = []
+        token = _groq_rate_waits.set(waits)
         t0 = time.perf_counter()
         try:
             response = await self._get_groq().chat.completions.create(**kwargs)
             text = response.choices[0].message.content or ""
         except Exception as exc:
-            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc))
+            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
+                            wait_ms=int(sum(waits) * 1000))
             raise
-        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000))
+        finally:
+            _groq_rate_waits.reset(token)
+        usage = None
+        if getattr(response, "usage", None):
+            usage = {"prompt_tokens": response.usage.prompt_tokens,
+                     "completion_tokens": response.usage.completion_tokens}
+        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
+                        usage=usage, wait_ms=int(sum(waits) * 1000))
         return text
 
     def _ensure_configured(self):
@@ -150,9 +186,10 @@ class LLMClient:
         # send_message is blocking: run it in a thread so the event loop (and the
         # live trace stream) keeps running during the call
         t0 = time.perf_counter()
+        waited = 0.0
         try:
             for attempt in range(2):
-                await _wait_for_request_slot()
+                waited += await _wait_for_request_slot()
                 try:
                     response = await asyncio.to_thread(
                         chat.send_message,
@@ -165,14 +202,23 @@ class LLMClient:
                     if attempt == 0 and "GenerateRequestsPerMinute" in message:
                         match = re.search(r"Please retry in ([0-9.]+)s", message)
                         delay = float(match.group(1)) if match else 60.0
-                        await asyncio.sleep(min(120.0, max(1.0, delay + 1.0)))
+                        delay = min(120.0, max(1.0, delay + 1.0))
+                        waited += delay
+                        await asyncio.sleep(delay)
                         continue
                     raise
             text = response.text
         except Exception as exc:
-            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc))
+            record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
+                            wait_ms=int(waited * 1000))
             raise
-        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000))
+        meta = getattr(response, "usage_metadata", None)
+        usage = None
+        if meta is not None:
+            usage = {"prompt_tokens": getattr(meta, "prompt_token_count", None),
+                     "completion_tokens": getattr(meta, "candidates_token_count", None)}
+        record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
+                        usage=usage, wait_ms=int(waited * 1000))
 
         # Handle JSON response format request
         if response_format and response_format.get("type") == "json_object":
