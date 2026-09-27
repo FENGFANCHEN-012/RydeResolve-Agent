@@ -85,3 +85,51 @@ def test_groq_without_key_fails_clearly(monkeypatch):
     monkeypatch.setattr(llm_module, "GROQ_API_KEY", "")
     with pytest.raises(RuntimeError, match="GROQ_API_KEY"):
         LLMClient()._get_groq()
+
+
+class _FakeAPIError(Exception):
+    def __init__(self, status_code, code):
+        super().__init__(f"Error code: {status_code}, code: {code}")
+        self.status_code = status_code
+        self.body = {"error": {"code": code}}
+
+
+@pytest.mark.asyncio
+async def test_groq_json_validation_error_retries_once(monkeypatch):
+    client, fake = _groq_client(monkeypatch)
+    first_call = fake.create
+
+    async def fail_once(**kwargs):
+        if not fake.calls:
+            fake.calls.append(kwargs)
+            raise _FakeAPIError(400, "json_validate_failed")
+        return await first_call(**kwargs)
+
+    fake.create = fail_once
+    messages = [{"role": "system", "content": "Return the result."}]
+    assert await client.chat_json(messages) == '{"ok": true}'
+    assert len(fake.calls) == 2
+    assert all(c["response_format"] == {"type": "json_object"} for c in fake.calls)
+    assert all(c["messages"][0]["content"].count("Respond ONLY with valid JSON") == 1 for c in fake.calls)
+    assert messages[0]["content"] == "Return the result."
+
+
+@pytest.mark.asyncio
+async def test_groq_json_validation_error_stops_after_second_failure(monkeypatch):
+    client, fake = _groq_client(monkeypatch, error=_FakeAPIError(400, "json_validate_failed"))
+    with pytest.raises(_FakeAPIError):
+        await client.chat_json([{"role": "user", "content": "Return JSON"}])
+    assert len(fake.calls) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status_code,code", [
+    (429, "rate_limit_exceeded"),
+    (401, "invalid_api_key"),
+    (400, "invalid_request"),
+])
+async def test_groq_json_retry_does_not_hide_other_errors(monkeypatch, status_code, code):
+    client, fake = _groq_client(monkeypatch, error=_FakeAPIError(status_code, code))
+    with pytest.raises(_FakeAPIError):
+        await client.chat_json([{"role": "user", "content": "Return JSON"}])
+    assert len(fake.calls) == 1
