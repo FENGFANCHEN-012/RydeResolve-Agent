@@ -8,13 +8,6 @@
 // Relies on API_BASE and showToast() from index.html.
 // ============================================================
 
-const RR_TYPE_COLORS = {
-    route_deviation: '#2563eb', no_show: '#0d9488', no_show_charge: '#0d9488',
-    fare_dispute: '#d97706', cancellation_refund: '#7c3aed', service_quality: '#db2777',
-    driver_rights: '#0891b2', cleaning_fee: '#65a30d', accident_liability: '#dc2626',
-    safety_incident: '#dc2626',
-};
-
 // Graph nodes: grid position + what flows in and out (shown in the inspector)
 const RR_NODES = {
     case:       { name: 'Case data', role: 'Mock platform record', color: 'var(--agent-case)', col: 1, row: 2,
@@ -90,7 +83,7 @@ function rrEsc(value) {
 }
 function rrTypeBadge(type) {
     const t = type || 'unknown';
-    return `<span class="rr-type" style="--t:${RR_TYPE_COLORS[t] || '#9ca3af'}">${rrEsc(t.replace(/_/g, ' '))}</span>`;
+    return `<span class="rr-type">${rrEsc(t.replace(/_/g, ' '))}</span>`;
 }
 function rrTime(iso) {
     if (!iso) return '—';
@@ -242,6 +235,7 @@ function rrRenderHeader() {
     const c = rrCaseMeta();
     const ticket = rr.detail?.dataset?.dispute_ticket || {};
     const status = rr.running ? ['running', `Running · ${rr.order.filter(id => rr.steps[id].status !== 'running').length} steps done`]
+        : rrRunIssue() ? ['error', 'Incomplete · quota reached']
         : rr.result?.status === 'failed' ? ['error', 'Failed · sent to human review']
         : rr.result?.status === 'escalated_to_human' ? ['escalated', 'Escalated to human']
         : rr.result ? ['done', 'Resolved'] : ['', 'Ready'];
@@ -408,6 +402,7 @@ function rrHandle(ev) {
         showToast(`Pipeline error: ${ev.message}`, 'error');
     }
     rrRenderAll();
+    if (ev.type === 'result' && rr.follow) rrEl('rrCaseTitle').scrollIntoView({ block: 'start' });
 }
 
 // ---------------------------------------------------------------- step -> node mapping
@@ -504,7 +499,8 @@ function rrRenderGraph() {
                 const side = s.agent === 'Passenger' ? 'p' : 'd';
                 const label = s.title.replace(/^Round (\d+).*/, `R$1 ${side === 'p' ? 'P' : 'D'}`);
                 return `<span class="rr-pill ${side} ${s.status} ${rr.selected === s.id ? 'selected' : ''}" role="button" tabindex="0"
-                    onclick="event.stopPropagation(); rrSelect('${s.id}')">${rrEsc(label)}</span>`;
+                    onclick="event.stopPropagation(); rrSelect('${s.id}')"
+                    onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); rrSelect('${s.id}'); }">${rrEsc(label)}</span>`;
             }).join('')}</div>`;
         }
         return `<button class="rr-node ${st} ${isSel ? 'selected' : ''}" data-node="${key}"
@@ -711,13 +707,13 @@ function rrRenderDebate() {
         }
         const who = s.agent === 'Policy' ? 'Policy check' : `${s.agent} ${isRound ? s.title.replace(/:.*/, '') : 'opening'}`;
         return `<button class="rr-bubble ${cls} ${issue ? 'failed' : ''} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'typing' : ''}"
-                    onclick="rrSelect('${s.id}')">
+                    aria-pressed="${rr.selected === s.id}" onclick="rrSelect('${s.id}')">
             ${reply ? `<div class="reply">${rrEsc(reply)}</div>` : ''}
             <div class="who">${rrEsc(who)}<span>${issue ? 'incomplete' : s.status === 'running' ? 'thinking' : ((s.duration || 0) / 1000).toFixed(1) + 's'}</span></div>
-            <div class="txt">${rrEsc(rrClip(text, 900))}</div></button>`;
+            <div class="txt">${rrEsc(text)}</div></button>`;
     }).join('');
     const sel = el.querySelector('.rr-bubble.selected');
-    if (sel && rr.follow) sel.scrollIntoView({ block: 'nearest' });
+    if (sel && rr.follow && !rr.result) sel.scrollIntoView({ block: 'nearest' });
 }
 
 // ---------------------------------------------------------------- verdict vs answer key
@@ -725,26 +721,32 @@ function rrRenderDebate() {
 function rrRenderVerdict() {
     const el = rrEl('rrVerdict');
     const res = rr.result;
-    if (!res) { el.hidden = true; return; }
+    const label = '<div class="rr-verdict-label">Resolution</div>';
+    if (!res) {
+        el.innerHTML = label + `<div class="rr-pill-lg">${rr.running ? 'Review in progress' : 'Awaiting review'}</div>
+            <div class="rr-verdict-text">${rr.running ? 'The agents are reviewing the evidence. The decision will appear here.'
+                : 'Run the agents or replay a saved run to see the decision, reasoning and any refund.'}</div>`;
+        return;
+    }
     const quotaIssue = rrRunIssue();
     if (quotaIssue) {
-        el.innerHTML = `<div class="rr-verdict-main"><span class="rr-pill-lg escalated">Incomplete</span>
-            <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review completed turns above and retry when the provider quota is available.</div></div>`;
+        el.innerHTML = label + `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">Incomplete</span>
+            <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review completed turns below and retry when the provider quota is available.</div></div>`;
         el.hidden = false;
         return;
     }
     const exp = rr.detail?.expected_outcome;
     let main;
-    const escalated = res.status === 'escalated_to_human';
+    const escalated = rrEscalated();
     const v = res.verdict || {};
     if (escalated) {
-        main = `<span class="rr-pill-lg escalated">Escalated</span>
-            <div><div class="rr-verdict-text">${rrEsc(res.reason)}</div>
-            <div class="rr-verdict-facts"><span class="rr-fact">Urgency <b>${rrEsc(res.classification?.urgency)}</b></span>${
+        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">${res.status === 'failed' ? 'Incomplete · human review' : 'Escalated to human review'}</span>
+            <div class="rr-verdict-text">${rrEsc(res.reason)}</div>
+            <div class="rr-verdict-facts">${res.classification?.urgency ? `<span class="rr-fact">Urgency <b>${rrEsc(res.classification.urgency)}</b></span>` : ''}${
                 v.verdict ? `<span class="rr-fact">Proposed <b>${rrEsc(v.verdict.replace(/_/g, ' '))}</b></span>
                 <span class="rr-fact">Refund <b>${v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'}</b></span>` : ''}${
                 res.fairness ? `<span class="rr-fact">Fairness <b>${rrEsc((res.fairness.recommendation || '').replace(/_/g, ' '))}</b></span>` : ''
-            }</div></div><div></div>`;
+            }</div></div>`;
     } else {
         const conf = Math.round((v.confidence || 0) * 100);
         const facts = [
@@ -754,8 +756,8 @@ function rrRenderVerdict() {
             v.human_review_needed ? ['Review', 'human required'] : v.escalation_recommended ? ['Review', 'flagged for audit'] : null,
             (v.policy_references || []).length ? ['Cites', v.policy_references.join(', ')] : ['Cites', 'no policy'],
         ].filter(Boolean);
-        main = `<span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc((v.verdict || '?').replace(/_/g, ' '))}</span>
-            <div><div class="rr-verdict-text">${rrEsc(v.rationale || '')}</div>
+        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc((v.verdict || 'No verdict available').replace(/_/g, ' '))}</span>
+            <div class="rr-verdict-text">${rrEsc(v.rationale || '')}</div>
             <div class="rr-verdict-facts">${facts.map(([k, x]) => `<span class="rr-fact">${rrEsc(k)} <b>${rrEsc(x)}</b></span>`).join('')}</div></div>
             <div class="rr-conf"><div class="num">${conf}%</div><div class="lbl">confidence</div><div class="bar"><div style="width:${conf}%"></div></div></div>`;
     }
@@ -773,7 +775,9 @@ function rrRenderVerdict() {
             <div class="row"><span>Human review</span><span>${exp.requires_human_review ? 'yes' : 'no'}</span>${mark(gotHuman === !!exp.requires_human_review)}</div>
             <div class="why">${rrEsc(exp.reason)}</div></div>`;
     }
-    el.innerHTML = `<div class="rr-verdict-main">${main}</div>${key}`;
+    const keyOpen = el.querySelector('.rr-key-details')?.open;
+    el.innerHTML = `${label}<div class="rr-verdict-main">${main}</div>
+        <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;
 }
 
@@ -788,7 +792,9 @@ function rrRenderAll() {
 }
 
 window.addEventListener('resize', () => requestAnimationFrame(rrDrawEdges));
+rrEl('rrFlow').addEventListener('toggle', () => requestAnimationFrame(rrDrawEdges));
 rrEl('rrFilter').addEventListener('input', e => { rr.filter = e.target.value; rrRenderLibrary(); });
 rrEl('rrTraces').addEventListener('change', e => rrReplay(e.target.value));
 rrRenderGraph();
+rrRenderVerdict();
 rrLoadCases();
