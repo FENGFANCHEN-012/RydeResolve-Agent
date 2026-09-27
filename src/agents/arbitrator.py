@@ -14,6 +14,7 @@ from enum import Enum
 
 from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_API_KEY
 from src.core.llm_client import LLMClient
+from src.core.policy_refs import case_policy_refs
 
 logger = logging.getLogger(__name__)
 
@@ -183,9 +184,9 @@ class ArbitrationAgent:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _build_valid_refs(policy_evaluation: dict) -> set[str]:
-        """Extract valid policy references from the RAG output."""
-        refs: set[str] = set()
+    def _build_valid_refs(policy_evaluation: dict, context: dict | None = None) -> set[str]:
+        """Accept retrieved clauses and explicit platform case-policy fields."""
+        refs = case_policy_refs(context)
         if not isinstance(policy_evaluation, dict):
             return refs
         # policy_evaluation may contain a "policies" or "chunks" list
@@ -242,7 +243,7 @@ class ArbitrationAgent:
         if llm is None:
             return self._safe_decision("LLM client is not available.")
 
-        valid_refs = self._build_valid_refs(policy_evaluation)
+        valid_refs = self._build_valid_refs(policy_evaluation, context)
 
         system_prompt = self._build_system_prompt()
         user_prompt = self._build_user_prompt(
