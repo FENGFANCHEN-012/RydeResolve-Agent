@@ -34,6 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config  # noqa: E402
+from src.core.policy_refs import case_policy_refs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_DIR = ROOT / "data" / "eval"
@@ -83,6 +84,9 @@ def load_cases(selected: set[str] | None = None) -> list[dict]:
             "description": ticket.get("description", ""),
             "expected": expected,
             "charge_cap": _charge_cap(data),
+            "case_policy_refs": sorted(case_policy_refs({
+                "platform_policy": data.get("cancellation_policy") or data.get("platform_policy"),
+            })),
         })
     return sorted(cases, key=lambda c: c["dispute_id"])
 
@@ -198,7 +202,8 @@ def score_run(case: dict, events: list[dict]) -> dict:
     retrieved = {c.get("reference") for e in events if e.get("type") == "retrieval" for c in e.get("clauses", [])}
     policy_out = next((e.get("output") for e in events
                        if e.get("type") == "step_end" and e.get("agent") == "Policy"), None) or {}
-    valid = retrieved | set((policy_out or {}).get("policy_references") or [])
+    valid = retrieved | set((policy_out or {}).get("policy_references") or []) \
+        | set(case.get("case_policy_refs") or [])
     refs = verdict.get("policy_references") or []
     row["citations"] = len(refs)
     row["citations_valid"] = sum(1 for r in refs if r in valid)

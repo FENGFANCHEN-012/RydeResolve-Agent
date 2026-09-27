@@ -45,6 +45,7 @@ from src.config import (
     LLM_API_KEY,
 )
 from src.core.llm_client import LLMClient
+from src.core.policy_refs import case_policy_refs
 from src.models.dispute_state import FairnessAssessmentInput
 
 logger = logging.getLogger(__name__)
@@ -276,7 +277,7 @@ class FairnessAgent:
         driver_count = len(driver_evidence)
 
         cited_refs: list[str] = list(getattr(decision, "policy_references", []) or [])
-        retrieved_refs = self._build_valid_refs(policy_evaluation)
+        retrieved_refs = self._build_valid_refs(policy_evaluation, context)
         hallucinated_refs = sorted({r for r in cited_refs if r not in retrieved_refs})
         uncited_retrieved = sorted(retrieved_refs - set(cited_refs))
 
@@ -485,6 +486,7 @@ class FairnessAgent:
                     passenger_analysis=passenger_analysis,
                     driver_analysis=driver_analysis,
                     policy_evaluation=policy_evaluation,
+                    context=context,
                     rationale=rationale,
                     verdict_value=verdict_value,
                     issues_so_far=issues,
@@ -599,6 +601,7 @@ class FairnessAgent:
         passenger_analysis: dict,
         driver_analysis: dict,
         policy_evaluation: dict,
+        context: dict,
         rationale: str,
         verdict_value: str,
         issues_so_far: list[FairnessIssueDetail],
@@ -641,7 +644,9 @@ class FairnessAgent:
 
         # Validate and coerce
         try:
-            return self._coerce_semantic_issues(parsed, retrieved_refs=self._build_valid_refs(policy_evaluation))
+            return self._coerce_semantic_issues(
+                parsed, retrieved_refs=self._build_valid_refs(policy_evaluation, context)
+            )
         except Exception as exc:
             logger.warning("FairnessAgent semantic review JSON invalid: %s", exc)
             return None
@@ -749,10 +754,9 @@ class FairnessAgent:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _build_valid_refs(policy_evaluation: dict) -> set[str]:
-        """Extract valid policy references from the RAG output (same scheme
-        as ``ArbitrationAgent._build_valid_refs``)."""
-        refs: set[str] = set()
+    def _build_valid_refs(policy_evaluation: dict, context: dict | None = None) -> set[str]:
+        """Accept retrieved clauses and explicit platform case-policy fields."""
+        refs = case_policy_refs(context)
         if not isinstance(policy_evaluation, dict):
             return refs
         for key in ("policies", "chunks", "clauses"):

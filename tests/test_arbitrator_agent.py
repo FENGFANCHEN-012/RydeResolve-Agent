@@ -216,3 +216,44 @@ class TestArbitrationAgent:
 
         assert decision.verdict == Verdict.DISMISSED
         assert decision.confidence == pytest.approx(0.9)
+
+    @pytest.mark.asyncio
+    async def test_case_policy_field_is_a_verified_citation(self, minimal_inputs):
+        """The Collector maps the dataset's cancellation policy to platform_policy."""
+        minimal_inputs["context"]["platform_policy"] = {
+            "no_fee_if_driver_delayed_beyond_eta_min": 10,
+        }
+        minimal_inputs["context"]["expected_outcome"] = {
+            "verdict": "upheld",
+        }
+        response = json.dumps({
+            "verdict": "upheld",
+            "confidence": 0.95,
+            "rationale": "The driver was more than ten minutes late.",
+            "refund_amount": 4.0,
+            "policy_references": ["platform_policy.no_fee_if_driver_delayed_beyond_eta_min"],
+            "human_review_needed": False,
+            "escalation_recommended": False,
+        })
+        decision = await ArbitrationAgent(llm_client=FakeLLMClient(response)).arbitrate(**minimal_inputs)
+        assert decision.policy_references == ["platform_policy.no_fee_if_driver_delayed_beyond_eta_min"]
+        assert decision.human_review_needed is False
+        assert "unverified" not in decision.rationale.lower()
+
+    @pytest.mark.asyncio
+    async def test_unlisted_case_policy_and_answer_key_are_rejected(self, minimal_inputs):
+        minimal_inputs["context"]["platform_policy"] = {"grace_period": 3}
+        minimal_inputs["context"]["expected_outcome"] = {"verdict": "upheld"}
+        response = json.dumps({
+            "verdict": "upheld",
+            "confidence": 0.95,
+            "rationale": "Claim cites policy.",
+            "policy_references": [
+                "platform_policy.made_up",
+                "expected_outcome.verdict",
+            ],
+            "human_review_needed": False,
+        })
+        decision = await ArbitrationAgent(llm_client=FakeLLMClient(response)).arbitrate(**minimal_inputs)
+        assert decision.policy_references == []
+        assert decision.human_review_needed is True

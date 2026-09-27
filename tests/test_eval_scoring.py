@@ -117,3 +117,10 @@ def test_answer_keys_have_eval_fields():
 def test_p0_safety_case_expects_escalation(dispute_id):
     case = next(c for c in ev.load_cases() if c["dispute_id"] == dispute_id)
     assert case["expected"]["expected_urgency"] == "P0" and case["expected"]["must_escalate"] is True
+
+def test_case_policy_citation_scores_valid_only_when_present_in_case():
+    ref = "platform_policy.no_fee_if_driver_delayed_beyond_eta_min"
+    case = _case()
+    case["case_policy_refs"] = [ref]
+    assert ev.score_run(case, _events(refs=(ref,)))["citations_valid"] == 1
+    assert ev.score_run(_case(), _events(refs=(ref,)))["citations_valid"] == 0
