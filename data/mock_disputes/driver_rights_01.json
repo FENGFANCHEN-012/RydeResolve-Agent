@@ -178,6 +178,13 @@
     "refund_amount": null,
     "requires_human_review": false,
     "reason": "Timestamped photos taken right after the trip, a detailing receipt with the required company details, the mid-trip stop and the rider's own messages all support the claim. S$120 is within the S$50-150 vomit range and under the S$200 cap, so the driver should be compensated and the rider charged.",
-    "charge_amount": 120.0
+    "charge_amount": 120.0,
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
+      "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
+    ],
+    "must_escalate": false
   }
 }

@@ -166,6 +166,12 @@
     "recommended_action": "no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "A road closure on the planned route is confirmed by the traffic alert and GPS. The driver explained the detour in chat before taking it and the rider agreed. The extra fare comes from road conditions outside the driver's control."
+    "reason": "A road closure on the planned route is confirmed by the traffic alert and GPS. The driver explained the detour in chat before taking it and the rider agreed. The extra fare comes from road conditions outside the driver's control.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 1: Route Deviation (Driver Takes Longer Route)"
+    ],
+    "must_escalate": false
   }
 }

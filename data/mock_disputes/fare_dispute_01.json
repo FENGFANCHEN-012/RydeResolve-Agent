@@ -167,6 +167,12 @@
     "recommended_action": "refund_surge_amount",
     "refund_amount": 8.2,
     "requires_human_review": false,
-    "reason": "The fare quote and booking confirmation show 1.0x with no surge banner; the 1.5x surge was applied after confirmation without showing the rider. The route was normal, so the whole S$8.20 difference is the undisclosed surge and should be refunded."
+    "reason": "The fare quote and booking confirmation show 1.0x with no surge banner; the 1.5x surge was applied after confirmation without showing the rider. The route was normal, so the whole S$8.20 difference is the undisclosed surge and should be refunded.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 3: Fare Dispute (Price Calculation Error / Surge Pricing)"
+    ],
+    "must_escalate": false
   }
 }

@@ -198,6 +198,12 @@
     "recommended_action": "cancellation_charge_upheld_no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "Driver GPS and the driver_arrived event show the driver at the pickup from 17:59 to 18:07 (8 min, meeting the no-show threshold). The driver messaged twice and called; the rider only replied at 18:10, after the cancellation. The S$8.00 charge is justified."
+    "reason": "Driver GPS and the driver_arrived event show the driver at the pickup from 17:59 to 18:07 (8 min, meeting the no-show threshold). The driver messaged twice and called; the rider only replied at 18:10, after the cancellation. The S$8.00 charge is justified.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
+    ],
+    "must_escalate": false
   }
 }

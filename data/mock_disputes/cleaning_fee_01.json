@@ -144,6 +144,13 @@
     "refund_amount": 150.0,
     "requires_human_review": false,
     "reason": "Both photos were taken at 11:02-11:03, more than four hours before this trip started, so the stain was pre-existing. No cleaning receipt was provided. The claim fails the evidence requirements and the S$150 fee should be refunded.",
-    "driver_penalty": "review_driver_for_invalid_claim"
+    "driver_penalty": "review_driver_for_invalid_claim",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
+      "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
+    ],
+    "must_escalate": false
   }
 }
