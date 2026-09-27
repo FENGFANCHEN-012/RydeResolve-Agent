@@ -61,6 +61,16 @@ async def _on_groq_response(response) -> None:
         seconds = 1.0
     waits.append(min(seconds, 60.0))
 
+def _groq_json_validation_failed(exc: Exception) -> bool:
+    """Only Groq's malformed JSON response is safe to retry as a new request."""
+    if getattr(exc, "status_code", None) != 400:
+        return False
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        error = body.get("error", body)
+        if isinstance(error, dict) and error.get("code") == "json_validate_failed":
+            return True
+    return "json_validate_failed" in str(exc).lower()
 
 
 class LLMClient:
@@ -237,7 +247,7 @@ class LLMClient:
         Returns the raw JSON string (caller should parse).
         """
         # Append JSON instruction to system message
-        json_messages = list(messages)
+        json_messages = [dict(m) for m in messages]
         has_system = any(m.get("role") == "system" for m in json_messages)
         if has_system:
             for m in json_messages:
@@ -249,11 +259,23 @@ class LLMClient:
                 "role": "system",
                 "content": "Respond ONLY with valid JSON. No markdown, no explanations."
             })
-        return await self.chat(
-            messages=json_messages,
-            temperature=temperature,
-            response_format={"type": "json_object"} if self.provider == "groq" else None,
-        )
+        response_format = {"type": "json_object"} if self.provider == "groq" else None
+        try:
+            return await self.chat(
+                messages=json_messages,
+                temperature=temperature,
+                response_format=response_format,
+            )
+        except Exception as exc:
+            if self.provider != "groq" or not _groq_json_validation_failed(exc):
+                raise
+            # One fresh attempt for transient JSON-mode validation errors.
+            # The first failed call is traced by _chat_groq for accurate usage.
+            return await self.chat(
+                messages=json_messages,
+                temperature=temperature,
+                response_format=response_format,
+            )
 
 
 # Singleton instance
