@@ -759,33 +759,33 @@
                         </div>
                     </header>
 
+                    <section class="rr-block rr-verdict" id="rrVerdict" aria-label="Resolution" aria-live="polite"></section>
+
                     <div class="rr-block">
-                        <div class="rr-block-head"><h3>1 · Case sent in</h3></div>
+                        <div class="rr-block-head"><h3>Case brief</h3></div>
                         <div class="rr-block-body" id="rrBrief"><div class="rr-empty">Pick a case on the left.</div></div>
                     </div>
 
-                    <div class="rr-block">
-                        <div class="rr-block-head"><h3>2 · Agent flow</h3>
+                    <details class="rr-block rr-flow" id="rrFlow">
+                        <summary class="rr-block-head"><h3>Agent flow</h3>
                             <div class="rr-right rr-legend">
                                 <span><i></i>waiting</span><span><i class="active"></i>data flowing</span><span><i class="done"></i>delivered</span>
                                 <span>click any agent to inspect it</span>
                             </div>
-                        </div>
+                        </summary>
                         <div class="rr-graph-wrap"><div class="rr-graph" id="rrGraph"></div></div>
-                    </div>
-
-                    <div class="rr-block rr-verdict" id="rrVerdict" hidden></div>
+                    </details>
 
                     <div class="rr-split">
                         <div class="rr-block">
-                            <div class="rr-block-head"><h3>3 · Agent inspector</h3></div>
-                            <div class="rr-block-body" id="rrInspector"></div>
-                        </div>
-                        <div class="rr-block">
-                            <div class="rr-block-head"><h3>4 · Debate</h3>
-                                <div class="rr-right rr-legend"><span style="color:var(--agent-passenger)">passenger</span><span style="color:var(--agent-policy)">policy</span><span style="color:var(--agent-driver)">driver</span></div>
+                            <div class="rr-block-head"><h3>Debate</h3>
+                                <span class="rr-hint">Select a turn to inspect its reasoning</span>
                             </div>
                             <div class="rr-chat" id="rrDebate"></div>
+                        </div>
+                        <div class="rr-block rr-inspector-panel">
+                            <div class="rr-block-head"><h3>Agent inspector</h3></div>
+                            <div class="rr-block-body" id="rrInspector"></div>
                         </div>
                     </div>
                 </section>
