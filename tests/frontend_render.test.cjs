@@ -48,6 +48,24 @@ test('resolved verdict shows refund, confidence and a collapsed comparison', () 
     assert.match(p.element('rrVerdict').innerHTML, /class="rr-key-details" open/);
 });
 
+test('a dismissed rider complaint says the charge stands', () => {
+    const p = page();
+    p.run(`rr.detail = {dispute_ticket:{filed_by:'rider'}, trip_data:{cancellation_fee:5}};
+        rr.result = {status:'resolved', verdict:{verdict:'dismissed', refund_amount:0, confidence:.9}}; rrRenderVerdict()`);
+    const html = p.element('rrVerdict').innerHTML;
+    assert.match(html, /Rider(&#39;|')s complaint dismissed/);
+    assert.match(html, /S\$5\.00 cancellation fee stands/);
+});
+
+test('an upheld driver claim is labelled as the driver claim', () => {
+    const p = page();
+    p.run(`rr.detail = {dispute_ticket:{filed_by:'driver'}, trip_data:{cleaning_fee_claimed:120}};
+        rr.result = {status:'resolved', verdict:{verdict:'upheld', refund_amount:null, confidence:.9}}; rrRenderVerdict()`);
+    const html = p.element('rrVerdict').innerHTML;
+    assert.match(html, /Driver(&#39;|')s claim upheld/);
+    assert.doesNotMatch(html, /stands/);
+});
+
 test('failed and escalated runs do not display a completed ruling', () => {
     for (const status of ['failed', 'escalated_to_human']) {
         const p = page();
