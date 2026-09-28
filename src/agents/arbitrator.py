@@ -14,7 +14,7 @@ from enum import Enum
 
 from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_API_KEY
 from src.core.llm_client import LLMClient
-from src.core.policy_refs import case_policy_refs
+from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,12 @@ class ArbitrationAgent:
             "- If the evidence is insufficient or contradictory, assign low confidence "
             "  and recommend human review.\n"
             "- Do not expose chain-of-thought; return concise, readable reasoning only.\n"
-            "- Do not infer protected characteristics (race, gender, religion, etc.).\n\n"
+            "- Do not infer protected characteristics (race, gender, religion, etc.).\n"
+            "- The verdict is measured against what the person who filed asked for: "
+            "\"upheld\" = they get everything they asked for (e.g. the full amount they "
+            "asked to be refunded, even if the rest of the fare stands); "
+            "\"partially_upheld\" = they get only part of it; "
+            "\"dismissed\" = they get nothing.\n\n"
             "Respond ONLY with a valid JSON object (no markdown, no extra text) "
             "with exactly these keys:\n"
             "  \"verdict\": string (one of: \"upheld\", \"partially_upheld\", \"dismissed\"),\n"
@@ -210,6 +215,8 @@ class ArbitrationAgent:
         original = parsed.get("policy_references", [])
         if not isinstance(original, list):
             original = []
+        # A real case-policy key cited without (or with the other) section prefix is kept
+        original = [normalize_case_policy_ref(ref, valid_refs) for ref in original]
         clean = [ref for ref in original if ref in valid_refs]
         if len(clean) != len(original):
             dropped = len(original) - len(clean)

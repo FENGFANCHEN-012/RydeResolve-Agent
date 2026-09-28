@@ -241,6 +241,43 @@ class TestArbitrationAgent:
         assert "unverified" not in decision.rationale.lower()
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("cited", [
+        "surge_must_be_displayed_before_confirmation",                      # no section prefix
+        "cancellation_policy.surge_must_be_displayed_before_confirmation",  # other section name
+    ])
+    async def test_case_policy_key_without_canonical_prefix_is_kept(self, minimal_inputs, cited):
+        """FD-001: the Judge cited a real case-policy key without its prefix and was sent to review."""
+        minimal_inputs["context"]["platform_policy"] = {"surge_must_be_displayed_before_confirmation": True}
+        response = json.dumps({
+            "verdict": "upheld",
+            "confidence": 0.92,
+            "rationale": "The surge was applied after confirmation without being shown.",
+            "refund_amount": 8.2,
+            "policy_references": [cited],
+            "human_review_needed": False,
+            "escalation_recommended": False,
+        })
+        decision = await ArbitrationAgent(llm_client=FakeLLMClient(response)).arbitrate(**minimal_inputs)
+        assert decision.policy_references == ["platform_policy.surge_must_be_displayed_before_confirmation"]
+        assert decision.human_review_needed is False
+        assert "unverified" not in decision.rationale.lower()
+
+    @pytest.mark.asyncio
+    async def test_bare_key_that_is_not_in_case_policy_is_still_stripped(self, minimal_inputs):
+        minimal_inputs["context"]["platform_policy"] = {"grace_period": 3}
+        response = json.dumps({
+            "verdict": "upheld",
+            "confidence": 0.92,
+            "rationale": "Invented rule.",
+            "policy_references": ["refund_always_allowed"],
+            "human_review_needed": False,
+            "escalation_recommended": False,
+        })
+        decision = await ArbitrationAgent(llm_client=FakeLLMClient(response)).arbitrate(**minimal_inputs)
+        assert decision.policy_references == []
+        assert decision.human_review_needed is True
+
+    @pytest.mark.asyncio
     async def test_unlisted_case_policy_and_answer_key_are_rejected(self, minimal_inputs):
         minimal_inputs["context"]["platform_policy"] = {"grace_period": 3}
         minimal_inputs["context"]["expected_outcome"] = {"verdict": "upheld"}
