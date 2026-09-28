@@ -1,0 +1,15 @@
+{
+  "DISP-002": {
+    "verdict": "dismissed",
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "Organiser sample DISP-002, expected ruling: cancellation charge UPHELD (the rider's complaint is dismissed). GPS shows the driver stationary at the pickup from 08:43 to 08:51 (8 min, meeting the no-show threshold), 2 min before the scheduled 08:45. The driver messaged and called; the rider never replied. The free wait expired at 08:48 and the S$5.00 fee was applied at 08:51, as the cancellation policy allows.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
+    ],
+    "must_escalate": false
+  }
+}

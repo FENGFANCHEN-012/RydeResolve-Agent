@@ -38,6 +38,9 @@ from src.core.policy_refs import case_policy_refs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_DIR = ROOT / "data" / "eval"
+# Answer keys for datasets we keep verbatim (e.g. the organiser's Dispute_format samples),
+# keyed by dispute id; a case's own "expected_outcome" always wins
+ANSWER_KEYS_FILE = ROOT / "data" / "eval_answer_keys.json"
 STATUS_ESCALATED = "escalated_to_human"
 
 # Targets from docs/06_EVAL_PLAN.md, section 1
@@ -67,12 +70,13 @@ def load_cases(selected: set[str] | None = None) -> list[dict]:
 
     api = RydeAPIClient()
     api.list_orders()  # builds the order index
+    answer_keys = json.loads(ANSWER_KEYS_FILE.read_text(encoding="utf-8")) if ANSWER_KEYS_FILE.exists() else {}
     cases = []
     for order_id, path in api._index.items():
         data = load_dispute_dataset(path)
-        expected = data.get("expected_outcome")
         ticket = data.get("dispute_ticket") or {}
         dispute_id = ticket.get("dispute_id") or order_id
+        expected = data.get("expected_outcome") or answer_keys.get(dispute_id)
         if not expected:
             continue
         if selected and dispute_id not in selected and order_id not in selected:

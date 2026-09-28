@@ -104,13 +104,21 @@ def test_summary_targets():
 
 def test_answer_keys_have_eval_fields():
     cases = ev.load_cases()
-    assert len(cases) == 13
+    assert len(cases) == 14  # 13 mock disputes + the organiser's DISP-002 sample
     for c in cases:
         exp = c["expected"]
         for key in ("expected_dispute_type", "expected_urgency", "expected_policy_sections", "must_escalate"):
             assert key in exp, (c["dispute_id"], key)
         assert exp["must_escalate"] == exp["requires_human_review"]
         assert exp["expected_policy_sections"]
+
+
+def test_organiser_sample_uses_sidecar_answer_key():
+    # DISP-002 is kept verbatim in data/Dispute_format; its key lives in data/eval_answer_keys.json
+    case = next(c for c in ev.load_cases() if c["dispute_id"] == "DISP-002")
+    assert case["filed_type"] == "no_show_charge"
+    assert case["expected"]["verdict"] == "dismissed" and case["expected"]["refund_amount"] == 0.0
+    assert case["charge_cap"] == 5.0
 
 
 @pytest.mark.parametrize("dispute_id", ["SI-001"])
