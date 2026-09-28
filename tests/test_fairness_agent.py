@@ -447,7 +447,22 @@ class TestInternalInconsistency:
 
         codes = {i.code for i in assessment.issues}
         assert FairnessIssueCode.INTERNAL_INCONSISTENCY in codes
-        assert assessment.requires_human_review is True
+        # Policy agent vs Judge disagreement is recorded (medium) but does not block by itself
+        issue = next(i for i in assessment.issues if i.code == FairnessIssueCode.INTERNAL_INCONSISTENCY)
+        assert issue.severity == "medium"
+        assert assessment.requires_human_review is False
+
+    @pytest.mark.asyncio
+    async def test_driver_filed_upheld_with_passenger_noncompliant_is_consistent(self):
+        # A driver-filed dispute that is UPHELD favours the driver, so a non-compliant
+        # passenger and a compliant driver agree with the verdict.
+        decision = make_decision(verdict=Verdict.UPHELD)
+        policy = make_policy_evaluation(passenger_compliant=False, driver_compliant=True)
+        inp = make_input(decision=decision, policy_evaluation=policy,
+                         context={**make_context(), "reporter": "driver"})
+        assessment = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+        codes = {i.code for i in assessment.issues}
+        assert FairnessIssueCode.INTERNAL_INCONSISTENCY not in codes
 
     @pytest.mark.asyncio
     async def test_verdict_dismissed_with_driver_noncompliant_passenger_compliant_is_inconsistent(self):
@@ -647,8 +662,9 @@ class TestRecommendationEnum:
         assert a.recommendation == FairnessRecommendation.BLOCK
 
     @pytest.mark.asyncio
-    async def test_amend_recommended_for_medium_severity(self):
-        # Driver evidence is heavily asymmetric but both sides present.
+    async def test_evidence_count_gap_is_only_a_note(self):
+        # Driver evidence is heavily asymmetric but both sides present: recorded as low,
+        # the decision still proceeds.
         passenger = make_passenger_analysis(
             evidence=[f"item-{i}" for i in range(8)],
             confidence=0.85,
@@ -667,7 +683,10 @@ class TestRecommendationEnum:
         )
         agent = FairnessAgent(llm_client=FakeLLMClient())
         a = await agent.assess(inp)
-        assert a.recommendation == FairnessRecommendation.AMEND_RECOMMENDED
+        gap = next(i for i in a.issues if i.code == FairnessIssueCode.ASYMMETRIC_EVIDENCE)
+        assert gap.severity == "low"
+        assert a.recommendation == FairnessRecommendation.PROCEED
+        assert a.requires_human_review is False
 
 
 # ---------------------------------------------------------------------------
@@ -718,8 +737,48 @@ class TestHybridBlend:
         )
         agent = FairnessAgent(llm_client=FakeLLMClient(semantic))
         a = await agent.assess(make_input())
+        # Medium = proceed with the concern on record; only high findings stop execution
         assert a.recommendation == FairnessRecommendation.AMEND_RECOMMENDED
-        assert a.fairness_passed is False
+        assert a.fairness_passed is True
+        assert a.requires_human_review is False
+
+    @pytest.mark.asyncio
+    async def test_semantic_high_without_evidence_quote_is_downgraded(self):
+        semantic = (
+            '{"issues": [{"code": "internal_inconsistency", "severity": "high", '
+            '"description": "Rationale mentions photos that do not exist.", '
+            '"evidence_refs": ["invented item that appears nowhere"], "recommended_action": ""}]}'
+        )
+        a = await FairnessAgent(llm_client=FakeLLMClient(semantic)).assess(make_input())
+        issue = next(i for i in a.issues if i.code == FairnessIssueCode.INTERNAL_INCONSISTENCY)
+        assert issue.severity == "medium" and issue.evidence_refs == []
+        assert a.requires_human_review is False
+
+    @pytest.mark.asyncio
+    async def test_semantic_high_quoting_the_rationale_escalates(self):
+        semantic = (
+            '{"issues": [{"code": "internal_inconsistency", "severity": "high", '
+            '"description": "The rationale contradicts the policy evaluation.", '
+            '"evidence_refs": ["30% deviation from the recommended route"], "recommended_action": ""}]}'
+        )
+        a = await FairnessAgent(llm_client=FakeLLMClient(semantic)).assess(make_input())
+        assert a.recommendation == FairnessRecommendation.ESCALATE
+        assert a.requires_human_review is True
+
+    @pytest.mark.asyncio
+    async def test_semantic_prompt_includes_case_evidence(self):
+        seen = {}
+
+        class RecordingLLM(FakeLLMClient):
+            async def chat_json(self, messages, temperature=None):
+                seen["prompt"] = messages[-1]["content"]
+                return '{"issues": []}'
+
+        context = {**make_context(), "app_events": [
+            {"timestamp": "2026-09-13T01:40:00+08:00", "event_type": "cleaning_receipt_uploaded", "details": "Receipt S$120"}]}
+        await FairnessAgent(llm_client=RecordingLLM()).assess(make_input(context=context))
+        assert "CASE EVIDENCE" in seen["prompt"]
+        assert "cleaning_receipt_uploaded" in seen["prompt"]
 
 
 # ---------------------------------------------------------------------------

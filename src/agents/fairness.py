@@ -138,6 +138,11 @@ class FairnessAssessment(BaseModel):
 _DEFAULT_FAIRNESS_CONFIDENCE_GAP = 0.30   # |passenger_conf - driver_conf| > 0.3
 _DEFAULT_RATIONALE_MIN_LENGTH = 20        # characters
 _DEFAULT_EVIDENCE_COUNT_GAP = 3           # passenger vs driver evidence length gap
+# Semantic-review prompt budget: Groq's free tier allows 8k tokens a minute, so the
+# whole prompt stays around 4k tokens (~16k characters)
+_ANALYSIS_MAX_CHARS = 2000                # per advocate / policy analysis
+_EVIDENCE_LIST_MAX_ITEMS = 25             # app events, chat lines, findings each
+_EVIDENCE_LINE_MAX_CHARS = 180
 
 
 # ======================================================================
@@ -325,6 +330,7 @@ class FairnessAgent:
             requires_human = True
         else:
             # (b) asymmetric evidence (only counts as asymmetry when both sides present)
+            # Low: one side often simply has more evidence; this is a note, not a verdict flaw
             gap = abs(passenger_count - driver_count)
             if gap >= _DEFAULT_EVIDENCE_COUNT_GAP:
                 heavier = "passenger" if passenger_count > driver_count else "driver"
@@ -335,11 +341,12 @@ class FairnessAgent:
                         f"item(s), driver provided {driver_count} item(s) "
                         f"(gap={gap})."
                     ),
-                    severity="medium",
+                    severity="low",
                     recommended_action="Confirm the lighter side received a fair chance to respond.",
                 )
 
-        # (c) large unexplained confidence imbalance
+        # (c) large confidence imbalance -- low: advocates diverge whenever the
+        # evidence clearly favours one side, which is expected rather than unfair
         confidence_gap = abs(passenger_conf - driver_conf)
         if passenger_count > 0 and driver_count > 0 and confidence_gap > _DEFAULT_FAIRNESS_CONFIDENCE_GAP:
             add_issue(
@@ -349,7 +356,7 @@ class FairnessAgent:
                     f"passenger={passenger_conf:.2f}, driver={driver_conf:.2f} "
                     f"(gap={confidence_gap:.2f})."
                 ),
-                severity="medium",
+                severity="low",
                 recommended_action="Verify the imbalance is justified by evidence weight.",
             )
 
@@ -411,28 +418,31 @@ class FairnessAgent:
         pc_field = policy_evaluation.get("passenger_compliant") if isinstance(policy_evaluation, dict) else None
         dc_field = policy_evaluation.get("driver_compliant") if isinstance(policy_evaluation, dict) else None
         if pc_field is not None and dc_field is not None:
-            # If passenger violated but decision is UPHELD, that may be fine;
-            # if NO violations and decision is DISMISSED, that is fine. The
-            # contradictory cases are:
+            # The verdict is about the complaint, so read compliance from the
+            # complainant's side: a driver-filed dispute that is UPHELD favours the driver.
+            filer = "driver" if str((context or {}).get("reporter", "")).lower() == "driver" else "passenger"
+            other = "passenger" if filer == "driver" else "driver"
+            filer_ok, other_ok = (dc_field, pc_field) if filer == "driver" else (pc_field, dc_field)
             contradictions: list[str] = []
-            if verdict_value == "upheld" and pc_field is False and dc_field is True:
+            if verdict_value == "upheld" and filer_ok is False and other_ok is True:
                 contradictions.append(
-                    "Passenger is marked non-compliant while driver is compliant, "
-                    "yet verdict is UPHELD — contradiction."
+                    f"The policy check marks the {filer} (who filed) non-compliant and the {other} "
+                    "compliant, yet the verdict UPHOLDS the complaint."
                 )
-            if verdict_value == "dismissed" and pc_field is True and dc_field is False:
+            if verdict_value == "dismissed" and filer_ok is True and other_ok is False:
                 contradictions.append(
-                    "Driver is marked non-compliant while passenger is compliant, "
-                    "yet verdict is DISMISSED — contradiction."
+                    f"The policy check marks the {other} non-compliant and the {filer} (who filed) "
+                    "compliant, yet the verdict DISMISSES the complaint."
                 )
+            # Medium: this is the Policy agent disagreeing with the Judge, not the Judge
+            # contradicting itself; the semantic review weighs it against the evidence.
             for text in contradictions:
                 add_issue(
                     FairnessIssueCode.INTERNAL_INCONSISTENCY,
                     text,
-                    severity="high",
-                    recommended_action="Reconcile compliance findings with the verdict before executing.",
+                    severity="medium",
+                    recommended_action="Check that the rationale explains why it departs from the policy check.",
                 )
-                requires_human = True
 
         # Also flag inconsistencies between rationale and evidence only if the
         # rationale is suspiciously short relative to the dispute complexity.
@@ -615,6 +625,7 @@ class FairnessAgent:
         """
 
         system_prompt = self._build_semantic_system_prompt()
+        case_evidence = _case_evidence_summary(context)
         user_prompt = self._build_semantic_user_prompt(
             dispute_id=dispute_id,
             decision=decision,
@@ -624,7 +635,14 @@ class FairnessAgent:
             rationale=rationale,
             verdict_value=verdict_value,
             issues_so_far=issues_so_far,
+            case_evidence=case_evidence,
         )
+        # Everything the reviewer was shown; a finding may only point at text from here
+        grounding_text = "\n".join((
+            case_evidence, rationale,
+            json.dumps(passenger_analysis, default=str), json.dumps(driver_analysis, default=str),
+            json.dumps(policy_evaluation, default=str),
+        ))
 
         try:
             raw = await llm.chat_json(
@@ -645,7 +663,9 @@ class FairnessAgent:
         # Validate and coerce
         try:
             return self._coerce_semantic_issues(
-                parsed, retrieved_refs=self._build_valid_refs(policy_evaluation, context)
+                parsed,
+                retrieved_refs=self._build_valid_refs(policy_evaluation, context),
+                grounding_text=grounding_text,
             )
         except Exception as exc:
             logger.warning("FairnessAgent semantic review JSON invalid: %s", exc)
@@ -663,6 +683,17 @@ class FairnessAgent:
             "(race, gender, religion, nationality, age, etc.).\n"
             "- Do NOT expose chain-of-thought; return only the final "
             "findings.\n"
+            "- The CASE EVIDENCE section is the ground truth. The advocate "
+            "analyses are summaries: if a fact is missing from a summary, check "
+            "the case evidence before calling the decision unsupported.\n"
+            "- Report internal_inconsistency or unsupported_reasoning only when "
+            "the decision contradicts the case evidence, the policy evaluation "
+            "or itself. Use severity \"high\" only for a contradiction that would "
+            "change the outcome.\n"
+            "- In evidence_refs, quote the exact conflicting items: an event type "
+            "with its timestamp, a chat timestamp, a short exact phrase from the "
+            "rationale, or a policy reference. A high finding without such a "
+            "quote is treated as medium.\n"
             "- If the case is clearly fair, return an empty issues list.\n"
             "- If you find a fairness concern, return it as one entry in the "
             "issues list.\n\n"
@@ -676,8 +707,8 @@ class FairnessAgent:
             '"internal_inconsistency", "low_decision_confidence"\n'
             '      "severity": "low" | "medium" | "high"\n'
             '      "description": string\n'
-            '      "evidence_refs": list of strings (policy refs or '
-            'debate round indices, may be empty)\n'
+            '      "evidence_refs": list of strings (exact quotes of the '
+            'conflicting evidence items or policy refs, may be empty)\n'
             '      "recommended_action": string\n'
             '  "rationale_alignment": "aligned" | "partial" | '
             '"misaligned" | "unknown"\n'
@@ -693,19 +724,22 @@ class FairnessAgent:
         rationale: str,
         verdict_value: str,
         issues_so_far: list[FairnessIssueDetail],
+        case_evidence: str = "",
     ) -> str:
         return (
             f"Dispute ID: {dispute_id}\n"
             f"Verdict: {verdict_value}\n"
             f"Decision confidence: {getattr(decision, 'confidence', 0.0)}\n"
-            f"Rationale: {rationale[:800]}\n\n"
+            f"Rationale: {rationale[:1200]}\n\n"
             f"Cited policy refs: {list(getattr(decision, 'policy_references', []) or [])}\n\n"
+            f"CASE EVIDENCE (platform records, ground truth):\n"
+            f"{case_evidence or '(not available)'}\n\n"
             f"Passenger analysis (summary): "
-            f"{_truncate_dict(passenger_analysis)}\n\n"
+            f"{_truncate_dict(passenger_analysis, _ANALYSIS_MAX_CHARS)}\n\n"
             f"Driver analysis (summary): "
-            f"{_truncate_dict(driver_analysis)}\n\n"
+            f"{_truncate_dict(driver_analysis, _ANALYSIS_MAX_CHARS)}\n\n"
             f"Policy evaluation (summary): "
-            f"{_truncate_dict(policy_evaluation)}\n\n"
+            f"{_truncate_dict(policy_evaluation, _ANALYSIS_MAX_CHARS)}\n\n"
             f"Deterministic findings already raised:\n"
             f"{self._format_issues_summary(issues_so_far)}\n\n"
             "Return ONLY a JSON object per the system prompt. Do not repeat "
@@ -717,7 +751,15 @@ class FairnessAgent:
         self,
         parsed: dict,
         retrieved_refs: set[str],
+        grounding_text: str = "",
     ) -> list[FairnessIssueDetail]:
+        haystack = " ".join(grounding_text.split()).lower()
+
+        def grounded(ref: str) -> bool:
+            # A policy ref we retrieved, or a quote (>= 4 chars) of what the reviewer was shown
+            quote = " ".join(ref.split()).lower().strip("\"'")
+            return ref in retrieved_refs or (len(quote) >= 4 and quote in haystack)
+
         items = parsed.get("issues", [])
         if not isinstance(items, list):
             return []
@@ -737,9 +779,13 @@ class FairnessAgent:
             description = str(item.get("description", "")).strip() or "No description provided."
             raw_refs = item.get("evidence_refs", []) or []
             refs = [str(r) for r in raw_refs] if isinstance(raw_refs, list) else []
-            # Keep only refs that actually exist in retrieval, to prevent
+            # Keep only refs that point at something real, to prevent
             # prompt-injection style fabrication.
-            refs = [r for r in refs if r in retrieved_refs]
+            refs = [r for r in refs if grounded(r)]
+            if severity == "high" and not refs:
+                # A blocking finding must show the conflicting evidence; otherwise it is a note
+                severity = "medium"
+                description += " (not tied to specific evidence; downgraded from high)"
             coerced.append(FairnessIssueDetail(
                 code=code,
                 severity=severity,
@@ -840,18 +886,12 @@ class FairnessAgent:
             # Unverifiable policy anchors cannot be allowed to influence
             # execution; that is the strongest block signal.
             return FairnessRecommendation.BLOCK, False
-        if any(
-            i.code in (
-                FairnessIssueCode.NO_POLICY_SUPPORT,
-                FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
-                FairnessIssueCode.INTERNAL_INCONSISTENCY,
-                FairnessIssueCode.LOW_DECISION_CONFIDENCE,
-            )
-            for i in high
-        ):
+        # Only high-severity findings stop execution; medium ones are recorded
+        # and shown to reviewers, but the decision still executes.
+        if high:
             return FairnessRecommendation.ESCALATE, False
         if medium:
-            return FairnessRecommendation.AMEND_RECOMMENDED, False
+            return FairnessRecommendation.AMEND_RECOMMENDED, True
         # Otherwise proceed.
         return FairnessRecommendation.PROCEED, True
 
@@ -982,6 +1022,44 @@ class FairnessAgent:
 # ======================================================================
 # Module-level helpers
 # ======================================================================
+
+
+def _case_evidence_summary(context: dict | None) -> str:
+    """Compact, line-per-item view of the platform records the decision rests on,
+    so the semantic review can check a claim against the evidence itself."""
+    if not isinstance(context, dict):
+        return ""
+
+    def clip(text: Any) -> str:
+        s = " ".join(str(text).split())
+        return s if len(s) <= _EVIDENCE_LINE_MAX_CHARS else s[:_EVIDENCE_LINE_MAX_CHARS] + "..."
+
+    def section(title: str, lines: list[str]) -> list[str]:
+        if not lines:
+            return []
+        extra = len(lines) - _EVIDENCE_LIST_MAX_ITEMS
+        shown = lines[:_EVIDENCE_LIST_MAX_ITEMS] + ([f"  ... {extra} more"] if extra > 0 else [])
+        return [title] + shown
+
+    out: list[str] = []
+    if context.get("reporter") or context.get("description"):
+        out.append(f"Filed by: {context.get('reporter', '?')} -- {clip(context.get('description', ''))}")
+    for key, title in (("trip", "Trip"), ("payment", "Payment"), ("platform_policy", "Case policy")):
+        if context.get(key):
+            out.append(f"{title}: {_truncate_dict(context[key], 700)}")
+    events = [e for e in context.get("app_events") or [] if isinstance(e, dict)]
+    out += section("App events:", [
+        f"  {e.get('timestamp', '?')} {e.get('event_type', '?')}: {clip(e.get('details', ''))}" for e in events])
+    chats = [c for c in context.get("chat_log") or [] if isinstance(c, dict)]
+    out += section("Chat log:", [
+        f"  {c.get('timestamp', '?')} {c.get('sender', '?')} ({c.get('message_type', 'message')}): "
+        f"{clip(c.get('message', c.get('content', '')))}" for c in chats])
+    uploads = [u for u in context.get("evidence") or [] if isinstance(u, dict)]
+    out += section("Uploaded evidence:", [f"  {clip(u)}" for u in uploads])
+    findings = [f for f in context.get("findings") or [] if isinstance(f, dict)]
+    out += section("Collector findings (deterministic checks):", [
+        f"  [{f.get('kind', 'fact')}] {clip(f.get('statement', ''))}" for f in findings])
+    return "\n".join(out)
 
 
 def _truncate_dict(value: Any, max_len: int = 600) -> str:

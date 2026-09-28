@@ -288,6 +288,22 @@ class TestGraphRouting:
         assert final["execution"]["executed"] is True
         assert final["fairness"].recommendation == FairnessRecommendation.PROCEED
         assert final["decision"].verdict == Verdict.PARTIALLY_UPHELD
+
+    @pytest.mark.asyncio
+    async def test_amend_recommended_executes_with_concerns_on_record(self):
+        # Medium-only findings: the decision executes; only high findings escalate
+        fairness = StubFairness(
+            assessment=make_fairness(
+                recommendation=FairnessRecommendation.AMEND_RECOMMENDED, requires_human_review=False
+            )
+        )
+        executor = StubExecutor()
+        graph = build_graph(fairness=fairness, executor=executor)
+        final = await graph.ainvoke(initial_state())
+
+        assert executor.calls == 1
+        assert final["status"] == STATUS_RESOLVED
+        assert final["fairness"].recommendation == FairnessRecommendation.AMEND_RECOMMENDED
         assert final["classification"].requires_human is False
 
     @pytest.mark.asyncio
@@ -396,11 +412,10 @@ class TestGraphRouting:
     @pytest.mark.parametrize(
         "recommendation",
         [
-            FairnessRecommendation.AMEND_RECOMMENDED,
             FairnessRecommendation.ESCALATE,
             FairnessRecommendation.BLOCK,
         ],
-        ids=["amend_recommended", "escalate", "block"],
+        ids=["escalate", "block"],
     )
     async def test_fairness_non_proceed_recommendations_never_run_executor(
         self, recommendation
