@@ -718,6 +718,24 @@ function rrRenderDebate() {
 
 // ---------------------------------------------------------------- verdict vs answer key
 
+// Verdicts are about the complaint, not the charge: "dismissed" on a no-show dispute means the
+// fee stands (what the organiser's sample calls "charge UPHELD"), so say it in words.
+function rrVerdictLabel(verdict) {
+    if (!verdict) return 'No verdict available';
+    const filer = rr.detail?.dispute_ticket?.filed_by;
+    const who = filer === 'driver' ? "Driver's claim" : filer === 'rider' ? "Rider's complaint" : 'Complaint';
+    return `${who} ${verdict.replace(/_/g, ' ')}`;
+}
+
+function rrChargeStands(verdict) {
+    const trip = rr.detail?.trip_data || {};
+    if (verdict !== 'dismissed' || rr.detail?.dispute_ticket?.filed_by !== 'rider') return null;
+    if (trip.cancellation_fee != null) return `${rrMoney(trip.cancellation_fee)} cancellation fee stands`;
+    if (trip.cleaning_fee != null) return `${rrMoney(trip.cleaning_fee)} cleaning fee stands`;
+    if (trip.total_fare != null) return `${rrMoney(trip.total_fare)} fare stands`;
+    return null;
+}
+
 function rrRenderVerdict() {
     const el = rrEl('rrVerdict');
     const res = rr.result;
@@ -743,20 +761,22 @@ function rrRenderVerdict() {
         main = `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">${res.status === 'failed' ? 'Incomplete · human review' : 'Escalated to human review'}</span>
             <div class="rr-verdict-text">${rrEsc(res.reason)}</div>
             <div class="rr-verdict-facts">${res.classification?.urgency ? `<span class="rr-fact">Urgency <b>${rrEsc(res.classification.urgency)}</b></span>` : ''}${
-                v.verdict ? `<span class="rr-fact">Proposed <b>${rrEsc(v.verdict.replace(/_/g, ' '))}</b></span>
+                v.verdict ? `<span class="rr-fact">Proposed <b>${rrEsc(rrVerdictLabel(v.verdict))}</b></span>
                 <span class="rr-fact">Refund <b>${v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'}</b></span>` : ''}${
                 res.fairness ? `<span class="rr-fact">Fairness <b>${rrEsc((res.fairness.recommendation || '').replace(/_/g, ' '))}</b></span>` : ''
             }</div></div>`;
     } else {
         const conf = Math.round((v.confidence || 0) * 100);
+        const stands = rrChargeStands(v.verdict);
         const facts = [
+            stands ? ['Charge', stands] : null,
             ['Refund', v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'],
             v.compensation ? ['Compensation', v.compensation] : null,
             v.driver_penalty ? ['Driver', v.driver_penalty] : null,
             v.human_review_needed ? ['Review', 'human required'] : v.escalation_recommended ? ['Review', 'flagged for audit'] : null,
             (v.policy_references || []).length ? ['Cites', v.policy_references.join(', ')] : ['Cites', 'no policy'],
         ].filter(Boolean);
-        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc((v.verdict || 'No verdict available').replace(/_/g, ' '))}</span>
+        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc(rrVerdictLabel(v.verdict))}</span>
             <div class="rr-verdict-text">${rrEsc(v.rationale || '')}</div>
             <div class="rr-verdict-facts">${facts.map(([k, x]) => `<span class="rr-fact">${rrEsc(k)} <b>${rrEsc(x)}</b></span>`).join('')}</div></div>
             <div class="rr-conf"><div class="num">${conf}%</div><div class="lbl">confidence</div><div class="bar"><div style="width:${conf}%"></div></div></div>`;
@@ -770,7 +790,7 @@ function rrRenderVerdict() {
         const expRefund = exp.refund_amount;
         const rOk = expRefund == null || escalated ? null : Math.abs((v.refund_amount || 0) - expRefund) < 0.01;
         key = `<div class="rr-key"><h4>Answer key · hidden from agents</h4>
-            <div class="row"><span>Verdict</span><span>${rrEsc(exp.verdict ? exp.verdict.replace(/_/g, ' ') : 'human review')}</span>${mark(vOk)}</div>
+            <div class="row"><span>Verdict</span><span>${rrEsc(exp.verdict ? rrVerdictLabel(exp.verdict) : 'human review')}</span>${mark(vOk)}</div>
             <div class="row"><span>Refund</span><span>${expRefund == null ? '—' : rrMoney(expRefund)}</span>${mark(rOk)}</div>
             <div class="row"><span>Human review</span><span>${exp.requires_human_review ? 'yes' : 'no'}</span>${mark(gotHuman === !!exp.requires_human_review)}</div>
             <div class="why">${rrEsc(exp.reason)}</div></div>`;
