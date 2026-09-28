@@ -134,6 +134,7 @@
     "no_show_threshold_min": 8,
     "fee_goes_to": "driver_compensation",
     "free_cancellation_before_driver_assignment": true,
+    "cancellation_fee_after_driver_assigned": 4.0,
     "no_fee_if_driver_delayed_beyond_eta_min": 10
   },
   "expected_outcome": {
@@ -141,7 +142,7 @@
     "recommended_action": "cancellation_charge_upheld_no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. The fee is valid under the cancellation policy.",
+    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. A rider who cancels after a driver has been assigned and is en route pays the S$4.00 fee (cancellation_fee_after_driver_assigned; Ryde Cancellation Policy 2.2), and none of the exemptions apply.",
     "expected_dispute_type": "cancellation_refund",
     "expected_urgency": null,
     "expected_policy_sections": [

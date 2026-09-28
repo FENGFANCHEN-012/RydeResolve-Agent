@@ -159,6 +159,7 @@
     "no_show_threshold_min": 8,
     "fee_goes_to": "driver_compensation",
     "free_cancellation_before_driver_assignment": true,
+    "cancellation_fee_after_driver_assigned": 4.0,
     "no_fee_if_driver_delayed_beyond_eta_min": 10
   },
   "expected_outcome": {
