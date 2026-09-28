@@ -16,9 +16,9 @@ Graph topology::
       -> fairness
       -> [route_after_fairness]
              arbitrator requests review, requires_human_review=True, or recommendation is
-             AMEND_RECOMMENDED / ESCALATE / BLOCK, or node error
+             ESCALATE / BLOCK (any high-severity finding), or node error
                                             -> human_review -> END
-             PROCEED                        -> executor
+             PROCEED / AMEND_RECOMMENDED    -> executor
       -> executor -> END (resolved only when execution succeeds)
 
 Design principles:
@@ -310,7 +310,11 @@ def build_dispute_graph(
             return NODE_HUMAN_REVIEW
         if fairness.requires_human_review:
             return NODE_HUMAN_REVIEW
-        if fairness.recommendation != FairnessRecommendation.PROCEED:
+        # AMEND_RECOMMENDED = only medium/low findings: execute, the notes stay on the record
+        if fairness.recommendation not in (
+            FairnessRecommendation.PROCEED,
+            FairnessRecommendation.AMEND_RECOMMENDED,
+        ):
             return NODE_HUMAN_REVIEW
         return NODE_EXECUTOR
 
