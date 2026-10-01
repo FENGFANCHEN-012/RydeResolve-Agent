@@ -46,6 +46,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     classification: ClassificationResult  # classifier node
     debate_history: list[dict]          # debate node
     decision: Decision                  # arbitrator node
+    precedents: list[dict]              # arbitrator node: human-reviewed precedents shown to the Judge
     fairness: FairnessAssessment        # fairness node
     execution: dict                     # executor node
 

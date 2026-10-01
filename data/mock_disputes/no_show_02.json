@@ -191,7 +191,8 @@
     "free_wait_time_min": 5,
     "cancellation_fee_after_wait": 8.0,
     "no_show_threshold_min": 8,
-    "fee_goes_to": "driver_compensation"
+    "fee_goes_to": "driver_compensation",
+    "free_cancellation_within_min_of_match": 3
   },
   "expected_outcome": {
     "verdict": "dismissed",
@@ -204,6 +205,12 @@
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ]
   }
 }

@@ -10,6 +10,12 @@
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charged But Was Present)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ]
   }
 }

@@ -167,12 +167,17 @@
     "recommended_action": "refund",
     "refund_amount": 3.7,
     "requires_human_review": false,
-    "reason": "GPS and the route_deviation_alert show the driver missed the exit with no road incident on the planned route, and the driver admitted it in chat. The extra S$3.70 over the estimate is the driver's fault.",
+    "reason": "Ryde fares are fixed by pick-up and drop-off points, so the rider should pay the S$14.50 upfront fare; the S$3.70 charged above it should be refunded. The GPS and route_deviation_alert also show the driver missed the exit with no road incident on the planned route, which the driver admitted in chat.",
     "expected_dispute_type": "route_deviation",
     "expected_urgency": null,
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 1: Route Deviation (Driver Takes Longer Route)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
   }
 }

@@ -151,6 +151,10 @@
       "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
       "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
   }
 }

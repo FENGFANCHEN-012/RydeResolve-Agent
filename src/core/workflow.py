@@ -8,7 +8,8 @@ Graph topology::
       -> classifier
       -> [route_after_classifier]
              requires_human or node error -> human_review -> END
-             otherwise                     -> debate
+             otherwise                     -> case_brief
+      -> case_brief (facts, conflicts, case rules, timeline, clauses; no LLM)
       -> debate
       -> [route_after_error]  -> arbitrator (or human_review on failure)
       -> arbitrator
@@ -42,6 +43,7 @@ Design principles:
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 from functools import wraps
 
@@ -49,6 +51,7 @@ from langgraph.graph import END, START, StateGraph
 
 from src.agents.arbitrator import ArbitrationAgent
 from src.agents.classifier import ClassifierAgent
+from src.agents.case_brief import CaseBriefAgent
 from src.agents.collector import CollectorAgent
 from src.agents.executor import (
     ExecutionAgent,
@@ -58,6 +61,7 @@ from src.agents.executor import (
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.core.debate import DebateEngine
 from src.core.trace import step
+from src.rag.precedents import find_precedents
 from src.core.workflow_state import (
     STATUS_ESCALATED,
     STATUS_FAILED,
@@ -72,6 +76,7 @@ logger = logging.getLogger(__name__)
 # Node names (also used as LangGraph node ids).
 NODE_COLLECTOR = "collector"
 NODE_CLASSIFIER = "classifier"
+NODE_CASE_BRIEF = "case_brief"
 NODE_DEBATE = "debate"
 NODE_ARBITRATOR = "arbitrator"
 # Note: LangGraph forbids node ids that collide with state keys, so this
@@ -133,6 +138,7 @@ def build_dispute_graph(
     arbitrator: ArbitrationAgent | None = None,
     fairness_agent: FairnessAgent | None = None,
     executor: ExecutionAgent | None = None,
+    case_brief: CaseBriefAgent | None = None,
 ):
     """Compile and return the dispute-resolution LangGraph.
 
@@ -145,6 +151,7 @@ def build_dispute_graph(
     arbitrator = arbitrator or ArbitrationAgent()
     fairness_agent = fairness_agent or FairnessAgent()
     executor = executor or ExecutionAgent()
+    case_brief = case_brief or CaseBriefAgent()
 
     # -- Nodes ----------------------------------------------------------
 
@@ -179,8 +186,21 @@ def build_dispute_graph(
         )
         return {"classification": result, "context": context}
 
+    @_safe_node(NODE_CASE_BRIEF)
+    async def case_brief_node(state: DisputeWorkflowState) -> dict:
+        async with step("CaseBrief", "Build the shared case brief (RAG + verified facts)", {
+            "sees": ["classification", "collector findings", "case policy", "app events", "policy index"],
+        }) as s:
+            brief = await case_brief.build(state["context"], state.get("classification"))
+            s["output"] = brief
+        return {"context": state["context"].model_copy(update={"case_brief": brief})}
+
     @_safe_node(NODE_DEBATE)
     async def debate_node(state: DisputeWorkflowState) -> dict:
+        if hasattr(debate_engine, "debate_with_context"):
+            # Clauses the advocates requested join the shared brief the Judge reads (D14)
+            history, context = await debate_engine.debate_with_context(state["context"])
+            return {"debate_history": history, "context": context}
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
 
@@ -189,9 +209,13 @@ def build_dispute_graph(
         # Preserve the legacy orchestrator convention: the round-0 debate
         # entries carry the passenger / driver / policy analyses.
         history = state.get("debate_history") or []
+        # Human-reviewed past rulings similar to this case (none -> the Judge rules as before)
+        precedents = await asyncio.to_thread(find_precedents, state["context"])
         async with step("Arbitrator", "Weigh both sides & rule", {
             "sees": ["full dispute context", "passenger analysis", "driver analysis",
-                     "policy evaluation", f"debate history ({len(history)} turns)"],
+                     "policy evaluation", f"debate history ({len(history)} turns)",
+                     f"precedents ({len(precedents)})"],
+            "precedent_ids": [p["precedent_id"] for p in precedents],
         }) as s:
             decision = await arbitrator.arbitrate(
                 context=state["context"].model_dump(),
@@ -199,9 +223,11 @@ def build_dispute_graph(
                 driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
                 policy_evaluation=_as_analysis(history[2]["content"]) if len(history) > 2 else {},
                 debate_history=history,
+                # Only passed when there are some, so with an empty index the call is unchanged
+                **({"precedents": precedents} if precedents else {}),
             )
             s["output"] = decision
-        return {"decision": decision}
+        return {"decision": decision, "precedents": precedents}
 
     @_safe_node(NODE_FAIRNESS)
     async def fairness_node(state: DisputeWorkflowState) -> dict:
@@ -295,7 +321,7 @@ def build_dispute_graph(
         classification = state.get("classification")
         if classification is not None and classification.requires_human:
             return NODE_HUMAN_REVIEW
-        return NODE_DEBATE
+        return NODE_CASE_BRIEF
 
     def route_after_fairness(state: DisputeWorkflowState) -> str:
         """Only decisions cleared by both the arbitrator and fairness may execute."""
@@ -323,6 +349,7 @@ def build_dispute_graph(
     builder = StateGraph(DisputeWorkflowState)
     builder.add_node(NODE_COLLECTOR, collector_node)
     builder.add_node(NODE_CLASSIFIER, classifier_node)
+    builder.add_node(NODE_CASE_BRIEF, case_brief_node)
     builder.add_node(NODE_DEBATE, debate_node)
     builder.add_node(NODE_ARBITRATOR, arbitrator_node)
     builder.add_node(NODE_FAIRNESS, fairness_node)
@@ -339,6 +366,11 @@ def build_dispute_graph(
     builder.add_conditional_edges(
         NODE_CLASSIFIER,
         route_after_classifier,
+        {NODE_CASE_BRIEF: NODE_CASE_BRIEF, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+    )
+    builder.add_conditional_edges(
+        NODE_CASE_BRIEF,
+        _route_or_human_review(NODE_DEBATE),
         {NODE_DEBATE: NODE_DEBATE, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
     )
     builder.add_conditional_edges(

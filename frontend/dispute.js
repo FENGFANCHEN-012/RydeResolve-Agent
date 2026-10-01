@@ -18,7 +18,10 @@ const RR_NODES = {
                   sends: ['DisputeContext → Classifier, advocates, Policy, Arbitrator'] },
     classifier: { name: 'Classifier', role: 'Type & urgency', color: 'var(--agent-classifier)', col: 3, row: 2,
                   receives: ['Complaint text', 'Type stated in the case data'],
-                  sends: ['Dispute type → advocates & Policy (RAG query)', 'P0 → human review, skipping the debate'] },
+                  sends: ['Dispute type & urgency → Case Brief', 'P0 → human review, skipping the debate'] },
+    casebrief:  { name: 'Case Brief', role: 'Shared dossier (RAG, no LLM)', color: 'var(--agent-casebrief)', col: 3, row: 1,
+                  receives: ['Classification', 'Collector findings', "This trip's platform rules", 'App events', 'Policy index (one search)'],
+                  sends: ['Facts, conflicts, gaps, case rules, timeline, clauses → every agent'] },
     passenger:  { name: 'Passenger', role: 'Rider advocate', color: 'var(--agent-passenger)', col: 4, row: 1,
                   receives: ['DisputeContext', 'Dispute type', 'Policy clauses (RAG)'],
                   sends: ['Opening analysis → debate & Arbitrator'] },
@@ -48,9 +51,10 @@ const RR_NODES = {
 const RR_EDGES = [
     ['case', 'collector', 'dataset'],
     ['collector', 'classifier', 'context'],
-    ['classifier', 'passenger', 'type'],
-    ['classifier', 'policy', 'RAG query'],
-    ['classifier', 'driver', 'type'],
+    ['classifier', 'casebrief', 'type'],
+    ['casebrief', 'passenger', 'brief'],
+    ['casebrief', 'policy', 'brief'],
+    ['casebrief', 'driver', 'brief'],
     ['passenger', 'debate', 'opening'],
     ['driver', 'debate', 'opening'],
     ['policy', 'arbitrator', 'compliance'],
@@ -381,13 +385,15 @@ async function rrReplay(name) {
 function rrHandle(ev) {
     if (ev.type === 'step_start') {
         rr.steps[ev.id] = { id: ev.id, agent: ev.agent, title: ev.title, input: ev.input, output: null,
-                            llm: [], retrievals: [], status: 'running', duration: null };
+                            llm: [], retrievals: [], tools: [], status: 'running', duration: null };
         rr.order.push(ev.id);
         if (rr.follow) rr.selected = ev.id;
     } else if (ev.type === 'llm_call') {
         rr.steps[ev.step_id]?.llm.push(ev);
     } else if (ev.type === 'retrieval') {
         rr.steps[ev.step_id]?.retrievals.push(ev);
+    } else if (ev.type === 'tool_call') {
+        rr.steps[ev.step_id]?.tools.push(ev);
     } else if (ev.type === 'step_end' || ev.type === 'step_error') {
         const s = rr.steps[ev.id];
         if (s) {
@@ -409,7 +415,7 @@ function rrHandle(ev) {
 
 function rrNodeOf(step) {
     if (/^Round /.test(step.title)) return 'debate';
-    return { Collector: 'collector', Classifier: 'classifier', Passenger: 'passenger', Driver: 'driver',
+    return { Collector: 'collector', Classifier: 'classifier', CaseBrief: 'casebrief', Passenger: 'passenger', Driver: 'driver',
              Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor' }[step.agent] || 'debate';
 }
 function rrStepsOf(node) { return rr.order.map(id => rr.steps[id]).filter(s => rrNodeOf(s) === node); }
@@ -449,6 +455,11 @@ function rrNodeSummary(node) {
     const o = rrParse(s.output) || {};
     switch (node) {
         case 'collector': {
+            const f = o.findings || [];
+            if (f.length) {
+                const n = k => f.filter(x => x.kind === k).length;
+                return `${n('fact')} facts · ${n('conflict')} conflicts · ${n('gap')} gaps`;
+            }
             const miss = o.data_completeness?.missing || [];
             return miss.length ? `Missing: ${miss.join(', ')}` : 'All 8 data sources found';
         }
@@ -633,6 +644,15 @@ function rrRenderInspector() {
                 <span class="rr-sim" title="similarity ${c.similarity}"><div style="width:${Math.max(4, Math.min(100, (c.similarity || 0) * 150))}%"></div></span>
                 </summary><div class="excerpt">${rrEsc(c.excerpt)}</div></details>`).join('') || '<div class="rr-hint">No clauses returned.</div>'}</div></div>`;
     }
+    if (s.tools.length) {
+        html += `<div class="rr-sec"><h5>Tools run (${s.tools.length} · deterministic, 0 tokens)</h5>
+            <div class="rr-clauses">${s.tools.map(t => `<details class="rr-clause"><summary>
+                <span><span class="src">${rrEsc(t.tool)}</span>${Object.keys(t.args || {}).length
+                    ? ` <span class="sec">${rrEsc(JSON.stringify(t.args))}</span>` : ''}</span>
+                <span class="rr-node-meta">${t.findings.length} result${t.findings.length === 1 ? '' : 's'}</span>
+                </summary><div class="excerpt">${t.findings.map(f => `[${rrEsc(f.kind)}] ${rrEsc(f.statement)}`).join('<br>')
+                    || 'Nothing to report for this case.'}</div></details>`).join('')}</div></div>`;
+    }
     if (/^Round /.test(s.title) && s.input?.rebutting) {
         html += `<div class="rr-sec"><h5>Responding to</h5><div class="rr-prose" style="color:var(--on-dark-muted)">${rrEsc(rrClip(
             typeof s.input.rebutting === 'string' ? s.input.rebutting : JSON.stringify(s.input.rebutting), 700))}</div></div>`;
@@ -649,6 +669,18 @@ function rrRenderInspector() {
     el.innerHTML = html;
 }
 
+// Collector findings: conflicts and gaps first, each with the data it came from
+function rrFindings(findings) {
+    if (!findings.length) return '';
+    const order = { conflict: 0, gap: 1, fact: 2 };
+    const sorted = [...findings].sort((a, b) => order[a.kind] - order[b.kind]);
+    return `<div class="rr-label" style="margin-top:10px">Findings (computed by tools, no LLM)</div>
+        <ul class="rr-findings">${sorted.map(f => `<li class="rr-finding ${rrEsc(f.kind)}">
+            <span class="rr-kind">${rrEsc(f.kind)}</span>
+            <div>${rrEsc(f.statement)}${f.sources?.length
+                ? `<div class="rr-src">${f.sources.map(rrEsc).join(' · ')}</div>` : ''}</div></li>`).join('')}</ul>`;
+}
+
 function rrReasoning(agent, out) {
     if (out == null) return '<div class="rr-hint">No output.</div>';
     if (typeof out === 'string') return `<div class="rr-prose">${rrEsc(out)}</div>`;
@@ -660,7 +692,8 @@ function rrReasoning(agent, out) {
             <div class="k">Case</div><div>${rrEsc(out.dispute_id)} · ${rrEsc(out.type || 'type unknown')} · filed by ${rrEsc(out.reporter)}</div>
             <div class="k">Source</div><div>${rrEsc(dc.source || 'not found on platform')}</div>
             <div class="k">Data found</div><div>${fields.map(f =>
-                `<span class="rr-chip ${out[f] != null ? 'ok' : 'miss'}">${f}${count(out[f])}</span>`).join('')}</div></div>`;
+                `<span class="rr-chip ${out[f] != null ? 'ok' : 'miss'}">${f}${count(out[f])}</span>`).join('')}</div></div>`
+            + rrFindings(out.findings || []);
     }
     if (agent === 'Executor') {
         const actions = out.actions_taken || [];

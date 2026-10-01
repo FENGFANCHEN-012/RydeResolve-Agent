@@ -625,3 +625,91 @@ async def get_order_context(order_id: str):
 
     return {"order_id": order_id, "context": result}
 
+
+
+# ---------------------------------------------------------------------------
+# Learning feedback loop: human review of rulings and the precedent lifecycle
+# (src/store/feedback.py). Releasing staged precedents needs an evaluation run,
+# so that step lives in scripts/precedents.py, not here.
+# ---------------------------------------------------------------------------
+
+class ReviewRequest(BaseModel):
+    reviewer: str
+    action: str  # "confirm" or "override"
+    reason: str
+    final_verdict: str | None = None
+    final_refund: float | None = None
+
+
+class PrecedentAction(BaseModel):
+    actor: str
+    reason: str = ""
+
+
+def _precedent_json(p) -> dict:
+    return {k: getattr(p, k) for k in ("id", "dispute_id", "dispute_type", "verdict", "refund_amount", "principle",
+                                      "ai_verdict", "status", "version", "approved_by", "gate_result",
+                                      "created_at", "updated_at")}
+
+
+@app.post("/api/rulings/{ruling_id}/review")
+async def review_ruling(ruling_id: int, request: ReviewRequest):
+    """A reviewer confirms or overrides a ruling. Overrides (and decisions on escalated
+    cases) become pending precedents."""
+    from src.store.db import get_store
+    try:
+        review, precedent = await asyncio.to_thread(
+            get_store().submit_review, ruling_id, request.reviewer, request.action, request.reason,
+            request.final_verdict, request.final_refund)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"review_id": review.id, "precedent": _precedent_json(precedent) if precedent else None}
+
+
+@app.get("/api/precedents")
+async def list_precedents(status: str | None = None):
+    from src.store.db import get_store
+    return [_precedent_json(p) for p in await asyncio.to_thread(get_store().list_precedents, status)]
+
+
+@app.post("/api/precedents/{precedent_id}/approve")
+async def approve_precedent(precedent_id: int, request: PrecedentAction):
+    """Human approval: pending -> staged. It goes live only after the evaluation gate."""
+    from src.rag.precedents import PrecedentIndex
+    from src.store import feedback
+    from src.store.db import get_store
+    try:
+        p = await asyncio.to_thread(feedback.approve, get_store(), PrecedentIndex(), precedent_id, request.actor)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return _precedent_json(p)
+
+
+@app.post("/api/precedents/{precedent_id}/retire")
+async def retire_precedent(precedent_id: int, request: PrecedentAction):
+    """Roll back a precedent: removed from the index, kept in the record."""
+    from src.rag.precedents import PrecedentIndex
+    from src.store import feedback
+    from src.store.db import get_store
+    if not request.reason.strip():
+        raise HTTPException(status_code=400, detail="say why the precedent is retired")
+    try:
+        p = await asyncio.to_thread(feedback.retire, get_store(), PrecedentIndex(), precedent_id,
+                                    request.actor, request.reason)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return _precedent_json(p)
+
+
+@app.get("/api/audit/verify")
+async def verify_audit():
+    """Check the hash chain of the audit log (tamper evidence)."""
+    from src.store.db import get_store
+    ok, bad = await asyncio.to_thread(get_store().verify_audit_chain)
+    return {"intact": ok, "first_bad_entry": bad}

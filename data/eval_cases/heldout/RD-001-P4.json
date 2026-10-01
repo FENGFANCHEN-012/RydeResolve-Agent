@@ -1,0 +1,186 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "RD-001-P4",
+    "trip_id": "RYDE-HELD-004",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver missed the AYE exit, went the wrong way and had to turn back. An 18-minute ride became 27 minutes and I paid $18.20 when the app quoted $14.50. Please refund the $3.70.",
+    "filed_at": "2026-09-21T11:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5102",
+    "name": "Aisyah Rahman",
+    "account_age_days": 540,
+    "total_trips": 212,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3310",
+    "name": "Lim Wei Jie",
+    "account_age_days": 780,
+    "total_trips": 4120,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SLK 7734 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HELD-004",
+    "rider_id": "R-5102",
+    "driver_id": "D-3310",
+    "pickup_location": {
+      "name": "Singapore Polytechnic",
+      "lat": 1.3099,
+      "lng": 103.7775
+    },
+    "dropoff_location": {
+      "name": "Orchard Road (ION Orchard)",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-09-21T10:00:00+08:00",
+    "pickup_time": "2026-09-21T10:00:00+08:00",
+    "dropoff_time": "2026-09-21T10:27:00+08:00",
+    "estimated_distance_km": 8.2,
+    "actual_distance_km": 10.4,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 27,
+    "route_deviation_percent": 26.8,
+    "estimated_fare": 14.5,
+    "total_fare": 18.2,
+    "driver_reported_reason": "Missed the correct exit"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-09-21T10:00:00+08:00",
+      "lat": 1.3099,
+      "lng": 103.7775,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:05:00+08:00",
+      "lat": 1.307,
+      "lng": 103.79,
+      "speed_kmh": 62,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:10:00+08:00",
+      "lat": 1.3188,
+      "lng": 103.8057,
+      "speed_kmh": 55,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:14:00+08:00",
+      "lat": 1.315,
+      "lng": 103.812,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:20:00+08:00",
+      "lat": 1.308,
+      "lng": 103.823,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-09-21T10:27:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-09-21T10:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we going in the opposite direction?"
+    },
+    {
+      "timestamp": "2026-09-21T10:13:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, I missed the exit. I will turn back."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-09-21T09:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5102 booked trip RYDE-HELD-004 from Singapore Polytechnic to ION Orchard. Upfront fare estimate S$14.50, 8.2 km, 18 min."
+    },
+    {
+      "timestamp": "2026-09-21T09:52:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3310 (Lim Wei Jie, Toyota Prius SLK 7734 C) assigned."
+    },
+    {
+      "timestamp": "2026-09-21T10:00:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Navigation route: AYE eastbound, exit to Alexandra Rd."
+    },
+    {
+      "timestamp": "2026-09-21T10:08:00+08:00",
+      "event_type": "route_deviation_alert",
+      "details": "Vehicle passed the recommended exit and continued off the planned route. No road incidents reported on the planned route."
+    },
+    {
+      "timestamp": "2026-09-21T10:14:00+08:00",
+      "event_type": "route_recalculated",
+      "details": "Route recalculated after U-turn. New ETA 10:27."
+    },
+    {
+      "timestamp": "2026-09-21T10:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 10.4 km (planned 8.2 km, +26.8%). Duration 27 min."
+    },
+    {
+      "timestamp": "2026-09-21T10:27:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$18.20 charged to credit card (estimate S$14.50)."
+    }
+  ],
+  "platform_policy": {
+    "refund_at_ryde_discretion": true,
+    "rider_route_requests_must_be_agreed_before_trip": true
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund",
+    "refund_amount": 3.7,
+    "requires_human_review": false,
+    "reason": "Ryde fares are fixed by pick-up and drop-off points, so the rider should pay the S$14.50 upfront fare; the S$3.70 charged above it should be refunded. The GPS and route_deviation_alert also show the driver missed the exit with no road incident on the planned route, which the driver admitted in chat.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Dispute Resolution Guide > Scenario 1: Route Deviation (Driver Takes Longer Route)"
+    ],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ],
+    "variant_of": "RD-001",
+    "variant_kind": "paraphrase + renamed parties",
+    "heldout": true
+  }
+}

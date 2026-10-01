@@ -85,6 +85,102 @@ class FairnessIssueCode(str, Enum):
     # #5 low-confidence
     LOW_DECISION_CONFIDENCE = "low_decision_confidence"
 
+    # #6 the deciding fact cannot be verified from platform data
+    DECISIVE_EVIDENCE_GAP = "decisive_evidence_gap"
+
+    # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
+    FEE_BASIS_NOT_MET = "fee_basis_not_met"
+
+
+# Verdict labels are about the COMPLAINT, not about any fee. Without this the semantic check read
+# "upheld" + refund as "the fee was upheld" and flagged a correct refund as contradicting policy
+# (eval run 20261001-114026, NS-001)
+_VERDICT_MEANING = {
+    "upheld": "the complaint is accepted: whoever filed it gets what they asked for, e.g. the fee is refunded",
+    "partially_upheld": "the complaint is partly accepted: the filer gets part of what they asked for",
+    "dismissed": "the complaint is rejected: the filer gets nothing, e.g. the fee stands",
+}
+
+# Dispute types whose ruling depends on where the driver was (at pickup, on the route)
+_LOCATION_DECIDED_TYPES = {"no_show", "no_show_charge", "cancellation_refund", "route_deviation"}
+
+
+def _advocate_ran(analysis: dict) -> bool:
+    """True when an advocate produced an analysis (a stance or reasoning), even if it
+    found no evidence for its side. False for a missing or failed advocate."""
+    return bool(str(analysis.get("reasoning") or "").strip() or str(analysis.get("stance") or "").strip())
+
+
+def _arrival_recorded(context: dict) -> bool:
+    """True when the platform says the driver reached the pickup (trip field or app event)."""
+    if (context.get("trip") or {}).get("driver_arrival_time"):
+        return True
+    return any(isinstance(e, dict) and e.get("event_type") == "driver_arrived"
+               for e in context.get("app_events") or [])
+
+
+def _fee_basis_problems(context: dict, verdict: str, refund) -> list[str]:
+    """Deterministic checks for a ruling that leaves a no-show / cancellation fee in place.
+
+    Prompt rules did not stop the Judge from (a) treating a driver arrival contradicted by GPS
+    as proven (NS-002-C1) or (b) using the free wait instead of the no-show threshold
+    (NS-002-B1), run 20261001-114026. These checks do not decide the case: they send it to a
+    person when the fee's basis is contradicted or not met by the case's own data (D15)."""
+    from src.agents.case_brief import _finding_values, disputed_charge
+    dispute_type = getattr(context.get("type"), "value", context.get("type"))
+    if dispute_type not in ("no_show", "no_show_charge", "cancellation_refund"):
+        return []
+    fee = disputed_charge(context)
+    try:
+        refunded = float(refund or 0)
+    except (TypeError, ValueError):
+        refunded = 0.0
+    fee_kept = bool(fee) and (verdict == "dismissed" or refunded < fee - 0.01)
+    if not fee_kept:
+        return []
+    problems = []
+    conflicts = [f for f in (_dump_findings(context)) if f.get("kind") == "conflict" and "arrival" in f.get("id", "")]
+    if conflicts:
+        problems.append("The ruling keeps a S$%.2f fee that depends on the driver's arrival, but the platform "
+                        "data contradicts that arrival: %s" % (fee, " ".join(c.get("statement", "") for c in conflicts)))
+    waited = (_finding_values(context, "wait_time.waited_before_cancel") or {}).get("minutes_waited")
+    threshold = (context.get("platform_policy") or {}).get("no_show_threshold_min")
+    reason = str((context.get("trip") or {}).get("cancellation_reason") or "").lower()
+    if waited is not None and threshold is not None and "no_show" in reason:
+        try:
+            if float(waited) < float(threshold):
+                problems.append("The ruling keeps a no-show fee, but the driver waited %.1f min, below this "
+                                "trip's no_show_threshold_min of %s." % (float(waited), threshold))
+        except (TypeError, ValueError):
+            pass
+    return problems
+
+
+def _dump_findings(context: dict) -> list[dict]:
+    return [f if isinstance(f, dict) else f.model_dump() for f in context.get("findings") or []]
+
+
+def _location_evidence_gaps(context: dict) -> list[str]:
+    """Collector gaps that leave the driver's location unverifiable, for dispute
+    types where that location decides the case. Empty list = nothing blocking."""
+    dispute_type = getattr(context.get("type"), "value", context.get("type"))
+    if dispute_type not in _LOCATION_DECIDED_TYPES:
+        return []
+    # A cancellation where the platform records no driver arrival is decided by timing
+    # (free window after match), not by where the driver was (eval case CR-002-M2)
+    if dispute_type == "cancellation_refund" and not _arrival_recorded(context):
+        return []
+    gaps = []
+    for f in context.get("findings") or []:
+        if not isinstance(f, dict) or f.get("kind") != "gap":
+            continue
+        fid = f.get("id", "")
+        missing = (f.get("value") or {}).get("missing") or []
+        if fid == "data_gaps.gps_signal_lost" or (
+                fid == "data_gaps.missing_sources" and any("gps" in m for m in missing)):
+            gaps.append(f.get("statement", fid))
+    return gaps
+
 
 class FairnessIssueDetail(BaseModel):
     """A single auditable finding."""
@@ -310,24 +406,39 @@ class FairnessAgent:
                 recommended_action=recommended_action,
             ))
 
-        # (a) one side not considered
-        if passenger_count == 0 and driver_count == 0:
+        # (a) one side not considered. A side counts as considered when its advocate
+        #     produced an analysis. An advocate that analysed the case and found
+        #     nothing in its side's favour (e.g. GPS proves the driver waited) is a
+        #     finding against that side, not a side that was ignored.
+        passenger_heard = passenger_count > 0 or _advocate_ran(passenger_analysis)
+        driver_heard = driver_count > 0 or _advocate_ran(driver_analysis)
+        if (not passenger_heard and not driver_heard) or (passenger_count == 0 and driver_count == 0):
             add_issue(
                 FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
-                "Neither the passenger's nor the driver's evidence was considered.",
+                "Neither side's position is backed by any evidence item, so the ruling has nothing to rest on.",
+                severity="high",
+                recommended_action="Escalate to a human reviewer before executing.",
+            )
+            requires_human = True
+        elif not passenger_heard or not driver_heard:
+            missing = "passenger" if not passenger_heard else "driver"
+            add_issue(
+                FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
+                f"The {missing}'s position was not analysed at all.",
                 severity="high",
                 recommended_action="Escalate to a human reviewer before executing.",
             )
             requires_human = True
         elif passenger_count == 0 or driver_count == 0:
-            missing = "driver" if passenger_count == 0 else "passenger"
+            # Medium: recorded and sent to the semantic review, which checks the
+            # ruling is grounded; it does not block execution by itself
+            empty = "passenger" if passenger_count == 0 else "driver"
             add_issue(
-                FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
-                f"The {missing}'s evidence was not considered at all.",
-                severity="high",
-                recommended_action="Escalate to a human reviewer before executing.",
+                FairnessIssueCode.ASYMMETRIC_EVIDENCE,
+                f"The {empty}'s advocate analysed the case but found no evidence supporting the {empty}.",
+                severity="medium",
+                recommended_action="Confirm the ruling rests on the case evidence, not on the absence of a rebuttal.",
             )
-            requires_human = True
         else:
             # (b) asymmetric evidence (only counts as asymmetry when both sides present)
             # Low: one side often simply has more evidence; this is a note, not a verdict flaw
@@ -465,6 +576,33 @@ class FairnessAgent:
                 ),
                 severity="high",
                 recommended_action="Route to human review before any execution.",
+            )
+            requires_human = True
+
+        # (h) the fact the ruling turns on cannot be checked: in these disputes it
+        #     is where the driver was, so lost or missing driver GPS leaves only the
+        #     two parties' word against each other. No confidence score can fix that.
+        gps_gaps = _location_evidence_gaps(context)
+        if gps_gaps:
+            add_issue(
+                FairnessIssueCode.DECISIVE_EVIDENCE_GAP,
+                "Where the driver was is what decides this dispute, but it cannot be "
+                "verified: " + " ".join(gps_gaps),
+                severity="high",
+                refs=["collector.findings"],
+                recommended_action="Route to human review; the ruling would rest on one party's word.",
+            )
+            requires_human = True
+
+        # (i) the ruling keeps a fee whose basis the case data contradicts or does not meet
+        for problem in _fee_basis_problems(context or {}, verdict_value,
+                                           getattr(decision, "refund_amount", None)):
+            add_issue(
+                FairnessIssueCode.FEE_BASIS_NOT_MET,
+                problem,
+                severity="high",
+                refs=["collector.findings", "platform_policy"],
+                recommended_action="Route to human review; the fee rests on a record the data does not support.",
             )
             requires_human = True
 
@@ -728,7 +866,8 @@ class FairnessAgent:
     ) -> str:
         return (
             f"Dispute ID: {dispute_id}\n"
-            f"Verdict: {verdict_value}\n"
+            f"Verdict: {verdict_value} ({_VERDICT_MEANING.get(verdict_value, 'see rationale')}); "
+            f"refund: {getattr(decision, 'refund_amount', None)}\n"
             f"Decision confidence: {getattr(decision, 'confidence', 0.0)}\n"
             f"Rationale: {rationale[:1200]}\n\n"
             f"Cited policy refs: {list(getattr(decision, 'policy_references', []) or [])}\n\n"
@@ -803,6 +942,11 @@ class FairnessAgent:
     def _build_valid_refs(policy_evaluation: dict, context: dict | None = None) -> set[str]:
         """Accept retrieved clauses and explicit platform case-policy fields."""
         refs = case_policy_refs(context)
+        # Clauses in the shared Case Brief (complaint search, topics, advocates' requests) were
+        # really retrieved and shown to every agent; without them a Judge citing a topic clause
+        # looked hallucinated (eval run 20261001-114026, FD-002 family, D14)
+        brief = (context or {}).get("case_brief") if isinstance(context, dict) else None
+        refs.update(c["reference"] for c in (brief or {}).get("clauses") or [] if c.get("reference"))
         if not isinstance(policy_evaluation, dict):
             return refs
         for key in ("policies", "chunks", "clauses"):

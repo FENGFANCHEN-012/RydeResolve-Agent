@@ -148,12 +148,12 @@
     {
       "timestamp": "2026-09-13T01:24:00+08:00",
       "event_type": "cleaning_claim_submitted",
-      "details": "Driver submitted cleaning claim with 3 photos (timestamped 01:22-01:23, after trip completion) showing vomit on rear seat and floor mat."
+      "details": "Driver submitted cleaning claim with 3 photos (timestamped 01:22-01:23, after trip completion) showing plate SMJ 6613 L and vomit on rear seat and floor mat."
     },
     {
       "timestamp": "2026-09-13T11:40:00+08:00",
       "event_type": "cleaning_receipt_uploaded",
-      "details": "Receipt uploaded: SparkleAuto Detailing, 21 Kaki Bukit Rd, tel 6741 2288, dated 2026-09-13, interior shampoo + deodorise S$120.00."
+      "details": "Receipt uploaded: SparkleAuto Detailing, 21 Kaki Bukit Rd, tel 6741 2288, dated 2026-09-13, interior shampoo + deodorise S$120.00; receipt shows vehicle plate SMJ 6613 L, signed and company-stamped."
     },
     {
       "timestamp": "2026-09-13T11:45:00+08:00",
@@ -185,6 +185,10 @@
       "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
       "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
   }
 }

@@ -61,7 +61,8 @@
     "route_deviation_percent": 18.1,
     "estimated_fare": 17.0,
     "total_fare": 20.1,
-    "driver_reported_reason": "Verified road closure on the planned route; detour taken after informing the rider"
+    "driver_reported_reason": "Verified road closure on the planned route; detour taken after informing the rider",
+    "service_type": "RydeTAXI"
   },
   "gps_telemetry": [
     {
@@ -124,7 +125,7 @@
     {
       "timestamp": "2026-09-21T13:54:00+08:00",
       "event_type": "booking_confirmed",
-      "details": "Rider R-6614 booked trip RYDE-DEMO-002 from Tampines Mall to Changi Airport T2. Upfront fare estimate S$17.00."
+      "details": "Rider R-6614 booked a RydeTAXI (metered) trip RYDE-DEMO-002 from Tampines Mall to Changi Airport T2. Metered fare estimate S$17.00."
     },
     {
       "timestamp": "2026-09-21T13:54:15+08:00",
@@ -159,19 +160,26 @@
   ],
   "platform_policy": {
     "refund_at_ryde_discretion": true,
-    "rider_route_requests_must_be_agreed_before_trip": true
+    "rider_route_requests_must_be_agreed_before_trip": true,
+    "fare_basis": "metered (RydeTAXI fares are not fixed upfront)",
+    "detour_for_verified_road_closure_billable": true
   },
   "expected_outcome": {
     "verdict": "dismissed",
     "recommended_action": "no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "A road closure on the planned route is confirmed by the traffic alert and GPS. The driver explained the detour in chat before taking it and the rider agreed. The extra fare comes from road conditions outside the driver's control.",
+    "reason": "This was a RydeTAXI trip, which is metered, so the estimate is not a fixed fare. A road closure on the planned route is confirmed by the traffic alert and GPS, the driver explained the detour in chat before taking it, and the rider agreed. Under this trip's policy a detour for a verified road closure is billable, so the extra S$3.10 stands.",
     "expected_dispute_type": "route_deviation",
     "expected_urgency": null,
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 1: Route Deviation (Driver Takes Longer Route)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
   }
 }

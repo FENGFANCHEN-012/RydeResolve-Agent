@@ -40,3 +40,18 @@ ruling.
 | driver_rights_01 | RYDE-DEMO-011 | driver_rights (filed by driver) | upheld, charge rider S$120 cleaning |
 | cleaning_fee_01 | RYDE-DEMO-012 | cleaning_fee (unmapped, classifier decides) | upheld, refund S$150 (pre-existing stain) |
 | no_show_03 | RYDE-DEMO-013 | no_show, no GPS | escalate to human (insufficient evidence) |
+
+## Labelling conventions (audited 2026-09-30)
+
+- **Precedence:** a case's own policy block (`cancellation_policy` / `platform_policy`) is the
+  rule set in force for that trip and wins where it speaks, like the organiser's DISP-002
+  (5-min free wait, 8-min no-show threshold). Where it is silent, Ryde's official help-centre
+  rules (`data/policies/official/`) apply. A reason that relies on a case-only rule says
+  "this trip's policy", never "Ryde policy".
+- **No-show wait** is counted from `driver_arrival_time`, and the threshold is inclusive
+  (8 minutes meets an 8-minute threshold), as in DISP-002.
+- **Fares** are fixed upfront except RydeTAXI, which is metered (RD-002 is a RydeTAXI trip).
+- **`acceptable_verdicts`** lists every label that is correct when the policy leaves the
+  choice open (SQ-001). **`refund_amount: null`** means the amount is not scored.
+- Fee amounts (S$4, S$5, S$8) are this dataset's trip settings, not Ryde's current rider fee
+  (S$6.61 from 17 Feb 2026).

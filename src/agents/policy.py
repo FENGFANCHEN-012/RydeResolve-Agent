@@ -12,6 +12,9 @@ import json
 import logging
 
 from src.core.trace import record_retrieval
+from src.agents.case_brief import (brief_clauses, case_rule_refs, gps_line, render_case_brief,
+                                   render_clauses)
+from src.core.policy_refs import normalize_case_policy_ref
 from src.agents.collector import DisputeContext, DisputeType
 from src.rag.retriever import DocumentRetriever
 from src.core.llm_client import LLMClient
@@ -90,6 +93,11 @@ class PolicyAgent:
         If ChromaDB is unavailable or the retriever cannot be initialised, an
         empty list is returned (never crashes).
         """
+        # The Case Brief already searched once for the whole case: everyone uses those clauses
+        shared = brief_clauses(context)
+        if shared is not None:
+            return shared
+
         dispute_type = self._extract_dispute_type(context)
         dispute_description = context.description or ""
 
@@ -172,7 +180,12 @@ class PolicyAgent:
             "  \"confidence\": float (0.0–1.0),\n"
             "  \"requires_human_review\": boolean\n\n"
             "IMPORTANT: Only use policy references that appear in the provided "
-            "clauses. Do not invent or fabricate policy references."
+            "clauses or the case brief's platform rules. Do not invent or fabricate policy references.\n"
+            "Check every platform rule in the case brief against the facts; a rule the "
+            "facts show was not followed is a violation even if no help-centre clause mentions it.\n"
+            "- The CASE BRIEF lists facts verified from platform data; a CONFLICT means one record "
+            "is contradicted by another source, so do not treat it as proven.\n"
+            "- This trip's platform rules in the brief are citable as platform_policy.<key>."
         )
 
         user_prompt = (
@@ -184,8 +197,9 @@ class PolicyAgent:
             f"Trip details: {json.dumps(context.trip) if context.trip else 'N/A'}\n"
             f"Payment details: {json.dumps(context.payment) if context.payment else 'N/A'}\n"
             f"Chat log: {json.dumps(context.chat_log) if context.chat_log else 'N/A'}\n"
-            f"GPS trace: {json.dumps(context.gps_trace) if context.gps_trace else 'N/A'}\n\n"
-            f"Retrieved policy clauses (JSON):\n{json.dumps(clause_summaries, indent=2)}\n\n"
+            f"{gps_line(context)}\n\n"
+            f"{render_case_brief(context, with_clause_list=False)}\n\n"
+            f"Retrieved policy clauses (cite by the reference in brackets):\n{render_clauses(clause_summaries)}\n\n"
             "Evaluate compliance now. Remember: respond ONLY with valid JSON."
         )
 
@@ -216,7 +230,7 @@ class PolicyAgent:
             )
 
         # Filter out any policy references not present in retrieved clauses
-        parsed = self._sanitize_policy_references(parsed, valid_policy_ids)
+        parsed = self._sanitize_policy_references(parsed, valid_policy_ids | case_rule_refs(context))
 
         return parsed
 
@@ -316,6 +330,7 @@ class PolicyAgent:
         if not isinstance(original_refs, list):
             original_refs = []
 
+        original_refs = [normalize_case_policy_ref(ref, valid_refs) for ref in original_refs]
         clean_refs = [ref for ref in original_refs if ref in valid_refs]
 
         if len(clean_refs) != len(original_refs):

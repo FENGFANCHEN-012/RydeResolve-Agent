@@ -297,15 +297,15 @@ class TestProceedPath:
 
 class TestAsymmetricEvidence:
     @pytest.mark.asyncio
-    async def test_empty_evidence_one_side_triggers_one_side_not_considered(self):
-        # Driver gives 0 evidence -> only passenger side considered.
+    async def test_advocate_that_did_not_run_triggers_one_side_not_considered(self):
+        # Driver advocate produced nothing at all (failed call) -> only one side heard.
         strong_passenger = make_passenger_analysis(evidence=[
             "GPS evidence",
             "Chat evidence",
             "Payment receipt",
             "Photo of route deviation",
         ])
-        empty_driver = make_driver_analysis(evidence=[])
+        empty_driver = make_driver_analysis(evidence=[], stance="", reasoning="")
         inp = make_input(
             passenger_analysis=strong_passenger,
             driver_analysis=empty_driver,
@@ -315,6 +315,22 @@ class TestAsymmetricEvidence:
 
         codes = {i.code for i in assessment.issues}
         assert FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED in codes
+        assert assessment.requires_human_review is True
+
+    @pytest.mark.asyncio
+    async def test_advocate_that_found_nothing_is_not_one_side_ignored(self):
+        # DISP-002/SQ-001: the driver advocate analysed the case and found no evidence
+        # for the driver. That is a finding against the driver, not an ignored side:
+        # a medium note, and the decision may still execute.
+        empty_driver = make_driver_analysis(evidence=[], reasoning="GPS shows I never reached the pickup.")
+        inp = make_input(driver_analysis=empty_driver)
+        assessment = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+
+        codes = {i.code for i in assessment.issues}
+        assert FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED not in codes
+        note = next(i for i in assessment.issues if i.code == FairnessIssueCode.ASYMMETRIC_EVIDENCE)
+        assert note.severity == "medium"
+        assert assessment.requires_human_review is False
 
     @pytest.mark.asyncio
     async def test_moderate_evidence_gap_does_not_flag_one_side(self):
@@ -862,3 +878,83 @@ async def test_nonexistent_case_policy_still_blocks_execution():
     ))
     assert FairnessIssueCode.HALLUCINATED_POLICY_REFS in {i.code for i in assessment.issues}
     assert assessment.recommendation == FairnessRecommendation.BLOCK
+
+
+# ---------------------------------------------------------------------------
+# Decisive evidence gap: the driver's location cannot be verified
+# ---------------------------------------------------------------------------
+
+_GPS_LOST = {
+    "id": "data_gaps.gps_signal_lost", "tool": "data_gaps", "kind": "gap",
+    "statement": "Driver GPS stopped reporting at 07:19; location after that point cannot be verified.",
+    "value": {"at": "2026-09-22T07:19:00+08:00"},
+}
+
+
+@pytest.mark.asyncio
+async def test_lost_driver_gps_in_no_show_goes_to_human():
+    """NS-003: rider and driver each say they were at the pickup and GPS cannot tell
+    who is right. However confident the ruling, it must not execute."""
+    inp = make_input(context=make_context(type="no_show", findings=[_GPS_LOST]),
+                     decision=make_decision(confidence=0.95))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    gap = next(i for i in a.issues if i.code == FairnessIssueCode.DECISIVE_EVIDENCE_GAP)
+    assert gap.severity == "high"
+    assert a.requires_human_review is True
+
+
+@pytest.mark.asyncio
+async def test_missing_gps_source_counts_as_a_gap():
+    missing = {"id": "data_gaps.missing_sources", "kind": "gap",
+               "statement": "Missing platform data: gps_trace.", "value": {"missing": ["gps_trace"]}}
+    arrived = {"driver_arrival_time": "2026-09-20T14:35:00+08:00"}
+    inp = make_input(context=make_context(type="cancellation_refund", trip=arrived, findings=[missing]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.DECISIVE_EVIDENCE_GAP in {i.code for i in a.issues}
+
+
+@pytest.mark.asyncio
+async def test_missing_gps_in_cancellation_without_arrival_is_not_decisive():
+    """CR-002-M2: no arrival is claimed, so the free-window timing decides the fee."""
+    missing = {"id": "data_gaps.missing_sources", "kind": "gap",
+               "statement": "Missing platform data: gps_trace.", "value": {"missing": ["gps_trace"]}}
+    inp = make_input(context=make_context(type="cancellation_refund", trip={"driver_arrival_time": None},
+                                          findings=[missing]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.DECISIVE_EVIDENCE_GAP not in {i.code for i in a.issues}
+
+
+@pytest.mark.asyncio
+async def test_arrival_event_makes_cancellation_gps_gap_decisive():
+    inp = make_input(context=make_context(type="cancellation_refund", trip={},
+                                          app_events=[{"event_type": "driver_arrived"}], findings=[_GPS_LOST]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.DECISIVE_EVIDENCE_GAP in {i.code for i in a.issues}
+
+
+@pytest.mark.asyncio
+async def test_gps_gap_does_not_block_disputes_that_do_not_depend_on_location():
+    inp = make_input(context=make_context(type="fare_dispute", findings=[_GPS_LOST]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.DECISIVE_EVIDENCE_GAP not in {i.code for i in a.issues}
+
+
+@pytest.mark.asyncio
+async def test_conflict_finding_is_not_a_gap():
+    """NS-001: a conflict (no-show recorded but the driver never arrived) is evidence
+    for the rider, not missing evidence, so it must not force human review."""
+    conflict = {"id": "consistency.no_show_without_arrival", "kind": "conflict",
+                "statement": "A no-show was recorded but no driver arrival exists."}
+    inp = make_input(context=make_context(type="no_show", findings=[conflict]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.DECISIVE_EVIDENCE_GAP not in {i.code for i in a.issues}
+
+
+@pytest.mark.asyncio
+async def test_clause_from_the_case_brief_is_not_hallucinated():
+    """FD-002 (run 20261001-114026): the Judge cited a topic clause from the shared brief."""
+    ref = "Ryde Help Rider Fares And Charges#8"
+    ctx = make_context(case_brief={"clauses": [{"reference": ref, "section": "Fare structure"}]})
+    inp = make_input(context=ctx, decision=make_decision(policy_references=[ref]))
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
+    assert FairnessIssueCode.HALLUCINATED_POLICY_REFS not in {i.code for i in a.issues}

@@ -10,6 +10,7 @@ Embedding strategy:
 - Primary: Tencent Hunyuan Embedding API (if TENCENT_SECRET_ID/KEY set)
 - Fallback: Simple hash-based embedding for local dev/testing
 """
+import json
 import os
 import uuid
 import asyncio
@@ -108,6 +109,10 @@ class ManualEmbeddingFunction:
         return f"embedding_manager_{embedding_manager.mode}"
 
 
+# Per-section metadata for the policy files: {file: {section heading: {dispute_types, audience}}}
+POLICY_TAGS_FILE = "policy_tags.json"
+
+
 class DocumentIndexer:
     """Indexes documents into ChromaDB for RAG retrieval."""
 
@@ -125,6 +130,22 @@ class DocumentIndexer:
         else:
             self.client, self.mode = _get_chroma_client()
         self.embedding_fn = ManualEmbeddingFunction()
+
+    @staticmethod
+    def _tag_metadata(tags: dict | None) -> dict:
+        """Chunk metadata from a section's tags (policy_tags.json).
+
+        dispute_types / audience are kept as readable strings, and each tag also becomes a
+        boolean flag (dt_no_show, dt_general, ...) because both Chroma and Qdrant can filter
+        on a boolean, while Chroma cannot filter on a list. An untagged section gets no
+        flags, so a filter on a dispute type never matches it.
+        """
+        if not tags:
+            return {}
+        types = [t for t in tags.get("dispute_types") or [] if isinstance(t, str)]
+        meta = {"dispute_types": ",".join(types), "audience": tags.get("audience") or "both"}
+        meta.update({f"dt_{t}": True for t in types})
+        return meta
 
     def get_or_create_collection(self, collection_name: str | None = None):
         """Get or create the ChromaDB collection."""
@@ -163,6 +184,7 @@ class DocumentIndexer:
                     "file_type": doc.get("file_type", ""),
                     "chunk_index": i,
                     "total_chunks": len(chunks),
+                    **self._tag_metadata((doc.get("tags") or {}).get(section)),
                 }
                 records.append({"id": chunk_id, "text": chunk_text, "metadata": metadata})
 
@@ -208,10 +230,16 @@ class DocumentIndexer:
         return self.index_documents(documents, collection_name)
 
     def _load_policy_files(self) -> list[dict]:
-        """Load all .md files from the policies directory."""
+        """Load all .md files from the policies directory, with their section tags
+        from policy_tags.json when the folder has one."""
         documents = []
         if not os.path.exists(POLICIES_DIR):
             return documents
+        tags_path = os.path.join(POLICIES_DIR, POLICY_TAGS_FILE)
+        all_tags = {}
+        if os.path.exists(tags_path):
+            with open(tags_path, "r", encoding="utf-8") as f:
+                all_tags = json.load(f)
 
         for filename in sorted(os.listdir(POLICIES_DIR)):
             # README describes the folder; it is not a policy
@@ -229,6 +257,7 @@ class DocumentIndexer:
                 "source": filename,
                 "section": "",
                 "file_type": ".md",
+                "tags": all_tags.get(filename, {}),
             })
 
         return documents

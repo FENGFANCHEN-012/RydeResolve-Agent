@@ -173,6 +173,11 @@
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 3: Fare Dispute (Price Calculation Error / Surge Pricing)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll",
+      "Ryde Help Rider Fares And Charges > How is the Payment Transaction Fee calculated?"
+    ]
   }
 }

@@ -3,6 +3,7 @@
 Only explicit keys in trusted case-policy sections are citable. The complaint,
 profiles, and evaluation answer keys never become policy authority.
 """
+import re
 
 
 _CASE_SECTIONS = ("platform_policy", "cancellation_policy")
@@ -18,7 +19,12 @@ def normalize_case_policy_ref(ref: str, valid_refs: set[str]) -> str:
     """
     if not isinstance(ref, str) or ref in valid_refs:
         return ref
-    bare = ref.strip()
+    # The Judge sometimes quotes the value too ("free_wait_time_min = 3",
+    # "fare_basis: metered (...)"); keep the key. Only the key is ever matched below,
+    # so a free-text citation that merely contains ":" or "=" is still stripped.
+    bare = re.split(r"\s*[=:]", ref, maxsplit=1)[0].strip()
+    if bare in valid_refs:
+        return bare
     for section in _CASE_SECTIONS:
         if bare.startswith(section + "."):
             bare = bare[len(section) + 1:]

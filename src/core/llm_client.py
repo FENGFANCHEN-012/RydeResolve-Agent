@@ -13,6 +13,12 @@ import time
 import google.generativeai as genai
 from src.core.trace import record_llm_call
 from src.config import (
+    CEREBRAS_API_KEY,
+    CEREBRAS_BASE_URL,
+    CEREBRAS_MODEL,
+    LLM_PRICE_IN_PER_M,
+    LLM_PRICE_OUT_PER_M,
+    LLM_SPEND_CAP_USD,
     GROQ_API_KEY,
     GROQ_BASE_URL,
     GROQ_MODEL,
@@ -61,6 +67,14 @@ async def _on_groq_response(response) -> None:
         seconds = 1.0
     waits.append(min(seconds, 60.0))
 
+# Estimated USD spent by this process on the paid Cerebras credit.
+_spent_usd = 0.0
+
+
+class SpendCapReached(RuntimeError):
+    pass
+
+
 def _groq_json_validation_failed(exc: Exception) -> bool:
     """Only Groq's malformed JSON response is safe to retry as a new request."""
     if getattr(exc, "status_code", None) != 400:
@@ -80,8 +94,14 @@ class LLMClient:
 
     def __init__(self):
         self.provider = LLM_PROVIDER
-        self.api_key = GROQ_API_KEY if self.provider == "groq" else LLM_API_KEY
-        self.model = GROQ_MODEL if self.provider == "groq" else LLM_MODEL
+        if self.provider == "cerebras":
+            self.api_key, self.model, self.base_url = CEREBRAS_API_KEY, CEREBRAS_MODEL, CEREBRAS_BASE_URL
+        elif self.provider == "groq":
+            self.api_key, self.model, self.base_url = GROQ_API_KEY, GROQ_MODEL, GROQ_BASE_URL
+        else:
+            self.api_key, self.model, self.base_url = LLM_API_KEY, LLM_MODEL, None
+        # Cerebras is OpenAI-compatible, so it shares the Groq code path
+        self.openai_compatible = self.provider in ("groq", "cerebras")
         self.temperature = LLM_TEMPERATURE
         self.max_tokens = LLM_MAX_TOKENS
         self._configured = False
@@ -92,17 +112,21 @@ class LLMClient:
         if self._groq is None:
             from openai import AsyncOpenAI
             if not self.api_key:
-                raise RuntimeError("LLM_PROVIDER=groq but GROQ_API_KEY is not set in .env")
+                raise RuntimeError(f"LLM_PROVIDER={self.provider} but {self.provider.upper()}_API_KEY is not set in .env")
             import httpx
             # max_retries: the SDK waits out 429s (honouring retry-after) before giving up
             self._groq = AsyncOpenAI(
-                api_key=self.api_key, base_url=GROQ_BASE_URL, max_retries=4,
+                api_key=self.api_key, base_url=self.base_url, max_retries=4,
                 http_client=httpx.AsyncClient(timeout=120, event_hooks={"response": [_on_groq_response]}),
             )
         return self._groq
 
-    async def _chat_groq(self, messages, temperature, max_tokens, response_format) -> str:
+    async def _chat_groq(self, messages, temperature, max_tokens, response_format,
+                         reasoning_effort: str | None = None) -> str:
         """One chat completion on Groq, recorded in the trace like the Gemini path."""
+        global _spent_usd
+        if self.provider == "cerebras" and _spent_usd >= LLM_SPEND_CAP_USD:
+            raise SpendCapReached(f"Spend cap reached: ~${_spent_usd:.4f} of ${LLM_SPEND_CAP_USD:.2f}")
         prompt = "\n\n".join(f"[{m.get('role', 'user')}]\n{m.get('content', '')}" for m in messages)
         kwargs = {
             "model": self.model,
@@ -112,7 +136,12 @@ class LLMClient:
         }
         if response_format:
             kwargs["response_format"] = response_format
+        if reasoning_effort:
+            kwargs["reasoning_effort"] = reasoning_effort
         waits: list[float] = []
+        # Cerebras free tier allows 5 requests/min and 150/hour: space calls out
+        if self.provider == "cerebras":
+            waits.append(await _wait_for_request_slot())
         token = _groq_rate_waits.set(waits)
         t0 = time.perf_counter()
         try:
@@ -128,6 +157,9 @@ class LLMClient:
         if getattr(response, "usage", None):
             usage = {"prompt_tokens": response.usage.prompt_tokens,
                      "completion_tokens": response.usage.completion_tokens}
+            if self.provider == "cerebras":
+                _spent_usd += (response.usage.prompt_tokens * LLM_PRICE_IN_PER_M
+                               + response.usage.completion_tokens * LLM_PRICE_OUT_PER_M) / 1_000_000
         record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
                         usage=usage, wait_ms=int(sum(waits) * 1000))
         return text
@@ -149,9 +181,11 @@ class LLMClient:
         temperature: float | None = None,
         max_tokens: int | None = None,
         response_format: dict | None = None,
+        reasoning_effort: str | None = None,
     ) -> str:
         """
         Send a chat completion request and return the response text.
+        reasoning_effort only applies to OpenAI-compatible providers (gpt-oss).
 
         Args:
             messages: List of {role, content} dicts
@@ -162,8 +196,8 @@ class LLMClient:
         Returns:
             The assistant's response text
         """
-        if self.provider == "groq":
-            return await self._chat_groq(messages, temperature, max_tokens, response_format)
+        if self.openai_compatible:
+            return await self._chat_groq(messages, temperature, max_tokens, response_format, reasoning_effort)
 
         model = self._get_model()
 
@@ -241,6 +275,7 @@ class LLMClient:
         self,
         messages: list[dict],
         temperature: float | None = None,
+        reasoning_effort: str | None = None,
     ) -> str:
         """
         Send a chat request expecting JSON output.
@@ -259,15 +294,16 @@ class LLMClient:
                 "role": "system",
                 "content": "Respond ONLY with valid JSON. No markdown, no explanations."
             })
-        response_format = {"type": "json_object"} if self.provider == "groq" else None
+        response_format = {"type": "json_object"} if self.openai_compatible else None
         try:
             return await self.chat(
                 messages=json_messages,
                 temperature=temperature,
                 response_format=response_format,
+                reasoning_effort=reasoning_effort,
             )
         except Exception as exc:
-            if self.provider != "groq" or not _groq_json_validation_failed(exc):
+            if not self.openai_compatible or not _groq_json_validation_failed(exc):
                 raise
             # One fresh attempt for transient JSON-mode validation errors.
             # The first failed call is traced by _chat_groq for accurate usage.
@@ -275,6 +311,7 @@ class LLMClient:
                 messages=json_messages,
                 temperature=temperature,
                 response_format=response_format,
+                reasoning_effort=reasoning_effort,
             )
 
 

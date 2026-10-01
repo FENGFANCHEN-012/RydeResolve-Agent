@@ -11,6 +11,7 @@ Rule: this client only returns what a dataset file actually contains. It never
 generates, randomises or fills in missing values. Missing data stays missing so
 the agents (and the human reviewer) can see that it is missing.
 """
+import os
 import json
 import logging
 import re
@@ -24,6 +25,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_DATA_DIRS = [
     Path(DATA_DIR) / "mock_disputes",
     Path(DATA_DIR) / "Dispute_format",
+    # Extra folders the evaluation adds (e.g. held-out cases), kept out of the demo by default
+    *[Path(DATA_DIR).parent / d for d in os.getenv("EXTRA_DISPUTE_DIRS", "").split(os.pathsep) if d],
 ]
 
 # Keys that hold the expected verdict. Only evaluation may read them.

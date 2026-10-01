@@ -8,6 +8,7 @@
     --agent-case: var(--text-2);
     --agent-collector: var(--text-2);
     --agent-classifier: var(--text-2);
+    --agent-casebrief: var(--text-2);
     --agent-passenger: var(--text-2);
     --agent-driver: var(--text-2);
     --agent-policy: var(--text-2);

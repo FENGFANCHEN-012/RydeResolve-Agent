@@ -171,7 +171,7 @@
     "recommended_action": "formal_warning_to_driver_and_discretionary_partial_refund_or_credit",
     "refund_amount": null,
     "requires_human_review": false,
-    "reason": "Telematics confirm speeding (104 km/h in a 90 zone) and two harsh braking events, and the chat shows a dismissive reply to the rider. This is a P1 incident: formal warning to the driver. The trip itself was completed on the correct route, so a full refund is not required; partial refund or credit is at Ryde's discretion.",
+    "reason": "Telematics confirm speeding (104 km/h in a 90 zone) and two harsh braking events, and the chat shows a dismissive reply to the rider. This is a P1 incident: formal warning to the driver. The trip itself was completed on the correct route, so a full refund is not required; partial refund or credit is at Ryde's discretion. Either upheld or partially upheld is accepted: the driver's misconduct is established, and this trip's policy leaves rider compensation at Ryde's discretion, so no refund amount is scored.",
     "priority": "P1",
     "driver_penalty": "formal_warning",
     "expected_dispute_type": "service_quality",
@@ -179,6 +179,16 @@
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 5: Service Quality (Driver Rudeness / Unsafe Driving)"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Ryde Experience > I would like to provide feedback about my driver",
+      "Ryde Help Rider Safety Emergency > Report a safety issue",
+      "Ryde Site Code Of Conduct > Mutual Respect",
+      "Ryde Site Code Of Conduct > Safety First"
+    ],
+    "acceptable_verdicts": [
+      "partially_upheld",
+      "upheld"
+    ]
   }
 }

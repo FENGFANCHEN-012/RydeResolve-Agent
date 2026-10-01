@@ -18,6 +18,10 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.6-flash")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
+# gpt-oss reasoning effort for the Passenger / Driver advocates only ("low", "medium", "high").
+# Empty = provider default. Their reasoning was ~1.3k output tokens per opening (D15); the Judge
+# and Fairness are never lowered. Keep empty until an eval shows no accuracy loss.
+ADVOCATE_REASONING_EFFORT = os.getenv("ADVOCATE_REASONING_EFFORT", "").strip().lower()
 
 # Chat provider: "gemini" (default) or "groq" (OpenAI-compatible API, free tier:
 # https://console.groq.com/keys). Embeddings always use Gemini; Groq has none.
@@ -25,6 +29,14 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").strip().lower()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
+CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
+CEREBRAS_MODEL = os.getenv("CEREBRAS_MODEL", "gpt-oss-120b")
+CEREBRAS_BASE_URL = os.getenv("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+# Paid-credit guard: the client refuses new calls once estimated spend in this
+# process reaches the cap. Prices are USD per million tokens.
+LLM_SPEND_CAP_USD = float(os.getenv("LLM_SPEND_CAP_USD", "1.00"))
+LLM_PRICE_IN_PER_M = float(os.getenv("LLM_PRICE_IN_PER_M", "0.35"))
+LLM_PRICE_OUT_PER_M = float(os.getenv("LLM_PRICE_OUT_PER_M", "0.75"))
 
 # ============================================================
 # Embedding Configuration (Google Gemini)
@@ -96,5 +108,6 @@ SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "en,zh,ms,ta").split(",")
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-POLICIES_DIR = os.path.join(DATA_DIR, "policies")
+# POLICIES_DIR=data/policies/official indexes the verbatim official text instead
+POLICIES_DIR = os.path.join(BASE_DIR, os.getenv("POLICIES_DIR") or os.path.join("data", "policies"))
 MOCK_DISPUTES_DIR = os.path.join(DATA_DIR, "mock_disputes")

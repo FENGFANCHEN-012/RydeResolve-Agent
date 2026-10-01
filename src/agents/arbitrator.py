@@ -15,6 +15,7 @@ from enum import Enum
 from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_API_KEY
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
+from src.agents.case_brief import SUMMARISED_FIELDS, disputed_charge, render_case_brief
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,27 @@ class Decision(BaseModel):
     policy_references: list[str] = []
     escalation_recommended: bool = False
     human_review_needed: bool = False
+
+
+def align_verdict_label(parsed: dict, context: dict | None) -> dict:
+    """A refund of the whole disputed amount is "upheld", whatever label the Judge wrote.
+
+    The Judge decides the amount; the label only names it. In run 20261001-114026 two rulings
+    refunded exactly the disputed amount (S$9.60, S$3.70) but were labelled partially_upheld.
+    Only that direction is corrected: the disputed amount comes from platform data (fee charged,
+    or the excess over the quoted fare); when the data names no amount nothing changes (D15)."""
+    if parsed.get("verdict") != "partially_upheld":
+        return parsed
+    full = disputed_charge(context or {})
+    try:
+        refund = float(parsed.get("refund_amount") or 0)
+    except (TypeError, ValueError):
+        return parsed
+    if full and abs(refund - full) <= 0.01:
+        parsed["verdict"] = "upheld"
+        parsed["rationale"] = ((parsed.get("rationale") or "")
+                               + f" [Label: the refund equals the full disputed amount S${full:.2f}, so upheld.]")
+    return parsed
 
 
 class ArbitrationAgent:
@@ -111,6 +133,11 @@ class ArbitrationAgent:
             "  and recommend human review.\n"
             "- Do not expose chain-of-thought; return concise, readable reasoning only.\n"
             "- Do not infer protected characteristics (race, gender, religion, etc.).\n"
+            "- Start from the CASE BRIEF. Its facts were computed from platform data. A "
+            "CONFLICT means a record (e.g. an app event) is contradicted by another source "
+            "(e.g. GPS): do not rule as if the contradicted record were proven.\n"
+            "- Apply each platform rule by its own key and value; do not substitute one "
+            "rule's number for another's (a free waiting time is not a no-show threshold).\n"
             "- The verdict is measured against what the person who filed asked for: "
             "\"upheld\" = they get everything they asked for (e.g. the full amount they "
             "asked to be refunded, even if the rest of the fare stands); "
@@ -136,10 +163,22 @@ class ArbitrationAgent:
         driver_analysis: dict,
         policy_evaluation: dict,
         debate_history: list[dict],
+        precedents: list[dict] | None = None,
     ) -> str:
         
-        parts: list[str] = ["=== DISPUTE CONTEXT ==="]
-        parts.append(json.dumps(context, indent=2, default=str))
+        parts: list[str] = []
+        # The shared brief first, so verified facts and conflicts are not lost in the raw dump
+        brief = render_case_brief(context)
+        if brief:
+            parts.append(brief + "\n")
+        parts.append("=== DISPUTE CONTEXT ===")
+        # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
+        # repeated in the raw dump; without a brief the dump is unchanged
+        skip = {"case_brief", *SUMMARISED_FIELDS} if brief else {"case_brief"}
+        raw = {k: v for k, v in context.items() if k not in skip} if isinstance(context, dict) else context
+        if brief and isinstance(context, dict) and context.get("gps_trace"):
+            raw["gps_trace"] = f"{len(context['gps_trace'])} points, summarised in the CASE BRIEF"
+        parts.append(json.dumps(raw, indent=2, default=str))
 
         parts.append("\n=== PASSENGER ADVOCATE ANALYSIS ===")
         parts.append(json.dumps(passenger_analysis, indent=2, default=str))
@@ -157,6 +196,16 @@ class ArbitrationAgent:
                 parts.append(json.dumps(entry, indent=2, default=str))
         else:
             parts.append("\n=== DEBATE HISTORY ===\nNone")
+
+        if precedents:
+            # Human-reviewed past rulings (learning feedback loop). Guidance for
+            # consistency only: this case's own evidence and policy decide.
+            parts.append(
+                "\n=== PRECEDENTS (similar past cases decided by human reviewers) ===\n"
+                "Follow a precedent only where the deciding facts truly match this case; "
+                "if they differ, say how. If you follow one, name its precedent_id in your rationale."
+            )
+            parts.append(json.dumps(precedents, indent=2, default=str))
 
         parts.append(
             "\n=== YOUR TASK ===\n"
@@ -192,6 +241,7 @@ class ArbitrationAgent:
     def _build_valid_refs(policy_evaluation: dict, context: dict | None = None) -> set[str]:
         """Accept retrieved clauses and explicit platform case-policy fields."""
         refs = case_policy_refs(context)
+        refs |= {c["reference"] for c in ((context or {}).get("case_brief") or {}).get("clauses") or []}
         if not isinstance(policy_evaluation, dict):
             return refs
         # policy_evaluation may contain a "policies" or "chunks" list
@@ -239,6 +289,7 @@ class ArbitrationAgent:
         driver_analysis: dict,
         policy_evaluation: dict,
         debate_history: list[dict],
+        precedents: list[dict] | None = None,
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision via LLM.
@@ -254,7 +305,7 @@ class ArbitrationAgent:
 
         system_prompt = self._build_system_prompt()
         user_prompt = self._build_user_prompt(
-            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history
+            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents
         )
 
         # Call LLM
@@ -277,6 +328,8 @@ class ArbitrationAgent:
 
         # Sanitise policy references
         parsed = self._sanitize_policy_refs(parsed, valid_refs)
+        # The label follows the refund (a full refund of the disputed amount is "upheld")
+        parsed = align_verdict_label(parsed, context)
 
         # Validate verdict
         verdict_str = parsed.get("verdict", "")

@@ -8,14 +8,22 @@ Gathers dispute context from:
 
 Rule: the collector never invents data. Anything the source does not contain
 stays None, and `data_completeness` records what is missing.
+
+After mapping the data it runs its deterministic tools (collector_tools.py) and
+stores the results in `findings`: facts, conflicts between sources, and gaps,
+each citing where it came from. No LLM is used, so collection costs no tokens.
+Other agents can ask for more facts later with `CollectorAgent.query(...)`.
 """
 import logging
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel
 from enum import Enum
 
+from src.agents.collector_tools import QUERY_TOOLS, STANDARD_TOOLS, Finding
+from src.core.trace import record_tool_call
 from src.integrations.ryde_api import (
     RydeAPIClient,
     dataset_order_id,
@@ -70,6 +78,10 @@ class DisputeContext(BaseModel):
     # Which data was found and where it came from, e.g.
     # {"source": "mock_disputes/no_show_01.json", "trip": True, "gps_trace": False, ...}
     data_completeness: dict = {}
+    # Facts / conflicts / gaps computed by the Collector's tools
+    findings: list[Finding] = []
+    # Shared dossier built after classification (src/agents/case_brief.py)
+    case_brief: Optional[dict] = None
     # Additional metadata
     language: str = "en"  # en, zh, ms, ta
     submitted_at: Optional[str] = None
@@ -147,6 +159,7 @@ class CollectorAgent:
         context.evidence.extend(evidence or [])
         if not context.submitted_at:
             context.submitted_at = datetime.now().isoformat()
+        context.findings = self.run_tools(context)
         return context
 
     async def collect_with_evidence_upload(
@@ -209,7 +222,39 @@ class CollectorAgent:
         context = self._context_from_dataset(data, language)
         if not context.submitted_at:
             context.submitted_at = datetime.now().isoformat()
+        context.findings = self.run_tools(context)
         return context
+
+    # ------------------------------------------------------------------
+    # Tools (deterministic, no LLM)
+    # ------------------------------------------------------------------
+
+    def run_tools(self, context: DisputeContext) -> list[Finding]:
+        """Run every standard tool and collect their findings.
+        A failing tool is logged and skipped so one bad field can't stop collection."""
+        findings: list[Finding] = []
+        for name, tool in STANDARD_TOOLS.items():
+            findings.extend(self._run(name, tool, context, {}))
+        return findings
+
+    def query(self, context: DisputeContext, tool: str, **args) -> list[Finding]:
+        """Answer another agent's question with a query tool,
+        e.g. query(ctx, "gps_at", timestamp="2026-09-21T09:08:00+08:00")."""
+        if tool not in QUERY_TOOLS:
+            raise ValueError(f"Unknown collector tool '{tool}'. Available: {', '.join(QUERY_TOOLS)}")
+        return self._run(tool, QUERY_TOOLS[tool], context, args)
+
+    @staticmethod
+    def _run(name: str, tool, context: DisputeContext, args: dict) -> list[Finding]:
+        t0 = time.perf_counter()
+        try:
+            result = tool(context, **args)
+        except Exception as exc:
+            logger.warning("Collector tool %s failed: %s", name, exc)
+            result = [Finding(id=f"{name}.error", tool=name, kind="gap",
+                              statement=f"Tool {name} could not run: {exc}")]
+        record_tool_call(name, args, result, int((time.perf_counter() - t0) * 1000))
+        return result
 
     def _context_from_dataset(self, data: dict, language: str) -> DisputeContext:
         """Single mapping from the dataset format to DisputeContext."""
