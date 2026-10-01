@@ -57,6 +57,20 @@ class QdrantStore:
             sparse_vectors_config={"sparse": models.SparseVectorParams(modifier=models.Modifier.IDF)},
         )
 
+    def ensure_tag_indexes(self, chunks: list[dict] | None = None) -> None:
+        """Boolean payload indexes for the dt_<type> tag flags. Qdrant Cloud refuses a
+        filter on a field without an index, so topic searches need them. Idempotent."""
+        keys = {k for c in chunks or [] for k in c.get("metadata", {}) if k.startswith("dt_")}
+        if not keys:
+            info = self.client.get_collection(self.collection)
+            keys = set()
+            for p in self.client.scroll(self.collection, limit=1000, with_payload=True)[0]:
+                keys.update(k for k in (p.payload or {}) if k.startswith("dt_"))
+            keys -= set(info.payload_schema or {})
+        for key in sorted(keys):
+            self.client.create_payload_index(self.collection, field_name=key,
+                                             field_schema=models.PayloadSchemaType.BOOL, wait=True)
+
     def upsert(self, chunks: list[dict]) -> int:
         """
         Store chunks. Each chunk: {"id": str, "text": str, "metadata": dict}.
@@ -85,28 +99,44 @@ class QdrantStore:
         self.client.upload_points(
             collection_name=self.collection, points=points, batch_size=16, max_retries=3, wait=True,
         )
+        self.ensure_tag_indexes(chunks)
         return len(points)
 
-    def search(self, query: str, top_k: int = 5) -> list[dict]:
-        """Hybrid search. Returns the same dict shape as the Chroma retriever."""
+    def search_points(self, query: str, limit: int = 5, any_tags: tuple[str, ...] | None = None) -> list:
+        """Hybrid search (dense + BM25, fused with RRF). Returns the raw Qdrant points,
+        whose payload holds everything stored with the chunk. `any_tags` keeps only chunks
+        tagged with at least one of those dispute types (policy_tags.json)."""
         dense, sparse = _get_models()
+        flt = models.Filter(should=[models.FieldCondition(key=f"dt_{t}", match=models.MatchValue(value=True))
+                                    for t in any_tags]) if any_tags else None
         q_dense = next(iter(dense.query_embed(query))).tolist()
         q_sparse = next(iter(sparse.query_embed(query)))
-        limit = min(top_k, 20)
         result = self.client.query_points(
             collection_name=self.collection,
             prefetch=[
-                models.Prefetch(query=q_dense, using="dense", limit=limit * 4),
+                models.Prefetch(query=q_dense, using="dense", limit=limit * 4, filter=flt),
                 models.Prefetch(
                     query=models.SparseVector(indices=q_sparse.indices.tolist(), values=q_sparse.values.tolist()),
                     using="sparse",
                     limit=limit * 4,
+                    filter=flt,
                 ),
             ],
             query=models.FusionQuery(fusion=models.Fusion.RRF),
             limit=limit,
             with_payload=True,
         )
+        return result.points
+
+    def delete(self, chunk_ids: list[str]) -> None:
+        """Remove chunks by the ids they were stored under."""
+        if chunk_ids and self.client.collection_exists(self.collection):
+            self.client.delete(self.collection, points_selector=models.PointIdsList(
+                points=[str(uuid.uuid5(uuid.NAMESPACE_URL, c)) for c in chunk_ids]))
+
+    def search(self, query: str, top_k: int = 5, any_tags: tuple[str, ...] | None = None) -> list[dict]:
+        """Hybrid search. Returns the same dict shape as the Chroma retriever."""
+        points = self.search_points(query, limit=min(top_k, 20), any_tags=any_tags)
         return [
             {
                 "clause": p.payload.get("text", ""),
@@ -116,8 +146,11 @@ class QdrantStore:
                 # RRF fusion score (rank-based), not a cosine similarity
                 "similarity": round(p.score, 4),
                 "chunk_index": p.payload.get("chunk_index", 0),
+                "dispute_types": p.payload.get("dispute_types", ""),
             }
-            for p in result.points
+            # Score ties (near-identical sections) broke differently between runs; order them by
+            # chunk id too so the same query always gives the same clauses (D14)
+            for p in sorted(points, key=lambda p: (-p.score, str(p.payload.get("chunk_id", ""))))
         ]
 
     def count(self) -> int:

@@ -135,20 +135,29 @@
     "fee_goes_to": "driver_compensation",
     "free_cancellation_before_driver_assignment": true,
     "cancellation_fee_after_driver_assigned": 4.0,
-    "no_fee_if_driver_delayed_beyond_eta_min": 10
+    "no_fee_if_driver_delayed_beyond_eta_min": 10,
+    "free_cancellation_within_min_of_match": 3
   },
   "expected_outcome": {
     "verdict": "dismissed",
     "recommended_action": "cancellation_charge_upheld_no_refund",
     "refund_amount": 0.0,
     "requires_human_review": false,
-    "reason": "The rider cancelled after a driver was assigned, and the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. A rider who cancels after a driver has been assigned and is en route pays the S$4.00 fee (cancellation_fee_after_driver_assigned; Ryde Cancellation Policy 2.2), and none of the exemptions apply.",
+    "reason": "The rider cancelled at 14:34:20, 4 minutes after the driver was assigned (14:30:20): past the 3-minute free cancellation window, while the driver was on schedule and 0.5 km away. The rider's own message shows they chose a taxi instead. Under this trip's cancellation policy (cancellation_fee_after_driver_assigned) the S$4.00 fee stands and no exemption applies.",
     "expected_dispute_type": "cancellation_refund",
     "expected_urgency": null,
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 4: Cancellation Refund (Rider Wants Cancellation Fee Back)",
       "Cancellation Policy > 5. Disputing a Cancellation Fee"
     ],
-    "must_escalate": false
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request",
+      "Ryde Help Rider Fares And Charges > Will I be charged for cancelling a ride?",
+      "Ryde Help Rider Booking A Ryde > If a driver arrives during the rider’s grace period, will  the grace period for cancellation be reduced?",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?"
+    ]
   }
 }

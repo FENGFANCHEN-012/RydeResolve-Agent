@@ -182,13 +182,25 @@ class StubClassifier:
         return self.classification
 
 
+class StubCaseBrief:
+    def __init__(self):
+        self.calls = 0
+
+    async def build(self, context, classification=None):
+        self.calls += 1
+        return {"dispute_type": "route_deviation", "facts": [], "conflicts": [], "gaps": [],
+                "case_rules": {}, "timeline": [], "clauses": []}
+
+
 class StubDebate:
     def __init__(self, raise_error: bool = False):
         self.raise_error = raise_error
         self.calls = 0
+        self.seen_brief = None
 
     async def debate(self, context):
         self.calls += 1
+        self.seen_brief = context.case_brief
         if self.raise_error:
             raise RuntimeError("debate boom")
         return make_debate_history()
@@ -250,8 +262,9 @@ class StubExecutor:
 
 
 def build_graph(collector=None, classifier=None, debate=None, arbitrator=None,
-                fairness=None, executor=None):
+                fairness=None, executor=None, case_brief=None):
     return build_dispute_graph(
+        case_brief=case_brief or StubCaseBrief(),
         collector=collector or StubCollector(),
         classifier=classifier or StubClassifier(),
         debate_engine=debate or StubDebate(),
@@ -618,3 +631,19 @@ class TestOrchestratorApi:
         assert response["reason"] is not None
         assert response["dispute_id"] == "DRP-RYDE-001"
         assert response["classification"]["dispute_type"] == "route_deviation"
+
+
+class TestCaseBriefNode:
+    @pytest.mark.asyncio
+    async def test_debate_receives_the_case_brief(self):
+        brief, debate = StubCaseBrief(), StubDebate()
+        await build_graph(debate=debate, case_brief=brief).ainvoke(initial_state())
+        assert brief.calls == 1
+        assert debate.seen_brief and debate.seen_brief["dispute_type"] == "route_deviation"
+
+    @pytest.mark.asyncio
+    async def test_classifier_escalation_skips_the_brief(self):
+        brief = StubCaseBrief()
+        classifier = StubClassifier(classification=make_classification(requires_human=True))
+        await build_graph(classifier=classifier, case_brief=brief).ainvoke(initial_state())
+        assert brief.calls == 0

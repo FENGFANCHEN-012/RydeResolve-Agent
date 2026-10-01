@@ -1,0 +1,1359 @@
+{
+ "ryde_help_driver_carpooling.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Understanding the Base Fare Components": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Carpool cost-recovery fares and Ryde's retained deductions"
+  }
+ },
+ "ryde_help_driver_driver_community_guidelines.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Ryde Code Of Conduct": {
+   "dispute_types": [
+    "service_quality",
+    "driver_rights",
+    "cancellation_refund",
+    "accident_liability"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver conduct, job cancellation, road safety, insurance; breaches mean suspension"
+  },
+  "What are the penalties for cancellation ?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver cancellation rating rises; frequent cancellations risk suspension"
+  }
+ },
+ "ryde_help_driver_fares_charges.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "How are the trip fares calculated?": {
+   "dispute_types": [
+    "fare_dispute",
+    "route_deviation"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Fixed fare by pick-up/drop-off decides detour refunds",
+   "reviewed": true
+  },
+  "How do I charge the Cancellation or Waiting Time Fee if the Rider pays by Cash?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Cash trips: cancellation/waiting fee via RydeCoins wallet"
+  },
+  "How Does the Cancellation Fee Work?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "driver_rights"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver gets $4.50 after 3-minute wait; no-shows counted",
+   "reviewed": true
+  },
+  "How Does the Waiting Fee Work?": {
+   "dispute_types": [
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver must tap $5 waiting fee at drop-off",
+   "reviewed": true
+  },
+  "How to add ERP to my trip fare?": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver keys ERP; excessive amount means permanent suspension"
+  },
+  "What if I forgot to add in the Waiting Time Fee?": {
+   "dispute_types": [
+    "no_show",
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Forgotten waiting fee not reimbursed by Ryde"
+  },
+  "What is Net Fare?": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Net fare after platform/service fee deductions for drivers"
+  },
+  "Which trips do I need to include ERP?": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "ERP inclusion by service; carpool 50/50 split; fraud suspension"
+  }
+ },
+ "ryde_help_driver_platform_worker_prohibitions_under_mom_what_you_must_not_do.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "What happens if I violate these rules?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Suspension, deactivation and MOM penalties for rule violations"
+  }
+ },
+ "ryde_help_driver_popular_topics.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Cancellation and Waiting Time Policy": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Core grace period, cancellation and waiting fee rules"
+  },
+  "I wish to make an appeal": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "fare_dispute",
+    "driver_rights",
+    "delivery_dispute"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver appeals for fees, missed ERP, cleaning claims, RydeSEND fees"
+  },
+  "Ratings and Reviews Moderation Policy": {
+   "dispute_types": [
+    "driver_rights",
+    "service_quality"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "When unfair reviews are removed; review manipulation penalties"
+  }
+ },
+ "ryde_help_driver_ryde_account_privacy.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "How is my Driver Rating calculated?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver rating computed over last 100 trips"
+  },
+  "Why is my account disabled?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Account hold, appeal within 3 days, $10 restoration fee"
+  }
+ },
+ "ryde_help_driver_ryde_experience.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Am I required to follow the suggested route by the rider?": {
+   "dispute_types": [
+    "route_deviation",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Fixed fare; driver may choose efficient GPS route"
+  },
+  "Fare Evasion": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Unpaid cash fare: report, Ryde reimburses driver as goodwill"
+  },
+  "I would like to provide feedback about my rider": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Rude or unsafe riders; ratings and suspension thresholds"
+  },
+  "My Rider Made a Mess": {
+   "dispute_types": [
+    "driver_rights",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver cleaning-fee claim process, tiers up to S$200"
+  },
+  "Report issue with pick-up & drop-off location": {
+   "dispute_types": [
+    "no_show",
+    "route_deviation"
+   ],
+   "audience": "driver",
+   "uncertain": true,
+   "why": "Wrong pickup/drop-off location reporting; weak relevance"
+  },
+  "What if my Rider rates me poorly because of the Cancellation or Waiting Time Fee?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Appeal ratings given because of fees"
+  }
+ },
+ "ryde_help_driver_rydepet.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Can I cancel the trip if I don't want to carry a particular pet, especially once the rider is about to board?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Pet-related cancellation rules and wrong-category cancellations"
+  },
+  "What happens if I cancel after accepting due to the pet?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Cancelling over pet may bring penalties"
+  }
+ },
+ "ryde_help_driver_rydesend.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Can I request a refund of my RydeSEND deposit?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver RydeSEND deposit refund minus $5 fee"
+  },
+  "Do I need to pay for damages or loss of items, how will Ryde charge me?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver liable up to $100 from deposit for item loss"
+  },
+  "How are RydeSEND fares calculated?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "fare_dispute"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "RydeSEND driver pay basis incl. ERP and tolls"
+  },
+  "How do I cancel my RydeSEND trip?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "cancellation_refund"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver cancellation of accepted RydeSEND job"
+  },
+  "Report a RydeSEND Delivery Experience": {
+   "dispute_types": [
+    "delivery_dispute",
+    "no_show"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Recipient/sender absent: 10-minute wait, leave item at risk"
+  },
+  "Why is there a $5 processing fee for the refund?": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Deposit refund processing fee rationale"
+  }
+ },
+ "ryde_help_driver_safety_emergency.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "I was involved in an accident. What should I do?": {
+   "dispute_types": [
+    "accident_liability"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver accident steps, reporting deadlines, passenger medical claims"
+  },
+  "Who bears financial costs in the event of an accident?": {
+   "dispute_types": [
+    "accident_liability"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver insurance bears accident costs; riders claim through it"
+  }
+ },
+ "ryde_help_rider_booking_a_ryde.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Can I suggest my preferred route to the driver?": {
+   "dispute_types": [
+    "route_deviation",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Fixed fare; route by GPS unless mutually agreed"
+  },
+  "I made a mess in my driver's vehicle": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Rider cleaning fee tiers, non-payment hold, dispute route"
+  },
+  "If a driver arrives during the rider’s grace period, will  the grace period for cancellation be reduced?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Rider's guaranteed 3-minute / 15-minute grace period",
+   "reviewed": true
+  }
+ },
+ "ryde_help_rider_fares_and_charges.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Cancellation and Waiting Fee": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Rider cancellation $6.61 and waiting $5 fee conditions",
+   "reviewed": true
+  },
+  "Cancellation Fee Waiver Request": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "No-show fees are cancellation fees; waiver route applies",
+   "reviewed": true
+  },
+  "Do I need to pay ERP charges?": {
+   "dispute_types": [
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "ERP charged to rider except RydeSEND"
+  },
+  "Does the Cancellation Policy apply to all Ryde services?": {
+   "dispute_types": [
+    "cancellation_refund"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Policy applies to all services except RydeTAXI"
+  },
+  "How am I charged under the Policy if I am paying my fare by Cash?": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Cash riders: fees deducted from RydeCoins wallet"
+  },
+  "How is the Payment Transaction Fee calculated?": {
+   "dispute_types": [
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Card transaction fee rates"
+  },
+  "I was overcharged for ERP/toll": {
+   "dispute_types": [
+    "fare_dispute",
+    "route_deviation"
+   ],
+   "audience": "rider",
+   "uncertain": true,
+   "why": "Fares fixed except RydeTAXI; tolls extra; route link indirect"
+  },
+  "Understanding the Fare Structure": {
+   "dispute_types": [
+    "fare_dispute",
+    "route_deviation"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Fixed fare by pick-up/drop-off decides detour refunds",
+   "reviewed": true
+  },
+  "Waiting Fee Waiver Request": {
+   "dispute_types": [
+    "no_show",
+    "cancellation_refund",
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Waiting fee waiver within 30 days; $5 voucher"
+  },
+  "Why am I charged for a Waiting Time Fee?": {
+   "dispute_types": [
+    "no_show",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Waiting fee starts after 3 minutes",
+   "reviewed": true
+  },
+  "Will I be charged for cancelling a ride?": {
+   "dispute_types": [
+    "cancellation_refund"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Cancellation fee after 3 minutes of matching",
+   "reviewed": true
+  }
+ },
+ "ryde_help_rider_popular_topics.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "I lost my item.": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": true,
+   "why": "Lost item procedure; no type fits well; Ryde not responsible"
+  }
+ },
+ "ryde_help_rider_ryde_experience.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "I would like to provide feedback about my driver": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver must be respectful; rude or dangerous driver reports"
+  },
+  "Report issue with pick-up & drop-off location": {
+   "dispute_types": [
+    "no_show",
+    "route_deviation"
+   ],
+   "audience": "rider",
+   "uncertain": true,
+   "why": "Wrong pickup/drop-off location reporting; weak relevance"
+  },
+  "Why was a 5-star rating submitted even though I didn't rate the trip?": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": true,
+   "why": "Auto 5-star rating; marginal for rating disputes"
+  }
+ },
+ "ryde_help_rider_rydepet.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Are pets covered by insurance while on board?": {
+   "dispute_types": [
+    "accident_liability"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Animals not insured on RydePET rides"
+  }
+ },
+ "ryde_help_rider_rydesend.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Do I need to pay ERP charges and parking costs?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Delivery fares include tolls, ERP and parking"
+  },
+  "Driver left my items at the door and my item was lost. Can I claim for compensation?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "no_show"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Uncontactable recipient: item left at sender's risk, no compensation"
+  },
+  "How are the delivery fees calculated?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Delivery fees by distance, time, surge"
+  },
+  "If I have a complaint about my delivery experience, how can I make a complaint to Ryde?": {
+   "dispute_types": [
+    "delivery_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "How to lodge a delivery complaint"
+  },
+  "If my items suffered some damages or were lost during delivery, how can I claim for compensation?": {
+   "dispute_types": [
+    "delivery_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Damage/loss claim evidence and one-day deadline"
+  },
+  "When I cancel my order, will I be charged a cancellation fee?": {
+   "dispute_types": [
+    "delivery_dispute",
+    "cancellation_refund"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Sender cancellation fee after match until pickup"
+  }
+ },
+ "ryde_help_rider_safety_emergency.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "I was involved in an accident": {
+   "dispute_types": [
+    "accident_liability"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Rider accident steps; medical claim via driver insurance"
+  },
+  "Is there any insurance coverage in the event of an accident?": {
+   "dispute_types": [
+    "accident_liability"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Carpool/private-hire insurance; Ryde pays no compensation"
+  },
+  "Report a safety issue": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Mandatory seat belts for rider and driver"
+  }
+ },
+ "ryde_site_code_of_conduct.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Code of Conduct": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Empty heading, no text"
+  },
+  "4 Simple Rules to a Better Ride": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Empty heading, no text"
+  },
+  "Safety First": {
+   "dispute_types": [
+    "service_quality",
+    "accident_liability"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver traffic rules, seatbelts, child restraints"
+  },
+  "Be Punctual": {
+   "dispute_types": [
+    "no_show",
+    "cancellation_refund"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Driver go directly; rider wait to avoid fees"
+  },
+  "Communicate": {
+   "dispute_types": [
+    "route_deviation",
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Preferred route needs mutual agreement before trip"
+  },
+  "Mutual Respect": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "No harassment, no post-trip contact, respectful reviews"
+  },
+  "Company": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Rider": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Driver": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Business Solutions": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  }
+ },
+ "ryde_site_platform_work_safe_and_fair.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Keeping Platform Work Safe and Fair: A Guide for Drivers": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Introductory text only"
+  },
+  "What You Should Do": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver obligations: own account, valid documents, safety"
+  },
+  "What You Should Not Do": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "No off-platform jobs or account sharing"
+  },
+  "Fines and Penalties You Should Know About": {
+   "dispute_types": [
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Penalties for illegal platform work"
+  }
+ },
+ "ryde_site_privacy_policy.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Privacy Policy": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Privacy policy scope and definitions"
+  },
+  "COLLECTION OF PERSONAL DATA": {
+   "dispute_types": [
+    "service_quality",
+    "accident_liability"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "In-vehicle recordings can be evidence in conduct/safety cases",
+   "reviewed": true
+  },
+  "USE OF PERSONAL DATA": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Generic data-use purposes; too broad to help a ruling",
+   "reviewed": true
+  },
+  "DISCLOSURE OF PERSONAL DATA": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Data sharing parties"
+  },
+  "RETENTION OF PERSONAL DATA": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Data retention"
+  },
+  "COOKIES AND ADVERTISING ON THIRD PARTY PLATFORMS": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Cookies and advertising"
+  },
+  "PROTECTION OF PERSONAL DATA": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Data security and privacy rights"
+  },
+  "AMENDMENTS AND UPDATES": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Policy amendments"
+  },
+  "CONTACT US": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Privacy contact details"
+  },
+  "INTERPRETATION": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Corporate addendum interpretation"
+  },
+  "How Ryde for Business Works": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Corporate account data sharing"
+  },
+  "Company": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Rider": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Driver": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  },
+  "Business Solutions": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Website footer links"
+  }
+ },
+ "ryde_site_safe_driving_tips.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Safe Driving Tips & Best Practices for Ryde Driver-Partners": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Introductory text only"
+  },
+  "Verify Your Trip Details": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver must confirm passenger name and destination"
+  },
+  "Stay Focused On Driving": {
+   "dispute_types": [
+    "service_quality",
+    "accident_liability"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "No phone use while driving; vehicle maintenance"
+  },
+  "Adhere To PUDO Location Regulations": {
+   "dispute_types": [
+    "service_quality"
+   ],
+   "audience": "driver",
+   "uncertain": true,
+   "why": "Use permitted pick-up/drop-off points; weak dispute relevance"
+  },
+  "Keep Your Car Well Maintained": {
+   "dispute_types": [
+    "service_quality",
+    "accident_liability"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Routine vehicle condition checks"
+  },
+  "Stay Weather-Safe": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Weather app advice"
+  },
+  "Driver Fatigue Management": {
+   "dispute_types": [
+    "service_quality",
+    "accident_liability"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Rest breaks to avoid fatigue"
+  }
+ },
+ "ryde_site_terms_of_use.md": {
+  "Overview": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Title and source line only"
+  },
+  "Terms of Use": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Empty heading, no text"
+  },
+  "Terms of Service": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Empty heading, no text"
+  },
+  "Section A – General Terms": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Empty heading, no text"
+  },
+  "Introduction": {
+   "dispute_types": [
+    "general"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Ryde only links users; not responsible for partner acts"
+  },
+  "Definitions": {
+   "dispute_types": [
+    "general",
+    "service_quality",
+    "accident_liability",
+    "driver_rights"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Definitions plus user/partner warranties, accident liability, conduct"
+  },
+  "Compatibility": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Device compatibility"
+  },
+  "License Grant and Restrictions": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Software licence restrictions"
+  },
+  "Payment Terms for Partners": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights",
+    "general"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Service fee, fraud payment holds, user payments non-refundable"
+  },
+  "Cancellation Terms for Partners": {
+   "dispute_types": [
+    "cancellation_refund",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Driver cancellations need acceptable reasons; suspension risk"
+  },
+  "Cancellation Terms for Users": {
+   "dispute_types": [
+    "cancellation_refund",
+    "no_show"
+   ],
+   "audience": "rider",
+   "uncertain": false,
+   "why": "Cancel/no-show fee; refunds at Ryde's absolute discretion"
+  },
+  "Ryde Rewards and Promotions for Users": {
+   "dispute_types": [
+    "fare_dispute"
+   ],
+   "audience": "rider",
+   "uncertain": true,
+   "why": "Vouchers non-refundable; only for promo-related fare disputes"
+  },
+  "Ratings": {
+   "dispute_types": [
+    "driver_rights",
+    "service_quality"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Ratings may lead to suspension without compensation"
+  },
+  "Complaints": {
+   "dispute_types": [
+    "general"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Partner-user complaints taken up directly with each other"
+  },
+  "Repair and Cleaning Fees for Users": {
+   "dispute_types": [
+    "driver_rights",
+    "fare_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Rider pays cleaning/repair up to S$200; driver reimbursed"
+  },
+  "Intellectual Property Ownership": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "IP ownership"
+  },
+  "Taxes": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Tax obligations"
+  },
+  "Confidentiality": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Confidentiality obligations"
+  },
+  "Data Privacy and Personal Data Protection Policy": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Privacy policy incorporation"
+  },
+  "Third Party Interactions": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Third-party links and Google Maps terms"
+  },
+  "Indemnification": {
+   "dispute_types": [
+    "accident_liability",
+    "delivery_dispute"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Who indemnifies whom for losses and claims",
+   "reviewed": true
+  },
+  "Disclaimer of Warranties": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Boilerplate; would surface in every dispute as noise",
+   "reviewed": true
+  },
+  "Internet Delays": {
+   "dispute_types": [
+    "no_show",
+    "cancellation_refund"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "App/connectivity delays; relevant to timing disputes",
+   "reviewed": true
+  },
+  "Limitation of Liability": {
+   "dispute_types": [
+    "general",
+    "accident_liability"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Claims capped at amount paid; Ryde not party to disputes"
+  },
+  "Notice": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Notice mechanics"
+  },
+  "Assignment": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Assignment of terms"
+  },
+  "Dispute Resolution": {
+   "dispute_types": [
+    "general"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Singapore law, SIAC arbitration, partner mediation/SCT option"
+  },
+  "Relationship": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": true,
+   "why": "No agency; marginal for liability arguments"
+  },
+  "Severability": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Severability boilerplate"
+  },
+  "No Waiver": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "No-waiver boilerplate"
+  },
+  "Entire Agreement": {
+   "dispute_types": [
+    "general",
+    "driver_rights"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "Includes Ryde's right to suspend/terminate without compensation"
+  },
+  "No Third Party Rights": {
+   "dispute_types": [
+    "none"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "No third-party rights boilerplate"
+  },
+  "Section B – Additional Terms": {
+   "dispute_types": [
+    "delivery_dispute",
+    "cancellation_refund",
+    "no_show"
+   ],
+   "audience": "both",
+   "uncertain": false,
+   "why": "RydeSEND item rules, sender liability, cancellation, unreachable recipient"
+  },
+  "For RydePOOL Partners": {
+   "dispute_types": [
+    "fare_dispute",
+    "driver_rights"
+   ],
+   "audience": "driver",
+   "uncertain": false,
+   "why": "Carpool fares capped at cost; two trips per day"
+  },
+  "RydeCoins – Singapore Only": {
+   "dispute_types": [
+    "fare_dispute",
+    "cancellation_refund"
+   ],
+   "audience": "rider",
+   "uncertain": true,
+   "why": "RydeCoins non-refundable; relevant where refunds go to wallet"
+  }
+ }
+}

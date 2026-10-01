@@ -178,6 +178,12 @@
       "Dispute Resolution Guide > Scenario 7: Safety Incident (Harassment / Assault / Inappropriate Behavior)",
       "Safety Standards > 2. Safety Incident Classification"
     ],
-    "must_escalate": true
+    "must_escalate": true,
+    "expected_official_sections": [
+      "Ryde Help Rider Ryde Experience > I would like to provide feedback about my driver",
+      "Ryde Help Rider Safety Emergency > Report a safety issue",
+      "Ryde Site Code Of Conduct > Mutual Respect",
+      "Ryde Site Code Of Conduct > Safety First"
+    ]
   }
 }

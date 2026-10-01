@@ -21,3 +21,6 @@ from src.core import llm_client as llm_module
 def _force_gemini_provider(monkeypatch):
     monkeypatch.setattr(llm_module, "LLM_PROVIDER", "gemini")
     monkeypatch.setattr(config, "VECTOR_BACKEND", "chroma")
+    # Never read the live precedent index or write rulings to the real record store
+    monkeypatch.setenv("PRECEDENTS_ENABLED", "0")
+    monkeypatch.setenv("RECORD_RULINGS", "0")

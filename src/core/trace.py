@@ -16,6 +16,7 @@ Events (all JSON-serialisable dicts with a "type" key):
                 wait_ms = time spent waiting on rate limits (pacing, 429 retries),
                 already included in duration_ms
     retrieval   {step_id, dispute_type, clauses}
+    tool_call   {step_id, tool, args, findings, duration_ms}
     step_end    {id, agent, output, duration_ms}
     step_error  {id, agent, error, duration_ms}
     result / error / done   (emitted by the API layer)
@@ -129,6 +130,15 @@ def record_retrieval(query_type: str, clauses: list[dict]) -> None:
                               "similarity": c.get("similarity"),
                               "excerpt": (c.get("clause") or "")[:400]}
                              for i, c in enumerate(clauses)]})
+
+
+def record_tool_call(tool: str, args: dict, findings: list, duration_ms: int) -> None:
+    """Attach one deterministic tool run (Collector tools) to the running step."""
+    tracer = current_tracer()
+    if tracer is None:
+        return
+    tracer.emit({"type": "tool_call", "step_id": _step_id.get(), "tool": tool, "args": args,
+                 "findings": findings, "duration_ms": duration_ms})
 
 
 def _ms(t0: float) -> int:

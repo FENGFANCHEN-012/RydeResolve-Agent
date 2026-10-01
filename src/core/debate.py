@@ -7,7 +7,8 @@ from src.agents.passenger import PassengerAgent
 from src.agents.driver import DriverAgent
 from src.agents.policy import PolicyAgent
 from src.config import MAX_DEBATE_ROUNDS
-from src.core.trace import step
+from src.core.trace import record_retrieval, step
+from src.agents.case_brief import add_requested_clauses, valid_requests
 
 
 def _fail_if_daily_quota_exhausted(result) -> None:
@@ -54,6 +55,12 @@ class DebateEngine:
         Run the full debate and return debate history.
         Each entry: {round, speaker, content, evidence}
         """
+        history, _ = await self.debate_with_context(context)
+        return history
+
+    async def debate_with_context(self, context: DisputeContext) -> tuple[list[dict], DisputeContext]:
+        """The debate, plus the context it ended with: clauses the advocates requested
+        (policy_requests) are added to the shared case brief for the rebuttals and the Judge."""
         history = []
 
         # Initial analysis from both sides
@@ -70,6 +77,16 @@ class DebateEngine:
             policy_eval = await self.policy_agent.evaluate_compliance(context)
             s["output"] = policy_eval
         _fail_if_daily_quota_exhausted(policy_eval)
+
+        requests = {"passenger": valid_requests(passenger_analysis), "driver": valid_requests(driver_analysis)}
+        if any(requests.values()):
+            async with step("CaseBrief", "Fetch the policy topics the advocates asked for",
+                            {"requests": requests}) as s:
+                context, added = await add_requested_clauses(
+                    context, requests, self.policy_agent._get_retriever())
+                if added:
+                    record_retrieval("requested", added)
+                s["output"] = {"added": [f"{c.get('source')} > {c.get('section')}" for c in added]}
 
         history.append({
             "round": 0,
@@ -117,4 +134,4 @@ class DebateEngine:
                 "content": d_rebuttal,
             })
 
-        return history
+        return history, context

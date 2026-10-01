@@ -14,6 +14,10 @@ Legacy behaviour preserved:
 - the resolved path returns the same top-level keys as before, plus a new
   additive ``"fairness"`` key for the audit trail
 """
+import asyncio
+import logging
+import os
+
 from src.agents.collector import DisputeContext, EvidenceItem
 from src.core.workflow import build_dispute_graph
 from src.core.workflow_state import (
@@ -22,6 +26,8 @@ from src.core.workflow_state import (
     STATUS_RESOLVED,
     DisputeWorkflowState,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Orchestrator:
@@ -67,7 +73,11 @@ class Orchestrator:
                 "language": language,
             }
         )
-        return self._to_response(final_state)
+        response = self._to_response(final_state)
+        ruling_id = await asyncio.to_thread(_record_ruling, final_state, response)
+        if ruling_id is not None:
+            response["ruling_id"] = ruling_id  # a reviewer confirms or overrides it by this id
+        return response
 
     # ------------------------------------------------------------------
     # Response translation
@@ -190,4 +200,38 @@ class Orchestrator:
         actual = context.payment.get("total_fare", 0)
         if estimated and actual:
             return round(actual - estimated, 2)
+        return None
+
+
+def _record_ruling(state: DisputeWorkflowState, response: dict) -> int | None:
+    """Store the result for human review and the learning feedback loop. Best effort:
+    a storage problem must never change or block a ruling. RECORD_RULINGS=0 turns it off
+    (the evaluation does, so test runs do not mix with real records)."""
+    if os.getenv("RECORD_RULINGS", "1") == "0":
+        return None
+    try:
+        from src.rag.precedents import summarize_case
+        from src.store.db import get_store
+
+        context, decision = state.get("context"), state.get("decision")
+        classification = state.get("classification")
+        dispute_type = getattr(getattr(classification, "dispute_type", None), "value",
+                               getattr(classification, "dispute_type", None))
+        ruling = get_store().record_ruling(
+            dispute_id=response.get("dispute_id") or "unknown",
+            order_id=response.get("order_id"),
+            dispute_type=dispute_type,
+            status=response.get("status") or "unknown",
+            verdict=getattr(getattr(decision, "verdict", None), "value", None),
+            refund_amount=getattr(decision, "refund_amount", None),
+            confidence=getattr(decision, "confidence", None),
+            rationale=getattr(decision, "rationale", None),
+            policy_refs=list(getattr(decision, "policy_references", None) or []),
+            precedent_ids=[p["precedent_id"] for p in state.get("precedents") or []],
+            case_summary=summarize_case(context) if context is not None else None,
+            pipeline_version=os.getenv("PIPELINE_VERSION"),
+        )
+        return ruling.id
+    except Exception as exc:
+        logger.warning("Could not record ruling: %s", exc)
         return None

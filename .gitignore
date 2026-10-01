@@ -23,3 +23,6 @@ docs/_verify_names.txt
 docs/_rewrite_section4.py
 data/traces/
 data/eval/
+
+# Record store for rulings, reviews, precedents and the audit log (local data)
+data/ryde_resolve.db

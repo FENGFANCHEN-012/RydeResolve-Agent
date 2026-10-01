@@ -17,7 +17,8 @@ SCENARIO_2 = "Dispute Resolution Guide > Scenario 2: No-Show Charge (Rider Charg
 def _case(**expected):
     base = {"verdict": "upheld", "refund_amount": 8.0, "requires_human_review": False,
             "must_escalate": False, "expected_dispute_type": "no_show", "expected_urgency": None,
-            "expected_policy_sections": [SCENARIO_2]}
+            # both lists, so the result does not depend on which library .env selects
+            "expected_policy_sections": [SCENARIO_2], "expected_official_sections": [SCENARIO_2]}
     return {"dispute_id": "NS-001", "order_id": "RYDE-DEMO-003", "filed_type": "no_show",
             "description": "", "expected": {**base, **expected}, "charge_cap": 8.0}
 
@@ -104,7 +105,10 @@ def test_summary_targets():
 
 def test_answer_keys_have_eval_fields():
     cases = ev.load_cases()
-    assert len(cases) == 14  # 13 mock disputes + the organiser's DISP-002 sample
+    dev = [c for c in cases if not c["expected"].get("heldout")]
+    assert len(dev) == 14  # 13 mock disputes + the organiser's DISP-002 sample
+    # Held-out variants appear only if eval.py set EXTRA_DISPUTE_DIRS before ryde_api was
+    # first imported, so their count depends on test order and is not asserted here
     for c in cases:
         exp = c["expected"]
         for key in ("expected_dispute_type", "expected_urgency", "expected_policy_sections", "must_escalate"):
@@ -132,3 +136,56 @@ def test_case_policy_citation_scores_valid_only_when_present_in_case():
     case["case_policy_refs"] = [ref]
     assert ev.score_run(case, _events(refs=(ref,)))["citations_valid"] == 1
     assert ev.score_run(_case(), _events(refs=(ref,)))["citations_valid"] == 0
+
+
+def test_acceptable_verdicts_allow_either_label():
+    case = _case(verdict="partially_upheld", refund_amount=None, acceptable_verdicts=["partially_upheld", "upheld"])
+    row = ev.score_run(case, _events(verdict="upheld", refund=27.4))
+    assert row["verdict_ok"] is True
+
+
+# ---------------------------------------------------------------- paired metrics (stability / robustness)
+
+def _row(dispute_id, verdict="dismissed", refund=0.0, variant_of=None, status="resolved", expected="dismissed"):
+    case = _case(verdict=expected, refund_amount=0.0 if expected == "dismissed" else 4.0,
+                 variant_of=variant_of, charge_cap=4.0)
+    case["dispute_id"] = dispute_id
+    return ev.score_run(case, _events(status=status, verdict=verdict, refund=refund))
+
+
+def test_consistency_needs_identical_outcomes():
+    rows = [_row("CR-002"), _row("CR-002"), _row("NS-001"), _row("NS-001", status="escalated_to_human")]
+    m = ev.summarise(rows)["metrics"]["consistency"]
+    assert (m["value"], m["n"]) == (0.5, 2)
+
+
+def test_consistency_not_measured_without_repeats():
+    assert ev.summarise([_row("CR-002")])["metrics"]["consistency"]["value"] is None
+
+
+def test_paraphrase_must_match_base():
+    rows = [_row("CR-002"), _row("CR-002-P3", variant_of="CR-002"),
+            _row("NS-001"), _row("NS-001-P1", status="escalated_to_human", variant_of="NS-001")]
+    m = ev.summarise(rows)["metrics"]["paraphrase_invariance"]
+    assert (m["value"], m["n"]) == (0.5, 2)
+
+
+def test_counterfactual_must_flip_to_the_right_answer():
+    flipped = _row("CR-002-C2", verdict="upheld", refund=4.0, variant_of="CR-002", expected="upheld")
+    unchanged = _row("CR-002-C9", variant_of="CR-002", expected="upheld")
+    m = ev.summarise([_row("CR-002"), flipped, unchanged])["metrics"]["counterfactual_sensitivity"]
+    assert (m["value"], m["n"]) == (0.5, 2)
+
+
+def test_injection_resisted_only_when_correct():
+    ok = _row("NS-002-I1", variant_of="NS-002")
+    fooled = _row("FD-002-I2", verdict="upheld", refund=4.0, variant_of="FD-002")
+    m = ev.summarise([ok, fooled])["metrics"]["injection_resistance"]
+    assert (m["value"], m["n"]) == (0.5, 2)
+
+
+def test_missing_data_and_boundary_variants_are_not_paired():
+    rows = [_row("NS-002"), _row("NS-002-M1", variant_of="NS-002"), _row("NS-002-B1", variant_of="NS-002")]
+    metrics = ev.summarise(rows)["metrics"]
+    assert all(metrics[k]["n"] == 0 for k in ("paraphrase_invariance", "counterfactual_sensitivity",
+                                              "injection_resistance"))

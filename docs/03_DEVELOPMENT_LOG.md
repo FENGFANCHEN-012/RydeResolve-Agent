@@ -266,7 +266,7 @@ Reason: Hunyuan API access is hard to get + the endpoint is unstable + Gemini al
 - **Fix**: both now also accept the PolicyAgent's verified references; regression tests added in `test_arbitrator_agent.py` and `test_fairness_agent.py`
 - **Note**: `fairness.py` belongs to Yang Shuo — he needs to review the change
 
-### Node 28: Collector tools (⚠️ not committed, hold for now)
+### Node 28: Collector tools (committed 2026-10-01)
 - **Author**: billy
 - **Change**: `src/agents/collector_tools.py` — 9 standard tools + 2 query tools, **fully deterministic, zero LLM calls**; findings are typed fact / conflict / gap, each with its source; `trace.py` adds a `tool_call` event; the dashboard shows a findings + tools panel; `tests/test_collector_tools.py`
 - **Agreed design**: raw data is read-only; no "challenge" loop; other agents query via query tools (not an LLM); routing belongs to the graph, agents can only request
@@ -285,6 +285,64 @@ Reason: Hunyuan API access is hard to get + the endpoint is unstable + Gemini al
 **Tests**: 221 local tests pass offline (`--deselect tests/test_arbitrator_agent.py::TestArbitrationAgent::test_llm_client_none_fallback`, which calls a real LLM)
 
 ---
+
+## Session 5: 2026-09-29 – 2026-10-01 (billy, branch `policy-official-rebuild`)
+
+Every change and its measured effect is in [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md) (D1–D15).
+This section is the short version.
+
+### Node 31: Official policy text + retrieval benchmark (D1–D3)
+- `data/policies/official/`: 22 verbatim Ryde help-centre / site pages (`scripts/fetch_official_policies.py`);
+  the old paraphrased library had invented rules. Separate Qdrant collection `ryde_policies_official`
+  (bge-base, hybrid BM25), selected by 3 lines in `.env`; the old `ryde_policies` is untouched.
+- Retrieval A/B (`scripts/retrieval_eval/`, 32 questions): bge-base hybrid Hit@1 0.88 vs bge-small 0.78.
+  ADP stays auxiliary; rulings use our own RAG. One search per dispute (cache).
+
+### Node 32: Answer-key audit, held-out set, evaluation upgrade (D4–D6, D9)
+- Answer keys audited and fixed; 13 held-out variants (`scripts/make_heldout_cases.py`): paraphrase,
+  language, counterfactual, injection, missing data, boundary.
+- `scripts/eval.py`: dev/held-out split, cost, compute vs rate-limit time, and new paired metrics:
+  consistency (repeats), paraphrase invariance, counterfactual sensitivity, injection resistance;
+  baseline column; provider/model stored per trace (a resume refuses to mix providers).
+- Fairness: `decisive_evidence_gap` (lost driver GPS where location decides -> human); narrowed for
+  cancellations with no recorded arrival.
+
+### Node 33: Feedback loop, level 1 (D8)
+- `src/store/` (SQLite via `STORE_URL`: rulings, reviews, precedents, hash-chained audit log),
+  `src/rag/precedents.py`, API review/precedent/audit endpoints, `scripts/precedents.py`.
+  Human overrides become precedents only after an eval gate.
+
+### Node 34: Case Brief — one shared dossier after classification (D10, D12, D14)
+- New workflow node `case_brief` (`src/agents/case_brief.py`, no LLM): Collector facts / conflicts /
+  gaps with sources (facts built on a disputed record are marked), this trip's platform rules
+  (citable as `platform_policy.<key>`), app-event timeline, and the base policy clauses.
+- Base clauses = complaint search ranked by section tags + the dispute type's core topics + topics
+  triggered by platform data (fee charged, surge, route alert, cleaning claim, ...), from a fixed
+  14-topic catalogue (`src/rag/policy_topics.py`). Advocates may request up to 2 catalogue topics;
+  requested clauses go to the shared pool that both sides and the Judge read.
+- Expected-section recall in the clauses agents receive: 0.744 -> 0.92 (27 cases).
+
+### Node 35: Section tags on the knowledge base (D11, D12)
+- `data/policies/official/policy_tags.json`: every section tagged with dispute types and audience
+  (model-proposed, hand-reviewed, checked against the answer keys). Stored on each chunk; bool
+  payload indexes for Qdrant filtering.
+- Tag ranking weight 0.001: Hit@1 0.815 -> 0.963; with a deliberately wrong type the right section
+  still stays in the top 3 (larger weights hid rules).
+
+### Node 36: Query experiments that were rejected (D12, D13)
+- Query built from Collector facts: Hit@1 0.56 vs 0.82 for the complaint — rejected.
+- Guarded LLM rewrite (strict no-invention prompt + number check, `src/rag/guarded_rewrite.py`):
+  no invented numbers, but meaning drift; short-question Hit@1 1.00 -> 0.73 — rejected.
+
+### Node 37: Eval 20261001-114026 and fixes (D15)
+- 27 cases: verdict 63% (17/27); the Judge was right in 6 of the 10 misses. Fixes: Fairness accepts
+  Case Brief clauses; Fairness prompt defines verdict labels; label follows the refund
+  (`align_verdict_label`); new deterministic check `fee_basis_not_met` (a fee kept on a contradicted
+  arrival or under the no-show threshold goes to a person). Replayed on the recorded rulings:
+  projected 25/27, the 2 Judge errors routed to a person. Re-run pending (Cerebras daily quota).
+- Prompts ~21% smaller (raw GPS replaced by the brief's facts, compact clause text);
+  `ADVOCATE_REASONING_EFFORT` switch added, off by default.
+- Tests: 325 passed.
 
 ## Key Decisions (updated)
 
@@ -356,26 +414,28 @@ Reason: Hunyuan API access is hard to get + the endpoint is unstable + Gemini al
 
 ---
 
-## Current Pipeline State (LangGraph, `src/core/workflow.py`)
+## Current Pipeline State (LangGraph, `src/core/workflow.py`, updated 2026-10-01)
 
 ```
-Report -> [Collector] (+ deterministic tools, uncommitted) -> [Classifier]
+Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classifier]
                     |
+             [Case Brief]  <- no LLM: facts, case rules, timeline, base clauses
+                    |         (complaint search + type topics + data-triggered topics, tag-ranked)
    ┌────────────────┼────────────────┐
    |                |                |
-[Passenger Agent]  [Driver Agent]  [Policy Agent (RAG, section chunks)]
-   |                |                |
+[Passenger Agent]  [Driver Agent]  [Policy Agent]   <- all read the same brief + clauses
+   |  policy_requests (catalogue topics) -> shared pool
    └────────────────┼────────────────┘
                     |
-            [Debate Engine]  ← one round by default
+            [Debate Engine]
                     |
-            [Arbitrator]  ← ✅ real LLM (_safe_decision escalates on failure)
+            [Arbitrator]  <- brief first; label follows the refund
                     |
-            [Fairness Agent]  ← ✅ independent audit, can BLOCK
-                    |
+            [Fairness Agent]  <- deterministic checks (incl. decisive_evidence_gap,
+                    |            fee_basis_not_met) + LLM review; can BLOCK
           Confidence / human-review routing
                     |
-            [Executor]  ← simulated actions + multilingual notifications
+            [Executor]  <- simulated actions; rulings recorded for the feedback loop
 ```
 
 ---
@@ -435,23 +495,29 @@ Report -> [Collector] (+ deterministic tools, uncommitted) -> [Classifier]
 ## Session Handoff (for the next session)
 
 ### 🚨 P0 — must do
-1. **Teammates switch to the shared Qdrant index** — `git pull`, `pip install -r requirements.txt`, add `VECTOR_BACKEND=qdrant`, `QDRANT_URL`, `QDRANT_API_KEY` to `.env` (key shared privately, ideally a read-only key)
-2. Ask Yang Shuo to review the `fairness.py` citation fix
+1. Re-run the eval on branch `policy-official-rebuild` after the Cerebras daily reset
+   (`$env:LLM_PROVIDER="cerebras"; python scripts/eval.py --yes`), compare with 20261001-114026 (D15)
+2. Tell Zhilin / Yang Shuo before merging: answer keys, fairness (new checks), retriever, arbitrator,
+   Collector, Case Brief node
+3. Teammates who run locally need the 3 `.env` lines for the official collection (D1); no re-index
+   is needed (the shared Qdrant collection is already tagged and indexed)
 
 ### 🟠 Important, not blocking
-3. Retrieval precision: local cross-encoder reranker + filter by dispute type on Qdrant, measured with Hit@1 / Hit@3
-4. Evaluation plan phase 1 (`docs/06_EVAL_PLAN.md`), then update Development Journal section 14 Final Results
-5. Feed Collector findings into agent prompts; wire Collector query tools into LangGraph (once user allows committing the collector tools)
-6. Demo script (`docs/demo_script.md`)
+4. Stability: `--repeat 3` on a few cases; single-call baseline (`scripts/eval_single_call.py`)
+5. Try `ADVOCATE_REASONING_EFFORT=low` in an eval; keep only if accuracy holds
+6. Server (Tencent Lighthouse) + Docker + Postgres (`STORE_URL`); update docker-compose.yml
+7. Feedback loop level 2, reviewer screen in the dashboard
 
 ### 🟢 Easy / docs
-7. Reword `ryde_api.py` as "simulated integration contract"
-8. Fix outdated agent names in `docs/05_NEXT_STEPS.md` (rider_agent / driver_agent / judge_agent)
+8. Reword `ryde_api.py` as "simulated integration contract"
+9. Fix outdated agent names in `docs/05_NEXT_STEPS.md`
 
 ### Key files (handoff)
 - `src/core/workflow.py` — main LangGraph flow (replaces orchestrator)
 - `src/agents/fairness.py` — Fairness Agent (Yang Shuo)
-- `src/agents/collector_tools.py` — deterministic evidence tools (uncommitted)
+- `src/agents/collector_tools.py` — deterministic evidence tools
+- `src/agents/case_brief.py` — shared dossier node; `src/rag/policy_topics.py` — topic catalogue
+- `docs/08_DESIGN_DECISIONS.md` — every change with its measured effect (D1–D15)
 - `src/core/llm_client.py` — Gemini / Groq dual provider (local changes overlap PR #10)
 - `src/core/trace.py` + `frontend/dispute.js` — live trace and dashboard
 - `data/mock_disputes/` — 13 DISP-002 cases + answer keys
