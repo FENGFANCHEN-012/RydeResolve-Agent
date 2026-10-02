@@ -480,4 +480,19 @@ same changes. Also added, off by default: `ADVOCATE_REASONING_EFFORT` (gpt-oss r
 two advocates only; their openings average ~1.3k output tokens). Turn on only if an eval shows no loss.
 
 Tests: `tests/test_ruling_guards.py` (9), 1 Fairness test for brief clauses. Full suite 325 passed.
-Needs: re-run of the 10 misses (tomorrow, Cerebras daily quota ~830k used today).
+**Confirming run 20261001-203206** (all 27 cases, Cerebras, final code): verdict accuracy **92.6%
+(25/27)**, refund accuracy **90.9% (20/22)**, matching the replay projection exactly. Dev 14/14,
+held-out 11/13. All 8 cases fixed above now resolve correctly; the only misses are NS-002-B1 and
+NS-002-C1, which the `fee_basis_not_met` check sends to a person as intended (the Judge's reasoning
+error is caught, not fixed). Classification 100%, escalation accuracy 92.6%, P0 recall, refund cap,
+missing-data escalation and Hit@3 all 100%. Paired checks 9/10 (the NS-002-C1 counterfactual is the
+one failure). Tokens 678.5k in total, 25.1k per case (-13% vs 29.0k), 0 LLM errors.
+
+**What the traces credit to which fix.** The label rule fired in RD-001-P4 (the `[Label: …]` marker
+is in its rationale); `fee_basis_not_met` fired in both NS-002-B1 and C1. But in the five
+previously-blocked FD-002/NS-002 cases the Judge this time cited only `platform_policy.*` fields or
+Policy-retrieved clauses, which the old whitelist already accepted — and FD-002-C3's Judge wrote
+`upheld` itself. So this run does not exercise the brief-clause whitelist fix (its evidence remains
+the replay of run 114026 plus the unit test), and 4 of the 8 recovered cases passed because the LLM
+output differed, not because a fix fired. The 93% therefore still needs the stability measurement
+(`--repeat 3`) before it is quoted as a stable number.
