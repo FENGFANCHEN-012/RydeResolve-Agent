@@ -549,3 +549,11 @@ be measured by a re-run.
    sealed set, written without access to the code, run once before submission.
 5. Answer-key changes are decided from the definition, before the re-run, and recorded with the date
    (CR-003 above), never to match an output.
+
+**Empty rebuttals (found 2026-10-02).** Rebuttals were capped at `max_tokens=300`. gpt-oss counts its
+hidden reasoning in that budget, so 18 of 108 rebuttals in run 203206 (17%) used all 300 tokens on
+reasoning and returned nothing; the debate then carried a "could not be generated" placeholder. Every
+empty reply in the run had exactly 300 completion tokens. Now `REBUTTAL_MAX_TOKENS` (default 1500; the
+180-word limit stays in the prompt), and the client logs a warning when a reply is empty because the
+budget ran out. All earlier numbers, including the 92.6%, were measured with these gaps in the debate;
+the next run measures full debates.

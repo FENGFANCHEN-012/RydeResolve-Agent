@@ -15,7 +15,7 @@ from src.core.trace import record_retrieval
 from src.agents.case_brief import (brief_clauses, case_rule_refs, gps_line, render_case_brief,
                                    render_clauses)
 from src.rag.policy_topics import TOPICS
-from src.config import ADVOCATE_REASONING_EFFORT
+from src.config import ADVOCATE_REASONING_EFFORT, REBUTTAL_MAX_TOKENS
 
 
 def _effort() -> dict:
@@ -432,7 +432,7 @@ class PassengerAgent:
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.3,
-                max_tokens=300,
+                max_tokens=REBUTTAL_MAX_TOKENS,
                 **_effort(),
             )
         except Exception as exc:
