@@ -84,12 +84,12 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "partially_upheld",
+    "verdict": "upheld",
     "recommended_action": "refund_excess_erp",
     "refund_amount": 2.0,
     "requires_human_review": false,
     "must_escalate": false,
-    "reason": "This was a RydePOOL trip. According to 'Which trips do I need to include ERP?', for carpool trips, the total ERP charge is shared equally (50%) between the driver and passenger. The driver input $4.00, which was fully charged to the rider. Therefore, $2.00 (50% of the $4.00 toll) should be refunded to the rider.",
+    "reason": "This was a RydePOOL trip. According to 'Which trips do I need to include ERP?', for carpool trips, the total ERP charge is shared equally (50%) between the driver and passenger. The driver input $4.00, which was fully charged to the rider. Therefore, $2.00 (50% of the $4.00 toll) should be refunded to the rider. The rider asked for exactly S$2.00 back and receives all of it, so the verdict is upheld. [Key corrected in independent audit 2026-10-02.]",
     "expected_dispute_type": "fare_dispute",
     "expected_official_sections": [
       "Ryde Help Driver Fares Charges > Which trips do I need to include ERP?",

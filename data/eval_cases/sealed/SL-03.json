@@ -84,12 +84,12 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "partially_upheld",
-    "refund_amount": 10.0,
-    "recommended_action": "refund_excess_erp",
-    "requires_human_review": false,
-    "must_escalate": false,
-    "reason": "Trip telemetry confirms the vehicle passed only the CTE Southbound gantry at 09:15, which has a prevailing rate of S$2.00. The driver manually entered S$12.00. Per 'How to add ERP to my trip fare', drivers must key in the actual amount. Excessive entry is considered fraudulent. A refund of the S$10.00 difference is issued.",
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "RydeTAXI fares exclude ERP and the driver must key in ERP for the gantries actually passed ('Which trips do I need to include ERP?'; 'How to add ERP to my trip fare?'). The record holds no ERP/gantry log and a single GPS point, so neither the driver's S$12.00 entry nor the rider's claim of one S$2.00 gantry can be verified. Over-keying ERP is treated as fraud with permanent-suspension consequences, so a human must check the ERP records before any refund. [Key corrected in independent audit 2026-10-02.]",
     "expected_dispute_type": "fare_dispute",
     "expected_official_sections": [
       "Ryde Help Driver Fares Charges > Which trips do I need to include ERP?",
