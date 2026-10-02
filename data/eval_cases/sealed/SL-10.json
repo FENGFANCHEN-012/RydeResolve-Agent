@@ -1,0 +1,99 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-10",
+    "trip_id": "RYDE-SEAL-010",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "This was a RydePOOL trip. The driver passed one ERP gantry at CTE which cost $4.00, but he charged me the full $4.00. Under carpool rules, it should be shared 50/50. I want $2.00 back.",
+    "filed_at": "2026-10-09T11:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3311",
+    "name": "Kevin Wong",
+    "account_age_days": 900,
+    "total_trips": 300,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 1,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5522",
+    "name": "Lim Wei Teck",
+    "account_age_days": 1100,
+    "total_trips": 6200,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SLG 5511 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-010",
+    "rider_id": "R-3311",
+    "driver_id": "D-5522",
+    "pickup_location": {
+      "name": "Ang Mo Kio Ave 3",
+      "lat": 1.368,
+      "lng": 103.844
+    },
+    "dropoff_location": {
+      "name": "Raffles Place",
+      "lat": 1.284,
+      "lng": 103.851
+    },
+    "scheduled_time": "2026-10-09T08:30:00+08:00",
+    "pickup_time": "2026-10-09T08:32:00+08:00",
+    "dropoff_time": "2026-10-09T08:55:00+08:00",
+    "estimated_distance_km": 12.0,
+    "total_fare": 16.5,
+    "fare_breakdown": {
+      "base_fare": 12.5,
+      "erp_toll": 4.0,
+      "total": 16.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T08:45:00+08:00",
+      "lat": 1.32,
+      "lng": 103.86,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T08:55:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Driver entered $4.00 ERP."
+    }
+  ],
+  "platform_policy": {
+    "carpool_erp_split_percent": 50,
+    "service_type": "RydePOOL"
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "refund_excess_erp",
+    "refund_amount": 2.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "This was a RydePOOL trip. According to 'Which trips do I need to include ERP?', for carpool trips, the total ERP charge is shared equally (50%) between the driver and passenger. The driver input $4.00, which was fully charged to the rider. Therefore, $2.00 (50% of the $4.00 toll) should be refunded to the rider.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Driver Fares Charges > Which trips do I need to include ERP?",
+      "Ryde Help Rider Fares And Charges > Do I need to pay ERP charges?"
+    ]
+  }
+}

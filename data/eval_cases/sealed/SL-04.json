@@ -1,0 +1,91 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-04",
+    "trip_id": "RYDE-SEAL-004",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver was texting on his phone throughout the entire highway stretch. I felt extremely unsafe and had to tell him twice to stop. He was very rude in response.",
+    "filed_at": "2026-10-01T15:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3349",
+    "name": "Sarah Seah",
+    "account_age_days": 1000,
+    "total_trips": 850,
+    "avg_rating": 5.0,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6652",
+    "name": "Raj Singh",
+    "account_age_days": 200,
+    "total_trips": 800,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SLK 1122 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-004",
+    "rider_id": "R-3349",
+    "driver_id": "D-6652",
+    "pickup_location": {
+      "name": "VivoCity",
+      "lat": 1.2642,
+      "lng": 103.8223
+    },
+    "dropoff_location": {
+      "name": "Pasir Ris St 51",
+      "lat": 1.369,
+      "lng": 103.949
+    },
+    "scheduled_time": "2026-10-01T14:00:00+08:00",
+    "pickup_time": "2026-10-01T14:05:00+08:00",
+    "dropoff_time": "2026-10-01T14:40:00+08:00",
+    "estimated_fare": 28.0,
+    "total_fare": 28.0,
+    "fare_breakdown": {
+      "base_fare": 28.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-01T14:20:00+08:00",
+      "lat": 1.301,
+      "lng": 103.901,
+      "speed_kmh": 85,
+      "status": "on_trip"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [],
+  "platform_policy": {
+    "zero_tolerance_unsafe_driving": true
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_safety_team",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The rider alleges a serious safety violation (texting while driving) and verbal rudeness. Per 'Ryde Code Of Conduct > Follow Road Safety Laws' and 'Ryde website: Safe Driving Tips', mobile phone use is strictly prohibited. As there is no digital evidence (in-car camera or app event) to confirm the behavior, a human reviewer must contact both parties and potentially review external dashcam footage if available.",
+    "expected_dispute_type": "service_quality",
+    "expected_official_sections": [
+      "Ryde Help Driver Driver Community Guidelines > Ryde Code Of Conduct",
+      "Ryde Site Code Of Conduct > Safety First",
+      "Ryde Site Safe Driving Tips > Stay Focused On Driving"
+    ]
+  }
+}

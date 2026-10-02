@@ -1,0 +1,120 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-06",
+    "trip_id": "RYDE-SEAL-006",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider's dog vomited on the back seat during the RydePET trip. I had to go for professional cleaning immediately which cost me $160. I have uploaded the receipt and photo of the mess.",
+    "filed_at": "2026-10-05T15:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9901",
+    "name": "Fiona Tan",
+    "account_age_days": 120,
+    "total_trips": 15,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-1122",
+    "name": "Tan Ah Kow",
+    "account_age_days": 400,
+    "total_trips": 1200,
+    "avg_rating": 4.85,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SMP 8822 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-006",
+    "rider_id": "R-9901",
+    "driver_id": "D-1122",
+    "pickup_location": {
+      "name": "Bishan Park",
+      "lat": 1.362,
+      "lng": 103.846
+    },
+    "dropoff_location": {
+      "name": "Mount Pleasant Vet Centre",
+      "lat": 1.332,
+      "lng": 103.835
+    },
+    "scheduled_time": "2026-10-05T13:45:00+08:00",
+    "pickup_time": "2026-10-05T13:50:00+08:00",
+    "dropoff_time": "2026-10-05T14:05:00+08:00",
+    "estimated_distance_km": 4.5,
+    "total_fare": 22.4,
+    "fare_breakdown": {
+      "base_fare": 18.0,
+      "pet_surcharge": 4.4,
+      "total": 22.4
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T13:50:00+08:00",
+      "lat": 1.362,
+      "lng": 103.846,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:05:00+08:00",
+      "lat": 1.332,
+      "lng": 103.835,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T14:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ma'am, your dog just vomited on the seat. I will need to report this to Ryde for cleaning."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T14:05:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip RYDE-SEAL-006 completed."
+    },
+    {
+      "timestamp": "2026-10-05T15:25:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted claim for $160. Image 'vomit_seat.jpg' and 'receipt_carspa.jpg' attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_vomit_max": 200.0,
+    "receipt_required": true,
+    "receipt_must_have_plate": true,
+    "claim_window_hours": 48
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver submitted a claim for vomit ($160) within the 48-hour window. However, the uploaded receipt from 'CarSpa' (receipt_carspa.jpg) is missing the vehicle plate number and the authorized signature/stamp required by the 'My Rider Made a Mess' policy under the 'How to submit a claim' section. A human reviewer must verify the authenticity of the receipt or request a compliant one.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_official_sections": [
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess",
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle"
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-05",
+    "trip_id": "RYDE-SEAL-005",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took the KPE instead of the ECP, which was 4km longer. I ended up paying the same $20 fixed fare but I was 10 minutes late for my meeting. I want a partial refund for the inconvenience and extra time.",
+    "filed_at": "2026-10-01T18:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7721",
+    "name": "Linda Yeo",
+    "account_age_days": 1200,
+    "total_trips": 900,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3342",
+    "name": "Chen Wei",
+    "account_age_days": 150,
+    "total_trips": 450,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Cerato (SND 2233 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-005",
+    "rider_id": "R-7721",
+    "driver_id": "D-3342",
+    "pickup_location": {
+      "name": "Punggol Waterway",
+      "lat": 1.405,
+      "lng": 103.902
+    },
+    "dropoff_location": {
+      "name": "Suntec City",
+      "lat": 1.293,
+      "lng": 103.857
+    },
+    "scheduled_time": "2026-10-01T17:00:00+08:00",
+    "pickup_time": "2026-10-01T17:05:00+08:00",
+    "dropoff_time": "2026-10-01T17:45:00+08:00",
+    "estimated_distance_km": 15.2,
+    "actual_distance_km": 19.5,
+    "estimated_fare": 20.0,
+    "total_fare": 20.0,
+    "fare_breakdown": {
+      "base_fare": 20.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-01T17:15:00+08:00",
+      "lat": 1.36,
+      "lng": 103.885,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-01T17:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started. Recommended route: ECP."
+    }
+  ],
+  "platform_policy": {
+    "service_type": "RydeX",
+    "fare_type": "fixed"
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "none",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Per 'Am I required to follow the suggested route by the rider?', the trip fare is fixed and the driver may decide to take the fastest or most efficient route based on GPS. The driver did not charge the rider more than the fixed upfront quote. While the route was longer in distance, Ryde policy does not mandate a refund for route choices unless the fare was metered or the driver intentionally stalled. Inconvenience due to traffic or route choice on a fixed fare is not a refundable category.",
+    "expected_dispute_type": "route_deviation",
+    "expected_official_sections": [
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?"
+    ]
+  }
+}
