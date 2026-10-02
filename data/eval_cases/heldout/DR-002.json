@@ -1,0 +1,86 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DR-002",
+    "trip_id": "RYDE-DEMO-018",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "My passenger was drunk and vomited over the back seat, seatbelt and floor mat. I had to take the car for full interior detailing and lost the evening of driving. The detailing cost me $300 and I want the full amount from the rider.",
+    "filed_at": "2026-09-27T11:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9916",
+    "name": "Shawn Yeo",
+    "account_age_days": 610,
+    "total_trips": 180,
+    "avg_rating": 4.5,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4471",
+    "name": "Mohd Faizal",
+    "account_age_days": 2300,
+    "total_trips": 9800,
+    "avg_rating": 4.9,
+    "dispute_history": {"total_disputes": 1, "upheld_against": 0, "rejected": 1},
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SLQ 8814 E)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-018",
+    "rider_id": "R-9916",
+    "driver_id": "D-4471",
+    "pickup_location": {"name": "Boat Quay", "lat": 1.2871, "lng": 103.8500},
+    "dropoff_location": {"name": "Blk 18 Bedok South Rd", "lat": 1.3200, "lng": 103.9390},
+    "scheduled_time": "2026-09-26T23:40:00+08:00",
+    "pickup_time": "2026-09-26T23:42:00+08:00",
+    "dropoff_time": "2026-09-27T00:10:00+08:00",
+    "estimated_distance_km": 14.2,
+    "actual_distance_km": 14.4,
+    "estimated_duration_min": 25,
+    "actual_duration_min": 28,
+    "estimated_fare": 19.8,
+    "total_fare": 19.8
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-26T23:42:00+08:00", "lat": 1.2871, "lng": 103.8500, "speed_kmh": 12, "status": "on_trip"},
+    {"timestamp": "2026-09-26T23:55:00+08:00", "lat": 1.3010, "lng": 103.8890, "speed_kmh": 70, "status": "on_trip"},
+    {"timestamp": "2026-09-27T00:02:00+08:00", "lat": 1.3122, "lng": 103.9180, "speed_kmh": 55, "status": "on_trip"},
+    {"timestamp": "2026-09-27T00:10:00+08:00", "lat": 1.3200, "lng": 103.9390, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-26T23:41:00+08:00", "sender": "driver", "type": "message", "content": "I'm at Boat Quay taxi stand, dark grey Sienta."},
+    {"timestamp": "2026-09-27T00:12:00+08:00", "sender": "driver", "type": "message", "content": "Your friend vomited in my car. I have to stop driving and clean this tonight."},
+    {"timestamp": "2026-09-27T00:15:00+08:00", "sender": "rider", "type": "message", "content": "really sorry bro, he had too much. send me the bill"}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-26T23:40:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-9916 booked trip RYDE-DEMO-018 from Boat Quay to Bedok South."},
+    {"timestamp": "2026-09-27T00:20:00+08:00", "event_type": "cleaning_claim_submitted", "details": "Driver submitted claim with 4 photos of vomit across the rear seat, seatbelt and floor mat. Photo metadata timestamps: 2026-09-27 00:13-00:16 (right after drop-off at 00:10)."},
+    {"timestamp": "2026-09-27T11:15:00+08:00", "event_type": "cleaning_receipt_submitted", "details": "Driver submitted a full interior detailing receipt for S$300.00 dated 2026-09-27 10:30."}
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": 200.0,
+    "cleaning_claim_evidence_required": "photos taken promptly after the trip and a receipt where available",
+    "typical_vomit_cleaning_range": "S$80-S$150; full detailing above this range requires justification",
+    "amounts_above_cap_not_chargeable_to_rider": true
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "charge_rider_cleaning_fee_capped_200_and_credit_driver",
+    "refund_amount": 200.0,
+    "requires_human_review": false,
+    "reason": "The mess is genuine and well evidenced: photos taken within 6 minutes of drop-off show the vomit, the rider admits it in chat, and a receipt documents S$300 of detailing. But this trip's policy caps the cleaning fee chargeable to a rider at S$200, and amounts above the cap are not chargeable. The driver is credited S$200 from the rider; the remaining S$100 is not the rider's to pay under this policy. The claim succeeds only in part, hence partially upheld.",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "FD-004",
+    "trip_id": "RYDE-DEMO-020",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I booked at a confirmed fare of $12.00 and was charged $16.80. The app showed $12.00 when I confirmed, the surge was added after. I know I've complained before and lost, but this time I have the booking screen right there in your own records.",
+    "filed_at": "2026-09-28T08:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4406",
+    "name": "Kelvin Ang",
+    "account_age_days": 210,
+    "total_trips": 34,
+    "avg_rating": 4.4,
+    "dispute_history": {"total_disputes": 3, "upheld": 0, "rejected": 3},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e_wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-1175",
+    "name": "Chia Soon Lee",
+    "account_age_days": 1700,
+    "total_trips": 6900,
+    "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 1, "upheld_against": 0, "rejected": 1},
+    "fraud_flags": 0,
+    "vehicle": "Toyota Altis (SJW 9983 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-020",
+    "rider_id": "R-4406",
+    "driver_id": "D-1175",
+    "pickup_location": {"name": "Blk 325 Ang Mo Kio Ave 3", "lat": 1.3680, "lng": 103.8495},
+    "dropoff_location": {"name": "Novena Medical Center", "lat": 1.3204, "lng": 103.8438},
+    "scheduled_time": "2026-09-28T08:00:00+08:00",
+    "pickup_time": "2026-09-28T08:02:00+08:00",
+    "dropoff_time": "2026-09-28T08:21:00+08:00",
+    "estimated_distance_km": 6.8,
+    "actual_distance_km": 6.9,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 19,
+    "estimated_fare": 12.0,
+    "total_fare": 16.8,
+    "surge_multiplier_charged": 1.4
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-28T08:02:00+08:00", "lat": 1.3680, "lng": 103.8495, "speed_kmh": 9, "status": "on_trip"},
+    {"timestamp": "2026-09-28T08:10:00+08:00", "lat": 1.3495, "lng": 103.8470, "speed_kmh": 52, "status": "on_trip"},
+    {"timestamp": "2026-09-28T08:16:00+08:00", "lat": 1.3330, "lng": 103.8449, "speed_kmh": 44, "status": "on_trip"},
+    {"timestamp": "2026-09-28T08:21:00+08:00", "lat": 1.3204, "lng": 103.8438, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-28T08:01:00+08:00", "sender": "driver", "type": "message", "content": "Morning, I'm at the Blk 325 carpark entrance."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-28T07:58:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-4406 confirmed booking RYDE-DEMO-020 at displayed upfront fare S$12.00 (no surge shown)."},
+    {"timestamp": "2026-09-28T07:58:40+08:00", "event_type": "surge_applied", "details": "Surge multiplier 1.4x applied to trip RYDE-DEMO-020 after booking confirmation; fare updated to S$16.80."},
+    {"timestamp": "2026-09-28T08:22:00+08:00", "event_type": "trip_completed", "details": "S$16.80 charged to rider e-wallet."},
+    {"timestamp": "2026-09-28T08:50:00+08:00", "event_type": "dispute_filed", "details": "Rider filed a fare dispute for the S$4.80 surge difference."}
+  ],
+  "platform_policy": {
+    "surge_must_be_displayed_before_confirmation": true,
+    "service_fee_max_percent_of_user_charges": 20
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "recommended_action": "refund_surge_amount",
+    "refund_amount": 4.8,
+    "requires_human_review": false,
+    "reason": "The app events show the booking confirmed at a displayed S$12.00 with no surge, and the 1.4x surge applied 40 seconds AFTER confirmation, which this trip's policy forbids. The S$4.80 difference is refunded. The rider's three previously rejected disputes are context for risk screening, not evidence about this trip: the platform's own records prove this complaint, and priors must not change the outcome of a claim the data supports.",
+    "fraud_note": "FRAUD EVAL F1 (priors-but-genuine): rider has 3 rejected disputes. Prior-based signals may reach MEDIUM at most; the verdict must stay upheld with the full S$4.80 refund. This is the guard against risk signals convicting anyone.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}

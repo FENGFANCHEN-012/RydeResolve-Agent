@@ -1,0 +1,88 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "CR-003",
+    "trip_id": "RYDE-DEMO-019",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "Two problems with this booking. First, the driver was stuck somewhere for ages so I cancelled, and I still got charged a $5 cancellation fee. Second, I used a $4 promo code on this booking and it's gone now. I want the fee back and my promo code back.",
+    "filed_at": "2026-09-27T19:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3358",
+    "name": "Grace Wong",
+    "account_age_days": 1150,
+    "total_trips": 420,
+    "avg_rating": 4.9,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6629",
+    "name": "Lau Wei Jie",
+    "account_age_days": 950,
+    "total_trips": 3600,
+    "avg_rating": 4.6,
+    "dispute_history": {"total_disputes": 3, "upheld_against": 1, "rejected": 2},
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SKT 6160 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-019",
+    "rider_id": "R-3358",
+    "driver_id": "D-6629",
+    "pickup_location": {"name": "Jem, Jurong East", "lat": 1.3332, "lng": 103.7435},
+    "dropoff_location": {"name": "Holland Village", "lat": 1.3112, "lng": 103.7960},
+    "scheduled_time": "2026-09-27T18:10:00+08:00",
+    "driver_eta_at_booking_min": 7,
+    "cancellation_time": "2026-09-27T18:29:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_cancelled_driver_delayed",
+    "promo_code_applied": 4.0
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-27T18:12:00+08:00", "lat": 1.3418, "lng": 103.7210, "speed_kmh": 4, "status": "en_route"},
+    {"timestamp": "2026-09-27T18:18:00+08:00", "lat": 1.3410, "lng": 103.7228, "speed_kmh": 2, "status": "en_route"},
+    {"timestamp": "2026-09-27T18:24:00+08:00", "lat": 1.3402, "lng": 103.7251, "speed_kmh": 6, "status": "en_route"},
+    {"timestamp": "2026-09-27T18:29:00+08:00", "lat": 1.3390, "lng": 103.7277, "speed_kmh": 3, "status": "cancelled"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-27T18:15:00+08:00", "sender": "rider", "type": "message", "content": "Hi, the app says you're still quite far?"},
+    {"timestamp": "2026-09-27T18:16:00+08:00", "sender": "driver", "type": "message", "content": "Sorry, bad jam on the PIE slip road, moving very slowly."},
+    {"timestamp": "2026-09-27T18:27:00+08:00", "sender": "rider", "type": "message", "content": "It's been almost 20 min, I'm going to cancel and take the MRT."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-27T18:10:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-3358 booked trip RYDE-DEMO-019 with promo code SAVE4 (S$4.00 off). Driver ETA at booking: 7 minutes (18:17)."},
+    {"timestamp": "2026-09-27T18:29:00+08:00", "event_type": "rider_cancelled", "details": "Rider cancelled 19 minutes after booking; driver still 2.1 km away, 12 minutes past the quoted ETA. S$5.00 cancellation fee charged."},
+    {"timestamp": "2026-09-27T18:29:10+08:00", "event_type": "promo_recredited", "details": "Promo code SAVE4 automatically returned to rider R-3358's account (valid until 2026-10-31)."}
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation",
+    "no_fee_if_driver_delayed_beyond_eta_min": 10,
+    "promo_returns_on_cancellation": true,
+    "free_cancellation_within_min_of_match": 3
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "refund_cancellation_fee_promo_already_returned",
+    "refund_amount": 5.0,
+    "requires_human_review": false,
+    "reason": "Two asks, decided separately. (1) The fee: GPS shows the driver still 2.1 km away at cancellation, 12 minutes past the quoted 7-minute ETA, beyond this trip's 10-minute delay threshold, so the S$5.00 cancellation fee should not have been charged and is refunded. (2) The promo code: the promo_recredited event shows SAVE4 was automatically returned at cancellation, as this trip's policy provides, so there is nothing to restore. The first ask succeeds, the second is already satisfied, hence partially upheld with a S$5.00 refund.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Rider Fares And Charges > Will I be charged for cancelling a ride?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?"
+    ]
+  }
+}
