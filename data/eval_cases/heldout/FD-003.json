@@ -1,0 +1,89 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "FD-003",
+    "trip_id": "RYDE-DEMO-015",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My metered taxi fare was $26.40 but this trip is normally around $19. I'm sure the driver went some long way around in the middle of the trip while I was on a call and not watching. I want the difference back.",
+    "filed_at": "2026-09-24T09:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6618",
+    "name": "Marcus Lim",
+    "account_age_days": 760,
+    "total_trips": 240,
+    "avg_rating": 4.7,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e_wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-3302",
+    "name": "Rahim Bin Yusof",
+    "account_age_days": 1650,
+    "total_trips": 6400,
+    "avg_rating": 4.7,
+    "dispute_history": {"total_disputes": 2, "upheld_against": 0, "rejected": 2},
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SHC 2210 D, RydeTAXI)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-015",
+    "rider_id": "R-6618",
+    "driver_id": "D-3302",
+    "service_type": "RydeTAXI",
+    "pickup_location": {"name": "Clementi Mall", "lat": 1.3151, "lng": 103.7644},
+    "dropoff_location": {"name": "Raffles Place", "lat": 1.2840, "lng": 103.8510},
+    "scheduled_time": "2026-09-24T08:05:00+08:00",
+    "pickup_time": "2026-09-24T08:06:00+08:00",
+    "dropoff_time": "2026-09-24T08:41:00+08:00",
+    "estimated_distance_km": 13.9,
+    "actual_distance_km": 16.2,
+    "estimated_duration_min": 26,
+    "actual_duration_min": 35,
+    "estimated_fare": 19.2,
+    "total_fare": 26.4
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-24T08:06:00+08:00", "lat": 1.3151, "lng": 103.7644, "speed_kmh": 8, "status": "on_trip"},
+    {"timestamp": "2026-09-24T08:12:00+08:00", "lat": 1.3078, "lng": 103.7782, "speed_kmh": 65, "status": "on_trip"},
+    {"timestamp": "2026-09-24T08:17:00+08:00", "lat": 1.2995, "lng": 103.7901, "speed_kmh": 72, "status": "on_trip"},
+    {"timestamp": "2026-09-24T08:21:00+08:00", "lat": 1.2958, "lng": 103.8012, "speed_kmh": 68, "status": "on_trip"},
+    {"timestamp": "2026-09-24T08:34:00+08:00", "lat": 1.2887, "lng": 103.8403, "speed_kmh": 31, "status": "on_trip"},
+    {"timestamp": "2026-09-24T08:41:00+08:00", "lat": 1.2840, "lng": 103.8510, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-24T08:05:30+08:00", "sender": "driver", "type": "message", "content": "Good morning, silver Ioniq at the taxi stand."},
+    {"timestamp": "2026-09-24T09:41:00+08:00", "sender": "rider", "type": "message", "content": "This fare is way above what I normally pay for this exact trip."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-24T08:05:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-6618 booked RydeTAXI trip RYDE-DEMO-015 (metered fare, estimate S$19.20)."},
+    {"timestamp": "2026-09-24T08:21:30+08:00", "event_type": "gps_signal_lost", "details": "Driver device GPS signal lost near Alexandra Road."},
+    {"timestamp": "2026-09-24T08:34:00+08:00", "event_type": "gps_signal_restored", "details": "Driver device GPS signal restored after 12.5 min; 2.3 km of the route was not recorded."},
+    {"timestamp": "2026-09-24T08:42:00+08:00", "event_type": "trip_completed", "details": "Metered fare S$26.40 charged (estimate was S$19.20)."},
+    {"timestamp": "2026-09-24T09:40:00+08:00", "event_type": "dispute_filed", "details": "Rider filed a fare dispute for the S$7.20 above the estimate."}
+  ],
+  "platform_policy": {
+    "fare_basis": "metered_for_rydetaxi",
+    "refund_at_ryde_discretion": true,
+    "detour_not_agreed_by_rider_refundable": "excess over the optimal-route fare",
+    "metered_fare_variation_normal_range_percent": 15
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "Whether the driver detoured is exactly what the GPS gap hides: the signal was lost for 12.5 minutes covering 2.3 km of the contested middle stretch, and the fare is 37% above estimate, well outside this trip's normal metered variation of 15%. The recorded segments show a normal route, so the ruling would rest on one party's word about the unrecorded stretch. A human should review; neither upholding nor dismissing is safe on this record.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}
