@@ -21,6 +21,12 @@ from src.core import llm_client as llm_module
 def _force_gemini_provider(monkeypatch):
     monkeypatch.setattr(llm_module, "LLM_PROVIDER", "gemini")
     monkeypatch.setattr(config, "VECTOR_BACKEND", "chroma")
+    # No test reaches a real model: a key in .env made the "no LLM" tests call Gemini, so
+    # they passed or failed on the model's answer and spent quota. Modules import the key by
+    # name, so blank every copy; tests that need a key set a fake one themselves.
+    for name, module in list(sys.modules.items()):
+        if (name == "src" or name.startswith("src.")) and hasattr(module, "LLM_API_KEY"):
+            monkeypatch.setattr(module, "LLM_API_KEY", "")
     # Never read the live precedent index or write rulings to the real record store
     monkeypatch.setenv("PRECEDENTS_ENABLED", "0")
     monkeypatch.setenv("RECORD_RULINGS", "0")

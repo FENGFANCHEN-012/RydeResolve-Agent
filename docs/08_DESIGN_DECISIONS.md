@@ -503,8 +503,9 @@ US$0.26. The 92.6% is stable on the cases that used to flip.
 
 **New held-out cases, baseline 20261002-105854.** Six cases written after the fixes above, so the
 code was never tuned on them (SQ-002, FD-003, CF-002, NS-004, DR-002, CR-003; loader now sees 33
-cases, retrieval Hit@3 6/6). Verdict 3/6: CF-002, NS-004, DR-002 correct. All three misses had the
-**right refund amount**; the error is the label or the route:
+cases, retrieval Hit@3 6/6). Verdict 3/6: CF-002, NS-004, DR-002 correct. The two label misses had the **right refund
+amount**; FD-003 should have gone to a person and was paid S$7.20 instead (a routing error that
+executed money, the more serious kind):
 
 | Case | Expected | Got | Cause |
 |---|---|---|---|
@@ -519,7 +520,7 @@ are excluded from the default eval until the Fraud Agent (docs/09) exists.
 
 ## D16. Label from the asks; GPS gap blocks metered fare disputes; overfitting protocol (2026-10-02)
 
-**Fixes** for the three baseline misses in D15 (all had the right money; the label or the route was wrong):
+**Fixes** for the three baseline misses in D15 (two had the right money but the wrong label; FD-003 paid out a case that should have gone to a person):
 - **Label computed from the asks.** The Judge now lists each thing the filer asked for with an
   outcome (`granted` / `partly` / `denied` / `already_resolved`) and `label_from_asks` computes the
   label: all satisfied -> upheld, all denied -> dismissed, otherwise partially_upheld. The Judge's own
