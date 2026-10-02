@@ -69,3 +69,68 @@ async def test_fairness_sends_the_contradicted_fee_to_a_person():
         make_input(context=c, decision=make_decision(verdict=Verdict.DISMISSED, refund_amount=None)))
     assert FairnessIssueCode.FEE_BASIS_NOT_MET in {i.code for i in a.issues}
     assert a.requires_human_review is True
+
+
+# ---- label from the asks (run 20261002-105854)
+from src.agents.arbitrator import label_from_asks
+from src.agents.fairness import _location_evidence_gaps
+
+
+def asks(*outcomes):
+    return [{"ask": f"ask {i}", "outcome": o} for i, o in enumerate(outcomes)]
+
+
+def test_one_ask_partly_granted_is_partial():                       # SQ-002: S$4.20 of S$22.60
+    out = label_from_asks({"verdict": "upheld", "asks": asks("partly", "granted"), "rationale": ""})
+    assert out["verdict"] == "partially_upheld" and "[Label:" in out["rationale"]
+
+
+def test_already_resolved_counts_as_satisfied():                    # CR-003 (user decision 2026-10-02)
+    out = label_from_asks({"verdict": "partially_upheld", "asks": asks("granted", "already_resolved")})
+    assert out["verdict"] == "upheld"
+
+
+def test_one_ask_denied_of_two_is_partial():
+    out = label_from_asks({"verdict": "upheld", "asks": asks("granted", "denied")})
+    assert out["verdict"] == "partially_upheld"
+
+
+def test_all_denied_is_dismissed():
+    assert label_from_asks({"verdict": "partially_upheld", "asks": asks("denied")})["verdict"] == "dismissed"
+
+
+def test_missing_or_malformed_asks_keep_the_judge_label():
+    assert label_from_asks({"verdict": "upheld"})["verdict"] == "upheld"
+    assert label_from_asks({"verdict": "upheld", "asks": [{"ask": "x", "outcome": "maybe"}]})["verdict"] == "upheld"
+
+
+def test_full_refund_rule_skips_two_ask_filings():                  # SQ-002: refund = detour excess
+    parsed = {"verdict": "partially_upheld", "refund_amount": 3.7, "asks": asks("partly", "granted")}
+    assert align_verdict_label(parsed, ctx([EXCESS_370], "service_quality"))["verdict"] == "partially_upheld"
+
+
+def test_full_refund_rule_still_applies_to_one_ask():               # RD-001-P4 with an asks list
+    parsed = {"verdict": "partially_upheld", "refund_amount": 3.7, "asks": asks("partly"), "rationale": ""}
+    assert align_verdict_label(parsed, ctx([EXCESS_370], "route_deviation"))["verdict"] == "upheld"
+
+
+# ---- GPS gap on fare disputes: only a metered fare depends on the route (FD-003)
+GPS_LOST = {"id": "data_gaps.gps_signal_lost", "kind": "gap", "statement": "GPS lost for 12.5 min."}
+
+
+def fare_ctx(findings, basis=None, booking=""):
+    return {"type": "fare_dispute", "findings": findings, "platform_policy": {"fare_basis": basis} if basis else {},
+            "app_events": [{"event_type": "booking_confirmed", "details": booking}]}
+
+
+def test_metered_fare_with_gps_gap_is_blocked():
+    assert _location_evidence_gaps(fare_ctx([GPS_LOST], basis="metered_for_rydetaxi"))
+    assert _location_evidence_gaps(fare_ctx([GPS_LOST], booking="RydeTAXI trip (metered fare, estimate S$19.20)."))
+
+
+def test_upfront_fare_with_gps_gap_is_not_blocked():                # the quote fixes the fare
+    assert _location_evidence_gaps(fare_ctx([GPS_LOST], booking="Upfront quoted fare S$12.00.")) == []
+
+
+def test_metered_fare_without_gap_is_not_blocked():
+    assert _location_evidence_gaps(fare_ctx([], basis="metered_for_rydetaxi")) == []

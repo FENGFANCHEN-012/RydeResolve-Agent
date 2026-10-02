@@ -69,11 +69,11 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "partially_upheld",
+    "verdict": "upheld",
     "recommended_action": "refund_cancellation_fee_promo_already_returned",
     "refund_amount": 5.0,
     "requires_human_review": false,
-    "reason": "Two asks, decided separately. (1) The fee: GPS shows the driver still 2.1 km away at cancellation, 12 minutes past the quoted 7-minute ETA, beyond this trip's 10-minute delay threshold, so the S$5.00 cancellation fee should not have been charged and is refunded. (2) The promo code: the promo_recredited event shows SAVE4 was automatically returned at cancellation, as this trip's policy provides, so there is nothing to restore. The first ask succeeds, the second is already satisfied, hence partially upheld with a S$5.00 refund.",
+    "reason": "Two asks, decided separately. (1) The fee: GPS shows the driver still 2.1 km away at cancellation, 12 minutes past the quoted 7-minute ETA, beyond this trip's 10-minute delay threshold, so the S$5.00 cancellation fee should not have been charged and is refunded. (2) The promo code: the promo_recredited event shows SAVE4 was automatically returned at cancellation, as this trip's policy provides, so there is nothing to restore. Both asks end up satisfied (the fee by this ruling, the promo before it), so upheld with a S$5.00 refund; an ask already resolved before the ruling counts as satisfied (definition decided 2026-10-02, before the fix was evaluated).",
     "expected_dispute_type": "cancellation_refund",
     "expected_urgency": null,
     "expected_policy_sections": [],
