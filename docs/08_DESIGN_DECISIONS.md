@@ -516,3 +516,35 @@ Fixes are deferred until the answer keys are blind-judged by a person (a disagre
 may be wrong): a multi-ask guard on `align_verdict_label`, a Judge prompt line on multi-ask labels,
 and the GPS-gap check extended to metered fare disputes. Four fraud cases (`data/eval_cases/fraud/`)
 are excluded from the default eval until the Fraud Agent (docs/09) exists.
+
+## D16. Label from the asks; GPS gap blocks metered fare disputes; overfitting protocol (2026-10-02)
+
+**Fixes** for the three baseline misses in D15 (all had the right money; the label or the route was wrong):
+- **Label computed from the asks.** The Judge now lists each thing the filer asked for with an
+  outcome (`granted` / `partly` / `denied` / `already_resolved`) and `label_from_asks` computes the
+  label: all satisfied -> upheld, all denied -> dismissed, otherwise partially_upheld. The Judge's own
+  label stands only when the list is missing or malformed. `already_resolved` (e.g. a promo the platform
+  returned automatically) counts as satisfied: a definition decided by the user before any re-run, which
+  changes CR-003's key to `upheld`. `align_verdict_label` (D15) now skips filings with more than one ask
+  (SQ-002: the refund equalled the detour excess but the conduct ask got no money).
+- **GPS gap on metered fares.** `_location_evidence_gaps` also blocks a `fare_dispute` when the fare is
+  metered (`platform_policy.fare_basis` or the booking event): a metered fare depends on the route driven.
+  An upfront fare is fixed by the quote and stays unblocked (FD-003).
+
+**Checks before any LLM run.** 10 new unit tests in `tests/test_ruling_guards.py`, each rule tested in
+both directions (fires where it should, silent where it should not: upfront fare + GPS gap, metered fare
+without a gap, one-ask filing still promoted). Replay of the GPS rule over all 57 recorded traces (runs
+203206, 100226, 105854): it changes FD-003 only. The label change needs a new Judge field, so it can only
+be measured by a re-run.
+
+**Overfitting protocol** (from now on):
+1. Fix the rule, not the case: no case IDs, amounts or wording in code; each fix states the general
+   principle (here: the label definition; "a metered fare depends on the route").
+2. Test both directions: every new rule gets a test where it must NOT fire.
+3. Replay before re-run: a rule that changes only the case it was written for, across all recorded
+   traces, is expected; one that changes correct rulings is rejected.
+4. Once a case has motivated a fix it no longer counts as held-out evidence. The six cases of run
+   105854 are reported separately as "used for fixes"; the generalisation number must come from a new
+   sealed set, written without access to the code, run once before submission.
+5. Answer-key changes are decided from the definition, before the re-run, and recorded with the date
+   (CR-003 above), never to match an output.

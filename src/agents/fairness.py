@@ -160,11 +160,26 @@ def _dump_findings(context: dict) -> list[dict]:
     return [f if isinstance(f, dict) else f.model_dump() for f in context.get("findings") or []]
 
 
+def _fare_is_metered(context: dict) -> bool:
+    """True when the platform data says the fare was metered (it grows with the route
+    driven), not fixed upfront. A metered fare can only be checked against the route."""
+    basis = str((context.get("platform_policy") or {}).get("fare_basis") or "").lower()
+    if basis.startswith("metered"):
+        return True
+    return any(isinstance(e, dict) and e.get("event_type") == "booking_confirmed"
+               and "metered fare" in str(e.get("details") or "").lower()
+               for e in context.get("app_events") or [])
+
+
 def _location_evidence_gaps(context: dict) -> list[str]:
     """Collector gaps that leave the driver's location unverifiable, for dispute
     types where that location decides the case. Empty list = nothing blocking."""
     dispute_type = getattr(context.get("type"), "value", context.get("type"))
-    if dispute_type not in _LOCATION_DECIDED_TYPES:
+    # A metered fare is decided by the route driven, so a GPS gap blocks it like a route
+    # deviation; an upfront fare is fixed by the quote and is not (eval case FD-003)
+    location_decided = dispute_type in _LOCATION_DECIDED_TYPES or (
+        dispute_type == "fare_dispute" and _fare_is_metered(context))
+    if not location_decided:
         return []
     # A cancellation where the platform records no driver arrival is decided by timing
     # (free window after match), not by where the driver was (eval case CR-002-M2)
