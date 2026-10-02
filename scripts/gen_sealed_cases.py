@@ -1,4 +1,4 @@
-"""Generate a sealed held-out eval set with Gemini (a different model family from the one that
+﻿"""Generate a sealed held-out eval set with Gemini (a different model family from the one that
 wrote the code), so the generalisation number does not come from cases the developer wrote
 knowing the fixes (D16, overfitting protocol).
 
@@ -25,7 +25,7 @@ POLICY_DIR = ROOT / "data" / "policies" / "official"
 EXAMPLE_CASE = ROOT / "data" / "mock_disputes" / "fare_dispute_01.json"
 CONVENTIONS = ROOT / "data" / "mock_disputes" / "README.md"
 OUT_DIR = ROOT / "data" / "eval_cases" / "sealed"
-MODEL = "gemini-2.5-pro"
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.1-pro-preview")
 BATCH = 5  # cases per call, keeps each response well under the output limit
 
 TYPES = ["no_show", "cancellation_refund", "fare_dispute", "route_deviation",

@@ -1,0 +1,117 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-09",
+    "trip_id": "RYDE-SEAL-009",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I booked a ride from Clementi Mall. The driver accepted but started driving towards Tuas and getting further away for 7 minutes. I had to cancel to book another ride. I want the $6.61 fee refunded.",
+    "filed_at": "2026-10-08T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7722",
+    "name": "Chloe Teo",
+    "account_age_days": 500,
+    "total_trips": 120,
+    "avg_rating": 4.95,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3344",
+    "name": "Boon Hock",
+    "account_age_days": 100,
+    "total_trips": 150,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 1,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Cerato (SKS 9911 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-009",
+    "rider_id": "R-7722",
+    "driver_id": "D-3344",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.315,
+      "lng": 103.765
+    },
+    "dropoff_location": {
+      "name": "NUH Main Lobby",
+      "lat": 1.294,
+      "lng": 103.783
+    },
+    "scheduled_time": "2026-10-08T08:20:00+08:00",
+    "pickup_time": null,
+    "dropoff_time": null,
+    "estimated_distance_km": 3.8,
+    "total_fare": 14.5,
+    "fare_breakdown": {
+      "base_fare": 14.5,
+      "total": 14.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T08:20:00+08:00",
+      "lat": 1.325,
+      "lng": 103.745,
+      "speed_kmh": 45,
+      "status": "accepted"
+    },
+    {
+      "timestamp": "2026-10-08T08:23:00+08:00",
+      "lat": 1.327,
+      "lng": 103.725,
+      "speed_kmh": 60,
+      "status": "accepted"
+    },
+    {
+      "timestamp": "2026-10-08T08:27:00+08:00",
+      "lat": 1.329,
+      "lng": 103.705,
+      "speed_kmh": 55,
+      "status": "accepted"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T08:19:30+08:00",
+      "event_type": "booking_matched",
+      "details": "Driver D-3344 matched."
+    },
+    {
+      "timestamp": "2026-10-08T08:27:15+08:00",
+      "event_type": "trip_cancelled_by_rider",
+      "details": "Cancellation fee $6.61 charged."
+    }
+  ],
+  "cancellation_policy": {
+    "grace_period_minutes": 3,
+    "cancellation_fee_amount": 6.61
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "recommended_action": "refund_cancellation_fee",
+    "refund_amount": 6.61,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver was moving away from the pickup point for over 7 minutes after acceptance, increasing the distance significantly (from ~2.5km to ~6km). This constitutes a failure to 'travel directly to the rider’s pick-up location' as per the 'Code of Conduct'. Per the 'Cancellation Fee Waiver Request' policy, the rider is eligible for a refund when the driver is not making progress.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request",
+      "Ryde Site Code Of Conduct > Be Punctual"
+    ]
+  }
+}
