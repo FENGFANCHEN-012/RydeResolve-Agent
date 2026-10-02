@@ -6,6 +6,7 @@ same chat() / chat_json() calls whichever provider is active.
 """
 import asyncio
 import contextvars
+import logging
 import os
 import re
 import time
@@ -28,6 +29,8 @@ from src.config import (
     LLM_TEMPERATURE,
     LLM_MAX_TOKENS,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # Free-tier default: 5 generate-content requests per minute, per project/model.
@@ -147,6 +150,10 @@ class LLMClient:
         try:
             response = await self._get_groq().chat.completions.create(**kwargs)
             text = response.choices[0].message.content or ""
+            if not text.strip() and response.choices[0].finish_reason == "length":
+                # A reasoning model can spend the whole budget thinking and return no answer
+                logger.warning("Empty answer: max_tokens=%s used up (reasoning model); raise it",
+                               kwargs["max_tokens"])
         except Exception as exc:
             record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
                             wait_ms=int(sum(waits) * 1000))

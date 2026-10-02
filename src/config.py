@@ -22,6 +22,10 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 # Empty = provider default. Their reasoning was ~1.3k output tokens per opening (D15); the Judge
 # and Fairness are never lowered. Keep empty until an eval shows no accuracy loss.
 ADVOCATE_REASONING_EFFORT = os.getenv("ADVOCATE_REASONING_EFFORT", "").strip().lower()
+# Output budget of one rebuttal. gpt-oss counts its hidden reasoning in max_tokens: at 300, 18 of
+# 108 rebuttals in run 20261001-203206 spent all 300 on reasoning and came back empty. The prompt
+# still caps the text at 180 words; only tokens actually used are billed.
+REBUTTAL_MAX_TOKENS = int(os.getenv("REBUTTAL_MAX_TOKENS", "1500"))
 
 # Chat provider: "gemini" (default) or "groq" (OpenAI-compatible API, free tier:
 # https://console.groq.com/keys). Embeddings always use Gemini; Groq has none.
