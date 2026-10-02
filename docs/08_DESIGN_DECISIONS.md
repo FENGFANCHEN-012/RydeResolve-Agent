@@ -496,3 +496,23 @@ Policy-retrieved clauses, which the old whitelist already accepted — and FD-00
 the replay of run 114026 plus the unit test), and 4 of the 8 recovered cases passed because the LLM
 output differed, not because a fix fired. The 93% therefore still needs the stability measurement
 (`--repeat 3`) before it is quoted as a stable number.
+
+**Stability run 20261002-100226** (the 8 previously flaky cases x 3 repeats, Cerebras): 24/24
+verdicts and 24/24 refunds correct, consistency 1.0 (the earlier runs had no repeats, n=0). Cost
+US$0.26. The 92.6% is stable on the cases that used to flip.
+
+**New held-out cases, baseline 20261002-105854.** Six cases written after the fixes above, so the
+code was never tuned on them (SQ-002, FD-003, CF-002, NS-004, DR-002, CR-003; loader now sees 33
+cases, retrieval Hit@3 6/6). Verdict 3/6: CF-002, NS-004, DR-002 correct. All three misses had the
+**right refund amount**; the error is the label or the route:
+
+| Case | Expected | Got | Cause |
+|---|---|---|---|
+| SQ-002 (detour S$4.20 + rude driver) | partially_upheld | upheld | `align_verdict_label` forced `upheld` (`[Label:]` in the trace): the refund equals the detour excess, but the conduct ask got no money. The rule is blind to filings with more than one ask |
+| CR-003 (fee S$5 + promo already returned) | partially_upheld | upheld | Judge labelled it; one of two asks was denied |
+| FD-003 (12.5-min GPS gap on the contested stretch) | escalate | upheld S$7.20 | The GPS-gap check covers no_show / cancellation / route types only, not metered fare disputes (predicted when the cases were written) |
+
+Fixes are deferred until the answer keys are blind-judged by a person (a disagreement means the key
+may be wrong): a multi-ask guard on `align_verdict_label`, a Judge prompt line on multi-ask labels,
+and the GPS-gap check extended to metered fare disputes. Four fraud cases (`data/eval_cases/fraud/`)
+are excluded from the default eval until the Fraud Agent (docs/09) exists.
