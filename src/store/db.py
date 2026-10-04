@@ -8,6 +8,7 @@ Tables
               pending -> staged -> active | rejected, and active -> retired
 - audit_log   append-only, hash-chained log of every change above
 - traces      every streamed pipeline run's events, for replay in the dashboard
+- drivers, riders, trips, disputes, user_flags   people's history (src/store/people.py)
 
 STORE_URL (else DATABASE_URL) picks the database (default: sqlite file
 data/ryde_resolve.db). For a
@@ -127,6 +128,7 @@ class Store:
     def __init__(self, url: str | None = None):
         self.engine = _make_engine(url or os.getenv("STORE_URL") or os.getenv("DATABASE_URL") or DEFAULT_URL)
         self.is_postgres = self.engine.dialect.name == "postgresql"
+        from src.store import people  # noqa: F401  registers the people/trip/dispute/flag tables
         Base.metadata.create_all(self.engine)
         if self.is_postgres:
             self._lock_public_api()

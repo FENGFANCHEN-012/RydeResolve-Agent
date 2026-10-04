@@ -704,6 +704,72 @@ async def retire_precedent(precedent_id: int, request: PrecedentAction):
     return _precedent_json(p)
 
 
+# ---------------------------------------------------------------------------
+# People's history and fraud flags (src/store/people.py)
+# ---------------------------------------------------------------------------
+
+class FlagRaise(BaseModel):
+    user_id: str
+    signal: str
+    detail: str
+    dispute_id: str | None = None
+    raised_by: str
+
+
+class FlagReview(BaseModel):
+    reviewer: str
+    decision: str  # "confirmed" or "rejected"
+    reason: str
+
+
+def _flag_json(f) -> dict:
+    return {k: getattr(f, k) for k in ("id", "user_role", "user_id", "dispute_id", "signal", "detail", "status",
+                                      "raised_by", "reviewed_by", "review_reason", "created_at", "reviewed_at")}
+
+
+@app.get("/api/people/{user_id}/history")
+async def person_history(user_id: str, exclude_dispute_id: str | None = None):
+    """A rider's or driver's record: trips, rating, complaints filed/received and upheld, fraud."""
+    from src.store import people
+    from src.store.db import get_store
+    h = await asyncio.to_thread(people.get_user_history, get_store(), user_id, exclude_dispute_id)
+    if h is None:
+        raise HTTPException(status_code=404, detail=f"no rider or driver {user_id}")
+    return h
+
+
+@app.get("/api/flags")
+async def list_flags(status: str | None = None, user_id: str | None = None):
+    from src.store import people
+    from src.store.db import get_store
+    return [_flag_json(f) for f in await asyncio.to_thread(people.list_flags, get_store(), status, user_id)]
+
+
+@app.post("/api/flags")
+async def raise_flag(request: FlagRaise):
+    """Record a suspicion. It stays pending and does not count until a person confirms it."""
+    from src.store import people
+    from src.store.db import get_store
+    f = await asyncio.to_thread(people.raise_flag, get_store(), user_id=request.user_id, signal=request.signal,
+                                detail=request.detail, dispute_id=request.dispute_id, raised_by=request.raised_by)
+    return _flag_json(f)
+
+
+@app.post("/api/flags/{flag_id}/review")
+async def review_flag(flag_id: int, request: FlagReview):
+    """A person confirms or rejects a flag; only confirmed flags enter fraud history."""
+    from src.store import people
+    from src.store.db import get_store
+    try:
+        f = await asyncio.to_thread(people.review_flag, get_store(), flag_id, request.reviewer,
+                                    request.decision, request.reason)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return _flag_json(f)
+
+
 @app.get("/api/audit/verify")
 async def verify_audit():
     """Check the hash chain of the audit log (tamper evidence)."""
