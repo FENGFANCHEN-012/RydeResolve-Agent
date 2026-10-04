@@ -33,4 +33,5 @@ def _force_gemini_provider(monkeypatch, tmp_path):
     # Saved traces go to a throwaway database, never data/ryde_resolve.db or a hosted one
     from src.store import db as store_db
     monkeypatch.setenv("STORE_URL", f"sqlite:///{(tmp_path / 'store.db').as_posix()}")
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.setattr(store_db, "_store", None)
