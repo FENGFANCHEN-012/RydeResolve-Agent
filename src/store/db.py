@@ -7,16 +7,20 @@ Tables
 - precedents  human-reviewed outcomes that may guide later rulings, with a status:
               pending -> staged -> active | rejected, and active -> retired
 - audit_log   append-only, hash-chained log of every change above
+- traces      every streamed pipeline run's events, for replay in the dashboard
 
-STORE_URL picks the database (default: sqlite file data/ryde_resolve.db). Moving
-to Postgres or TencentDB later only changes that URL.
+STORE_URL picks the database (default: sqlite file data/ryde_resolve.db). For a
+hosted Postgres such as Supabase, set it to the project's connection string; a
+plain postgres:// URL is given the psycopg driver automatically.
 """
 import hashlib
 import json
 import os
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Float, ForeignKey, Integer, String, Text, create_engine, select
+from sqlalchemy import JSON, Float, ForeignKey, Integer, String, Text, create_engine, select, text
+from sqlalchemy.engine import make_url
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 from src import config
@@ -99,6 +103,15 @@ class AuditEntry(Base):
     hash: Mapped[str] = mapped_column(String(64))
 
 
+class Trace(Base):
+    __tablename__ = "traces"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)  # <timestamp>_<order id>.json
+    order_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    events: Mapped[list] = mapped_column(JSON, default=list)
+    created_at: Mapped[str] = mapped_column(String(32), default=_now)
+
+
 def entry_hash(prev_hash: str, ts: str, actor: str, action: str, object_type: str,
                object_id: int | None, detail: dict) -> str:
     """Each entry hashes the previous one, so editing or deleting any row breaks the chain."""
@@ -111,8 +124,19 @@ class Store:
     """All writes go through here so each one lands in the audit log."""
 
     def __init__(self, url: str | None = None):
-        self.engine = create_engine(url or os.getenv("STORE_URL") or DEFAULT_URL, future=True)
+        self.engine = _make_engine(url or os.getenv("STORE_URL") or DEFAULT_URL)
+        self.is_postgres = self.engine.dialect.name == "postgresql"
         Base.metadata.create_all(self.engine)
+        if self.is_postgres:
+            self._lock_public_api()
+
+    def _lock_public_api(self) -> None:
+        """Supabase serves every table in the public schema over its REST API, where the anon
+        key could read or edit them. Row-level security with no policies closes that; this
+        backend connects as the table owner, which RLS does not restrict."""
+        with self.engine.begin() as conn:
+            for table in Base.metadata.sorted_tables:
+                conn.execute(text(f'ALTER TABLE "{table.name}" ENABLE ROW LEVEL SECURITY'))
 
     def session(self) -> Session:
         return Session(self.engine, expire_on_commit=False)
@@ -121,6 +145,10 @@ class Store:
 
     def _audit(self, s: Session, actor: str, action: str, object_type: str,
                object_id: int | None, detail: dict | None = None) -> None:
+        if self.is_postgres:
+            # Two requests writing at once must not both chain onto the same last entry:
+            # hold a transaction-scoped lock until this entry is committed.
+            s.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": AUDIT_LOCK_KEY})
         last = s.scalars(select(AuditEntry).order_by(AuditEntry.id.desc()).limit(1)).first()
         prev = last.hash if last else "0" * 64
         ts, detail = _now(), detail or {}
@@ -220,6 +248,41 @@ class Store:
                         {"from": old, "to": status, **({"gate": gate_result} if gate_result else {})})
             s.commit()
             return p
+
+
+    # -- traces -----------------------------------------------------------
+    # Traces are run logs, not decisions, so they are not written to the audit log.
+
+    def save_trace(self, name: str, order_id: str | None, events: list[dict]) -> None:
+        with self.session() as s:
+            s.add(Trace(name=name, order_id=order_id, events=events))
+            s.commit()
+
+    def list_trace_names(self, limit: int = 50) -> list[str]:
+        with self.session() as s:
+            return list(s.scalars(select(Trace.name).order_by(Trace.name.desc()).limit(limit)))
+
+    def get_trace(self, name: str) -> list[dict] | None:
+        with self.session() as s:
+            t = s.scalars(select(Trace).where(Trace.name == name)).first()
+            return t.events if t else None
+
+
+AUDIT_LOCK_KEY = 7310  # any constant; only audit writes take this advisory lock
+
+
+def _make_engine(url: str):
+    """SQLite as is. Postgres gets the psycopg driver and, behind a transaction pooler
+    (Supabase port 6543), no client-side pool and no prepared statements, which such a
+    pooler cannot keep across transactions."""
+    u = make_url(url)
+    if u.drivername in ("postgres", "postgresql"):
+        u = u.set(drivername="postgresql+psycopg")
+    if not u.drivername.startswith("postgresql"):
+        return create_engine(u, future=True)
+    if u.port == 6543:
+        return create_engine(u, future=True, poolclass=NullPool, connect_args={"prepare_threshold": None})
+    return create_engine(u, future=True, pool_pre_ping=True)
 
 
 def case_family(dispute_id: str) -> str:
