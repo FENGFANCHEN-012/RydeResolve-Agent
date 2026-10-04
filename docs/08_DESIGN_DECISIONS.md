@@ -614,3 +614,14 @@ run had right: the Judge itself now applies the no-show threshold, without the D
 **Overfitting note.** The Judge prompt has now been changed three times in response to these 33
 cases (D16 asks, D18 principles, D18 conduct line). Each change is general, but the 33 cases can no
 longer show whether the changes generalise; only the sealed set (run once, before submission) can.
+
+**Discretionary refunds go to a person (user decision 2026-10-04).** Repeat run 20261004-145849
+(SQ-001, SQ-002 x3): SQ-002 3/3 correct and stable (S$4.20, partially_upheld). SQ-001 got an accepted
+label 3/3 but refunded the whole S$27.40 fare each time on "compensation at Ryde's discretion",
+although the Judge prompt says a discretion clause sets no amount. Ryde's policy has no refund schedule
+for rude or unsafe driving, so the user decided a refund there is a person's call. `_refund_basis_problems`
+now also flags a service-quality refund that is not a fare overcharge (no disputed amount). A broader
+first version (any refund without a computed disputed amount) was rejected on replay: it also caught
+correct rule-based amounts (CF-001 S$150 fee, DR-001 S$120, DR-002 S$200 cap). The narrow version fires
+only on SQ-001 (and the S$22.60 SQ-002 overpayment) across all recorded rulings. A warning-only ruling
+stays automatic. New key option `escalation_acceptable` (SQ-001): deciding or escalating both count.

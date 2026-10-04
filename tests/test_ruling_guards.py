@@ -174,3 +174,16 @@ def test_refund_of_the_disputed_amount_is_fine():
 
 def test_refund_without_a_computed_disputed_amount_is_not_checked():  # e.g. a damage claim
     assert _refund_basis_problems({"findings": []}, 200.0) == []
+    assert _refund_basis_problems({"type": "driver_rights", "findings": []}, 200.0) == []
+
+
+def test_discretionary_service_quality_refund_goes_to_a_person():    # SQ-001: S$27.40, no overcharge
+    assert _refund_basis_problems({"type": "service_quality", "findings": []}, 27.4)
+
+
+def test_service_quality_refund_of_an_overcharge_is_fine():          # SQ-002: S$4.20 detour excess
+    assert _refund_basis_problems({"type": "service_quality", "findings": [EXCESS_420]}, 4.2) == []
+
+
+def test_service_quality_with_no_refund_is_fine():                    # warning only
+    assert _refund_basis_problems({"type": "service_quality", "findings": []}, 0) == []
