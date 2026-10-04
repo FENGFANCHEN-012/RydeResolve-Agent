@@ -109,9 +109,9 @@ def test_full_refund_rule_skips_two_ask_filings():                  # SQ-002: re
     assert align_verdict_label(parsed, ctx([EXCESS_370], "service_quality"))["verdict"] == "partially_upheld"
 
 
-def test_full_refund_rule_still_applies_to_one_ask():               # RD-001-P4 with an asks list
+def test_full_refund_rule_defers_to_an_asks_list():                 # SQ-002, run 20261004-083956
     parsed = {"verdict": "partially_upheld", "refund_amount": 3.7, "asks": asks("partly"), "rationale": ""}
-    assert align_verdict_label(parsed, ctx([EXCESS_370], "route_deviation"))["verdict"] == "upheld"
+    assert align_verdict_label(parsed, ctx([EXCESS_370], "route_deviation"))["verdict"] == "partially_upheld"
 
 
 # ---- GPS gap on fare disputes: only a metered fare depends on the route (FD-003)

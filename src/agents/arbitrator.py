@@ -85,11 +85,13 @@ def align_verdict_label(parsed: dict, context: dict | None) -> dict:
     refunded exactly the disputed amount (S$9.60, S$3.70) but were labelled partially_upheld.
     Only that direction is corrected: the disputed amount comes from platform data (fee charged,
     or the excess over the quoted fare); when the data names no amount nothing changes (D15).
-    Applies only to a single-ask filing: with two asks the refund can cover one ask in full while
-    the other is not granted (SQ-002, run 20261002-105854)."""
+    Applies only when the Judge gave no asks list. With one, the label comes from the asks, which
+    know what the filer asked for; the platform's disputed amount can be smaller than the ask
+    (SQ-002 asked S$22.60, the disputed excess was S$4.20: run 20261004-083956 relabelled a
+    correct "partly" ruling as upheld)."""
     if parsed.get("verdict") != "partially_upheld":
         return parsed
-    if len(valid_asks(parsed)) > 1:
+    if valid_asks(parsed):
         return parsed
     full = disputed_charge(context or {})
     try:
@@ -190,7 +192,9 @@ class ArbitrationAgent:
             "- The advocates argue for their side. Accept a claim from either of them only where "
             "the data supports it; a persuasive argument is not evidence.\n"
             "- Split the filing into its separate asks even when the filer phrases them as one "
-            "demand (\"refund everything because of X and Y\": X and Y are decided separately).\n"
+            "demand (\"refund everything because of X and Y\": X and Y are decided separately). "
+            "A complaint about the other party's conduct is itself an ask (that the conduct be "
+            "dealt with): it is granted when the ruling takes action on it, such as a warning.\n"
             "- The verdict is measured against what the person who filed asked for: "
             "\"upheld\" = they get everything they asked for (e.g. the full amount they "
             "asked to be refunded, even if the rest of the fare stands); "
