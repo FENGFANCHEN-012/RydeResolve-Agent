@@ -9,7 +9,8 @@ Tables
 - audit_log   append-only, hash-chained log of every change above
 - traces      every streamed pipeline run's events, for replay in the dashboard
 
-STORE_URL picks the database (default: sqlite file data/ryde_resolve.db). For a
+STORE_URL (else DATABASE_URL) picks the database (default: sqlite file
+data/ryde_resolve.db). For a
 hosted Postgres such as Supabase, set it to the project's connection string; a
 plain postgres:// URL is given the psycopg driver automatically.
 """
@@ -124,7 +125,7 @@ class Store:
     """All writes go through here so each one lands in the audit log."""
 
     def __init__(self, url: str | None = None):
-        self.engine = _make_engine(url or os.getenv("STORE_URL") or DEFAULT_URL)
+        self.engine = _make_engine(url or os.getenv("STORE_URL") or os.getenv("DATABASE_URL") or DEFAULT_URL)
         self.is_postgres = self.engine.dialect.name == "postgresql"
         Base.metadata.create_all(self.engine)
         if self.is_postgres:
