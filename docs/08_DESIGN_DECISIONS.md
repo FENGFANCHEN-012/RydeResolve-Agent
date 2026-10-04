@@ -588,3 +588,29 @@ a person, so **no wrong ruling would be executed automatically**. 6 tests; suite
 
 Not changed: the Judge prompt. A fee-waiver prompt line would be written for CR-001 alone; the guard
 catches the error class without tuning the prompt to one case. Revisit if the sealed set shows it.
+
+## D18. Judge reasoning principles: run 20261004-083956 (2026-10-04)
+
+**Prompt change.** Four general principles in the Judge's system prompt (no case ids or amounts): a rule
+applies exactly when its written condition is met; every amount comes from a specific rule applied to
+a specific figure (a discretion clause allows a refund but sets no amount); an advocate's argument is
+not evidence; split a filing into its separate asks.
+
+**Run** (33 cases, Cerebras, full debates): verdict **30/33 (90.9%)**, up from 29/33 in D17; 875k
+tokens, US$0.38, 0 LLM errors. Newly correct: CR-001 (the delay waiver) and NS-002-B1, which no earlier
+run had right: the Judge itself now applies the no-show threshold, without the D15 guard. Misses:
+- NS-002-C1: sent to a person by `fee_basis_not_met` (unchanged).
+- SQ-002: the Judge ruled S$4.20 with its single merged ask marked `partly` (correct), and our D15
+  label rule relabelled it `upheld` because the refund equalled the S$4.20 disputed excess. Second
+  time this rule caused an error. **Fix:** the amount rule now applies only when the Judge gives no
+  asks list; the asks know what was asked for (S$22.60), the disputed amount does not. Replay over
+  the two runs with asks lists: the rule fired once, on this case, wrongly.
+- SQ-001 (dev, newly wrong): unsafe driving, rider asks for the fare. The Judge warned the driver,
+  refunded nothing and labelled it dismissed; the key accepts partially_upheld / upheld. Both SQ keys
+  (written 2026-09-30 and 10-02, before these changes) treat a complaint about conduct as an ask that
+  a warning grants. **Fix:** the prompt states that definition: a conduct complaint is an ask, granted
+  when the ruling acts on it. Not a key change.
+
+**Overfitting note.** The Judge prompt has now been changed three times in response to these 33
+cases (D16 asks, D18 principles, D18 conduct line). Each change is general, but the 33 cases can no
+longer show whether the changes generalise; only the sealed set (run once, before submission) can.
