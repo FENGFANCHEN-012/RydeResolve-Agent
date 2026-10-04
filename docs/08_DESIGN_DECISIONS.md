@@ -557,3 +557,34 @@ empty reply in the run had exactly 300 completion tokens. Now `REBUTTAL_MAX_TOKE
 180-word limit stays in the prompt), and the client logs a warning when a reply is empty because the
 budget ran out. All earlier numbers, including the 92.6%, were measured with these gaps in the debate;
 the next run measures full debates.
+
+## D17. Full-debate run 20261002-211912; two payout guards (2026-10-04)
+
+**Run** (33 cases, Cerebras, with D16 and full rebuttals): verdict **29/33 (87.9%)**, 0 LLM errors,
+864k tokens, US$0.37. Paraphrase 4/4, injection 3/3, counterfactual 2/3 (NS-002-C1 as before).
+The D16 fixes worked where they were aimed: FD-003 now goes to a person, CR-003 is `upheld` S$5.00.
+
+| Case | Expected | Got | Cause |
+|---|---|---|---|
+| NS-002-B1, NS-002-C1 | upheld S$8 | to a person | Judge no-show reasoning, caught by `fee_basis_not_met` (unchanged since D15) |
+| SQ-002 | partially_upheld S$4.20 | upheld **S$22.60** | Judge merged the two asks into "full fare refund", granted it citing `refund_at_ryde_discretion`. The previous run gave S$4.20: run-to-run variation, not the D16 code |
+| CR-001 (dev) | upheld S$4 | dismissed | Judge read the trip's `no_fee_if_driver_delayed_beyond_eta_min = 10` as applying only if the driver arrives; the driver was 12.5 min past the ETA |
+
+**Finding: missing rebuttals had been helping.** In runs 114026 and 203206 one of CR-001's two
+rebuttals was empty (the D16 token-budget bug). With the driver's rebuttal present ("the driver was
+still en route"), the Judge was persuaded. Part of the earlier 92.6% rested on one side being silent;
+full debates expose the Judge's weakness on fee waivers.
+
+**Guards, not answer fixes** (D16 protocol: general rule, both directions tested, replayed first):
+- `fee_basis_not_met` also fires when the fee is kept although the trip's own
+  `no_fee_if_driver_delayed_beyond_eta_min` is exceeded by the data (`wait_time.no_arrival` /
+  `wait_time.arrival_vs_scheduled`).
+- New high-severity check `refund_beyond_disputed_amount`: a refund larger than the disputed amount
+  the platform data computes (fee charged, or excess over the quote) goes to a person.
+Both only route to human review; they never change a ruling. Replay over all 140 recorded rulings
+(runs since 20260930-132225): each fires once, on the wrong ruling it was written for, and on no
+correct ruling. Projected: still 29/33 decided correctly, but every one of the four misses now goes to
+a person, so **no wrong ruling would be executed automatically**. 6 tests; suite 341 passed.
+
+Not changed: the Judge prompt. A fee-waiver prompt line would be written for CR-001 alone; the guard
+catches the error class without tuning the prompt to one case. Revisit if the sealed set shows it.

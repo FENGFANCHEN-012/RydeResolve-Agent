@@ -134,3 +134,43 @@ def test_upfront_fare_with_gps_gap_is_not_blocked():                # the quote 
 
 def test_metered_fare_without_gap_is_not_blocked():
     assert _location_evidence_gaps(fare_ctx([], basis="metered_for_rydetaxi")) == []
+
+
+# ---- D17: catch payouts the platform data contradicts (run 20261002-211912)
+from src.agents.fairness import _refund_basis_problems
+
+NO_ARRIVAL_12 = {"id": "wait_time.no_arrival", "kind": "fact", "value": {"minutes_after_scheduled": 12.5}}
+NO_ARRIVAL_9 = {"id": "wait_time.no_arrival", "kind": "fact", "value": {"minutes_after_scheduled": 9.0}}
+FEE_4 = {"id": "fee_check.charged", "kind": "fact", "value": {"fee": 4.0}}
+EXCESS_420 = {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 4.2}}
+
+
+def cancel_ctx(findings, limit=10):
+    return {"type": "cancellation_refund", "findings": findings,
+            "platform_policy": {"no_fee_if_driver_delayed_beyond_eta_min": limit},
+            "trip": {"cancellation_reason": "rider_cancelled_after_assignment"}}
+
+
+def test_fee_kept_although_driver_late_beyond_waiver():               # CR-001
+    problems = _fee_basis_problems(cancel_ctx([FEE_4, NO_ARRIVAL_12]), "dismissed", None)
+    assert any("no_fee_if_driver_delayed_beyond_eta_min" in p for p in problems)
+
+
+def test_fee_kept_when_driver_within_waiver_limit_is_fine():
+    assert _fee_basis_problems(cancel_ctx([FEE_4, NO_ARRIVAL_9]), "dismissed", None) == []
+
+
+def test_fee_refunded_after_late_driver_is_fine():
+    assert _fee_basis_problems(cancel_ctx([FEE_4, NO_ARRIVAL_12]), "upheld", 4.0) == []
+
+
+def test_refund_beyond_disputed_amount_is_flagged():                  # SQ-002: S$22.60 vs S$4.20
+    assert _refund_basis_problems({"findings": [EXCESS_420]}, 22.6)
+
+
+def test_refund_of_the_disputed_amount_is_fine():
+    assert _refund_basis_problems({"findings": [EXCESS_420]}, 4.2) == []
+
+
+def test_refund_without_a_computed_disputed_amount_is_not_checked():  # e.g. a damage claim
+    assert _refund_basis_problems({"findings": []}, 200.0) == []
