@@ -39,30 +39,22 @@ As a multi-sided platform connecting passengers, drivers, merchants, and corpora
 
 ## Architecture
 
-```
-Report -> [Collector Agent] -> [Classifier Agent] -> Parallel Investigation:
-                                                    ├── [Passenger Agent]
-                                                    ├── [Driver Agent]
-                                                    └── [Policy Agent (RAG)]
-                                                          |
-                                                 [Arbitration Agent]
-                                                          |
-                                              Confidence > threshold?
-                                              ├── Yes -> [Execution Agent]
-                                              └── No  -> Human Review Queue
-```
+![RydeResolve architecture](docs/architecture.png)
+
+Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 
 ### Core Agents
 
 | Agent | Role |
 |-------|------|
-| **Collector** | Gathers dispute context from platform data (GPS, payment, ratings, chat) |
-| **Classifier** | Auto-classifies dispute type & urgency (P0-P3) |
-| **Passenger** | Advocates passenger perspective, cites passenger rights |
-| **Driver** | Advocates driver perspective, cites driver rights |
-| **Policy** | RAG-based retrieval of Ryde ToS, Code of Conduct, refund policies |
-| **Arbitration** | Synthesizes all perspectives, generates verdict & remediation |
-| **Execution** | Executes decisions, notifies parties (EN/CN/MS/Tamil) |
+| **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles) produce facts, conflicts and data gaps, each with its source |
+| **Classifier** | Dispute type and urgency (P0-P3); safety and unclear cases go straight to a person |
+| **Case Brief** | One shared dossier (no LLM): facts, conflicts, the trip's rules, timeline and retrieved policy clauses |
+| **Rider / Driver advocates** | Each builds its side's case from the brief and cites policy, then rebuts the other |
+| **Policy** | Compliance check of both cases against the retrieved official Ryde policy (RAG) |
+| **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; sees approved precedents |
+| **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person |
+| **Executor** | Simulated refund / penalty and a notice to each party with its own outcome (EN/ZH/MS/TA) |
 
 ### Key Innovations
 
