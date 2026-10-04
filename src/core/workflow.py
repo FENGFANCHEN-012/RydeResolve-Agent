@@ -253,7 +253,8 @@ def build_dispute_graph(
     async def executor_node(state: DisputeWorkflowState) -> dict:
         async with step("Executor", "Apply decision", {"decision": state["decision"]}) as s:
             execution = await executor.execute(
-                state["decision"], state["context"].dispute_id
+                state["decision"], state["context"].dispute_id,
+                reporter=getattr(state["context"], "reporter", None),
             )
             s["output"] = execution
         if not isinstance(execution, dict):

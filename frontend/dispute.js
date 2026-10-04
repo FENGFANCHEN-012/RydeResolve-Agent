@@ -829,7 +829,14 @@ function rrRenderVerdict() {
             <div class="why">${rrEsc(exp.reason)}</div></div>`;
     }
     const keyOpen = el.querySelector('.rr-key-details')?.open;
-    el.innerHTML = `${label}<div class="rr-verdict-main">${main}</div>
+    // What each party is told: the executor writes one notice per party from the ruling's fields
+    const notes = (res.execution?.notifications || []).filter(n => n && n.message);
+    const notices = notes.length ? `<div class="rr-notices"><h4>Sent to both parties <span class="rr-hint">simulated, not delivered</span></h4>
+        <div class="rr-notice-grid">${notes.map(n => `<div class="rr-notice">
+            <div class="rr-notice-to">To the ${rrEsc(n.recipient)}</div>
+            <div class="rr-notice-subj">${rrEsc(n.subject || '')}</div>
+            <div class="rr-prose">${rrEsc(n.message)}</div></div>`).join('')}</div></div>` : '';
+    el.innerHTML = `${label}<div class="rr-verdict-main">${main}</div>${notices}
         <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;
 }
