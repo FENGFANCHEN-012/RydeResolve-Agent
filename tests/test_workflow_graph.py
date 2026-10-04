@@ -242,7 +242,7 @@ class StubExecutor:
         self.calls = 0
         self.last_decision = None
 
-    async def execute(self, decision, dispute_id, language=None):
+    async def execute(self, decision, dispute_id, language=None, reporter=None):
         self.calls += 1
         self.last_decision = decision
         if self.raise_error:
