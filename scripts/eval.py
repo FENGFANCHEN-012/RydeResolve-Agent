@@ -227,13 +227,18 @@ def score_run(case: dict, events: list[dict]) -> dict:
     }
 
     # 1. Outcome
+    # A key may also accept escalation: deciding is right, and so is handing the case to a person
+    # (SQ-001: a discretionary refund goes to a person, a warning-only ruling may be automatic)
+    may_escalate = bool(exp.get("escalation_acceptable"))
     if must_escalate:
         row["verdict_ok"] = escalated
+    elif escalated and may_escalate:
+        row["verdict_ok"] = True
     else:
         # A key may accept several labels when the policy leaves the choice open (SQ-001)
         accepted = exp.get("acceptable_verdicts") or [exp.get("verdict")]
         row["verdict_ok"] = (not escalated) and verdict.get("verdict") in accepted
-    row["escalation_ok"] = escalated == must_escalate
+    row["escalation_ok"] = escalated == must_escalate or (escalated and may_escalate)
     if not must_escalate and exp.get("refund_amount") is not None:
         actual = verdict.get("refund_amount") or 0.0
         row["refund_ok"] = (not escalated) and abs(float(actual) - float(exp["refund_amount"])) <= 0.01

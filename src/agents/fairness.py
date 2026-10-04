@@ -185,6 +185,14 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
     if disputed and refunded > disputed + 0.01:
         return ["The refund S$%.2f is larger than the S$%.2f in dispute that the platform data computes; "
                 "no checkable rule covers the difference." % (refunded, disputed)]
+    # Service-quality complaints (rude or unsafe driving) have no refund schedule in Ryde's policy:
+    # compensation is at Ryde's discretion, so any amount beyond a fare overcharge is a person's call,
+    # not the model's (user decision 2026-10-04; SQ-001 auto-refunded a whole S$27.40 fare).
+    # Cleaning fees and driver claims are not covered here: their amounts come from fee and cap rules.
+    dispute_type = getattr(context.get("type"), "value", context.get("type"))
+    if dispute_type == "service_quality" and refunded > 0 and not disputed:
+        return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
+                "sets an amount, so a person decides it." % refunded]
     return []
 
 
