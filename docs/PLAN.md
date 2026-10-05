@@ -1,5 +1,7 @@
 # RydeResolve-Agent — Development Plan
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
+
 > **Competition**: Tencent Cloud AI CAN DO IT Hackathon Singapore 2026
 > **Track**: Digital Native — Ryde
 > **Challenge**: Multi-Agent Autonomous Dispute Resolution System

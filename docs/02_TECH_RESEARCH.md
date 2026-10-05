@@ -1,5 +1,7 @@
 # 技术调研 — 所有关键决策记录
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
+
 ## 调研时间线
 
 | 日期 | 决策 | 原因 |

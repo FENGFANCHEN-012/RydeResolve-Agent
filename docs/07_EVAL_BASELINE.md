@@ -1,5 +1,7 @@
 # Evaluation Baseline — Run 20260925-144037
 
+> **This is the first baseline (2026-09-25, verdict 23%).** Every later run and fix is in [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md); the latest full run is D19 (2026-10-05): 31/33 (93.9%).
+
 First scored run of the full pipeline, used as the reference point for every later
 fix. Plan and metric definitions: [06_EVAL_PLAN.md](06_EVAL_PLAN.md).
 Raw traces and the HTML report are local only (`data/eval/` is gitignored).
