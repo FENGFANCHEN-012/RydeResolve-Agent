@@ -1,5 +1,7 @@
 # RydeResolve-Agent 技术方案全景对比报告
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
+
 > **项目**: RydeResolve-Agent — 多Agent自动争议调解系统  
 > **场景**: 腾讯云 AI CAN DO IT Hackathon Singapore 2026 (Ryde 赛道)  
 > **生成日期**: 2026年9月21日  
