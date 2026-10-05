@@ -1,5 +1,7 @@
 # 比赛评分指南 — 如何拿高分
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md). Some requirements here (score weights, four languages, a required PPT or 3–5 min video) are not in the official brief; see [01_PROJECT_REQUIREMENTS.md](01_PROJECT_REQUIREMENTS.md).
+
 ## 评分维度拆解
 
 ### 1. 创新性 (25%)

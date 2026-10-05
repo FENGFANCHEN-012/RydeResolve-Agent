@@ -1,9 +1,9 @@
 # Development Log — Key Milestones
 
-> **Last updated**: 2026-09-25
+> **Last updated**: 2026-10-05
 >
 > This log records the key milestones, decisions, problems and next steps of every session.
-> Latest update adds Session 4 (23/9 afternoon – 24/9): Yang Shuo's Fairness Agent + LangGraph workflow, Zhilin-sp's Gemini free-tier fixes (PR #9–#13), and billy's dispute dashboard, 13 mock cases, section-based RAG chunking, Groq provider, Collector tools and the policy-citation bug fix.
+> Latest update adds Session 6 (2026-10-02 – 10-05): ask-based labels, payout guards, Judge reasoning principles, Supabase record store, rider/driver history, LLM provider fallback, regression run 31/33 and the merge into `main` (PR #18).
 
 ---
 
@@ -344,6 +344,43 @@ This section is the short version.
   `ADVOCATE_REASONING_EFFORT` switch added, off by default.
 - Tests: 325 passed.
 
+## Session 6: 2026-10-02 – 2026-10-05 (billy, branch `policy-official-rebuild`, merged as PR #18)
+
+Short version; details and measured effects in [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md) (D16–D19).
+
+### Node 38: Labels from the asks, metered-fare GPS gap, overfitting protocol (D16)
+- The Judge lists every ask with an outcome; `label_from_asks` computes upheld / partially_upheld / dismissed.
+- A GPS gap blocks a metered `fare_dispute` (upfront fares stay automatic).
+- Overfitting protocol: fix the rule not the case, test both directions, replay before re-run,
+  sealed set run once before submission.
+- Rebuttal budget 300 -> 1500 tokens: gpt-oss spent the whole 300 on hidden reasoning in 17% of rebuttals.
+
+### Node 39: Full-debate run 29/33 and payout guards (D17)
+- `fee_basis_not_met` also covers a kept fee when the trip's delay waiver is exceeded;
+  new `refund_beyond_disputed_amount`. Both only route to a person.
+
+### Node 40: Judge reasoning principles, discretionary refunds (D18)
+- Four general principles in the Judge prompt (literal rule conditions, amounts from specific rules,
+  arguments are not evidence, separate asks); conduct complaints count as asks. Run: 30/33.
+- User decision: a service-quality refund with no fare overcharge is a person's call.
+- Party notices: each side's notice states its own outcome from the ruling's fields; both in the UI.
+
+### Node 41: Records on Supabase, rider/driver history
+- Record store runs on Postgres (Supabase) via `STORE_URL` / `DATABASE_URL`; traces stored there.
+- People-history store (trips, disputes, outcomes, fraud flags) for agents, reviewers and training export.
+- Architecture diagram `docs/architecture.svg` / `.png` matching the current pipeline.
+
+### Node 42: LLM provider fallback, regression run (D19)
+- `LLM_FALLBACK_PROVIDERS`: backup chat providers tried in order. Evals turn it off.
+- `hunyuan` provider (TokenHub, OpenAI-compatible) added and tested. The key authenticates, but every
+  model returns 402 until a paid inference service is activated, so it is not used.
+- Gemini free tier allows 20 requests/day per model (about 3 cases); Groq free tier rejects any single
+  request over 8,000 tokens, which some Judge prompts exceed. Cerebras stays the eval provider.
+- Regression run 20261005-131434: **31/33 (93.9%)**, US$0.37; all post-D18 fixes verified.
+- Merged into `main` as PR #18 (2026-10-05). Tests: 368 passed.
+
+---
+
 ## Key Decisions (updated)
 
 ### Decision 1: Why Gemini instead of Tencent Hunyuan?
@@ -405,16 +442,23 @@ This section is the short version.
   3. Saves LLM quota
 - **Principle**: routing belongs to the LangGraph graph; agents can only request
 
-### Decision 8: Qdrant Cloud for the cloud vector DB (proposed, pending)
+### Decision 8: Qdrant Cloud for the cloud vector DB (adopted)
 - **Date**: 2026-09-24
 - **Options**: Tencent Cloud VectorDB vs Qdrant Cloud vs staying on local ChromaDB
 - **Status**: Tencent VectorDB is not self-serve on the international site ("Contact us" only)
 - **Proposal**: Qdrant Cloud free tier + fastembed local embeddings (dense + sparse hybrid, no API quota) now; self-host Qdrant on Tencent Lighthouse before Demo Day
-- **To do**: user to ask organisers about VectorDB / credits
+- **Outcome**: adopted (Node 30); the official-policy collection is on Qdrant Cloud with hybrid search.
+
+### Decision 9: Which LLM runs the agents? (2026-10-05)
+- **Options tried**: Tencent Hunyuan via TokenHub (needs a paid inference service), Gemini free tier
+  (20 requests/day per model), Groq free tier (8,000 tokens per request limit), Cerebras (paid, $5 credit)
+- **Decision**: one model, `gpt-oss-120b`, for both evals and the demo. Evals run on Cerebras;
+  day-to-day runs can use Groq with `LLM_FALLBACK_PROVIDERS=cerebras,gemini`
+- **Why**: the eval score then describes the model the demo actually uses
 
 ---
 
-## Current Pipeline State (LangGraph, `src/core/workflow.py`, updated 2026-10-01)
+## Current Pipeline State (LangGraph, `src/core/workflow.py`, updated 2026-10-05)
 
 ```
 Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classifier]
@@ -429,13 +473,14 @@ Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classi
                     |
             [Debate Engine]
                     |
-            [Arbitrator]  <- brief first; label follows the refund
+            [Arbitrator]  <- brief first; rules per ask, label from the asks
                     |
-            [Fairness Agent]  <- deterministic checks (incl. decisive_evidence_gap,
-                    |            fee_basis_not_met) + LLM review; can BLOCK
+            [Fairness Agent]  <- deterministic checks (decisive_evidence_gap, fee_basis_not_met,
+                    |            refund_beyond_disputed_amount, refund basis) + LLM review; can BLOCK
           Confidence / human-review routing
                     |
-            [Executor]  <- simulated actions; rulings recorded for the feedback loop
+            [Executor]  <- simulated actions, one notice per party; rulings, traces and
+                           audit chain in the record store (SQLite or Supabase Postgres)
 ```
 
 ---
@@ -450,31 +495,34 @@ Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classi
 | 4 | ~~Smart Chunker not integrated into Indexer~~ | 🟡 P2 | ✅ Replaced by section chunking (`6769b11`) |
 | 5 | BM25 index not cached | 🟡 P2 | Not started |
 | 6 | Demo script not written | 🟡 P2 | Not started |
-| 7 | Architecture diagram not done | 🟡 P2 | Not started |
+| 7 | ~~Architecture diagram not done~~ | 🟡 P2 | ✅ Done (`docs/architecture.svg`) |
 | 8 | Reword Ryde API as "simulated" | 🟢 Easy | To do |
 | 9 | ~~Teammate's `DESIGN.md` + frontend CSS uncommitted~~ | 🟡 | ✅ Committed (`722e3b9`) |
 | 10 | ~~Groq provider + citation bug fix uncommitted~~ | 🔴 P0 | ✅ Committed |
-| 11 | Collector tools uncommitted | 🟠 P1 | Done locally; user said hold |
+| 11 | ~~Collector tools uncommitted~~ | 🟠 P1 | ✅ Committed and merged |
 | 12 | ~~Local changes overlap origin PRs #10–#13~~ | 🔴 P0 | ✅ Synced and merged cleanly |
 | 13 | ~~Cloud vector DB~~ | 🟠 P1 | ✅ Qdrant Cloud, hybrid search (Node 30) |
-| 14 | Evaluation plan phase 1 | 🟠 P1 | Parked |
-| 15 | `fairness.py` change needs Yang Shuo's review | 🟡 | To notify |
+| 14 | ~~Evaluation plan phase 1~~ | 🟠 P1 | ✅ Done; full runs D15–D19 |
+| 15 | `fairness.py` change needs Yang Shuo's review | 🟡 | To notify (now merged in PR #18) |
+| 16 | `calculate_confidence()` exists but is never called; the journal describes it as used | 🟡 | Wire in or reword |
+| 17 | Sealed set run once before submission | 🔴 P0 | Before 16 Oct |
+| 18 | Live demo deployment (bonus) | 🟠 P1 | Not started |
 
 ---
 
-## Code Statistics (updated 2026-09-25, origin/main)
+## Code Statistics (updated 2026-10-05, origin/main)
 
 | Metric | Value |
 |--------|-------|
-| Python files | 51 (+ uncommitted `collector_tools.py`) |
-| Test files | 11 (+ 2 uncommitted + `conftest.py`) |
-| Local tests | 217 (all pass offline) |
-| Total lines of code | ~12,100 |
-| Git commits | 64 |
-| Agents implemented | 8/8 (Fairness added; Arbitrator now real LLM) |
-| RAG optimisations | 5/5 + section chunking |
-| Mock disputes | 13 (all DISP-002 format, with answer keys) |
-| Real policy documents | 12 |
+| Python files (src + scripts) | 73 |
+| Test files | 25 |
+| Local tests | 368 (all pass offline) |
+| Total lines of code (py/js/html/css) | ~22,900 |
+| Git commits (main) | 115 |
+| Agents implemented | 9 (Collector, Classifier, Case Brief, Rider, Driver, Policy, Judge, Fairness, Executor) |
+| Labelled eval cases | 33 (14 dev + 19 held-out) + 9 sealed + 4 fraud |
+| Mock disputes | 13 (DISP-002 format) |
+| Official policy documents | 23 files in `data/policies/official/` |
 | Frontend | `index.html` + `dispute.js` / `dispute.css` (dispute dashboard + live trace) |
 
 ---
@@ -492,33 +540,30 @@ Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classi
 
 ---
 
-## Session Handoff (for the next session)
+## Session Handoff (for the next session, updated 2026-10-05)
 
-### 🚨 P0 — must do
-1. Re-run the eval on branch `policy-official-rebuild` after the Cerebras daily reset
-   (`$env:LLM_PROVIDER="cerebras"; python scripts/eval.py --yes`), compare with 20261001-114026 (D15)
-2. Tell Zhilin / Yang Shuo before merging: answer keys, fairness (new checks), retriever, arbitrator,
-   Collector, Case Brief node
-3. Teammates who run locally need the 3 `.env` lines for the official collection (D1); no re-index
-   is needed (the shared Qdrant collection is already tagged and indexed)
+State: `main` holds everything (PR #18). Latest eval 31/33 (D19). Deadline 16 Oct 2026.
 
-### 🟠 Important, not blocking
-4. Stability: `--repeat 3` on a few cases; single-call baseline (`scripts/eval_single_call.py`)
-5. Try `ADVOCATE_REASONING_EFFORT=low` in an eval; keep only if accuracy holds
-6. Server (Tencent Lighthouse) + Docker + Postgres (`STORE_URL`); update docker-compose.yml
-7. Feedback loop level 2, reviewer screen in the dashboard
+### 🚨 P0 — before submission
+1. README and docs match the code (done 2026-10-05: README, this log, next steps, eval plan)
+2. Submission draft: business value numbers (31/33, ~91 s, US$0.011 per case), open items
+3. CodeBuddy proof: add 1–2 screenshots of actual coding to `proof of usage of codebuddy/`
+4. Sealed set: run once, last (`data/eval_cases/sealed`), report it as the generalisation number
 
-### 🟢 Easy / docs
-8. Reword `ryde_api.py` as "simulated integration contract"
-9. Fix outdated agent names in `docs/05_NEXT_STEPS.md`
+### 🟠 Bonus
+5. Live demo URL (Tencent Lighthouse + Docker + Postgres)
+6. Policy agent queries the Tencent ADP assistant; compare with our retriever
+7. Cover image 16:9, blurb under 10 words, optional 5–8 min demo video
 
-### Key files (handoff)
-- `src/core/workflow.py` — main LangGraph flow (replaces orchestrator)
-- `src/agents/fairness.py` — Fairness Agent (Yang Shuo)
-- `src/agents/collector_tools.py` — deterministic evidence tools
-- `src/agents/case_brief.py` — shared dossier node; `src/rag/policy_topics.py` — topic catalogue
-- `docs/08_DESIGN_DECISIONS.md` — every change with its measured effect (D1–D15)
-- `src/core/llm_client.py` — Gemini / Groq dual provider (local changes overlap PR #10)
-- `src/core/trace.py` + `frontend/dispute.js` — live trace and dashboard
-- `data/mock_disputes/` — 13 DISP-002 cases + answer keys
-- `data/traces/` — traces of real runs, replayable
+### 🟢 Cleanup
+8. `calculate_confidence()`: wire in or reword the journal
+9. Reword `ryde_api.py` as a "simulated integration contract"
+10. Git history scrub (parked; needs team coordination and a force-push)
+
+### Key files
+- `src/core/workflow.py` — LangGraph pipeline; `src/core/llm_client.py` — providers and fallback
+- `src/agents/arbitrator.py` — Judge; `src/agents/fairness.py` — guards and review
+- `src/agents/case_brief.py`, `src/agents/collector_tools.py` — shared dossier and evidence tools
+- `src/store/` — record store, audit chain, precedents, people history
+- `scripts/eval.py` — evaluation; `data/eval_answer_keys.json` — answer keys
+- `docs/08_DESIGN_DECISIONS.md` — every change with its measured effect (D1–D19)

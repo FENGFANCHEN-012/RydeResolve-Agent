@@ -1,5 +1,7 @@
 # Technology Stack Research & Comparison
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
+
 > Comprehensive analysis of all viable technology options for the RydeResolve-Agent project.
 > Each category is grouped with pros/cons to help make informed decisions.
 
