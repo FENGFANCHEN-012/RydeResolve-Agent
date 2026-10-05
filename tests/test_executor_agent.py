@@ -387,3 +387,60 @@ async def test_invalid_refund_amount_does_not_crash(monkeypatch):
     assert result["status"] == "executed"
     assert all(t["type"] != "refund" for t in result["transaction_records"])
     assert any("Skipped refund" in a for a in result["actions_taken"])
+
+# ---------------------------------------------------------------------------
+# Per-party outcome in the notifications (both parties are told the ruling)
+# ---------------------------------------------------------------------------
+
+def _messages(result):
+    return {n["recipient"]: n["message"] for n in result["notifications"]}
+
+
+@pytest.mark.asyncio
+async def test_passenger_filed_refund_each_party_gets_its_own_outcome():
+    d = make_decision(verdict=Verdict.UPHELD, refund_amount=4.2)
+    m = _messages(await ExecutionAgent().execute(d, "D-1", reporter="passenger"))
+    assert "Your claim was upheld" in m["passenger"] and "SGD 4.20 will be refunded to you" in m["passenger"]
+    assert "passenger's claim against you was upheld" in m["driver"]
+    assert "refunded to the passenger" in m["driver"] and "No action is taken against your account" in m["driver"]
+
+
+@pytest.mark.asyncio
+async def test_dismissed_passenger_claim_says_the_charge_stands():
+    d = make_decision(verdict=Verdict.DISMISSED)
+    m = _messages(await ExecutionAgent().execute(d, "D-2", reporter="passenger"))
+    assert "Your claim was not upheld" in m["passenger"] and "original charge stands" in m["passenger"]
+    assert "refunded" not in m["passenger"] and "refunded" not in m["driver"]
+
+
+@pytest.mark.asyncio
+async def test_penalty_details_go_to_the_driver_only():
+    d = make_decision(verdict=Verdict.PARTIALLY_UPHELD, refund_amount=4.2, driver_penalty="formal warning")
+    m = _messages(await ExecutionAgent().execute(d, "D-3", reporter="passenger"))
+    assert "Action on your account: formal warning" in m["driver"]
+    assert "formal warning" not in m["passenger"].split("Reason:")[0]
+    assert "taken action on the driver's account" in m["passenger"]
+
+
+@pytest.mark.asyncio
+async def test_driver_filed_claim_is_your_claim_for_the_driver():
+    d = make_decision(verdict=Verdict.UPHELD, compensation="SGD 120 cleaning fee charged to the rider")
+    m = _messages(await ExecutionAgent().execute(d, "D-4", reporter="driver"))
+    assert "Your claim was upheld" in m["driver"] and "Compensation: SGD 120" in m["driver"]
+    assert "driver's claim against you was upheld" in m["passenger"]
+
+
+@pytest.mark.asyncio
+async def test_outcome_is_in_every_supported_language():
+    d = make_decision(verdict=Verdict.UPHELD, refund_amount=5.0)
+    for lang, own in (("zh", "您的申诉成立"), ("ms", "Tuntutan anda diterima"),
+                      ("ta", "உங்கள் கோரிக்கை ஏற்றுக்கொள்ளப்பட்டது")):
+        m = _messages(await ExecutionAgent().execute(d, "D-5", language=lang, reporter="passenger"))
+        assert own in m["passenger"] and "SGD 5.00" in m["passenger"], lang
+
+
+@pytest.mark.asyncio
+async def test_escalated_case_announces_review_and_no_outcome():
+    d = make_decision(verdict=Verdict.UPHELD, refund_amount=5.0, human_review_needed=True)
+    m = _messages(await ExecutionAgent().execute(d, "D-7", reporter="passenger"))
+    assert all("human" in x and "refunded" not in x for x in m.values())

@@ -480,4 +480,176 @@ same changes. Also added, off by default: `ADVOCATE_REASONING_EFFORT` (gpt-oss r
 two advocates only; their openings average ~1.3k output tokens). Turn on only if an eval shows no loss.
 
 Tests: `tests/test_ruling_guards.py` (9), 1 Fairness test for brief clauses. Full suite 325 passed.
-Needs: re-run of the 10 misses (tomorrow, Cerebras daily quota ~830k used today).
+**Confirming run 20261001-203206** (all 27 cases, Cerebras, final code): verdict accuracy **92.6%
+(25/27)**, refund accuracy **90.9% (20/22)**, matching the replay projection exactly. Dev 14/14,
+held-out 11/13. All 8 cases fixed above now resolve correctly; the only misses are NS-002-B1 and
+NS-002-C1, which the `fee_basis_not_met` check sends to a person as intended (the Judge's reasoning
+error is caught, not fixed). Classification 100%, escalation accuracy 92.6%, P0 recall, refund cap,
+missing-data escalation and Hit@3 all 100%. Paired checks 9/10 (the NS-002-C1 counterfactual is the
+one failure). Tokens 678.5k in total, 25.1k per case (-13% vs 29.0k), 0 LLM errors.
+
+**What the traces credit to which fix.** The label rule fired in RD-001-P4 (the `[Label: …]` marker
+is in its rationale); `fee_basis_not_met` fired in both NS-002-B1 and C1. But in the five
+previously-blocked FD-002/NS-002 cases the Judge this time cited only `platform_policy.*` fields or
+Policy-retrieved clauses, which the old whitelist already accepted — and FD-002-C3's Judge wrote
+`upheld` itself. So this run does not exercise the brief-clause whitelist fix (its evidence remains
+the replay of run 114026 plus the unit test), and 4 of the 8 recovered cases passed because the LLM
+output differed, not because a fix fired. The 93% therefore still needs the stability measurement
+(`--repeat 3`) before it is quoted as a stable number.
+
+**Stability run 20261002-100226** (the 8 previously flaky cases x 3 repeats, Cerebras): 24/24
+verdicts and 24/24 refunds correct, consistency 1.0 (the earlier runs had no repeats, n=0). Cost
+US$0.26. The 92.6% is stable on the cases that used to flip.
+
+**New held-out cases, baseline 20261002-105854.** Six cases written after the fixes above, so the
+code was never tuned on them (SQ-002, FD-003, CF-002, NS-004, DR-002, CR-003; loader now sees 33
+cases, retrieval Hit@3 6/6). Verdict 3/6: CF-002, NS-004, DR-002 correct. The two label misses had the **right refund
+amount**; FD-003 should have gone to a person and was paid S$7.20 instead (a routing error that
+executed money, the more serious kind):
+
+| Case | Expected | Got | Cause |
+|---|---|---|---|
+| SQ-002 (detour S$4.20 + rude driver) | partially_upheld | upheld | `align_verdict_label` forced `upheld` (`[Label:]` in the trace): the refund equals the detour excess, but the conduct ask got no money. The rule is blind to filings with more than one ask |
+| CR-003 (fee S$5 + promo already returned) | partially_upheld | upheld | Judge labelled it; one of two asks was denied |
+| FD-003 (12.5-min GPS gap on the contested stretch) | escalate | upheld S$7.20 | The GPS-gap check covers no_show / cancellation / route types only, not metered fare disputes (predicted when the cases were written) |
+
+Fixes are deferred until the answer keys are blind-judged by a person (a disagreement means the key
+may be wrong): a multi-ask guard on `align_verdict_label`, a Judge prompt line on multi-ask labels,
+and the GPS-gap check extended to metered fare disputes. Four fraud cases (`data/eval_cases/fraud/`)
+are excluded from the default eval until the Fraud Agent (docs/09) exists.
+
+## D16. Label from the asks; GPS gap blocks metered fare disputes; overfitting protocol (2026-10-02)
+
+**Fixes** for the three baseline misses in D15 (two had the right money but the wrong label; FD-003 paid out a case that should have gone to a person):
+- **Label computed from the asks.** The Judge now lists each thing the filer asked for with an
+  outcome (`granted` / `partly` / `denied` / `already_resolved`) and `label_from_asks` computes the
+  label: all satisfied -> upheld, all denied -> dismissed, otherwise partially_upheld. The Judge's own
+  label stands only when the list is missing or malformed. `already_resolved` (e.g. a promo the platform
+  returned automatically) counts as satisfied: a definition decided by the user before any re-run, which
+  changes CR-003's key to `upheld`. `align_verdict_label` (D15) now skips filings with more than one ask
+  (SQ-002: the refund equalled the detour excess but the conduct ask got no money).
+- **GPS gap on metered fares.** `_location_evidence_gaps` also blocks a `fare_dispute` when the fare is
+  metered (`platform_policy.fare_basis` or the booking event): a metered fare depends on the route driven.
+  An upfront fare is fixed by the quote and stays unblocked (FD-003).
+
+**Checks before any LLM run.** 10 new unit tests in `tests/test_ruling_guards.py`, each rule tested in
+both directions (fires where it should, silent where it should not: upfront fare + GPS gap, metered fare
+without a gap, one-ask filing still promoted). Replay of the GPS rule over all 57 recorded traces (runs
+203206, 100226, 105854): it changes FD-003 only. The label change needs a new Judge field, so it can only
+be measured by a re-run.
+
+**Overfitting protocol** (from now on):
+1. Fix the rule, not the case: no case IDs, amounts or wording in code; each fix states the general
+   principle (here: the label definition; "a metered fare depends on the route").
+2. Test both directions: every new rule gets a test where it must NOT fire.
+3. Replay before re-run: a rule that changes only the case it was written for, across all recorded
+   traces, is expected; one that changes correct rulings is rejected.
+4. Once a case has motivated a fix it no longer counts as held-out evidence. The six cases of run
+   105854 are reported separately as "used for fixes"; the generalisation number must come from a new
+   sealed set, written without access to the code, run once before submission.
+5. Answer-key changes are decided from the definition, before the re-run, and recorded with the date
+   (CR-003 above), never to match an output.
+
+**Empty rebuttals (found 2026-10-02).** Rebuttals were capped at `max_tokens=300`. gpt-oss counts its
+hidden reasoning in that budget, so 18 of 108 rebuttals in run 203206 (17%) used all 300 tokens on
+reasoning and returned nothing; the debate then carried a "could not be generated" placeholder. Every
+empty reply in the run had exactly 300 completion tokens. Now `REBUTTAL_MAX_TOKENS` (default 1500; the
+180-word limit stays in the prompt), and the client logs a warning when a reply is empty because the
+budget ran out. All earlier numbers, including the 92.6%, were measured with these gaps in the debate;
+the next run measures full debates.
+
+## D17. Full-debate run 20261002-211912; two payout guards (2026-10-04)
+
+**Run** (33 cases, Cerebras, with D16 and full rebuttals): verdict **29/33 (87.9%)**, 0 LLM errors,
+864k tokens, US$0.37. Paraphrase 4/4, injection 3/3, counterfactual 2/3 (NS-002-C1 as before).
+The D16 fixes worked where they were aimed: FD-003 now goes to a person, CR-003 is `upheld` S$5.00.
+
+| Case | Expected | Got | Cause |
+|---|---|---|---|
+| NS-002-B1, NS-002-C1 | upheld S$8 | to a person | Judge no-show reasoning, caught by `fee_basis_not_met` (unchanged since D15) |
+| SQ-002 | partially_upheld S$4.20 | upheld **S$22.60** | Judge merged the two asks into "full fare refund", granted it citing `refund_at_ryde_discretion`. The previous run gave S$4.20: run-to-run variation, not the D16 code |
+| CR-001 (dev) | upheld S$4 | dismissed | Judge read the trip's `no_fee_if_driver_delayed_beyond_eta_min = 10` as applying only if the driver arrives; the driver was 12.5 min past the ETA |
+
+**Finding: missing rebuttals had been helping.** In runs 114026 and 203206 one of CR-001's two
+rebuttals was empty (the D16 token-budget bug). With the driver's rebuttal present ("the driver was
+still en route"), the Judge was persuaded. Part of the earlier 92.6% rested on one side being silent;
+full debates expose the Judge's weakness on fee waivers.
+
+**Guards, not answer fixes** (D16 protocol: general rule, both directions tested, replayed first):
+- `fee_basis_not_met` also fires when the fee is kept although the trip's own
+  `no_fee_if_driver_delayed_beyond_eta_min` is exceeded by the data (`wait_time.no_arrival` /
+  `wait_time.arrival_vs_scheduled`).
+- New high-severity check `refund_beyond_disputed_amount`: a refund larger than the disputed amount
+  the platform data computes (fee charged, or excess over the quote) goes to a person.
+Both only route to human review; they never change a ruling. Replay over all 140 recorded rulings
+(runs since 20260930-132225): each fires once, on the wrong ruling it was written for, and on no
+correct ruling. Projected: still 29/33 decided correctly, but every one of the four misses now goes to
+a person, so **no wrong ruling would be executed automatically**. 6 tests; suite 341 passed.
+
+Not changed: the Judge prompt. A fee-waiver prompt line would be written for CR-001 alone; the guard
+catches the error class without tuning the prompt to one case. Revisit if the sealed set shows it.
+
+## D18. Judge reasoning principles: run 20261004-083956 (2026-10-04)
+
+**Prompt change.** Four general principles in the Judge's system prompt (no case ids or amounts): a rule
+applies exactly when its written condition is met; every amount comes from a specific rule applied to
+a specific figure (a discretion clause allows a refund but sets no amount); an advocate's argument is
+not evidence; split a filing into its separate asks.
+
+**Run** (33 cases, Cerebras, full debates): verdict **30/33 (90.9%)**, up from 29/33 in D17; 875k
+tokens, US$0.38, 0 LLM errors. Newly correct: CR-001 (the delay waiver) and NS-002-B1, which no earlier
+run had right: the Judge itself now applies the no-show threshold, without the D15 guard. Misses:
+- NS-002-C1: sent to a person by `fee_basis_not_met` (unchanged).
+- SQ-002: the Judge ruled S$4.20 with its single merged ask marked `partly` (correct), and our D15
+  label rule relabelled it `upheld` because the refund equalled the S$4.20 disputed excess. Second
+  time this rule caused an error. **Fix:** the amount rule now applies only when the Judge gives no
+  asks list; the asks know what was asked for (S$22.60), the disputed amount does not. Replay over
+  the two runs with asks lists: the rule fired once, on this case, wrongly.
+- SQ-001 (dev, newly wrong): unsafe driving, rider asks for the fare. The Judge warned the driver,
+  refunded nothing and labelled it dismissed; the key accepts partially_upheld / upheld. Both SQ keys
+  (written 2026-09-30 and 10-02, before these changes) treat a complaint about conduct as an ask that
+  a warning grants. **Fix:** the prompt states that definition: a conduct complaint is an ask, granted
+  when the ruling acts on it. Not a key change.
+
+**Overfitting note.** The Judge prompt has now been changed three times in response to these 33
+cases (D16 asks, D18 principles, D18 conduct line). Each change is general, but the 33 cases can no
+longer show whether the changes generalise; only the sealed set (run once, before submission) can.
+
+**Discretionary refunds go to a person (user decision 2026-10-04).** Repeat run 20261004-145849
+(SQ-001, SQ-002 x3): SQ-002 3/3 correct and stable (S$4.20, partially_upheld). SQ-001 got an accepted
+label 3/3 but refunded the whole S$27.40 fare each time on "compensation at Ryde's discretion",
+although the Judge prompt says a discretion clause sets no amount. Ryde's policy has no refund schedule
+for rude or unsafe driving, so the user decided a refund there is a person's call. `_refund_basis_problems`
+now also flags a service-quality refund that is not a fare overcharge (no disputed amount). A broader
+first version (any refund without a computed disputed amount) was rejected on replay: it also caught
+correct rule-based amounts (CF-001 S$150 fee, DR-001 S$120, DR-002 S$200 cap). The narrow version fires
+only on SQ-001 (and the S$22.60 SQ-002 overpayment) across all recorded rulings. A warning-only ruling
+stays automatic. New key option `escalation_acceptable` (SQ-001): deciding or escalating both count.
+
+## D19. Regression run 20261005-131434 after the D18 fixes; provider fallback (2026-10-05)
+
+**Why the run.** After D18 the Judge prompt got the conduct-ask line, `_refund_basis_problems` got the
+service-quality guard, and the record store moved to Supabase with a rider/driver history store. Only
+SQ-001 and SQ-002 had been re-run since, so the 30/33 of D18 no longer described the current code.
+
+**Run** (33 cases, Cerebras `gpt-oss-120b`, full debates, no fallback; resumed once with `--resume`
+after the process was stopped for low memory, no case run twice): verdict **31/33 (93.9%)**, refund
+25/27, classification 28/28, refund cap / citation validity / Hit@3 all 100%, 0 failed runs; 862k
+tokens, US$0.37, p50 91 s per case (mostly rate-limit spacing; model time p50 12 s).
+
+Changes against D18:
+- SQ-002 now correct (S$4.20, partially_upheld): the asks-list label rule from D18.
+- SQ-001 escalated, accepted by `escalation_acceptable`: the service-quality refund guard works as decided.
+- RD-002 (dev) newly wrong. The Judge ruled `dismissed` (correct) but wrote that rider consent given
+  after the trip started satisfies `rider_route_requests_must_be_agreed_before_trip`. Fairness flagged
+  that as a high-severity internal inconsistency and sent the case to a person. Neither the Judge nor
+  Fairness changed after D18; this is run-to-run variation in the Judge's wording, and the failure is
+  the safe kind (a person reviews, no wrong payout). **No fix:** tuning for it would be one more change
+  fitted to these 33 cases (see the D18 overfitting note).
+- NS-002-C1 unchanged (still escalated by `fee_basis_not_met`).
+
+**Chat provider fallback.** `LLM_FALLBACK_PROVIDERS` (comma list) gives backup providers that
+`llm_client` tries in order when a call fails; the team setting is Gemini, then Cerebras, then Groq.
+`scripts/eval.py` turns fallback off so a run never mixes models (`run_start.llm` would be wrong). A
+`hunyuan` provider (TokenHub, OpenAI-compatible) was added and tested: the key authenticates, but every
+model returns 402 / 401006 until a paid inference service is activated, so it is not used.

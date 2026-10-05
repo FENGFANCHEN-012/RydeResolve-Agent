@@ -1,0 +1,99 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-03",
+    "trip_id": "RYDE-SEAL-003",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The driver added $12.00 for ERP charges. I only passed one gantry at CTE which costs $2.00 at 09:15am. He overcharged me by $10.00.",
+    "filed_at": "2026-10-01T10:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-1102",
+    "name": "James Lim",
+    "account_age_days": 800,
+    "total_trips": 500,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 2,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7731",
+    "name": "Gary Teo",
+    "account_age_days": 600,
+    "total_trips": 3500,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "TransCab Taxi (SHB 9901 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-003",
+    "rider_id": "R-1102",
+    "driver_id": "D-7731",
+    "pickup_location": {
+      "name": "Ang Mo Kio Ave 3",
+      "lat": 1.3691,
+      "lng": 103.8454
+    },
+    "dropoff_location": {
+      "name": "Raffles Place",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-01T09:00:00+08:00",
+    "pickup_time": "2026-10-01T09:05:00+08:00",
+    "dropoff_time": "2026-10-01T09:35:00+08:00",
+    "estimated_fare": 22.0,
+    "total_fare": 34.0,
+    "fare_breakdown": {
+      "meter_fare": 22.0,
+      "erp_toll": 12.0,
+      "total": 34.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-01T09:15:00+08:00",
+      "lat": 1.341,
+      "lng": 103.858,
+      "speed_kmh": 65,
+      "status": "on_trip"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-01T09:35:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Driver manually entered S$12.00 ERP. Total fare S$34.00 charged."
+    }
+  ],
+  "platform_policy": {
+    "service_type": "RydeTAXI",
+    "erp_handling": "exclude_from_base"
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "RydeTAXI fares exclude ERP and the driver must key in ERP for the gantries actually passed ('Which trips do I need to include ERP?'; 'How to add ERP to my trip fare?'). The record holds no ERP/gantry log and a single GPS point, so neither the driver's S$12.00 entry nor the rider's claim of one S$2.00 gantry can be verified. Over-keying ERP is treated as fraud with permanent-suspension consequences, so a human must check the ERP records before any refund. [Key corrected in independent audit 2026-10-02.]",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Driver Fares Charges > Which trips do I need to include ERP?",
+      "Ryde Help Driver Fares Charges > How to add ERP to my trip fare?"
+    ]
+  }
+}

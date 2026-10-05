@@ -1,0 +1,94 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SQ-002",
+    "trip_id": "RYDE-DEMO-014",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "Terrible trip. The driver took a wrong turn onto the PIE and the meter went up by a few dollars, and when I pointed it out he shouted at me and said I should book a limo if I want to choose roads. I want the whole fare of $22.60 back.",
+    "filed_at": "2026-09-23T21:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5521",
+    "name": "Priya Nair",
+    "account_age_days": 1320,
+    "total_trips": 610,
+    "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 1, "upheld": 1, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7764",
+    "name": "Ong Beng Huat",
+    "account_age_days": 2100,
+    "total_trips": 8900,
+    "avg_rating": 4.3,
+    "dispute_history": {"total_disputes": 5, "upheld_against": 2, "rejected": 3},
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SHA 4412 K, RydeTAXI)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-014",
+    "rider_id": "R-5521",
+    "driver_id": "D-7764",
+    "service_type": "RydeTAXI",
+    "pickup_location": {"name": "Paya Lebar Square", "lat": 1.3179, "lng": 103.8924},
+    "dropoff_location": {"name": "Tiong Bahru Plaza", "lat": 1.2863, "lng": 103.8271},
+    "scheduled_time": "2026-09-23T20:15:00+08:00",
+    "pickup_time": "2026-09-23T20:16:00+08:00",
+    "dropoff_time": "2026-09-23T20:52:00+08:00",
+    "estimated_distance_km": 10.8,
+    "actual_distance_km": 12.6,
+    "estimated_duration_min": 24,
+    "actual_duration_min": 36,
+    "estimated_fare": 18.4,
+    "total_fare": 22.6
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-23T20:16:00+08:00", "lat": 1.3179, "lng": 103.8924, "speed_kmh": 5, "status": "on_trip"},
+    {"timestamp": "2026-09-23T20:24:00+08:00", "lat": 1.3255, "lng": 103.8830, "speed_kmh": 62, "status": "on_trip"},
+    {"timestamp": "2026-09-23T20:30:00+08:00", "lat": 1.3338, "lng": 103.8690, "speed_kmh": 70, "status": "on_trip"},
+    {"timestamp": "2026-09-23T20:36:00+08:00", "lat": 1.3300, "lng": 103.8495, "speed_kmh": 55, "status": "on_trip"},
+    {"timestamp": "2026-09-23T20:44:00+08:00", "lat": 1.3050, "lng": 103.8330, "speed_kmh": 38, "status": "on_trip"},
+    {"timestamp": "2026-09-23T20:52:00+08:00", "lat": 1.2863, "lng": 103.8271, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-23T20:27:00+08:00", "sender": "rider", "type": "message", "content": "You missed the exit, Google Maps says we should be on the ECP side."},
+    {"timestamp": "2026-09-23T20:28:00+08:00", "sender": "driver", "type": "message", "content": "I know the roads, don't teach me how to drive."},
+    {"timestamp": "2026-09-23T20:29:00+08:00", "sender": "rider", "type": "message", "content": "There's no need to shout at me, I'm just saying the meter is running."},
+    {"timestamp": "2026-09-23T20:30:00+08:00", "sender": "driver", "type": "message", "content": "If you want to pick roads go book a limo."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-23T20:15:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-5521 booked RydeTAXI trip RYDE-DEMO-014 (metered fare, estimate S$18.40)."},
+    {"timestamp": "2026-09-23T20:31:00+08:00", "event_type": "route_recalculated", "details": "Navigation recalculated after missed exit onto PIE; new route +1.8 km / +8 min vs optimal."},
+    {"timestamp": "2026-09-23T20:53:00+08:00", "event_type": "trip_completed", "details": "Metered fare S$22.60 charged (estimate was S$18.40; +S$4.20 attributable to the longer route)."},
+    {"timestamp": "2026-09-23T21:10:00+08:00", "event_type": "dispute_filed", "details": "Rider filed a service quality dispute requesting a full fare refund of S$22.60."}
+  ],
+  "platform_policy": {
+    "fare_basis": "metered_for_rydetaxi",
+    "refund_at_ryde_discretion": true,
+    "detour_not_agreed_by_rider_refundable": "excess over the optimal-route fare",
+    "driver_conduct_standard": "professional and courteous at all times",
+    "conduct_violation_first_action": "formal_warning_to_driver"
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "refund_detour_excess_and_warn_driver",
+    "refund_amount": 4.2,
+    "requires_human_review": false,
+    "reason": "Two complaints in one filing. (1) The wrong turn is confirmed by the route_recalculated event and GPS: the metered fare came out S$4.20 above the optimal-route estimate, and under this trip's policy a detour the rider did not agree to is refundable for the excess only. (2) The chat shows unprofessional conduct, which under this trip's policy draws a formal warning, not a refund. The full S$22.60 refund the rider asks for has no policy basis: the ride was completed.",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Ryde Experience > I would like to provide feedback about my driver",
+      "Ryde Site Code Of Conduct > Mutual Respect",
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}

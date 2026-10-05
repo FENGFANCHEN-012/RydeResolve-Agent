@@ -31,7 +31,7 @@ beautifulsoup4==4.12.3
 
 # --- Database ---
 sqlalchemy==2.0.0
-psycopg2-binary==2.9.9
+psycopg[binary]==3.3.4  # Postgres driver for STORE_URL (e.g. Supabase)
 alembic==1.13.0
 
 # --- Queue ---

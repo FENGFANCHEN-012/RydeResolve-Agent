@@ -41,7 +41,6 @@ class _FakeModel:
 @pytest.fixture
 def fake_llm(monkeypatch, tmp_path):
     monkeypatch.setattr(llm_module.LLMClient, "_get_model", lambda self: _FakeModel())
-    monkeypatch.setattr(api_main, "TRACES_DIR", str(tmp_path))
 
 
 @pytest.mark.asyncio
@@ -112,7 +111,11 @@ async def test_stream_full_run_disp002(fake_llm, tmp_path):
 
     # Saved for replay
     saved = events[-1]["trace_name"]
-    assert saved and (tmp_path / saved).exists()
+    assert saved
+    r = TestClient(api_main.app).get("/api/disputes/traces")
+    assert saved in r.json()["traces"]
+    replay = TestClient(api_main.app).get(f"/api/disputes/traces/{saved}").json()["events"]
+    assert replay[0]["type"] == "run_start" and replay[-1]["type"] != "done"
 
 
 def test_cases_endpoint_lists_datasets_without_answers():

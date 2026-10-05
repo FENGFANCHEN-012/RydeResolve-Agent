@@ -90,6 +90,7 @@ class FairnessIssueCode(str, Enum):
 
     # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
     FEE_BASIS_NOT_MET = "fee_basis_not_met"
+    REFUND_BEYOND_DISPUTED = "refund_beyond_disputed_amount"
 
 
 # Verdict labels are about the COMPLAINT, not about any fee. Without this the semantic check read
@@ -153,18 +154,72 @@ def _fee_basis_problems(context: dict, verdict: str, refund) -> list[str]:
                                 "trip's no_show_threshold_min of %s." % (float(waited), threshold))
         except (TypeError, ValueError):
             pass
+    # The trip's own policy waives the fee when the driver is late beyond a limit; the Judge kept
+    # it although the data shows that limit passed (CR-001, run 20261002-211912)
+    delay_limit = (context.get("platform_policy") or {}).get("no_fee_if_driver_delayed_beyond_eta_min")
+    late = ((_finding_values(context, "wait_time.no_arrival") or {}).get("minutes_after_scheduled")
+            if _finding_values(context, "wait_time.no_arrival")
+            else (_finding_values(context, "wait_time.arrival_vs_scheduled") or {}).get("minutes_late"))
+    if delay_limit is not None and late is not None:
+        try:
+            if float(late) > float(delay_limit):
+                problems.append("The ruling keeps the fee, but the driver was %.1f min past the scheduled "
+                                "pickup / ETA, beyond this trip's no_fee_if_driver_delayed_beyond_eta_min of "
+                                "%s." % (float(late), delay_limit))
+        except (TypeError, ValueError):
+            pass
     return problems
+
+
+def _refund_basis_problems(context: dict, refund) -> list[str]:
+    """A refund larger than the amount in dispute that the platform data computes (the fee charged,
+    or the excess over the quoted fare) has no rule the system can check behind the extra money.
+    The Judge refunded a whole S$22.60 fare where only the S$4.20 detour excess was refundable
+    (SQ-002, run 20261002-211912). Not decided here: the case goes to a person (D17)."""
+    from src.agents.case_brief import disputed_charge
+    disputed = disputed_charge(context)
+    try:
+        refunded = float(refund or 0)
+    except (TypeError, ValueError):
+        return []
+    if disputed and refunded > disputed + 0.01:
+        return ["The refund S$%.2f is larger than the S$%.2f in dispute that the platform data computes; "
+                "no checkable rule covers the difference." % (refunded, disputed)]
+    # Service-quality complaints (rude or unsafe driving) have no refund schedule in Ryde's policy:
+    # compensation is at Ryde's discretion, so any amount beyond a fare overcharge is a person's call,
+    # not the model's (user decision 2026-10-04; SQ-001 auto-refunded a whole S$27.40 fare).
+    # Cleaning fees and driver claims are not covered here: their amounts come from fee and cap rules.
+    dispute_type = getattr(context.get("type"), "value", context.get("type"))
+    if dispute_type == "service_quality" and refunded > 0 and not disputed:
+        return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
+                "sets an amount, so a person decides it." % refunded]
+    return []
 
 
 def _dump_findings(context: dict) -> list[dict]:
     return [f if isinstance(f, dict) else f.model_dump() for f in context.get("findings") or []]
 
 
+def _fare_is_metered(context: dict) -> bool:
+    """True when the platform data says the fare was metered (it grows with the route
+    driven), not fixed upfront. A metered fare can only be checked against the route."""
+    basis = str((context.get("platform_policy") or {}).get("fare_basis") or "").lower()
+    if basis.startswith("metered"):
+        return True
+    return any(isinstance(e, dict) and e.get("event_type") == "booking_confirmed"
+               and "metered fare" in str(e.get("details") or "").lower()
+               for e in context.get("app_events") or [])
+
+
 def _location_evidence_gaps(context: dict) -> list[str]:
     """Collector gaps that leave the driver's location unverifiable, for dispute
     types where that location decides the case. Empty list = nothing blocking."""
     dispute_type = getattr(context.get("type"), "value", context.get("type"))
-    if dispute_type not in _LOCATION_DECIDED_TYPES:
+    # A metered fare is decided by the route driven, so a GPS gap blocks it like a route
+    # deviation; an upfront fare is fixed by the quote and is not (eval case FD-003)
+    location_decided = dispute_type in _LOCATION_DECIDED_TYPES or (
+        dispute_type == "fare_dispute" and _fare_is_metered(context))
+    if not location_decided:
         return []
     # A cancellation where the platform records no driver arrival is decided by timing
     # (free window after match), not by where the driver was (eval case CR-002-M2)
@@ -603,6 +658,17 @@ class FairnessAgent:
                 severity="high",
                 refs=["collector.findings", "platform_policy"],
                 recommended_action="Route to human review; the fee rests on a record the data does not support.",
+            )
+            requires_human = True
+
+        # (j) the refund goes beyond the disputed amount the platform data computes
+        for problem in _refund_basis_problems(context or {}, getattr(decision, "refund_amount", None)):
+            add_issue(
+                FairnessIssueCode.REFUND_BEYOND_DISPUTED,
+                problem,
+                severity="high",
+                refs=["collector.findings", "platform_policy"],
+                recommended_action="Route to human review; the extra amount has no rule the system can verify.",
             )
             requires_human = True
 

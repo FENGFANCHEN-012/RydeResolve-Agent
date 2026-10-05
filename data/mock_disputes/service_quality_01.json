@@ -186,6 +186,8 @@
       "Ryde Site Code Of Conduct > Mutual Respect",
       "Ryde Site Code Of Conduct > Safety First"
     ],
+    "escalation_acceptable": true,
+    "escalation_acceptable_reason": "User decision 2026-10-04: no policy rule sets a refund amount for unsafe or rude driving, so a refund here is a person's call; a warning-only ruling may still be automatic.",
     "acceptable_verdicts": [
       "partially_upheld",
       "upheld"

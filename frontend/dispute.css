@@ -379,3 +379,13 @@
     .rr-main { scroll-behavior: auto; }
     .rr-bubble.typing .txt::after { animation: none; }
 }
+
+/* ---------------- Notices to both parties ---------------- */
+.rr-notices { margin-top: 20px; }
+.rr-notices h4 { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
+.rr-notices h4 .rr-hint { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 6px; }
+.rr-notice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rr-notice { border: 1px solid var(--border); border-radius: var(--r-sm, 6px); padding: 12px 14px; min-width: 0; }
+.rr-notice-to { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: capitalize; margin-bottom: 4px; }
+.rr-notice-subj { font-weight: 600; margin-bottom: 6px; overflow-wrap: anywhere; }
+.rr-notice .rr-prose { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
