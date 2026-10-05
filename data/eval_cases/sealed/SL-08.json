@@ -1,0 +1,123 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-08",
+    "trip_id": "RYDE-SEAL-008",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was waiting at the lobby of ION Orchard. The driver cancelled and I was charged $6.61. He never even arrived at the entrance.",
+    "filed_at": "2026-10-07T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-1212",
+    "name": "Jason Ng",
+    "account_age_days": 150,
+    "total_trips": 40,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 2,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4433",
+    "name": "Vikram Singh",
+    "account_age_days": 800,
+    "total_trips": 5000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Civic (SND 4499 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-008",
+    "rider_id": "R-1212",
+    "driver_id": "D-4433",
+    "pickup_location": {
+      "name": "ION Orchard Pickup Point",
+      "lat": 1.3045,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Great World City",
+      "lat": 1.293,
+      "lng": 103.832
+    },
+    "scheduled_time": "2026-10-07T18:00:00+08:00",
+    "pickup_time": null,
+    "dropoff_time": null,
+    "estimated_distance_km": 1.5,
+    "total_fare": 10.2,
+    "fare_breakdown": {
+      "base_fare": 10.2,
+      "total": 10.2
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T17:58:00+08:00",
+      "lat": 1.3045,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-07T18:03:00+08:00",
+      "lat": 1.3045,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T17:58:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm here at the ION pickup point."
+    },
+    {
+      "timestamp": "2026-10-07T18:01:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Jason, are you coming? I'm in the white Honda Civic."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T17:58:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed 'I'm Here' at lat 1.3045, lng 103.8318 (matches pickup)."
+    },
+    {
+      "timestamp": "2026-10-07T18:03:10+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Reason: Rider No Show. Cancellation fee $6.61 applied."
+    }
+  ],
+  "cancellation_policy": {
+    "no_show_threshold_minutes": 3,
+    "cancellation_fee_amount": 6.61
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "none",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "GPS telemetry confirms the driver was at the correct pickup coordinates for over 5 minutes. The driver sent multiple messages to the rider. According to 'this trip's policy' and the 'Cancellation and Waiting Fee' section, a $6.61 fee is valid if the driver waits more than 3 minutes after pressing 'I'm Here'. The rider's claim is refuted by the system's location data.",
+    "expected_dispute_type": "no_show",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy"
+    ]
+  }
+}

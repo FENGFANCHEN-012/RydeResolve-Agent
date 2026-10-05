@@ -43,7 +43,6 @@ app.add_middleware(
 
 
 # Saved pipeline runs for replay (see /api/disputes/traces)
-TRACES_DIR = os.path.join(DATA_DIR, "traces")
 _running_tasks: set = set()
 
 
@@ -452,7 +451,7 @@ async def resolve_dispute_stream(request: DisputeRequest):
 
     Each agent step emits step_start / llm_call / step_end events (see
     src/core/trace.py), then a final `result` (or `error`) and `done`.
-    The full trace is also saved to data/traces/ so it can be replayed
+    The full trace is also saved to the record store so it can be replayed
     without spending LLM quota.
     """
     tracer = Tracer()
@@ -472,7 +471,7 @@ async def resolve_dispute_stream(request: DisputeRequest):
         except Exception as exc:
             tracer.emit({"type": "error", "message": str(exc)})
         finally:
-            name = _save_trace(request.order_id, tracer.events)
+            name = await asyncio.to_thread(_save_trace, request.order_id, tracer.events)
             tracer.emit({"type": "done", "trace_name": name})
             tracer.close()
 
@@ -496,12 +495,12 @@ async def resolve_dispute_stream(request: DisputeRequest):
 
 
 def _save_trace(order_id: str, events: list[dict]) -> str | None:
+    from src.store.db import get_store
     try:
-        os.makedirs(TRACES_DIR, exist_ok=True)
         safe = re.sub(r"[^A-Za-z0-9_-]", "_", order_id)
         name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_{safe}.json"
-        with open(os.path.join(TRACES_DIR, name), "w", encoding="utf-8") as f:
-            json.dump(events, f, ensure_ascii=False, indent=1)
+        # Events can hold datetimes etc.; store them exactly as the stream sent them
+        get_store().save_trace(name, order_id, json.loads(json.dumps(events, default=str)))
         return name
     except Exception:
         return None
@@ -510,10 +509,8 @@ def _save_trace(order_id: str, events: list[dict]) -> str | None:
 @app.get("/api/disputes/traces")
 async def list_traces():
     """Saved pipeline runs, newest first."""
-    if not os.path.isdir(TRACES_DIR):
-        return {"traces": []}
-    names = sorted((n for n in os.listdir(TRACES_DIR) if n.endswith(".json")), reverse=True)
-    return {"traces": names[:50]}
+    from src.store.db import get_store
+    return {"traces": await asyncio.to_thread(get_store().list_trace_names, 50)}
 
 
 @app.get("/api/disputes/traces/{name}")
@@ -521,11 +518,11 @@ async def get_trace(name: str):
     """One saved run's events, for replay in the dashboard."""
     if not re.fullmatch(r"[A-Za-z0-9_.-]+\.json", name):
         raise HTTPException(status_code=400, detail="Invalid trace name")
-    path = os.path.join(TRACES_DIR, name)
-    if not os.path.isfile(path):
+    from src.store.db import get_store
+    events = await asyncio.to_thread(get_store().get_trace, name)
+    if events is None:
         raise HTTPException(status_code=404, detail="Trace not found")
-    with open(path, encoding="utf-8") as f:
-        return {"name": name, "events": json.load(f)}
+    return {"name": name, "events": events}
 
 
 @app.post("/api/disputes/resolve-with-files")
@@ -705,6 +702,72 @@ async def retire_precedent(precedent_id: int, request: PrecedentAction):
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc))
     return _precedent_json(p)
+
+
+# ---------------------------------------------------------------------------
+# People's history and fraud flags (src/store/people.py)
+# ---------------------------------------------------------------------------
+
+class FlagRaise(BaseModel):
+    user_id: str
+    signal: str
+    detail: str
+    dispute_id: str | None = None
+    raised_by: str
+
+
+class FlagReview(BaseModel):
+    reviewer: str
+    decision: str  # "confirmed" or "rejected"
+    reason: str
+
+
+def _flag_json(f) -> dict:
+    return {k: getattr(f, k) for k in ("id", "user_role", "user_id", "dispute_id", "signal", "detail", "status",
+                                      "raised_by", "reviewed_by", "review_reason", "created_at", "reviewed_at")}
+
+
+@app.get("/api/people/{user_id}/history")
+async def person_history(user_id: str, exclude_dispute_id: str | None = None):
+    """A rider's or driver's record: trips, rating, complaints filed/received and upheld, fraud."""
+    from src.store import people
+    from src.store.db import get_store
+    h = await asyncio.to_thread(people.get_user_history, get_store(), user_id, exclude_dispute_id)
+    if h is None:
+        raise HTTPException(status_code=404, detail=f"no rider or driver {user_id}")
+    return h
+
+
+@app.get("/api/flags")
+async def list_flags(status: str | None = None, user_id: str | None = None):
+    from src.store import people
+    from src.store.db import get_store
+    return [_flag_json(f) for f in await asyncio.to_thread(people.list_flags, get_store(), status, user_id)]
+
+
+@app.post("/api/flags")
+async def raise_flag(request: FlagRaise):
+    """Record a suspicion. It stays pending and does not count until a person confirms it."""
+    from src.store import people
+    from src.store.db import get_store
+    f = await asyncio.to_thread(people.raise_flag, get_store(), user_id=request.user_id, signal=request.signal,
+                                detail=request.detail, dispute_id=request.dispute_id, raised_by=request.raised_by)
+    return _flag_json(f)
+
+
+@app.post("/api/flags/{flag_id}/review")
+async def review_flag(flag_id: int, request: FlagReview):
+    """A person confirms or rejects a flag; only confirmed flags enter fraud history."""
+    from src.store import people
+    from src.store.db import get_store
+    try:
+        f = await asyncio.to_thread(people.review_flag, get_store(), flag_id, request.reviewer,
+                                    request.decision, request.reason)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return _flag_json(f)
 
 
 @app.get("/api/audit/verify")

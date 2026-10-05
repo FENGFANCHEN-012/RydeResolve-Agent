@@ -1,0 +1,127 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "SL-07",
+    "trip_id": "RYDE-SEAL-007",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "Rider tried to bring 4 passengers on a RydePOOL trip. I told them the limit is 2 for this booking. The rider became verbally abusive, calling me names. I cancelled for my safety, but the rider was still able to leave a 1-star review which ruined my 4.9 rating.",
+    "filed_at": "2026-10-06T10:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5541",
+    "name": "Marcus Lim",
+    "account_age_days": 30,
+    "total_trips": 4,
+    "avg_rating": 3.2,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "cash"
+  },
+  "driver_profile": {
+    "driver_id": "D-8872",
+    "name": "Siti Aminah",
+    "account_age_days": 600,
+    "total_trips": 2500,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SLK 1234 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-SEAL-007",
+    "rider_id": "R-5541",
+    "driver_id": "D-8872",
+    "pickup_location": {
+      "name": "Clarke Quay Central",
+      "lat": 1.289,
+      "lng": 103.846
+    },
+    "dropoff_location": {
+      "name": "Tiong Bahru Plaza",
+      "lat": 1.286,
+      "lng": 103.827
+    },
+    "scheduled_time": "2026-10-06T09:15:00+08:00",
+    "pickup_time": null,
+    "dropoff_time": null,
+    "estimated_distance_km": 3.2,
+    "total_fare": 8.5,
+    "fare_breakdown": {
+      "base_fare": 8.5,
+      "total": 8.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T09:14:00+08:00",
+      "lat": 1.289,
+      "lng": 103.846,
+      "speed_kmh": 0,
+      "status": "arrived"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T09:16:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "We are 4 people here."
+    },
+    {
+      "timestamp": "2026-10-06T09:16:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am sorry, this is a RydePOOL booking for 2 pax only. I cannot take 4."
+    },
+    {
+      "timestamp": "2026-10-06T09:17:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "You are useless. Just drive us or I will report you and make sure you lose your job."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T09:14:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed 'I'm Here' at Clarke Quay Central."
+    },
+    {
+      "timestamp": "2026-10-06T09:18:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Reason: Safety/Abusive Rider."
+    },
+    {
+      "timestamp": "2026-10-06T09:20:00+08:00",
+      "event_type": "rating_submitted",
+      "details": "Rider R-5541 rated Driver D-8872 with 1 star. Comment: 'Terrible attitude, refused trip'."
+    }
+  ],
+  "platform_policy": {
+    "abuse_zero_tolerance": true,
+    "pool_pax_limit_strict": true
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "recommended_action": "remove_rating",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The chat logs confirm the rider used abusive language ('You are useless') and made threats after the driver correctly enforced the RydePOOL capacity policy. Under the 'Ratings and Reviews Moderation Policy', reviews should be removed if they are irrelevant to the driver's performance or violate the Code of Conduct (harassment). The 1-star rating was clearly retaliatory for the driver following safety and platform rules.",
+    "expected_dispute_type": "driver_rights",
+    "expected_official_sections": [
+      "Ryde Help Driver Driver Community Guidelines > Ryde Code Of Conduct",
+      "Ryde Help Driver Popular Topics > Ratings and Reviews Moderation Policy"
+    ]
+  }
+}

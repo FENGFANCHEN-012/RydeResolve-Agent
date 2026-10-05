@@ -217,8 +217,19 @@ def _record_ruling(state: DisputeWorkflowState, response: dict) -> int | None:
         classification = state.get("classification")
         dispute_type = getattr(getattr(classification, "dispute_type", None), "value",
                                getattr(classification, "dispute_type", None))
-        ruling = get_store().record_ruling(
-            dispute_id=response.get("dispute_id") or "unknown",
+        store = get_store()
+        dispute_id = response.get("dispute_id") or "unknown"
+        if context is not None and dispute_id != "unknown":
+            # The people, trip and dispute behind this ruling, so later cases can see their history
+            from src.store.people import DRIVER, RIDER, register_case
+            register_case(store, dispute_id=dispute_id,
+                          filed_by_role=DRIVER if context.reporter == "driver" else RIDER,
+                          trip=context.trip, rider_profile=context.rider_profile,
+                          driver_profile=context.driver_profile, dispute_type=dispute_type,
+                          description=context.description, filed_at=context.submitted_at,
+                          ratings=context.ratings)
+        ruling = store.record_ruling(
+            dispute_id=dispute_id,
             order_id=response.get("order_id"),
             dispute_type=dispute_type,
             status=response.get("status") or "unknown",

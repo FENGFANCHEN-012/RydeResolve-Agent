@@ -1,0 +1,93 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "CR-004",
+    "trip_id": "RYDE-DEMO-022",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I was charged a $5 cancellation fee but the driver told me to cancel, it wasn't my choice. The fee should be refunded.",
+    "filed_at": "2026-09-29T14:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7781",
+    "name": "Desmond Low",
+    "account_age_days": 160,
+    "total_trips": 41,
+    "avg_rating": 4.6,
+    "dispute_history": {"total_disputes": 2, "upheld": 2, "rejected": 0, "note": "both prior refunds were cancellation fees on trips with driver D-9023"},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e_wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-9023",
+    "name": "Vincent Heng",
+    "account_age_days": 300,
+    "total_trips": 820,
+    "avg_rating": 4.5,
+    "dispute_history": {"total_disputes": 2, "upheld_against": 2, "rejected": 0, "note": "both were cancellation-fee refunds to rider R-7781"},
+    "fraud_flags": 0,
+    "vehicle": "Nissan Note (SLJ 2098 F)"
+  },
+  "pair_history": {
+    "rider_id": "R-7781",
+    "driver_id": "D-9023",
+    "trips_matched_30d": 3,
+    "cancelled_after_match_30d": 3,
+    "fee_refund_disputes_this_pair": 2,
+    "note": "Third match of this exact rider-driver pair in 30 days; all three ended in a cancellation followed by a fee-refund dispute."
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-022",
+    "rider_id": "R-7781",
+    "driver_id": "D-9023",
+    "pickup_location": {"name": "Blk 501 Yishun Ave 4", "lat": 1.4190, "lng": 103.8370},
+    "dropoff_location": {"name": "Northpoint City", "lat": 1.4290, "lng": 103.8360},
+    "scheduled_time": "2026-09-29T13:40:00+08:00",
+    "driver_arrival_time": "2026-09-29T13:46:00+08:00",
+    "cancellation_time": "2026-09-29T13:52:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-29T13:42:00+08:00", "lat": 1.4150, "lng": 103.8400, "speed_kmh": 30, "status": "en_route"},
+    {"timestamp": "2026-09-29T13:46:00+08:00", "lat": 1.4190, "lng": 103.8370, "speed_kmh": 0, "status": "arrived"},
+    {"timestamp": "2026-09-29T13:50:00+08:00", "lat": 1.4190, "lng": 103.8370, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-29T13:52:00+08:00", "lat": 1.4190, "lng": 103.8370, "speed_kmh": 0, "status": "cancelled"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-29T13:47:00+08:00", "sender": "driver", "type": "message", "content": "Bro same as last time. You cancel on the app, I PayNow you half the $5 later, and you claim the fee back from Ryde."},
+    {"timestamp": "2026-09-29T13:48:00+08:00", "sender": "rider", "type": "message", "content": "ok can, same number right"},
+    {"timestamp": "2026-09-29T13:52:30+08:00", "sender": "driver", "type": "message", "content": "done, sent already. remember to file the refund"}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-29T13:40:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-7781 matched with driver D-9023 for trip RYDE-DEMO-022 (third match of this pair in 30 days)."},
+    {"timestamp": "2026-09-29T13:46:00+08:00", "event_type": "driver_arrived", "details": "Driver D-9023 marked arrived at the pickup point."},
+    {"timestamp": "2026-09-29T13:52:00+08:00", "event_type": "rider_cancelled", "details": "Rider cancelled 6 minutes after driver arrival. S$5.00 cancellation fee charged (driver was on time; fee credited to driver as compensation)."},
+    {"timestamp": "2026-09-29T14:20:00+08:00", "event_type": "dispute_filed", "details": "Rider filed for a refund of the S$5.00 cancellation fee."}
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation",
+    "free_cancellation_within_min_of_match": 3
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_suspected_collusion",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "The chat contains an explicit collusion offer in the driver's own words ('You cancel on the app, I PayNow you half the $5, and you claim the fee back'), the rider agreed, and the pair history shows this exact rider-driver pair matched three times in 30 days with every match ending in a cancellation and a fee-refund dispute — the two prior ones refunded. The fee-goes-to-driver rule makes the scheme profitable: the driver is paid the fee, returns half, and the platform refunds the rider. This is bad-faith abuse of the refund process, not a fee dispute; a human should deny the refund and act on both accounts.",
+    "fraud_note": "FRAUD EVAL F3 (collusion): chat collusion offer (hard evidence) + abnormal pair history. Expected risk HIGH -> human review. The quote must be cited verbatim in the risk report; the refund must not be auto-granted.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?"
+    ]
+  }
+}

@@ -36,6 +36,46 @@ class Decision(BaseModel):
     policy_references: list[str] = []
     escalation_recommended: bool = False
     human_review_needed: bool = False
+    asks: list[dict] = []             # each thing the filer asked for and its outcome
+
+
+# Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
+# platform returned automatically); it counts as satisfied (user decision, 2026-10-02).
+ASK_OUTCOMES = {"granted", "partly", "denied", "already_resolved"}
+_SATISFIED = {"granted", "already_resolved"}
+
+
+def valid_asks(parsed: dict) -> list[dict]:
+    """The Judge's per-ask list, or [] when it is missing or malformed."""
+    asks = parsed.get("asks")
+    if not isinstance(asks, list) or not asks:
+        return []
+    if not all(isinstance(a, dict) and a.get("outcome") in ASK_OUTCOMES for a in asks):
+        return []
+    return asks
+
+
+def label_from_asks(parsed: dict) -> dict:
+    """The label is computed from the per-ask outcomes, not written by the Judge.
+
+    Every ask satisfied -> upheld; none -> dismissed; anything between -> partially_upheld.
+    The Judge labelled two-ask filings "upheld" when one ask was not granted (SQ-002, CR-003,
+    run 20261002-105854). When the list is missing the Judge's own label stands."""
+    asks = valid_asks(parsed)
+    if not asks:
+        return parsed
+    outcomes = [a["outcome"] for a in asks]
+    if all(o in _SATISFIED for o in outcomes):
+        label = "upheld"
+    elif all(o == "denied" for o in outcomes):
+        label = "dismissed"
+    else:
+        label = "partially_upheld"
+    if label != parsed.get("verdict"):
+        parsed["rationale"] = ((parsed.get("rationale") or "")
+                               + f" [Label: from the asks ({', '.join(outcomes)}), {label}.]")
+        parsed["verdict"] = label
+    return parsed
 
 
 def align_verdict_label(parsed: dict, context: dict | None) -> dict:
@@ -44,8 +84,14 @@ def align_verdict_label(parsed: dict, context: dict | None) -> dict:
     The Judge decides the amount; the label only names it. In run 20261001-114026 two rulings
     refunded exactly the disputed amount (S$9.60, S$3.70) but were labelled partially_upheld.
     Only that direction is corrected: the disputed amount comes from platform data (fee charged,
-    or the excess over the quoted fare); when the data names no amount nothing changes (D15)."""
+    or the excess over the quoted fare); when the data names no amount nothing changes (D15).
+    Applies only when the Judge gave no asks list. With one, the label comes from the asks, which
+    know what the filer asked for; the platform's disputed amount can be smaller than the ask
+    (SQ-002 asked S$22.60, the disputed excess was S$4.20: run 20261004-083956 relabelled a
+    correct "partly" ruling as upheld)."""
     if parsed.get("verdict") != "partially_upheld":
+        return parsed
+    if valid_asks(parsed):
         return parsed
     full = disputed_charge(context or {})
     try:
@@ -138,13 +184,30 @@ class ArbitrationAgent:
             "(e.g. GPS): do not rule as if the contradicted record were proven.\n"
             "- Apply each platform rule by its own key and value; do not substitute one "
             "rule's number for another's (a free waiting time is not a no-show threshold).\n"
+            "- A rule applies exactly when its written condition is met by the data. Do not add "
+            "conditions the rule does not state, and do not drop conditions it does state.\n"
+            "- Every amount you award must come from a specific rule applied to a specific figure "
+            "in the data. A general discretion clause allows a refund but sets no amount: it "
+            "cannot justify paying more than a specific rule computes.\n"
+            "- The advocates argue for their side. Accept a claim from either of them only where "
+            "the data supports it; a persuasive argument is not evidence.\n"
+            "- Split the filing into its separate asks even when the filer phrases them as one "
+            "demand (\"refund everything because of X and Y\": X and Y are decided separately). "
+            "A complaint about the other party's conduct is itself an ask (that the conduct be "
+            "dealt with): it is granted when the ruling takes action on it, such as a warning.\n"
             "- The verdict is measured against what the person who filed asked for: "
             "\"upheld\" = they get everything they asked for (e.g. the full amount they "
             "asked to be refunded, even if the rest of the fare stands); "
             "\"partially_upheld\" = they get only part of it; "
-            "\"dismissed\" = they get nothing.\n\n"
+            "\"dismissed\" = they get nothing.\n"
+            "- A filing can contain more than one ask (e.g. a refund AND a promo code back, "
+            "or a refund AND a complaint about the driver's conduct). List each ask separately "
+            "and decide each: \"granted\" (fully), \"partly\" (less than asked), \"denied\", or "
+            "\"already_resolved\" (the record shows it was already done before this ruling).\n\n"
             "Respond ONLY with a valid JSON object (no markdown, no extra text) "
             "with exactly these keys:\n"
+            "  \"asks\": list of {\"ask\": string, \"outcome\": \"granted\" | \"partly\" | "
+            "\"denied\" | \"already_resolved\"} (each thing the filer asked for),\n"
             "  \"verdict\": string (one of: \"upheld\", \"partially_upheld\", \"dismissed\"),\n"
             "  \"confidence\": float (0.0-1.0),\n"
             "  \"refund_amount\": float | null (refund in SGD, or null if none),\n"
@@ -328,7 +391,9 @@ class ArbitrationAgent:
 
         # Sanitise policy references
         parsed = self._sanitize_policy_refs(parsed, valid_refs)
-        # The label follows the refund (a full refund of the disputed amount is "upheld")
+        # The label follows the asks, then the refund (a full refund of the disputed amount
+        # on a single-ask filing is "upheld")
+        parsed = label_from_asks(parsed)
         parsed = align_verdict_label(parsed, context)
 
         # Validate verdict
@@ -360,6 +425,7 @@ class ArbitrationAgent:
             human_review_needed=bool(
                 parsed.get("human_review_needed", confidence <= CONFIDENCE_THRESHOLD_LOW)
             ),
+            asks=valid_asks(parsed),
         )
 
         # Enforce threshold overrides (belt-and-suspenders)

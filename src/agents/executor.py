@@ -48,7 +48,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
     "en": {
         "subject": "Update on your Ryde dispute {dispute_id}",
         "message": (
-            "Hello {recipient_label}, your dispute {dispute_id} has been reviewed. "
+            "Hello {recipient_label}, dispute {dispute_id} has been reviewed. "
+            "{outcome} "
             "Reason: {rationale_summary}. "
             "If you have further questions, please contact Ryde support."
         ),
@@ -62,7 +63,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
     "zh": {
         "subject": "您的 Ryde 纠纷 {dispute_id} 有最新进展",
         "message": (
-            "{recipient_label} 您好,您的纠纷 {dispute_id} 已由系统审核完毕。"
+            "{recipient_label} 您好,纠纷 {dispute_id} 已由系统审核完毕。"
+            "{outcome}"
             "处理原因:{rationale_summary}。如有疑问请联系 Ryde 客服。"
         ),
         "escalation_subject": "您的纠纷 {dispute_id} 已转交人工处理",
@@ -74,8 +76,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
     "ms": {
         "subject": "Maklumat terkini pertikaian Ryde anda {dispute_id}",
         "message": (
-            "Hai {recipient_label}, pertikaian anda {dispute_id} telah "
-            "disemak. Sebab: {rationale_summary}. Sila hubungi sokongan Ryde "
+            "Hai {recipient_label}, pertikaian {dispute_id} telah "
+            "disemak. {outcome} Sebab: {rationale_summary}. Sila hubungi sokongan Ryde "
             "untuk sebarang pertanyaan lanjut."
         ),
         "escalation_subject": "Pertikaian anda {dispute_id} telah dinaikkan taraf",
@@ -89,8 +91,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
     "ta": {
         "subject": "Ryde புகார் {dispute_id} குறித்த புதுப்பிப்பு",
         "message": (
-            "{recipient_label}, உங்கள் புகார் {dispute_id} மதிப்பாய்வு "
-            "செய்யப்பட்டது. காரணம்: {rationale_summary}. கூடுதல் "
+            "{recipient_label}, புகார் {dispute_id} மதிப்பாய்வு "
+            "செய்யப்பட்டது. {outcome} காரணம்: {rationale_summary}. கூடுதல் "
             "கேள்விகளுக்கு Ryde ஆதரவை தொடர்பு கொள்ளவும்."
         ),
         "escalation_subject": "உங்கள் புகார் {dispute_id} மனித மதிப்பாய்வுக்கு அனுப்பப்பட்டது",
@@ -102,6 +104,99 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         ),
     },
 }
+
+# What each party is told about the outcome, built only from the decision's structured fields
+# (verdict, refund_amount, compensation, driver_penalty), never from free text, so a notice
+# cannot state an amount the ruling did not make. The filer and the other party get different
+# lines; the passenger is told that action was taken on the driver's account, not what it was.
+# A language without phrases here gets the whole message in English.
+_OUTCOME_PHRASES: dict[str, dict[str, str]] = {
+    "en": {
+        "upheld": "upheld", "partially_upheld": "partly upheld", "dismissed": "not upheld",
+        "own_claim": "Your claim was {verdict}.",
+        "other_claim": "The {filer}'s claim against you was {verdict}.",
+        "refund_to_you": "SGD {amount} will be refunded to you.",
+        "refund_to_passenger": "SGD {amount} will be refunded to the passenger.",
+        "charge_stands": "The original charge stands.",
+        "compensation": "Compensation: {value}.",
+        "penalty_you": "Action on your account: {value}.",
+        "penalty_other": "Ryde has taken action on the driver's account.",
+        "no_action_you": "No action is taken against your account.",
+        "passenger": "passenger", "driver": "driver",
+    },
+    "zh": {
+        "upheld": "成立", "partially_upheld": "部分成立", "dismissed": "不成立",
+        "own_claim": "您的申诉{verdict}。",
+        "other_claim": "{filer}对您的申诉{verdict}。",
+        "refund_to_you": "将向您退款 SGD {amount}。",
+        "refund_to_passenger": "将向乘客退款 SGD {amount}。",
+        "charge_stands": "原收费维持不变。",
+        "compensation": "补偿:{value}。",
+        "penalty_you": "对您账户的处理:{value}。",
+        "penalty_other": "Ryde 已对司机账户作出处理。",
+        "no_action_you": "您的账户不受任何处理。",
+        "passenger": "乘客", "driver": "司机",
+    },
+    "ms": {
+        "upheld": "diterima", "partially_upheld": "diterima sebahagiannya", "dismissed": "tidak diterima",
+        "own_claim": "Tuntutan anda {verdict}.",
+        "other_claim": "Tuntutan {filer} terhadap anda {verdict}.",
+        "refund_to_you": "SGD {amount} akan dikembalikan kepada anda.",
+        "refund_to_passenger": "SGD {amount} akan dikembalikan kepada penumpang.",
+        "charge_stands": "Caj asal kekal.",
+        "compensation": "Pampasan: {value}.",
+        "penalty_you": "Tindakan ke atas akaun anda: {value}.",
+        "penalty_other": "Ryde telah mengambil tindakan ke atas akaun pemandu.",
+        "no_action_you": "Tiada tindakan diambil ke atas akaun anda.",
+        "passenger": "penumpang", "driver": "pemandu",
+    },
+    "ta": {
+        "upheld": "ஏற்றுக்கொள்ளப்பட்டது", "partially_upheld": "பகுதியளவில் ஏற்றுக்கொள்ளப்பட்டது",
+        "dismissed": "நிராகரிக்கப்பட்டது",
+        "own_claim": "உங்கள் கோரிக்கை {verdict}.",
+        "other_claim": "உங்களுக்கு எதிரான {filer} கோரிக்கை {verdict}.",
+        "refund_to_you": "SGD {amount} உங்களுக்குத் திருப்பி அளிக்கப்படும்.",
+        "refund_to_passenger": "SGD {amount} பயணிக்குத் திருப்பி அளிக்கப்படும்.",
+        "charge_stands": "அசல் கட்டணம் மாற்றமின்றி இருக்கும்.",
+        "compensation": "இழப்பீடு: {value}.",
+        "penalty_you": "உங்கள் கணக்கின் மீதான நடவடிக்கை: {value}.",
+        "penalty_other": "ஓட்டுநரின் கணக்கின் மீது Ryde நடவடிக்கை எடுத்துள்ளது.",
+        "no_action_you": "உங்கள் கணக்கின் மீது எந்த நடவடிக்கையும் எடுக்கப்படவில்லை.",
+        "passenger": "பயணியின்", "driver": "ஓட்டுநரின்",
+    },
+}
+
+
+def outcome_text(decision, recipient: str, reporter: str | None, language: str) -> str:
+    """The outcome lines for one recipient ("passenger" or "driver")."""
+    ph = _OUTCOME_PHRASES.get(language, _OUTCOME_PHRASES["en"])
+    reporter = getattr(reporter, "value", reporter)  # enum or plain string
+    filer = reporter if reporter in ("passenger", "driver") else "passenger"
+    verdict = getattr(getattr(decision, "verdict", None), "value", getattr(decision, "verdict", None))
+    words = ph.get(verdict or "", verdict or "")
+    lines = [ph["own_claim"].format(verdict=words) if recipient == filer
+             else ph["other_claim"].format(filer=ph[filer], verdict=words)]
+    try:
+        refund = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        refund = 0.0
+    if refund > 0:
+        key = "refund_to_you" if recipient == "passenger" else "refund_to_passenger"
+        lines.append(ph[key].format(amount=f"{refund:.2f}"))
+    elif verdict == "dismissed" and recipient == filer == "passenger":
+        lines.append(ph["charge_stands"])
+    compensation = (getattr(decision, "compensation", None) or "").strip()
+    if compensation and recipient == filer:
+        lines.append(ph["compensation"].format(value=compensation))
+    penalty = (getattr(decision, "driver_penalty", None) or "").strip()
+    if recipient == "driver":
+        if penalty:
+            lines.append(ph["penalty_you"].format(value=penalty))
+        elif filer == "passenger":
+            lines.append(ph["no_action_you"])
+    elif penalty:
+        lines.append(ph["penalty_other"])
+    return " ".join(lines)
 
 
 class ExecutionAgent:
@@ -125,6 +220,7 @@ class ExecutionAgent:
         decision: Decision,
         dispute_id: str,
         language: str = DEFAULT_LANGUAGE,
+        reporter: str | None = None,
     ) -> dict:
         """Execute a ``Decision`` and return a structured result dict.
 
@@ -132,6 +228,8 @@ class ExecutionAgent:
             decision: The arbitration decision produced upstream.
             dispute_id: Unique dispute identifier from the collector.
             language: Preferred notification language (defaults to English).
+            reporter: Who filed ("passenger" or "driver"); decides which party is told
+                "your claim" in the notifications. Defaults to the passenger.
 
         Returns:
             A dict containing at least the following keys:
@@ -183,6 +281,7 @@ class ExecutionAgent:
                 language=safe_language,
                 result=result,
                 escalated=False,
+                reporter=reporter,
             )
             return result
         except Exception as exc:  # pragma: no cover - defensive guard
@@ -306,8 +405,11 @@ class ExecutionAgent:
         language: str,
         result: dict,
         escalated: bool,
+        reporter: str | None = None,
     ) -> None:
-        """Produce simulated notifications for passenger and driver."""
+        """Produce simulated notifications for passenger and driver, each with its own outcome."""
+        if not escalated and language not in _OUTCOME_PHRASES:
+            language = DEFAULT_LANGUAGE  # no outcome phrases: whole message in English
         template = _NOTIFICATION_TEMPLATES.get(language, _NOTIFICATION_TEMPLATES[DEFAULT_LANGUAGE])
         rationale_summary = self._summarise_rationale(decision)
 
@@ -330,6 +432,7 @@ class ExecutionAgent:
                         dispute_id=dispute_id,
                         recipient_label=recipient_label,
                         rationale_summary=rationale_summary,
+                        outcome=outcome_text(decision, recipient, reporter, language),
                     )
             except (KeyError, IndexError) as exc:
                 logger.warning(
@@ -349,6 +452,7 @@ class ExecutionAgent:
                         dispute_id=dispute_id,
                         recipient_label=recipient_label,
                         rationale_summary=rationale_summary,
+                        outcome=outcome_text(decision, recipient, reporter, DEFAULT_LANGUAGE),
                     )
 
             notification = {

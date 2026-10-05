@@ -22,9 +22,13 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4096"))
 # Empty = provider default. Their reasoning was ~1.3k output tokens per opening (D15); the Judge
 # and Fairness are never lowered. Keep empty until an eval shows no accuracy loss.
 ADVOCATE_REASONING_EFFORT = os.getenv("ADVOCATE_REASONING_EFFORT", "").strip().lower()
+# Output budget of one rebuttal. gpt-oss counts its hidden reasoning in max_tokens: at 300, 18 of
+# 108 rebuttals in run 20261001-203206 spent all 300 on reasoning and came back empty. The prompt
+# still caps the text at 180 words; only tokens actually used are billed.
+REBUTTAL_MAX_TOKENS = int(os.getenv("REBUTTAL_MAX_TOKENS", "1500"))
 
-# Chat provider: "gemini" (default) or "groq" (OpenAI-compatible API, free tier:
-# https://console.groq.com/keys). Embeddings always use Gemini; Groq has none.
+# Chat provider: "gemini" (default), "groq", "cerebras" or "hunyuan" (the last three use the
+# OpenAI-compatible API). Embeddings never use this setting.
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").strip().lower()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
@@ -32,6 +36,15 @@ GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
 CEREBRAS_MODEL = os.getenv("CEREBRAS_MODEL", "gpt-oss-120b")
 CEREBRAS_BASE_URL = os.getenv("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+# Tencent Hunyuan (hy3) through TokenHub's OpenAI-compatible API. The key is a TokenHub
+# API key, not the TENCENTCLOUD_SECRET_ID/KEY pair used by the ADP scripts.
+HUNYUAN_API_KEY = os.getenv("HUNYUAN_API_KEY", "")
+HUNYUAN_MODEL = os.getenv("HUNYUAN_MODEL", "hy3")
+HUNYUAN_BASE_URL = os.getenv("HUNYUAN_BASE_URL", "https://tokenhub-intl.tencentcloudmaas.com/v1")
+# Backup providers, tried in order when a call to LLM_PROVIDER fails (e.g. "groq,cerebras").
+# Empty = no fallback. Evals turn fallback off so one run never mixes models.
+LLM_FALLBACK_PROVIDERS = [p.strip().lower() for p in os.getenv("LLM_FALLBACK_PROVIDERS", "").split(",")
+                          if p.strip()]
 # Paid-credit guard: the client refuses new calls once estimated spend in this
 # process reaches the cap. Prices are USD per million tokens.
 LLM_SPEND_CAP_USD = float(os.getenv("LLM_SPEND_CAP_USD", "1.00"))

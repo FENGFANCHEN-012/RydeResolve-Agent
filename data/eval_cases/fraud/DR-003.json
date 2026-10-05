@@ -1,0 +1,86 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DR-003",
+    "trip_id": "RYDE-DEMO-021",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "My passenger spilled curry all over the back seat and just walked off. I had to pay $150 for cleaning. I am attaching the photos and I want the cleaning fee charged to the rider.",
+    "filed_at": "2026-09-28T22:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8140",
+    "name": "Nurul Huda",
+    "account_age_days": 1400,
+    "total_trips": 520,
+    "avg_rating": 4.9,
+    "dispute_history": {"total_disputes": 0, "upheld": 0, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2958",
+    "name": "Jimmy Toh",
+    "account_age_days": 480,
+    "total_trips": 1500,
+    "avg_rating": 4.2,
+    "dispute_history": {"total_disputes": 3, "upheld_against": 0, "rejected": 3, "note": "includes a cleaning claim rejected 2026-08-14 for photos that predated the trip"},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Honda Shuttle (SKX 4452 A)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-021",
+    "rider_id": "R-8140",
+    "driver_id": "D-2958",
+    "pickup_location": {"name": "City Square Mall", "lat": 1.3113, "lng": 103.8565},
+    "dropoff_location": {"name": "Blk 112 Serangoon North", "lat": 1.3709, "lng": 103.8710},
+    "scheduled_time": "2026-09-28T20:30:00+08:00",
+    "pickup_time": "2026-09-28T20:32:00+08:00",
+    "dropoff_time": "2026-09-28T20:54:00+08:00",
+    "estimated_distance_km": 9.6,
+    "actual_distance_km": 9.7,
+    "estimated_duration_min": 20,
+    "actual_duration_min": 22,
+    "estimated_fare": 14.2,
+    "total_fare": 14.2
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-28T20:32:00+08:00", "lat": 1.3113, "lng": 103.8565, "speed_kmh": 11, "status": "on_trip"},
+    {"timestamp": "2026-09-28T20:41:00+08:00", "lat": 1.3360, "lng": 103.8640, "speed_kmh": 58, "status": "on_trip"},
+    {"timestamp": "2026-09-28T20:48:00+08:00", "lat": 1.3570, "lng": 103.8688, "speed_kmh": 47, "status": "on_trip"},
+    {"timestamp": "2026-09-28T20:54:00+08:00", "lat": 1.3709, "lng": 103.8710, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-28T20:31:00+08:00", "sender": "driver", "type": "message", "content": "I'm at the City Square pickup point, blue Shuttle."},
+    {"timestamp": "2026-09-28T21:30:00+08:00", "sender": "rider", "type": "message", "content": "Hi, I saw a cleaning charge notification? We didn't have any food with us, we came from the cinema."}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-28T20:30:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-8140 booked trip RYDE-DEMO-021 from City Square Mall to Serangoon North."},
+    {"timestamp": "2026-09-28T21:10:00+08:00", "event_type": "cleaning_claim_submitted", "details": "Driver submitted cleaning claim S$150.00 with 2 photos of a curry spill on the rear seat. Photo metadata timestamps: 2026-09-28 17:21 and 17:23 (3 hours BEFORE this trip's pickup at 20:32)."},
+    {"timestamp": "2026-09-28T22:35:00+08:00", "event_type": "cleaning_receipt_submitted", "details": "Driver submitted a handwritten receipt for S$150.00 with no shop name or registration number."}
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": 200.0,
+    "cleaning_claim_evidence_required": "photos taken promptly after the trip and a receipt where available",
+    "rider_may_dispute_if": "evidence does not show the mess, predates the trip, or the fee exceeds the actual cleaning cost"
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_suspected_fraudulent_claim",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "The claim's own evidence contradicts it: both photos were taken at 17:21-17:23, three hours before this trip's 20:32 pickup, so they cannot show a mess made on this trip, and the receipt is handwritten with no shop identity. The driver also had a cleaning claim rejected in August for the same photos-predate-trip pattern. Hard in-case evidence of a fake claim plus a repeat pattern is exactly what routes to a person: a human reviewer should deny the claim and decide whether to confirm a fraud flag against the driver, which the system must not do on its own.",
+    "fraud_note": "FRAUD EVAL F2 (fake claim, hard evidence): photo EXIF predates the trip + similar rejected claim in history. Expected risk HIGH -> human review with full report. The system must not auto-charge the rider and must not auto-flag the driver as a fraudster.",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

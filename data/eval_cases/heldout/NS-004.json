@@ -1,0 +1,89 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "NS-004",
+    "trip_id": "RYDE-DEMO-017",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I messaged the driver that I was coming down in 2 minutes and he still cancelled on me and I got charged $8. I told him I was coming! This charge is unfair.",
+    "filed_at": "2026-09-26T19:35:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2284",
+    "name": "Daryl Goh",
+    "account_age_days": 880,
+    "total_trips": 310,
+    "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 1, "upheld": 1, "rejected": 0},
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e_wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-8812",
+    "name": "Koh Lye Heng",
+    "account_age_days": 1480,
+    "total_trips": 5200,
+    "avg_rating": 4.8,
+    "dispute_history": {"total_disputes": 2, "upheld_against": 0, "rejected": 2},
+    "fraud_flags": 0,
+    "vehicle": "Honda Freed (SKR 3345 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DEMO-017",
+    "rider_id": "R-2284",
+    "driver_id": "D-8812",
+    "pickup_location": {"name": "Blk 644 Punggol Central", "lat": 1.4018, "lng": 103.9093},
+    "dropoff_location": {"name": "Kovan MRT", "lat": 1.3601, "lng": 103.8850},
+    "scheduled_time": "2026-09-26T19:00:00+08:00",
+    "driver_arrival_time": "2026-09-26T19:00:00+08:00",
+    "driver_wait_start": "2026-09-26T19:00:00+08:00",
+    "cancellation_time": "2026-09-26T19:09:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-09-26T18:54:00+08:00", "lat": 1.4075, "lng": 103.9020, "speed_kmh": 36, "status": "en_route"},
+    {"timestamp": "2026-09-26T19:00:00+08:00", "lat": 1.4018, "lng": 103.9093, "speed_kmh": 0, "status": "arrived"},
+    {"timestamp": "2026-09-26T19:03:00+08:00", "lat": 1.4018, "lng": 103.9093, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-26T19:06:00+08:00", "lat": 1.4018, "lng": 103.9093, "speed_kmh": 0, "status": "waiting"},
+    {"timestamp": "2026-09-26T19:09:00+08:00", "lat": 1.4018, "lng": 103.9093, "speed_kmh": 0, "status": "cancelled"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-09-26T19:00:30+08:00", "sender": "driver", "type": "message", "content": "I've arrived at the pickup point below Blk 644, white Freed."},
+    {"timestamp": "2026-09-26T19:04:00+08:00", "sender": "rider", "type": "message", "content": "coming down in 2 min!"},
+    {"timestamp": "2026-09-26T19:07:00+08:00", "sender": "driver", "type": "message", "content": "I have been waiting 7 minutes already, please come down now."},
+    {"timestamp": "2026-09-26T19:12:00+08:00", "sender": "rider", "type": "message", "content": "wah you really cancelled, I was in the lift"}
+  ],
+  "app_events": [
+    {"timestamp": "2026-09-26T18:52:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-2284 booked trip RYDE-DEMO-017, pickup Blk 644 Punggol Central."},
+    {"timestamp": "2026-09-26T19:00:00+08:00", "event_type": "driver_arrived", "details": "Driver D-8812 marked arrived at the pickup point."},
+    {"timestamp": "2026-09-26T19:09:00+08:00", "event_type": "cancellation_fee_applied", "details": "No-show threshold (8 min) reached. S$8.00 cancellation fee charged to rider e-wallet."},
+    {"timestamp": "2026-09-26T19:09:05+08:00", "event_type": "driver_released", "details": "Driver D-8812 released from trip. Trip status: cancelled (rider_no_show)."}
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 8.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation",
+    "free_cancellation_within_min_of_match": 3
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The driver's GPS and the driver_arrived event put him at the pickup from 19:00 to 19:09 — 9 minutes, past this trip's 8-minute no-show threshold. A chat message saying 'coming in 2 min' does not pause the wait clock under this trip's policy, and the rider had still not appeared 5 minutes after sending it. The S$8.00 fee compensates the driver's time and stands.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ]
+  }
+}
