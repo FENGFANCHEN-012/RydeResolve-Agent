@@ -1,8 +1,9 @@
 """
 Unified LLM Client
-Chat completions through Google Gemini (default) or Groq, picked by
-LLM_PROVIDER in .env. Groq uses the OpenAI-compatible API, so agents keep the
-same chat() / chat_json() calls whichever provider is active.
+Chat completions through Google Gemini (default), Groq, Cerebras or Tencent Hunyuan,
+picked by LLM_PROVIDER in .env. The last three use the OpenAI-compatible API, so agents
+keep the same chat() / chat_json() calls whichever provider is active. When a call fails,
+the providers in LLM_FALLBACK_PROVIDERS are tried in order.
 """
 import asyncio
 import contextvars
@@ -23,6 +24,10 @@ from src.config import (
     GROQ_API_KEY,
     GROQ_BASE_URL,
     GROQ_MODEL,
+    HUNYUAN_API_KEY,
+    HUNYUAN_BASE_URL,
+    HUNYUAN_MODEL,
+    LLM_FALLBACK_PROVIDERS,
     LLM_API_KEY,
     LLM_MODEL,
     LLM_PROVIDER,
@@ -92,19 +97,25 @@ def _groq_json_validation_failed(exc: Exception) -> bool:
 
 class LLMClient:
     """
-    Unified LLM client wrapping Google Gemini or Groq.
+    Unified LLM client: one primary provider plus optional fallback providers.
     """
 
-    def __init__(self):
-        self.provider = LLM_PROVIDER
+    def __init__(self, provider: str | None = None, fallbacks: list[str] | None = None):
+        self.provider = provider or LLM_PROVIDER
         if self.provider == "cerebras":
             self.api_key, self.model, self.base_url = CEREBRAS_API_KEY, CEREBRAS_MODEL, CEREBRAS_BASE_URL
         elif self.provider == "groq":
             self.api_key, self.model, self.base_url = GROQ_API_KEY, GROQ_MODEL, GROQ_BASE_URL
+        elif self.provider == "hunyuan":
+            self.api_key, self.model, self.base_url = HUNYUAN_API_KEY, HUNYUAN_MODEL, HUNYUAN_BASE_URL
         else:
             self.api_key, self.model, self.base_url = LLM_API_KEY, LLM_MODEL, None
-        # Cerebras is OpenAI-compatible, so it shares the Groq code path
-        self.openai_compatible = self.provider in ("groq", "cerebras")
+        # Cerebras and Hunyuan are OpenAI-compatible, so they share the Groq code path
+        self.openai_compatible = self.provider in ("groq", "cerebras", "hunyuan")
+        # Backup providers (built on first use), never including the primary itself
+        names = LLM_FALLBACK_PROVIDERS if fallbacks is None else fallbacks
+        self._fallback_names = [n for n in dict.fromkeys(names) if n != self.provider]
+        self._fallback_clients: dict[str, "LLMClient"] = {}
         self.temperature = LLM_TEMPERATURE
         self.max_tokens = LLM_MAX_TOKENS
         self._configured = False
@@ -182,7 +193,7 @@ class LLMClient:
             self._client = genai.GenerativeModel(f"models/{self.model}")
         return self._client
 
-    async def chat(
+    async def _chat_primary(
         self,
         messages: list[dict],
         temperature: float | None = None,
@@ -278,14 +289,14 @@ class LLMClient:
 
         return text
 
-    async def chat_json(
+    async def _chat_json_primary(
         self,
         messages: list[dict],
         temperature: float | None = None,
         reasoning_effort: str | None = None,
     ) -> str:
         """
-        Send a chat request expecting JSON output.
+        Send a chat request expecting JSON output on this client's provider only.
         Returns the raw JSON string (caller should parse).
         """
         # Append JSON instruction to system message
@@ -303,7 +314,7 @@ class LLMClient:
             })
         response_format = {"type": "json_object"} if self.openai_compatible else None
         try:
-            return await self.chat(
+            return await self._chat_primary(
                 messages=json_messages,
                 temperature=temperature,
                 response_format=response_format,
@@ -314,12 +325,57 @@ class LLMClient:
                 raise
             # One fresh attempt for transient JSON-mode validation errors.
             # The first failed call is traced by _chat_groq for accurate usage.
-            return await self.chat(
+            return await self._chat_primary(
                 messages=json_messages,
                 temperature=temperature,
                 response_format=response_format,
                 reasoning_effort=reasoning_effort,
             )
+
+
+    def _chain(self) -> list["LLMClient"]:
+        """This client, then each fallback provider in order."""
+        for name in self._fallback_names:
+            if name not in self._fallback_clients:
+                self._fallback_clients[name] = LLMClient(provider=name, fallbacks=[])
+        return [self] + [self._fallback_clients[n] for n in self._fallback_names]
+
+    async def _with_fallback(self, method: str, **kwargs) -> str:
+        chain = self._chain()
+        for i, client in enumerate(chain):
+            try:
+                return await getattr(client, method)(**kwargs)
+            except Exception as exc:
+                if i == len(chain) - 1:
+                    raise
+                # The failed call is already in the trace; say which provider takes over
+                logger.warning("LLM provider %s failed (%s); falling back to %s",
+                               client.provider, str(exc)[:200], chain[i + 1].provider)
+
+    async def chat(
+        self,
+        messages: list[dict],
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        response_format: dict | None = None,
+        reasoning_effort: str | None = None,
+    ) -> str:
+        """Chat completion on the primary provider, then on each fallback if it fails."""
+        return await self._with_fallback(
+            "_chat_primary", messages=messages, temperature=temperature, max_tokens=max_tokens,
+            response_format=response_format, reasoning_effort=reasoning_effort)
+
+    async def chat_json(
+        self,
+        messages: list[dict],
+        temperature: float | None = None,
+        reasoning_effort: str | None = None,
+    ) -> str:
+        """JSON chat on the primary provider, then on each fallback if it fails.
+        Returns the raw JSON string (caller should parse)."""
+        return await self._with_fallback(
+            "_chat_json_primary", messages=messages, temperature=temperature,
+            reasoning_effort=reasoning_effort)
 
 
 # Singleton instance

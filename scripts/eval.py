@@ -37,6 +37,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config  # noqa: E402
+from src.core import llm_client as llm_module  # noqa: E402
+
+# A fallback provider would put a second model's answers into the run; fail instead
+llm_module.LLM_FALLBACK_PROVIDERS = []
 from src.core.policy_refs import case_policy_refs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -189,7 +193,8 @@ async def run_case(case: dict) -> list[dict]:
 def current_llm() -> dict:
     """Provider and model this process calls; stored in every trace so runs are never mixed."""
     provider = config.LLM_PROVIDER
-    model = {"groq": config.GROQ_MODEL, "cerebras": config.CEREBRAS_MODEL}.get(provider, config.LLM_MODEL)
+    model = {"groq": config.GROQ_MODEL, "cerebras": config.CEREBRAS_MODEL,
+             "hunyuan": config.HUNYUAN_MODEL}.get(provider, config.LLM_MODEL)
     return {"provider": provider, "model": model}
 
 
