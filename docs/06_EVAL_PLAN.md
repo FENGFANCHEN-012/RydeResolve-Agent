@@ -1,6 +1,6 @@
 # Evaluation Plan — How to Tell Whether the Agent Architecture Is Good
 
-> Status: phase 1 implemented (2026-09-25): token and rate-limit recording, `scripts/eval.py`, answer-key fields for the 13 mock cases, offline scoring tests (`tests/test_eval_scoring.py`). Phase 2 (first baseline) in progress. See section 6 for the order.
+> Status (2026-10-05): phases 1–2 done; the 33-case set (14 dev + 19 held-out) has been run in full five times (D15–D19). Latest: run 20261005-131434, verdict 31/33 (93.9%), US$0.37. Remaining: the sealed set, run once before submission. Runs and fixes are recorded in [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
 
 Core idea: accuracy alone is not enough. We run **controlled comparisons** (ablations) to show that the multi-agent architecture is more accurate and more stable than a single LLM call, so the extra tokens are worth it.
 
@@ -93,7 +93,8 @@ Note: on the Groq free tier most of the time is **rate-limit waiting**, not mode
 ## 6. Order of work
 
 1. Phase 1 (no quota): token recording, `eval.py`, answer fields for the cases, offline safety / routing / retrieval checks — **done 2026-09-25**
-2. Phase 2: first baseline score
-3. Depending on the results, grow the test set and run the comparisons
+2. Phase 2: first baseline score — **done 2026-09-25** (`07_EVAL_BASELINE.md`, verdict 23%)
+3. Grow the test set (held-out variants, paraphrase / injection / counterfactual) and iterate — **done**, D4–D19, latest 31/33
+4. Sealed set (`data/eval_cases/sealed`), run once before submission — **to do**
 
 Reference run: 2026-09-24, Groq `openai/gpt-oss-120b` on NS-001: 11 LLM calls, 136 s, upheld / S$8.00 / no human review, matching the answer key (trace `data/traces/20260924-165252_RYDE-DEMO-003.json`, local only).

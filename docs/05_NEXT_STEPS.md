@@ -1,211 +1,48 @@
-# 下一步工作清单
+# Next Steps — Remaining Work Before Submission
 
-## 高优先级（必须完成）
+> **Last updated**: 2026-10-05. Submission deadline: **16 October 2026**; Demo Day: 3 November 2026.
+> The earlier version of this list (2026-09-21) is in git history. Its items (debate engine, classifier,
+> unit tests, multilingual notices, error handling) are done.
 
-### 1. 多 Agent 辩论机制
-- **文件**: `src/core/orchestrator.py`, `src/agents/`
-- **描述**: 实现 Rider Agent、Driver Agent、Judge Agent 的辩论流程
-- **关键逻辑**:
-  1. Orchestrator 接收争议报告
-  2. 分析争议类型（分类器）
-  3. 并行调用 Rider Agent 和 Driver Agent 收集观点
-  4. Judge Agent 综合双方观点 + RAG 政策检索
-  5. 输出裁决 + 推理链
-- **参考**: AutoGen 多 Agent 架构
+## Where the project stands
 
-### 2. 多语言支持
-- **文件**: `src/core/translator.py`, `frontend/index.html`
-- **描述**: 支持英语、中文、马来语、泰米尔语
-- **实现方式**:
-  - 检测用户输入语言
-  - 用 Gemini 翻译为非英语查询
-  - 检索后翻译回答
-- **测试**: 用四种语言分别测试问答
+- The full pipeline runs end to end on `main` (PR #18): Collector → Classifier → Case Brief →
+  Rider / Driver advocates + Policy → debate → Judge → Fairness → Executor or human review.
+- Latest full evaluation (run 20261005-131434, D19): verdict **31/33 (93.9%)**, 0 failed runs,
+  about 91 s and US$0.011 per case.
+- 368 offline tests pass.
 
-### 3. 争议分类器
-- **文件**: `src/core/classifier.py`
-- **描述**: 自动分类争议类型（路线偏离、未出现收费等）
-- **输入**: 用户争议描述
-- **输出**: 争议类型 + 置信度
-- **实现**: 用 Gemini 做 zero-shot 分类
+## P0 — required for scoring
 
----
+| # | Task | Why | Owner | Status |
+|---|------|-----|-------|--------|
+| 1 | Submission draft: fill "business value" with the D19 numbers, close its open items | Judges read it first | billy | To do |
+| 2 | CodeBuddy / WorkBuddy proof: add 1–2 screenshots of actual coding to `proof of usage of codebuddy/` | Hard rule: no proof, no scoring | team | 4 screenshots so far (research and introduction) |
+| 3 | Sealed set: run `data/eval_cases/sealed` once, last, and report it as the generalisation number | The 33 dev / held-out cases have shaped the prompts (D16 / D18 overfitting note) | billy | Before 16 Oct |
+| 4 | Blurb under 10 words and a 16:9 cover image (380 × 216) | Submission form | team | To do |
 
-## 中优先级（强烈建议）
+## Bonus
 
-### 4. 集成 Smart Chunker
-- **文件**: `src/rag/indexer.py`
-- **描述**: 将语义边界切分集成到索引流程
-- **当前**: 使用固定 500 词切分
-- **目标**: 使用段落/句子边界切分
-- **影响**: 需要重新索引所有文档
+| # | Task | Notes |
+|---|------|-------|
+| 5 | Live demo URL | Tencent Lighthouse + Docker + Postgres (`STORE_URL`); update `docker-compose.yml` (it still lists ChromaDB and Redis) |
+| 6 | Policy agent queries the Tencent ADP assistant | The ADP app is published over the same official files (`scripts/adp/`); compare it with our retriever in the eval |
+| 7 | Demo video, 5–8 minutes (optional) | Show two dispute categories end to end and the live agent trace |
+| 8 | Fraud and bad-faith agent | Design agreed in `09_FRAUD_AGENT_DESIGN.md`; the history store it needs exists; not built |
 
-### 5. BM25 索引缓存
-- **文件**: `src/rag/hybrid_search.py`
-- **描述**: 缓存 BM25 索引，只在文档变更时重建
-- **当前**: 每次搜索都重建索引
-- **优化**: 添加 `invalidate_index()` 调用点
+## Cleanup
 
-### 6. 单元测试
-- **文件**: `tests/`
-- **描述**: 为核心模块写 pytest 测试
-- **优先级**:
-  1. `test_document_parser.py`
-  2. `test_embedding.py`
-  3. `test_retriever.py`
-  4. `test_qa_engine.py`
-  5. `test_confidence_scorer.py`
+| # | Task | Notes |
+|---|------|-------|
+| 9 | `src/core/confidence.py` `calculate_confidence()` is never called | Wire it in, or reword the Development Journal's Failure Case 1 |
+| 10 | Reword `src/integrations/ryde_api.py` as a "simulated integration contract" | So nobody reads it as a live Ryde integration |
+| 11 | Groq free tier rejects single requests over 8,000 tokens (some Judge prompts) | Only matters if Groq is the main provider; fallback covers it |
+| 12 | Git history scrub (author email, co-author lines) | Parked; needs team agreement and a force-push |
 
-### 7. 错误处理增强
-- **文件**: 所有 API 端点
-- **描述**: 添加更完善的错误处理和用户提示
-- **当前问题**:
-  - 文件上传超时没有友好提示
-  - LLM API 失败时没有降级策略
-  - ChromaDB 连接失败时崩溃
+## Not planned
 
----
-
-## 低优先级（有时间再做）
-
-### 8. 演示视频制作
-- **时长**: 3-5 分钟
-- **内容**:
-  1. 项目介绍（30s）
-  2. 架构展示（1min）
-  3. 功能演示（2min）
-  4. 技术亮点（1min）
-- **工具**: OBS / Screen Recorder
-
-### 9. PPT 制作
-- **页数**: 10-15 页
-- **内容**:
-  1. 封面
-  2. 问题背景
-  3. 解决方案概述
-  4. 架构图
-  5. 技术细节
-  6. 演示截图
-  7. 创新点
-  8. 商业价值
-  9. 未来规划
-  10. 感谢
-
-### 10. 在线 Demo 部署
-- **方案**: Cloud Studio / Vercel + Render
-- **步骤**:
-  1. Docker 化应用
-  2. 部署到云平台
-  3. 配置域名
-  4. 测试访问
-
-### 11. 性能优化
-- **文件**: `src/rag/`
-- **描述**: 优化检索速度
-- **措施**:
-  - 异步并行检索
-  - 缓存热门查询
-  - 减少 LLM 调用次数
-
-### 12. 日志和监控
-- **文件**: `src/core/logger.py`
-- **描述**: 添加结构化日志
-- **内容**:
-  - 请求/响应日志
-  - 错误日志
-  - 性能指标（延迟、吞吐量）
-
----
-
-## 文件结构规划
-
-```
-RydeResolve-Agent/
-├── src/
-│   ├── api/
-│   │   └── main.py              # FastAPI 入口
-│   ├── config.py                # 配置
-│   ├── core/
-│   │   ├── llm_client.py        # LLM 客户端
-│   │   ├── orchestrator.py      # 多 Agent 协调器 [TODO]
-│   │   ├── classifier.py        # 争议分类器 [TODO]
-│   │   └── logger.py            # 日志 [TODO]
-│   ├── agents/
-│   │   ├── rider_agent.py       # 乘客 Agent [TODO]
-│   │   ├── driver_agent.py      # 司机 Agent [TODO]
-│   │   └── judge_agent.py       # 法官 Agent [TODO]
-│   └── rag/
-│       ├── document_parser.py   # 文档解析
-│       ├── embedding.py         # Embedding
-│       ├── indexer.py           # 索引 [需要集成 Smart Chunker]
-│       ├── retriever.py         # 基础检索
-│       ├── advanced_retriever.py # 高级检索
-│       ├── qa_engine.py         # 基础问答
-│       ├── advanced_qa_engine.py # 高级问答
-│       ├── query_rewriter.py    # 查询重写
-│       ├── hybrid_search.py     # 混合检索 [需要缓存优化]
-│       ├── reranker.py          # 重排序
-│       ├── smart_chunker.py     # 智能切分 [需要集成]
-│       └── confidence_scorer.py # 置信度评分
-├── frontend/
-│   └── index.html               # 前端
-├── tests/                       # 单元测试 [TODO]
-├── docs/                        # 交接文档
-│   ├── 01_PROJECT_REQUIREMENTS.md
-│   ├── 02_TECH_RESEARCH.md
-│   ├── 03_DEVELOPMENT_LOG.md
-│   ├── 04_SCORING_GUIDE.md
-│   └── 05_NEXT_STEPS.md
-├── data/
-│   ├── policies/                # 政策文档
-│   └── uploads/                 # 上传文件
-├── chroma_data/                 # 向量数据库
-├── .env                         # 环境变量
-├── .env.example                 # 环境变量模板
-├── README.md                    # 项目说明 [需要完善]
-├── SESSION_SUMMARY.md           # Session 总结
-└── requirements.txt             # 依赖 [需要整理]
-```
-
----
-
-## 关键联系人 & 资源
-
-| 资源 | 链接/位置 |
-|------|----------|
-| GitHub 仓库 | https://github.com/FENGFANCHEN-012/RydeResolve-Agent |
-| Gemini API Key | https://aistudio.google.com/app/apikey |
-| Gemini 文档 | https://ai.google.dev/gemini-api/docs |
-| 比赛官网 | [待补充] |
-| 腾讯云控制台 | https://console.tencentcloud.com |
-| TRTC Agent Skills | https://github.com/Tencent-RTC/agent-skills |
-
----
-
-## 风险 & 应对
-
-| 风险 | 影响 | 应对 |
-|------|------|------|
-| Gemini API 限额用完 | 高 | 准备备用 API Key，或切换到 OpenAI |
-| 多 Agent 实现复杂 | 高 | 先实现简化版（2 个 Agent + Judge） |
-| 演示视频时间不够 | 中 | 提前准备脚本，分段录制 |
-| 部署环境不稳定 | 中 | 准备本地演示作为备份 |
-| 多语言翻译质量差 | 低 | 用 Gemini 翻译，质量通常够用 |
-
----
-
-## 每日检查清单
-
-### 开发日
-- [ ] 代码提交到 Git
-- [ ] 测试通过
-- [ ] 文档更新
-- [ ] 无敏感信息泄露
-
-### 比赛前
-- [ ] 所有功能测试通过
-- [ ] 演示视频完成
-- [ ] PPT 完成
-- [ ] 在线 Demo 可访问
-- [ ] README 完整
-- [ ] 依赖清单完整
+- **Tencent Hunyuan as the agents' model**: TokenHub needs a paid inference service (402 on every
+  model). The provider code stays (`LLM_PROVIDER=hunyuan`).
+- **Gemini free tier as the main model**: 20 requests per day per model, about three cases.
+- **Four-language UI, a PPT, a 3–5 minute video**: not in the competition brief
+  (`01_PROJECT_REQUIREMENTS.md`). Party notices already support EN / ZH / MS / TA.

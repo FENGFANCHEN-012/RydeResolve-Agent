@@ -1,5 +1,7 @@
 # RydeResolve-Agent — Task Breakdown
 
+> **Historical document (written 2026-09-21).** Kept for the record; it does not describe the current system. Current state: [README](../README.md), [03_DEVELOPMENT_LOG.md](03_DEVELOPMENT_LOG.md), [08_DESIGN_DECISIONS.md](08_DESIGN_DECISIONS.md).
+
 > Detailed task list for implementation. Each task is sized for 1-3 hours of focused work.
 > Tasks are grouped by phase and can be parallelized within a phase where dependencies allow.
 
