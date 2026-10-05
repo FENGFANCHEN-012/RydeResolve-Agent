@@ -625,3 +625,31 @@ first version (any refund without a computed disputed amount) was rejected on re
 correct rule-based amounts (CF-001 S$150 fee, DR-001 S$120, DR-002 S$200 cap). The narrow version fires
 only on SQ-001 (and the S$22.60 SQ-002 overpayment) across all recorded rulings. A warning-only ruling
 stays automatic. New key option `escalation_acceptable` (SQ-001): deciding or escalating both count.
+
+## D19. Regression run 20261005-131434 after the D18 fixes; provider fallback (2026-10-05)
+
+**Why the run.** After D18 the Judge prompt got the conduct-ask line, `_refund_basis_problems` got the
+service-quality guard, and the record store moved to Supabase with a rider/driver history store. Only
+SQ-001 and SQ-002 had been re-run since, so the 30/33 of D18 no longer described the current code.
+
+**Run** (33 cases, Cerebras `gpt-oss-120b`, full debates, no fallback; resumed once with `--resume`
+after the process was stopped for low memory, no case run twice): verdict **31/33 (93.9%)**, refund
+25/27, classification 28/28, refund cap / citation validity / Hit@3 all 100%, 0 failed runs; 862k
+tokens, US$0.37, p50 91 s per case (mostly rate-limit spacing; model time p50 12 s).
+
+Changes against D18:
+- SQ-002 now correct (S$4.20, partially_upheld): the asks-list label rule from D18.
+- SQ-001 escalated, accepted by `escalation_acceptable`: the service-quality refund guard works as decided.
+- RD-002 (dev) newly wrong. The Judge ruled `dismissed` (correct) but wrote that rider consent given
+  after the trip started satisfies `rider_route_requests_must_be_agreed_before_trip`. Fairness flagged
+  that as a high-severity internal inconsistency and sent the case to a person. Neither the Judge nor
+  Fairness changed after D18; this is run-to-run variation in the Judge's wording, and the failure is
+  the safe kind (a person reviews, no wrong payout). **No fix:** tuning for it would be one more change
+  fitted to these 33 cases (see the D18 overfitting note).
+- NS-002-C1 unchanged (still escalated by `fee_basis_not_met`).
+
+**Chat provider fallback.** `LLM_FALLBACK_PROVIDERS` (comma list) gives backup providers that
+`llm_client` tries in order when a call fails; the team setting is Gemini, then Cerebras, then Groq.
+`scripts/eval.py` turns fallback off so a run never mixes models (`run_start.llm` would be wrong). A
+`hunyuan` provider (TokenHub, OpenAI-compatible) was added and tested: the key authenticates, but every
+model returns 402 / 401006 until a paid inference service is activated, so it is not used.
