@@ -133,3 +133,45 @@ async def test_groq_json_retry_does_not_hide_other_errors(monkeypatch, status_co
     with pytest.raises(_FakeAPIError):
         await client.chat_json([{"role": "user", "content": "Return JSON"}])
     assert len(fake.calls) == 1
+
+
+def _fake_openai(client: LLMClient, reply=None, error=None) -> _FakeCompletions:
+    completions = _FakeCompletions(reply, error)
+    client._groq = type("G", (), {"chat": type("Ch", (), {"completions": completions})()})()
+    return completions
+
+
+def test_hunyuan_uses_its_own_key_model_and_endpoint(monkeypatch):
+    monkeypatch.setattr(llm_module, "HUNYUAN_API_KEY", "hy-key")
+    monkeypatch.setattr(llm_module, "HUNYUAN_MODEL", "hy3")
+    client = LLMClient(provider="hunyuan")
+    assert client.openai_compatible
+    assert (client.api_key, client.model) == ("hy-key", "hy3")
+    assert "tencentcloudmaas" in client.base_url
+
+
+@pytest.mark.asyncio
+async def test_failed_primary_falls_back_in_order(monkeypatch):
+    monkeypatch.setattr(llm_module, "HUNYUAN_API_KEY", "hy-key")
+    monkeypatch.setattr(llm_module, "GROQ_API_KEY", "groq-key")
+    client = LLMClient(provider="hunyuan", fallbacks=["hunyuan", "groq"])
+    assert client._fallback_names == ["groq"]  # the primary is never its own backup
+    primary = _fake_openai(client, error=RuntimeError("401 bad key"))
+    backup = _fake_openai(client._chain()[1], reply='{"ok": true}')
+    assert await client.chat_json([{"role": "user", "content": "give json"}]) == '{"ok": true}'
+    assert len(primary.calls) == 1 and len(backup.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_last_fallback_error_is_raised(monkeypatch):
+    monkeypatch.setattr(llm_module, "GROQ_API_KEY", "groq-key")
+    monkeypatch.setattr(llm_module, "CEREBRAS_API_KEY", "c-key")
+    client = LLMClient(provider="groq", fallbacks=["cerebras"])
+    _fake_openai(client, error=RuntimeError("first"))
+    _fake_openai(client._chain()[1], error=RuntimeError("second"))
+    with pytest.raises(RuntimeError, match="second"):
+        await client.chat([{"role": "user", "content": "q"}])
+
+
+def test_no_fallback_by_default_in_tests():
+    assert LLMClient()._fallback_names == []
