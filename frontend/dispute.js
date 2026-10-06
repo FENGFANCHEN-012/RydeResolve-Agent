@@ -22,6 +22,9 @@ const RR_NODES = {
     casebrief:  { name: 'Case Brief', role: 'Shared dossier (RAG, no LLM)', color: 'var(--agent-casebrief)', col: 3, row: 1,
                   receives: ['Classification', 'Collector findings', "This trip's platform rules", 'App events', 'Policy index (one search)'],
                   sends: ['Facts, conflicts, gaps, case rules, timeline, clauses → every agent'] },
+    fraud:      { name: 'Fraud', role: 'Risk check (code rules)', color: 'var(--agent-fraud)', col: 3, row: 3,
+                  receives: ["Filer's history", 'Confirmed flags', 'Claim evidence times', 'Pair history', 'Chat log'],
+                  sends: ['Risk report → Arbitrator & Fairness only (never the advocates)', 'HIGH → human review via Fairness'] },
     passenger:  { name: 'Passenger', role: 'Rider advocate', color: 'var(--agent-passenger)', col: 4, row: 1,
                   receives: ['DisputeContext', 'Dispute type', 'Policy clauses (RAG)'],
                   sends: ['Opening analysis → debate & Arbitrator'] },
@@ -57,6 +60,8 @@ const RR_EDGES = [
     ['casebrief', 'driver', 'brief'],
     ['passenger', 'debate', 'opening'],
     ['driver', 'debate', 'opening'],
+    ['casebrief', 'fraud', 'brief'],
+    ['fraud', 'arbitrator', 'risk'],
     ['policy', 'arbitrator', 'compliance'],
     ['debate', 'arbitrator', 'transcript'],
     ['arbitrator', 'fairness', 'decision'],
@@ -71,7 +76,7 @@ const RR_REASONING_KEYS = [
     'passenger_compliant', 'driver_compliant', 'violations', 'policy_references',
     'refund_amount', 'compensation', 'driver_penalty', 'actions_taken',
     'requires_human', 'requires_human_review', 'human_review_needed', 'escalation_recommended',
-    'recommendation', 'fairness_passed', 'reason', 'issues',
+    'recommendation', 'fairness_passed', 'reason', 'issues', 'level', 'summary', 'signals',
 ];
 
 const rr = {
@@ -413,10 +418,17 @@ function rrHandle(ev) {
 
 // ---------------------------------------------------------------- step -> node mapping
 
+// Fraud risk pill for the escalated summary (MEDIUM / HIGH only; LOW is the normal case)
+function rrRiskFact(res) {
+    const r = res.fraud_report;
+    if (!r || r.level === 'low') return '';
+    return `<span class="rr-fact" title="${rrEsc(r.summary || '')}">Risk <b>${rrEsc(r.level.toUpperCase())}</b></span>`;
+}
+
 function rrNodeOf(step) {
     if (/^Round /.test(step.title)) return 'debate';
     return { Collector: 'collector', Classifier: 'classifier', CaseBrief: 'casebrief', Passenger: 'passenger', Driver: 'driver',
-             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor' }[step.agent] || 'debate';
+             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud' }[step.agent] || 'debate';
 }
 function rrStepsOf(node) { return rr.order.map(id => rr.steps[id]).filter(s => rrNodeOf(s) === node); }
 // A failed run is also routed to human review by the workflow
@@ -796,7 +808,8 @@ function rrRenderVerdict() {
             <div class="rr-verdict-facts">${res.classification?.urgency ? `<span class="rr-fact">Urgency <b>${rrEsc(res.classification.urgency)}</b></span>` : ''}${
                 v.verdict ? `<span class="rr-fact">Proposed <b>${rrEsc(rrVerdictLabel(v.verdict))}</b></span>
                 <span class="rr-fact">Refund <b>${v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'}</b></span>` : ''}${
-                res.fairness ? `<span class="rr-fact">Fairness <b>${rrEsc((res.fairness.recommendation || '').replace(/_/g, ' '))}</b></span>` : ''
+                res.fairness ? `<span class="rr-fact">Fairness <b>${rrEsc((res.fairness.recommendation || '').replace(/_/g, ' '))}</b></span>` : ''}${
+                rrRiskFact(res)
             }</div></div>`;
     } else {
         const conf = Math.round((v.confidence || 0) * 100);
@@ -807,6 +820,7 @@ function rrRenderVerdict() {
             v.compensation ? ['Compensation', v.compensation] : null,
             v.driver_penalty ? ['Driver', v.driver_penalty] : null,
             v.human_review_needed ? ['Review', 'human required'] : v.escalation_recommended ? ['Review', 'flagged for audit'] : null,
+            res.fraud_report && res.fraud_report.level !== 'low' ? ['Risk', res.fraud_report.level.toUpperCase()] : null,
             (v.policy_references || []).length ? ['Cites', v.policy_references.join(', ')] : ['Cites', 'no policy'],
         ].filter(Boolean);
         main = `<div class="rr-verdict-summary"><span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc(rrVerdictLabel(v.verdict))}</span>

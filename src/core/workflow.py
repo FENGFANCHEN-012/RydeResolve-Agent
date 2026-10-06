@@ -10,6 +10,8 @@ Graph topology::
              requires_human or node error -> human_review -> END
              otherwise                     -> case_brief
       -> case_brief (facts, conflicts, case rules, timeline, clauses; no LLM)
+      -> fraud (risk signals from code rules + one chat check; MEDIUM/HIGH reach the Judge
+                and Fairness only, never the advocates; HIGH makes Fairness route to a person)
       -> debate
       -> [route_after_error]  -> arbitrator (or human_review on failure)
       -> arbitrator
@@ -45,6 +47,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from functools import wraps
 
 from langgraph.graph import END, START, StateGraph
@@ -59,6 +62,7 @@ from src.agents.executor import (
     STATUS_EXECUTED as EXECUTION_STATUS_EXECUTED,
 )
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
+from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
@@ -78,6 +82,7 @@ NODE_COLLECTOR = "collector"
 NODE_CLASSIFIER = "classifier"
 NODE_CASE_BRIEF = "case_brief"
 NODE_DEBATE = "debate"
+NODE_FRAUD = "fraud"
 NODE_ARBITRATOR = "arbitrator"
 # Note: LangGraph forbids node ids that collide with state keys, so this
 # node is "fairness_agent" while the state artifact stays ``fairness``.
@@ -120,6 +125,29 @@ def _safe_node(node_name: str):
     return decorator
 
 
+def _raise_pending_flags(context, report) -> None:
+    """Store a HIGH report's suspicions as PENDING flags for a reviewer. Pending flags never count
+    toward anyone's history (design principle 4). Best effort, skipped when rulings are not
+    recorded (evals), and one flag per person, signal and dispute however often a case is re-run."""
+    if os.getenv("RECORD_RULINGS", "1") == "0" or report.level != "high":
+        return
+    try:
+        from src.store.db import get_store
+        from src.store.people import list_flags, raise_flag
+        store = get_store()
+        trip = context.trip or {}
+        pair = [p for p in ((context.rider_profile or {}).get("rider_id") or trip.get("rider_id"),
+                            (context.driver_profile or {}).get("driver_id") or trip.get("driver_id")) if p]
+        for sig in (s for s in report.signals if s.kind == "hard"):
+            for user_id in [sig.user_id] if sig.user_id else pair:
+                if not any(f.dispute_id == context.dispute_id and f.signal == sig.code
+                           for f in list_flags(store, user_id=user_id)):
+                    raise_flag(store, user_id=user_id, signal=sig.code, detail=sig.statement,
+                               dispute_id=context.dispute_id)
+    except Exception as exc:  # storage must never change or block a ruling
+        logger.warning("Could not store fraud flags: %s", exc)
+
+
 def _as_analysis(content) -> dict:
     """Debate round-0 contents are dicts; later rebuttals are strings.
     The Fairness Agent requires dict analyses, so wrap strings."""
@@ -139,6 +167,7 @@ def build_dispute_graph(
     fairness_agent: FairnessAgent | None = None,
     executor: ExecutionAgent | None = None,
     case_brief: CaseBriefAgent | None = None,
+    fraud_agent: FraudAgent | None = None,
 ):
     """Compile and return the dispute-resolution LangGraph.
 
@@ -152,6 +181,17 @@ def build_dispute_graph(
     fairness_agent = fairness_agent or FairnessAgent()
     executor = executor or ExecutionAgent()
     case_brief = case_brief or CaseBriefAgent()
+    fraud_agent = fraud_agent or FraudAgent()
+
+    def judge_context(state: DisputeWorkflowState) -> dict:
+        """The context the Judge and Fairness read: a MEDIUM / HIGH fraud report is added here,
+        after the debate, so the advocates never see it. LOW adds nothing, so ordinary cases
+        reach the Judge exactly as before."""
+        ctx = state["context"].model_dump()
+        report = state.get("fraud_report")
+        if report and report.get("level") != FRAUD_LOW:
+            ctx["fraud_report"] = report
+        return ctx
 
     # -- Nodes ----------------------------------------------------------
 
@@ -195,6 +235,18 @@ def build_dispute_graph(
             s["output"] = brief
         return {"context": state["context"].model_copy(update={"case_brief": brief})}
 
+    @_safe_node(NODE_FRAUD)
+    async def fraud_node(state: DisputeWorkflowState) -> dict:
+        async with step("Fraud", "Assess fraud & bad-faith risk", {
+            "sees": ["filer's history (record store or profile)", "confirmed flags", "claim evidence times",
+                     "pair history", "chat log"],
+            "shown_to": ["Arbitrator", "Fairness"],
+        }) as s:
+            report = await fraud_agent.assess(state["context"])
+            s["output"] = report
+        await asyncio.to_thread(_raise_pending_flags, state["context"], report)
+        return {"fraud_report": report.model_dump()}
+
     @_safe_node(NODE_DEBATE)
     async def debate_node(state: DisputeWorkflowState) -> dict:
         if hasattr(debate_engine, "debate_with_context"):
@@ -211,14 +263,16 @@ def build_dispute_graph(
         history = state.get("debate_history") or []
         # Human-reviewed past rulings similar to this case (none -> the Judge rules as before)
         precedents = await asyncio.to_thread(find_precedents, state["context"])
+        context = judge_context(state)
         async with step("Arbitrator", "Weigh both sides & rule", {
             "sees": ["full dispute context", "passenger analysis", "driver analysis",
                      "policy evaluation", f"debate history ({len(history)} turns)",
-                     f"precedents ({len(precedents)})"],
+                     f"precedents ({len(precedents)})",
+                     *(["fraud risk report"] if "fraud_report" in context else [])],
             "precedent_ids": [p["precedent_id"] for p in precedents],
         }) as s:
             decision = await arbitrator.arbitrate(
-                context=state["context"].model_dump(),
+                context=context,
                 passenger_analysis=_as_analysis(history[0]["content"]) if len(history) > 0 else {},
                 driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
                 policy_evaluation=_as_analysis(history[2]["content"]) if len(history) > 2 else {},
@@ -239,7 +293,7 @@ def build_dispute_graph(
             driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
             policy_evaluation=_as_analysis(history[2]["content"]) if len(history) > 2 else {},
             debate_history=history,
-            context=state["context"].model_dump(),
+            context=judge_context(state),
         )
         async with step("Fairness", "Audit the decision for fairness", {
             "sees": ["decision", "passenger & driver analyses", "policy evaluation",
@@ -351,6 +405,7 @@ def build_dispute_graph(
     builder.add_node(NODE_COLLECTOR, collector_node)
     builder.add_node(NODE_CLASSIFIER, classifier_node)
     builder.add_node(NODE_CASE_BRIEF, case_brief_node)
+    builder.add_node(NODE_FRAUD, fraud_node)
     builder.add_node(NODE_DEBATE, debate_node)
     builder.add_node(NODE_ARBITRATOR, arbitrator_node)
     builder.add_node(NODE_FAIRNESS, fairness_node)
@@ -371,6 +426,11 @@ def build_dispute_graph(
     )
     builder.add_conditional_edges(
         NODE_CASE_BRIEF,
+        _route_or_human_review(NODE_FRAUD),
+        {NODE_FRAUD: NODE_FRAUD, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+    )
+    builder.add_conditional_edges(
+        NODE_FRAUD,
         _route_or_human_review(NODE_DEBATE),
         {NODE_DEBATE: NODE_DEBATE, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
     )
