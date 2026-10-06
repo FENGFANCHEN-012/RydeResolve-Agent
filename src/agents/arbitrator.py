@@ -239,7 +239,8 @@ class ArbitrationAgent:
         # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
         # repeated in the raw dump; without a brief the dump is unchanged
         # The fraud report gets its own block below; pair_history is the Fraud agent's input only
-        skip = {"case_brief", "fraud_report", "pair_history", *(SUMMARISED_FIELDS if brief else ())}
+        skip = {"case_brief", "fraud_report", "pair_history", "safety_alerts",
+                *(SUMMARISED_FIELDS if brief else ())}
         raw = {k: v for k, v in context.items() if k not in skip} if isinstance(context, dict) else context
         if brief and isinstance(context, dict) and context.get("gps_trace"):
             raw["gps_trace"] = f"{len(context['gps_trace'])} points, summarised in the CASE BRIEF"
