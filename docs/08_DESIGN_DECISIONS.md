@@ -653,3 +653,42 @@ Changes against D18:
 `scripts/eval.py` turns fallback off so a run never mixes models (`run_start.llm` would be wrong). A
 `hunyuan` provider (TokenHub, OpenAI-compatible) was added and tested: the key authenticates, but every
 model returns 402 / 401006 until a paid inference service is activated, so it is not used.
+
+## D20. Fraud & Bad-Faith Detection Agent: regression run 20261005-171730 (2026-10-06)
+
+**What changed.** The agent designed in `docs/09_FRAUD_AGENT_DESIGN.md` is in the pipeline
+(`src/agents/fraud.py`). It runs after the Case Brief; code rules score every signal and one optional
+LLM call only labels chat into a fixed set. Its report goes to the Judge and Fairness, never to the
+advocates. LOW risk is not shown to the Judge at all, so ordinary cases see the same prompts as before.
+14 unit tests (`tests/test_fraud_agent.py`).
+
+**Acceptance bar** (design review): the existing cases keep their verdicts, and the four fraud cases in
+`data/eval_cases/fraud/` are handled. That folder is not in the default `EXTRA_DISPUTE_DIRS`, so the run
+set `EXTRA_DISPUTE_DIRS="data/eval_cases/heldout;data/eval_cases/fraud"` (37 cases).
+
+**Run** (37 cases, Cerebras `gpt-oss-120b`, full debates, no fallback). The first pass stopped after
+23 cases when Cerebras returned 429 `token_quota_exceeded` (a daily token limit, not credit). Those 14
+runs failed closed ("daily quota exhausted; no reliable automated ruling"), which is the intended
+behaviour. Their traces were moved to `data/eval/20261005-171730_failed_quota/` and the 14 cases were
+re-run with `--resume` after the quota reset; no case counts twice.
+
+Result: verdict **35/37 (94.6%)**, refund 27/29, classification 31/31, escalation 35/37,
+missing-data escalation 6/6, injection resistance 3/3, paraphrase invariance 4/4, refund cap /
+citation validity 100%, Hit@3 36/37, 0 failed runs; 983k tokens, US$0.42.
+
+- Fraud cases CR-004, DR-003, FD-004, NS-005: all correct.
+- RD-002 correct again (it was the D19 miss, Judge wording variance).
+- NS-002-C1 unchanged from D19: the Judge keeps the S$8 fee although the driver's GPS at "arrived" is
+  0.96 km away; `fee_basis_not_met` sends it to a person. Not caused by the new agent (same failure
+  before it existed).
+- NS-002-B1 newly wrong: fraud level LOW (so the Judge saw nothing new), but the Judge kept the no-show
+  fee after a 7-minute wait against an 8-minute threshold; `fee_basis_not_met` sent it to a person.
+  This is Judge variance on the boundary case, and it fails safe (no wrong payout). **No fix**, per the
+  D18 overfitting note.
+
+**Finding to fix next (not changed in this run).** On NS-002-C1 the chat labeller tagged the rider's
+"I'm at the taxi stand now, where are you?" as `chat_contradicts_claim` and raised risk to MEDIUM. That
+line supports the rider (it shows they were at the pickup). It did not change the outcome here, since
+the case failed the same way before the agent existed, but in production it would put a false flag on
+a genuine rider. Planned fix: tighten the label definition so "rider says where they are / asks where
+the driver is" is not a contradiction, add a unit test, and re-run only the affected cases.

@@ -44,6 +44,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     # --- Pipeline artifacts (one producer each) -----------------------
     context: DisputeContext             # collector node
     classification: ClassificationResult  # classifier node
+    fraud_report: dict                  # fraud node: risk report for the Judge and Fairness only
     debate_history: list[dict]          # debate node
     decision: Decision                  # arbitrator node
     precedents: list[dict]              # arbitrator node: human-reviewed precedents shown to the Judge

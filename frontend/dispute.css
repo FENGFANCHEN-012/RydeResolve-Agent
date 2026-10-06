@@ -15,6 +15,7 @@
     --agent-debate: var(--text-2);
     --agent-arbitrator: var(--text-2);
     --agent-fairness: var(--text-2);
+    --agent-fraud: var(--text-2);
     --agent-executor: var(--text-2);
     --agent-human: var(--text-2);
     --rr-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;

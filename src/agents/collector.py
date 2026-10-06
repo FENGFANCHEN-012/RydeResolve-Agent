@@ -73,6 +73,9 @@ class DisputeContext(BaseModel):
     # policy parameters that applied to this trip, when the input provides them
     app_events: Optional[list[dict]] = None
     platform_policy: Optional[dict] = None
+    # Trips and disputes between this exact rider and driver (demo data only); read by the
+    # Fraud agent alone, never shown to the advocates
+    pair_history: Optional[dict] = None
     # Evidence
     evidence: list[EvidenceItem] = []
     # Which data was found and where it came from, e.g.
@@ -277,6 +280,7 @@ class CollectorAgent:
             driver_profile=_normalize_profile(data.get("driver_profile")),
             app_events=data.get("app_events") or None,
             platform_policy=data.get("cancellation_policy") or data.get("platform_policy"),
+            pair_history=data.get("pair_history") or None,
             language=language,
             submitted_at=ticket.get("filed_at"),
         )
