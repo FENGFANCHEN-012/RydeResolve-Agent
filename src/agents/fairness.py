@@ -96,6 +96,9 @@ class FairnessIssueCode(str, Enum):
     # #8 the Fraud agent found hard evidence of fraud or collusion in this case
     FRAUD_RISK_HIGH = "fraud_risk_high"
 
+    # #9 the chat contains a threat: a safety matter for a person, whatever the ruling
+    SAFETY_THREAT_IN_CHAT = "safety_threat_in_chat"
+
 
 # Verdict labels are about the COMPLAINT, not about any fee. Without this the semantic check read
 # "upheld" + refund as "the fee was upheld" and flagged a correct refund as contradicting policy
@@ -675,6 +678,20 @@ class FairnessAgent:
                 severity="high",
                 refs=["collector.findings", "platform_policy"],
                 recommended_action="Route to human review; the extra amount has no rule the system can verify.",
+            )
+            requires_human = True
+
+        # (l) a threat in the chat. The classifier sends safety complaints to a person before any
+        #     debate; this catches a threat inside an ordinary dispute (e.g. a no-show fee). It is
+        #     not a fraud signal and does not count against anyone's record.
+        safety = (context or {}).get("safety_alerts") or []
+        if safety:
+            add_issue(
+                FairnessIssueCode.SAFETY_THREAT_IN_CHAT,
+                "Safety: " + " ".join(safety),
+                severity="high",
+                refs=["chat_log"],
+                recommended_action="Route to human review as a safety matter; protect the threatened party.",
             )
             requires_human = True
 

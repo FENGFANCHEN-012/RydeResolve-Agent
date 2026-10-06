@@ -724,3 +724,55 @@ variants (RD-002-I3, NS-002-I1, FD-002-I2) are `none` on three repeat runs. Cost
 
 No full eval re-run: NS-002-C1 is now LOW, so the Judge sees the same prompt as before the agent
 existed, and its D20 miss is the pre-existing `fee_basis_not_met` escalation.
+
+## D22. Threats go to safety, not fraud; claim-pattern signal for both sides; CR-004 replaced (2026-10-06)
+
+**1. A threat in the chat is a safety matter.** Until now a threat was a hard fraud signal: risk
+HIGH, a pending flag on both parties, and the statement sat in the "fraud" report. A threat says
+nothing about whether a claim is honest, and the threatened party is often the filer, so the
+report read as suspicion of the victim. Now the chat check (keywords + the one LLM call) puts a
+threat in `FraudReport.safety_alerts`: no fraud signal, no level change, no flag on anyone.
+`judge_context` passes the alerts to Fairness only (the Judge's dump skips them), and Fairness
+raises `safety_threat_in_chat` (high) and routes the case to a person. Safety complaints filed as
+such are still sent to a person by the classifier (P0) before any debate; this covers a threat
+inside an ordinary dispute such as a no-show fee.
+
+**2. CR-004 was not a coherent fraud.** It was a rider-driver collusion: the rider cancels and
+pays the fee (most of it goes to the driver), then files a waiver request saying "the driver told
+me to cancel", gets a S$6.61 voucher, and the driver passes half back. Ryde's published rules
+(Cancellation Fee Waiver Request, help centre, 2026-09-25) say an eligible rider gets a voucher;
+they do not say whether the driver's share is taken back. If it is, the scheme pays nobody and a
+colluding pair would never file. The case rested on an unstated platform rule, so it was replaced.
+Repeat pairing and chat collusion offers are still detected (unit tests with synthetic data).
+
+**3. New soft signal: the same claim again and again** (`claim_pattern_signals`, code only).
+Fires when, in the 90 days before this dispute, the party was in >= 3 disputes of this case's
+type on the same side, with >= 2 different counterparties, and >= 2 went the filer's way:
+- `repeat_claim_pattern` on the filer: a rider farming fee-waiver vouchers.
+- `respondent_claim_pattern` on the respondent: a driver whose no-show fees riders keep winning
+  back. Both sides are measured by one rule.
+It is soft (MEDIUM at most) and its statement ends "Context only: this case's own data decides
+it." When it fires on the filer it replaces the generic `frequent_disputes` statement. Earlier
+disputes come from the record store plus a new optional profile list `dispute_history.recent`
+(type, date, counterparty, outcome); the store keeps only counts for history before first sight.
+
+**New and changed cases** (`data/eval_cases/fraud/`):
+- CR-004 (rewritten): the rider's 4th "the driver told me to cancel" request in 60 days, a
+  different driver each time, the earlier three paid out. This trip: the driver waited at the
+  pickup (GPS + arrival event) and the chat holds no request to cancel. Expected: dismissed, S$0,
+  no escalation; fee S$6.61 (official). Risk MEDIUM as context.
+- NS-006 (new): NS-004's evidence unchanged (the driver waited past the threshold), but riders won
+  3 of 4 no-show disputes against this driver in 60 days. Expected: dismissed, as NS-004. The
+  driver-side mirror of FD-004: a record must not decide a case its own data decides.
+
+**Tests:** 24 fraud tests (pattern fires on both sides; silent with one counterparty, mostly
+lost, another type, or older than 90 days; keyword and LLM threats give a safety alert and no
+signal; Fairness routes a safety alert without a fraud issue). Full suite 392 passed.
+
+**Run 20261006-134719** (Cerebras `gpt-oss-120b`, full debates, 6 cases): CR-004, NS-006, NS-004,
+FD-004, DR-003, NS-005 all correct, 6/6; US$0.07. CR-004 and NS-006 MEDIUM with the expected
+pattern signal and dismissed; NS-004 LOW and dismissed, so the respondent's record did not move
+the verdict.
+
+**Not done (next):** the driver's false arrival as a hard signal (GPS far from pickup when "I'm
+here" is pressed, the NS-002-C1 pattern) and a claim that contradicts GPS/app events (design §4).

@@ -50,11 +50,56 @@ async def test_fake_claim_photo_predates_trip_is_high():
     assert [s.code for s in report.signals if s.kind == HARD] == ["evidence_predates_trip"]
 
 
+_COLLUSION_CHAT = [{"timestamp": "2026-09-29T13:47:00+08:00", "sender": "driver", "message":
+                    "Bro same as last time. You cancel on the app, I PayNow you half later."}]
+_ABNORMAL_PAIR = {"trips_matched_30d": 3, "cancelled_after_match_30d": 3}
+
+
 @pytest.mark.asyncio
 async def test_collusion_pair_and_chat_offer_are_high():
-    report = await _assess("eval_cases/fraud/CR-004.json")
+    ctx = _context("eval_cases/fraud/CR-004.json").model_copy(
+        update={"pair_history": _ABNORMAL_PAIR, "chat_log": _COLLUSION_CHAT})
+    report = await FraudAgent(use_llm=False).assess(ctx)
     codes = {s.code for s in report.signals if s.kind == HARD}
     assert report.level == HIGH and {"repeat_pairing", "chat_collusion_offer"} <= codes
+
+
+@pytest.mark.asyncio
+async def test_serial_waiver_claims_are_medium_context_not_high():
+    # CR-004: 4th "the driver told me to cancel" request in 60 days, a different driver each time
+    report = await _assess("eval_cases/fraud/CR-004.json")
+    codes = {s.code for s in report.signals}
+    assert report.level == MEDIUM and "repeat_claim_pattern" in codes
+    assert "frequent_disputes" not in codes  # the pattern replaces the generic count
+    assert all(s.kind == SOFT for s in report.signals)
+
+
+@pytest.mark.asyncio
+async def test_driver_whose_fees_riders_keep_winning_back_is_flagged_as_respondent():
+    # NS-006: NS-004's evidence (the driver really waited) with a driver who lost 3 of 4 recent
+    # no-show disputes; the signal names the driver, and it stays soft
+    report = await _assess("eval_cases/fraud/NS-006.json")
+    pattern = [s for s in report.signals if s.code == "respondent_claim_pattern"]
+    assert report.level == MEDIUM and pattern and pattern[0].user_id == "D-9301" and pattern[0].kind == SOFT
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("change", ["same_counterparty", "mostly_lost", "other_type", "too_old"])
+async def test_claim_pattern_needs_same_type_different_people_paid_out_and_recent(change):
+    ctx = _context("eval_cases/fraud/CR-004.json")
+    past = [dict(d) for d in ctx.rider_profile["dispute_history"]["recent"]]
+    for d in past:
+        if change == "same_counterparty":
+            d["counterparty"] = "D-8740"
+        elif change == "mostly_lost":
+            d["outcome"] = "dismissed"
+        elif change == "other_type":
+            d["type"] = "fare_dispute"
+        else:
+            d["filed_at"] = d["filed_at"].replace("2026-0", "2025-0")
+    profile = dict(ctx.rider_profile, dispute_history=dict(ctx.rider_profile["dispute_history"], recent=past))
+    report = await FraudAgent(use_llm=False).assess(ctx.model_copy(update={"rider_profile": profile}))
+    assert "repeat_claim_pattern" not in {s.code for s in report.signals}
 
 
 @pytest.mark.asyncio
@@ -103,7 +148,7 @@ async def test_rejected_ratio_needs_more_rejected_than_upheld(monkeypatch):
 async def test_pairing_below_threshold_is_silent():
     ctx = _context("eval_cases/fraud/CR-004.json")
     ctx = ctx.model_copy(update={"pair_history": {"trips_matched_30d": 2, "cancelled_after_match_30d": 2},
-                                 "chat_log": None})
+                                 "chat_log": None, "rider_profile": None})
     report = await FraudAgent(use_llm=False).assess(ctx)
     assert "repeat_pairing" not in {s.code for s in report.signals}
 
@@ -130,11 +175,12 @@ def test_fabricated_quote_is_discarded():
 
 
 @pytest.mark.asyncio
-async def test_llm_threat_with_real_quote_is_high_and_contradiction_is_soft():
+async def test_llm_threat_is_a_safety_alert_not_fraud_and_contradiction_is_soft():
     ctx = _context("mock_disputes/no_show_01.json")
     quote = ctx.chat_log[0]["message"]
     report = await FraudAgent(llm_client=_FakeLLM([{"label": "threat", "quote": quote}])).assess(ctx)
-    assert report.level == HIGH and report.chat_review == "keywords + llm"
+    assert report.level == LOW and report.signals == [] and report.chat_review == "keywords + llm"
+    assert len(report.safety_alerts) == 1 and quote[:40] in report.safety_alerts[0]
     filer = "driver" if ctx.reporter == "driver" else "rider"
     own = next(m["message"] for m in ctx.chat_log if m.get("sender") == filer)
     label = {"label": "contradicts_claim", "quote": own, "claim_quote": " ".join(ctx.description.split()[:6])}
@@ -167,8 +213,17 @@ async def test_late_rider_asking_where_the_driver_is_is_not_a_contradiction():
 @pytest.mark.asyncio
 async def test_llm_not_called_when_keywords_already_found_it():
     fake = _FakeLLM([])
-    await FraudAgent(llm_client=fake).assess(_context("eval_cases/fraud/CR-004.json"))
+    ctx = _context("eval_cases/fraud/CR-004.json").model_copy(update={"chat_log": _COLLUSION_CHAT})
+    await FraudAgent(llm_client=fake).assess(ctx)
     assert fake.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_keyword_threat_inside_an_ordinary_dispute_flags_no_one():
+    chat = [{"sender": "driver", "message": "Pay the fee or else. Watch your back."}]
+    ctx = _context("mock_disputes/no_show_01.json").model_copy(update={"chat_log": chat})
+    report = await FraudAgent(use_llm=False).assess(ctx)
+    assert report.level == LOW and report.signals == [] and report.safety_alerts
 
 
 # ---------------------------------------------------------------- Judge and Fairness integration
@@ -203,3 +258,23 @@ def test_fairness_accepts_fraud_refs_and_high_risk_routes_to_a_person():
     codes = {i.code.value for i in result.issues}
     assert "fraud_risk_high" in codes and result.requires_human_review
     assert "hallucinated_policy_refs" not in codes
+
+
+def test_safety_alert_routes_to_a_person_without_a_fraud_issue():
+    from src.agents.arbitrator import Decision, Verdict
+    from src.models.dispute_state import FairnessAssessmentInput
+    import asyncio
+
+    decision = Decision(verdict=Verdict.DISMISSED, confidence=0.9, refund_amount=None, compensation=None,
+                        driver_penalty=None, rationale="The driver waited past the threshold.",
+                        policy_references=[], escalation_recommended=False, human_review_needed=False)
+    payload = FairnessAssessmentInput(
+        dispute_id="T-2", decision=decision,
+        passenger_analysis={"stance": "unfair", "evidence": [{"x": 1}], "confidence": 0.6},
+        driver_analysis={"stance": "waited", "evidence": [{"x": 1}], "confidence": 0.8},
+        policy_evaluation={}, debate_history=[],
+        context={"safety_alerts": ['Threat in the chat (driver): "Watch your back."']})
+    result = asyncio.run(FairnessAgent(llm_client=None).assess(payload))
+    codes = {i.code.value for i in result.issues}
+    assert "safety_threat_in_chat" in codes and "fraud_risk_high" not in codes
+    assert result.requires_human_review
