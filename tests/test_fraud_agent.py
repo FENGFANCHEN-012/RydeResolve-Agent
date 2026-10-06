@@ -135,8 +135,33 @@ async def test_llm_threat_with_real_quote_is_high_and_contradiction_is_soft():
     quote = ctx.chat_log[0]["message"]
     report = await FraudAgent(llm_client=_FakeLLM([{"label": "threat", "quote": quote}])).assess(ctx)
     assert report.level == HIGH and report.chat_review == "keywords + llm"
-    report = await FraudAgent(llm_client=_FakeLLM([{"label": "contradicts_claim", "quote": quote}])).assess(ctx)
-    assert report.level == MEDIUM
+    filer = "driver" if ctx.reporter == "driver" else "rider"
+    own = next(m["message"] for m in ctx.chat_log if m.get("sender") == filer)
+    label = {"label": "contradicts_claim", "quote": own, "claim_quote": " ".join(ctx.description.split()[:6])}
+    report = await FraudAgent(llm_client=_FakeLLM([label])).assess(ctx)
+    assert report.level == MEDIUM and "vs the claim" in report.signals[0].statement
+
+
+def test_contradiction_must_name_claim_words_and_be_sent_by_the_filer():
+    chat = [{"sender": "rider", "message": "I am still at home"},
+            {"sender": "driver", "message": "I am at the pickup"}]
+    claim = "I was waiting at the pickup for ten minutes."
+    ok = {"label": "contradicts_claim", "quote": "I am still at home", "claim_quote": "I was waiting at the pickup"}
+    assert verified_labels([ok], chat, claim, "rider")[0]["claim_quote"] == "I was waiting at the pickup"
+    no_claim_words = dict(ok, claim_quote=None)
+    invented_claim_words = dict(ok, claim_quote="I never left the car park")
+    not_the_filer = dict(ok, quote="I am at the pickup")
+    assert verified_labels([no_claim_words, invented_claim_words, not_the_filer], chat, claim, "rider") == []
+
+
+@pytest.mark.asyncio
+async def test_late_rider_asking_where_the_driver_is_is_not_a_contradiction():
+    # NS-002-C1 (run 20261005-171730): the model tagged the rider's post-cancellation "I'm at the
+    # taxi stand now, where are you?" as contradicts_claim with no claim words; that fits the claim
+    ctx = _context("eval_cases/heldout/NS-002-C1.json")
+    old_output = [{"label": "contradicts_claim", "quote": "I'm at the taxi stand now, where are you?"}]
+    report = await FraudAgent(llm_client=_FakeLLM(old_output)).assess(ctx)
+    assert report.level == LOW and report.signals == []
 
 
 @pytest.mark.asyncio
