@@ -20,6 +20,12 @@ from src.agents.fraud import fraud_refs, render_for_judge
 
 logger = logging.getLogger(__name__)
 
+# Token-reduction settings (prompt compression)
+_MAX_DEBATE_ROUNDS_IN_PROMPT = 2          # only include last N rounds
+_MAX_PRECEDENTS = 3                       # only include first N precedents
+_MAX_EVIDENCE_LIST_ITEMS = 5              # cap evidence/contradictory_evidence per advocate
+_MAX_EVIDENCE_POOL_ITEMS = 5              # rendered in evidence_pool.py
+
 
 class Verdict(str, Enum):
     UPHELD = "upheld"                 # fully in favour of the reporter
@@ -235,6 +241,13 @@ class ArbitrationAgent:
         brief = render_case_brief(context)
         if brief:
             parts.append(brief + "\n")
+
+        # Evidence pool: auto-queries from both advocates
+        from src.core.evidence_pool import EvidencePool
+        pool_text = EvidencePool.render_for_prompt(context.get("evidence_pool") if isinstance(context, dict) else getattr(context, "evidence_pool", None))
+        if pool_text:
+            parts.append(pool_text + "\n")
+
         parts.append("=== DISPUTE CONTEXT ===")
         # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
         # repeated in the raw dump; without a brief the dump is unchanged
@@ -256,10 +269,12 @@ class ArbitrationAgent:
         parts.append(json.dumps(policy_evaluation, indent=2, default=str))
 
         if debate_history:
-            parts.append("\n=== DEBATE HISTORY ===")
-            for i, entry in enumerate(debate_history, 1):
+            parts.append("\n=== DEBATE HISTORY (last rounds only) ===")
+            for i, entry in enumerate(debate_history[-_MAX_DEBATE_ROUNDS_IN_PROMPT:], 1):
                 parts.append(f"\n--- Round {i} ---")
-                parts.append(json.dumps(entry, indent=2, default=str))
+                # Keep only speaker, stance summary and rebuttal text; drop raw evidence lists
+                slim = {k: entry.get(k) for k in ("round", "speaker", "content", "stance_summary", "rebuttal") if k in entry}
+                parts.append(json.dumps(slim, indent=2, default=str))
         else:
             parts.append("\n=== DEBATE HISTORY ===\nNone")
 
@@ -276,7 +291,7 @@ class ArbitrationAgent:
                 "Follow a precedent only where the deciding facts truly match this case; "
                 "if they differ, say how. If you follow one, name its precedent_id in your rationale."
             )
-            parts.append(json.dumps(precedents, indent=2, default=str))
+            parts.append(json.dumps(precedents[:_MAX_PRECEDENTS], indent=2, default=str))
 
         parts.append(
             "\n=== YOUR TASK ===\n"

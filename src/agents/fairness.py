@@ -1306,6 +1306,22 @@ def _case_evidence_summary(context: dict | None) -> str:
     findings = [f for f in context.get("findings") or [] if isinstance(f, dict)]
     out += section("Collector findings (deterministic checks):", [
         f"  [{f.get('kind', 'fact')}] {clip(f.get('statement', ''))}" for f in findings])
+
+    # Evidence pool: auto-queries from both advocates
+    pool = context.get("evidence_pool") or []
+    if pool:
+        pool_lines = []
+        for item in pool:
+            if not isinstance(item, dict):
+                continue
+            pool_lines.append(
+                f"  [{item.get('source_agent')}] {item.get('description')}: "
+                + "; ".join(
+                    str(f.get("statement", "")) for f in (item.get("findings") or [])
+                )[:_EVIDENCE_LINE_MAX_CHARS]
+            )
+        out += section("Auto-query results (shared evidence pool):", pool_lines)
+
     return "\n".join(out)
 
 
