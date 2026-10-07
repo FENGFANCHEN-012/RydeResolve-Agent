@@ -77,6 +77,9 @@ class Orchestrator:
         if final_state.get("fraud_report"):
             # For the reviewer and the dashboard; it never reached the advocates
             response["fraud_report"] = final_state["fraud_report"]
+        for key in ("safety", "triage"):
+            if final_state.get(key):
+                response[key] = final_state[key]   # D24: tier, protective actions, review timing
         ruling_id = await asyncio.to_thread(_record_ruling, final_state, response)
         if ruling_id is not None:
             response["ruling_id"] = ruling_id  # a reviewer confirms or overrides it by this id

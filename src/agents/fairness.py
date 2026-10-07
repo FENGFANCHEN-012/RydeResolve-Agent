@@ -700,14 +700,20 @@ class FairnessAgent:
         #     not a fraud signal and does not count against anyone's record.
         safety = (context or {}).get("safety_alerts") or []
         if safety:
+            # The Safety agent's tier decides (D24): verbal abuse / rudeness are ruled as usual with
+            # protective actions and a later human review; anything else (or no tier) goes to a person
+            tier = ((context or {}).get("safety") or {}).get("tier")
+            later = tier in ("verbal_abuse", "minor")
             add_issue(
                 FairnessIssueCode.SAFETY_THREAT_IN_CHAT,
-                "Safety: " + " ".join(safety),
-                severity="high",
+                "Safety: " + " ".join(safety) + (f" (Safety agent tier: {tier})" if tier else ""),
+                severity="medium" if later else "high",
                 refs=["chat_log"],
-                recommended_action="Route to human review as a safety matter; protect the threatened party.",
+                recommended_action=("Protective actions taken; a person reviews after the ruling." if later
+                                    else "Route to human review as a safety matter; protect the threatened party."),
             )
-            requires_human = True
+            if not later:
+                requires_human = True
 
         # (k) hard evidence of fraud or collusion: a person decides, with the Judge's draft and
         #     the report. Priors alone never reach HIGH, so this never fires on history only.
