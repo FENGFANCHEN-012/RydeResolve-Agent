@@ -16,6 +16,8 @@ from src.agents.case_brief import (brief_clauses, case_rule_refs, gps_line, rend
                                    render_clauses)
 from src.rag.policy_topics import TOPICS
 from src.config import ADVOCATE_REASONING_EFFORT, REBUTTAL_MAX_TOKENS
+from src.core.evidence_pool import EvidencePool
+from src.agents.query_planner import QueryPlanner
 
 
 def _effort() -> dict:
@@ -295,11 +297,24 @@ class PassengerAgent:
         """
         Analyze the dispute from the passenger's perspective.
 
+        Auto-query: before analysis the agent runs the QueryPlanner to gather
+        additional facts from Collector tools.  Results are deposited into
+        context.evidence_pool so the driver advocate, the Judge and Fairness
+        all see them.
+
         Returns a dict with exactly these keys:
         stance, evidence, contradictory_evidence, missing_evidence,
         obligations, remedy_requested, policy_references, reasoning,
         confidence, requires_human_review.
         """
+        # 0. Auto-query: gather additional facts autonomously
+        planner = QueryPlanner(agent_name="passenger")
+        auto_items = await planner.auto_query(context)
+        if auto_items:
+            context.evidence_pool = EvidencePool.merge_pools(
+                context.evidence_pool, auto_items
+            )
+
         # 1. Retrieve policies
         policies = await self._retrieve_policies(context)
 
@@ -483,6 +498,12 @@ class PassengerAgent:
         brief = render_case_brief(context, with_clause_list=False)
         if brief:
             parts.append("\n" + brief)
+
+        # Shared evidence pool: auto-queries from both sides
+        pool_text = EvidencePool.render_for_prompt(context.evidence_pool)
+        if pool_text:
+            parts.append("\n" + pool_text)
+
         parts.append(f"\nRetrieved policy clauses (cite by the reference in brackets):\n"
                      f"{render_clauses(clause_summaries)}")
         parts.append("\nAnalyze from the passenger's perspective now. "

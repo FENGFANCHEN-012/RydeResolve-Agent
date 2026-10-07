@@ -85,6 +85,8 @@ class DisputeContext(BaseModel):
     findings: list[Finding] = []
     # Shared dossier built after classification (src/agents/case_brief.py)
     case_brief: Optional[dict] = None
+    # Shared evidence pool: auto-queries from every agent are deposited here
+    evidence_pool: list[dict] = []
     # Additional metadata
     language: str = "en"  # en, zh, ms, ta
     submitted_at: Optional[str] = None
