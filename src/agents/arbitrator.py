@@ -297,6 +297,12 @@ class ArbitrationAgent:
             )
             parts.append(json.dumps(precedents, indent=2, default=str))
 
+        # Agreed facts and open issues from the typed moves (D24 step 3)
+        from src.core.moves import issue_summary, render_issue_summary
+        issues_text = render_issue_summary(issue_summary(debate_history or []))
+        if issues_text:
+            parts.append("\n" + issues_text)
+
         parts.append(
             "\n=== YOUR TASK ===\n"
             "Based on ALL of the above, produce the final arbitration decision. "
