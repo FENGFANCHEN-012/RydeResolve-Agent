@@ -238,7 +238,8 @@ class ArbitrationAgent:
 
         # Evidence pool: lookups either advocate asked for, numbered E<n> (D23)
         from src.core.evidence_pool import EvidencePool
-        pool_text = EvidencePool.render_for_prompt(context.get("evidence_pool") if isinstance(context, dict) else getattr(context, "evidence_pool", None))
+        pool_text = EvidencePool.render_for_prompt(context.get("evidence_pool") if isinstance(context, dict) else getattr(context, "evidence_pool", None),
+                                                full_last=None, max_items=20)  # the Judge reads every item in full
         if pool_text:
             parts.append(pool_text + "\n")
 

@@ -27,6 +27,9 @@ from src.agents.collector_tools import Finding
 
 # Items shown in a prompt; older ones stay in the pool for audit and replay
 MAX_RENDERED_ITEMS = 12
+# Newest items shown in full to the advocates; older ones as one line of this many characters
+FULL_RECENT_ITEMS = 4
+SHORT_ITEM_CHARS = 160
 _EVIDENCE_REF = re.compile(r"\bE\d+\b")
 
 
@@ -76,8 +79,11 @@ class EvidencePool:
 
     @staticmethod
     def render_for_prompt(pool: list[EvidencePoolItem] | list[dict],
-                          max_items: int = MAX_RENDERED_ITEMS) -> str:
-        """The pool as a prompt section, newest items last."""
+                          max_items: int = MAX_RENDERED_ITEMS,
+                          full_last: int | None = FULL_RECENT_ITEMS) -> str:
+        """The pool as a prompt section, newest items last. Only the newest `full_last` items are
+        shown in full; older ones as one line each, since the agent has read them on an earlier
+        turn (D24 token diet). full_last=None shows every item in full (the Judge)."""
         if not pool:
             return ""
         lines = ["=== SHARED EVIDENCE POOL (lookups by either side, answered from platform records; "
@@ -86,14 +92,18 @@ class EvidencePool:
         if len(items) > max_items:
             lines.append(f"(showing the last {max_items} of {len(items)} items)")
             items = items[-max_items:]
-        for item in items:
+        first_full = 0 if full_last is None else max(0, len(items) - full_last)
+        for n, item in enumerate(items):
+            statements = [(f.get("kind", "fact"), f.get("statement")) if isinstance(f, dict) else ("fact", str(f))
+                          for f in item.get("findings") or []]
+            if n < first_full:
+                short = " ".join(" ".join(str(s) for _, s in statements).split())[:SHORT_ITEM_CHARS]
+                lines.append(f"[{item.get('item_id')}] ({item.get('source_agent')}) {short}")
+                continue
             asked = f"asked by {item.get('source_agent')}, round {item.get('round', 0)}"
             lines.append(f"\n[{item.get('item_id')}] {item.get('description')} - {asked}"
                          + (f"; reason: {item['why']}" if item.get("why") else ""))
-            for f in item.get("findings") or []:
-                stmt = f.get("statement") if isinstance(f, dict) else str(f)
-                kind = f.get("kind", "fact") if isinstance(f, dict) else "fact"
-                lines.append(f"  - [{kind}] {stmt}")
+            lines.extend(f"  - [{kind}] {stmt}" for kind, stmt in statements)
         lines.append("=== END EVIDENCE POOL ===")
         return "\n".join(lines)
 

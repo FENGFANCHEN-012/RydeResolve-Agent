@@ -163,11 +163,12 @@ def render_clauses(clauses: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
-def render_case_brief(context, with_clause_list: bool = True) -> str:
+def render_case_brief(context, with_clause_list: bool = True, with_requested_text: bool = True) -> str:
     """The brief as a prompt section; empty string when the context has none
     (e.g. an agent called outside the workflow), so prompts stay as before.
     with_clause_list=False drops the list of clause references, for prompts that already
-    carry the clauses' full text (the same references would be listed twice)."""
+    carry the clauses' full text (the same references would be listed twice).
+    with_requested_text=False lists requested clauses by name only (the research step, D24)."""
     brief = getattr(context, "case_brief", None)
     if brief is None and isinstance(context, dict):
         brief = context.get("case_brief")
@@ -208,8 +209,9 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
     requested = [c for c in brief.get("clause_texts") or [] if c.get("requested")]
     if requested:
         lines.append("Clauses requested during the debate (shared with both sides):")
-        lines.extend(f"- {c.get('source')}#{c.get('chunk_index')} ({c.get('section')}): "
-                     + " ".join(str(c.get("clause", "")).split())[:500] for c in requested)
+        lines.extend(f"- {c.get('source')}#{c.get('chunk_index')} ({c.get('section')})"
+                     + (": " + " ".join(str(c.get("clause", "")).split())[:500] if with_requested_text else "")
+                     for c in requested)
     lines.append("=== END OF CASE BRIEF ===")
     return "\n".join(lines)
 
@@ -260,7 +262,9 @@ async def add_requested_clauses(context, requests: dict[str, list[str]], retriev
                 refs.append({"reference": f"{c.get('source', 'unknown')}#{c.get('chunk_index', 0)}",
                              "section": c.get("section"), "found_by": [why]})
                 added.append(clause)
-    brief.update({"clause_texts": texts, "clauses": refs,
+    fetched = list(brief.get("fetched_topics") or [])
+    fetched += [t for ts in requests.values() for t in ts if t not in fetched]
+    brief.update({"clause_texts": texts, "clauses": refs, "fetched_topics": fetched,
                   "requests": {s: t for s, t in requests.items() if t}})
     return context.model_copy(update={"case_brief": brief}), added
 
