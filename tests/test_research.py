@@ -112,3 +112,25 @@ async def test_debate_numbers_every_turn(monkeypatch):
         ("D1", "passenger"), ("D2", "driver"), ("D3", "policy"), ("D4", "passenger"), ("D5", "driver")]
     # The rebuttal sees the numbered debate so far
     assert "[D2] driver" in engine.passenger_agent.rebut.call_args.kwargs["debate_so_far"]
+
+
+def test_fetched_topics_are_not_requested_again():
+    ctx = make_context()
+    ctx.case_brief = {"topics": {"no_show": "core"}, "fetched_topics": ["refund"]}
+    from src.agents.research import fetched_topics
+    already = fetched_topics(ctx)
+    assert valid_topics({"policy_topics": ["no_show", "refund", "waiting_fee"]}, already) == ["waiting_fee"]
+
+
+def test_pool_shows_old_items_as_one_line():
+    from src.core.evidence_pool import EvidencePoolItem
+    from src.agents.collector_tools import Finding
+    items = [EvidencePoolItem.from_collector_tool("driver", "gps_at", {"timestamp": f"T{i}"},
+             [Finding(id="x", tool="gps_at", kind="fact", statement=f"statement {i} " + "x" * 300)])
+             for i in range(6)]
+    pool = EvidencePool.merge_pools([], items)
+    compact = EvidencePool.render_for_prompt(pool)            # advocates: newest 4 in full
+    full = EvidencePool.render_for_prompt(pool, full_last=None)  # Judge
+    assert "[E1] (driver) statement 0" in compact and "asked by driver" not in compact.split("[E3]")[0]
+    assert compact.count("asked by") == 4 and full.count("asked by") == 6
+    assert len(compact) < len(full)

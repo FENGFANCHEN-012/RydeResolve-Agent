@@ -435,7 +435,8 @@ class PassengerAgent:
             "Write a concise rebuttal (max 180 words) that responds to the "
             "driver's argument using only the available evidence. Cite what you rely on by id: "
             "[fact id], [E#] from the evidence pool, policy references, and [D#] for the turn "
-            "you answer. If the other side found new evidence, address it."
+            "you answer. Every point must cite at least one id; a point with no id carries no "
+            "weight. If the other side found new evidence, address it."
         )
 
         try:
