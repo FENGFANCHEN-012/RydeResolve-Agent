@@ -235,6 +235,13 @@ class ArbitrationAgent:
         brief = render_case_brief(context)
         if brief:
             parts.append(brief + "\n")
+
+        # Evidence pool: auto-queries from both advocates
+        from src.core.evidence_pool import EvidencePool
+        pool_text = EvidencePool.render_for_prompt(context.get("evidence_pool") if isinstance(context, dict) else getattr(context, "evidence_pool", None))
+        if pool_text:
+            parts.append(pool_text + "\n")
+
         parts.append("=== DISPUTE CONTEXT ===")
         # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
         # repeated in the raw dump; without a brief the dump is unchanged
