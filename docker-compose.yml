@@ -3,20 +3,27 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - .env
     environment:
       - TENCENT_SECRET_ID=${TENCENT_SECRET_ID:-}
       - TENCENT_SECRET_KEY=${TENCENT_SECRET_KEY:-}
       - TENCENT_REGION=${TENCENT_REGION:-ap-singapore}
       - LLM_API_KEY=${LLM_API_KEY:-}
-      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1}
-      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
+      - LLM_MODEL=${LLM_MODEL:-gemini-3.6-flash}
+      - STORE_URL=${STORE_URL:-postgresql://postgres:postgres@db:5432/ryde_resolve}
+      - VECTOR_BACKEND=${VECTOR_BACKEND:-chroma}
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ryde_resolve
       - REDIS_URL=redis://redis:6379/0
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
     volumes:
-      - .:/app
+      - apirecords:/app/data/records
+      - apiuploads:/app/data/uploads
+      - apievidence:/app/data/evidence
+      - chromalocal:/app/chroma_data
     depends_on:
       db:
         condition: service_healthy
@@ -24,7 +31,7 @@ services:
         condition: service_started
       chromadb:
         condition: service_started
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
 
   # --- PostgreSQL ---
   db:
@@ -36,7 +43,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -47,7 +54,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redisdata:/data
 
@@ -55,7 +62,7 @@ services:
   chromadb:
     image: chromadb/chroma:latest
     ports:
-      - "8200:8000"
+      - "127.0.0.1:8200:8000"
     volumes:
       - chromadata:/chroma/chroma
     environment:
@@ -63,6 +70,10 @@ services:
       - PERSIST_DIRECTORY=/chroma/chroma
 
 volumes:
+  apirecords:
+  apiuploads:
+  apievidence:
+  chromalocal:
   pgdata:
   redisdata:
   chromadata:

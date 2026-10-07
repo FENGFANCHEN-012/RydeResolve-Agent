@@ -567,3 +567,27 @@ State: `main` holds everything (PR #18). Latest eval 31/33 (D19). Deadline 16 Oc
 - `src/store/` — record store, audit chain, precedents, people history
 - `scripts/eval.py` — evaluation; `data/eval_answer_keys.json` — answer keys
 - `docs/08_DESIGN_DECISIONS.md` — every change with its measured effect (D1–D19)
+
+
+## 2026-10-07 — Local demo repairs (uncommitted, fix/demo-reliability)
+
+Fixed stale case selection, failed/truncated streams, successful retry display, dataset/reporter
+labels, text escaping, source text/scores, readiness, bounded uploads, loopback/role access,
+server-assigned audit actors, provider-key checks and terminal fallback errors. The API now
+serves the dashboard. Secret files are excluded from images; compose runtime settings and
+writable mounts are updated. Official policies are read-only through upload/delete by default.
+
+Validation: 418 backend tests; 21 frontend tests; pip check and diff checks passed. API read
+checks for the dashboard, cases, traces, precedents and flags returned 200. Secret-file paths
+returned 404. Installed missing psycopg 3.3.4. Shared Postgres still times out, so this machine
+uses a separate SQLite store in .env.local, plus the existing official Qdrant collection
+(165 chunks / bge-base 768 dimensions). No shared history was imported or index rebuilt.
+
+Live Groq smoke: FD-002 resolved (3 rounds, 11 calls, 0 failures, 230.1s) and saved/replayed.
+NS-001 escalated after a 413 size refusal (8,927 vs 8,000 tokens; 244.6s), also saved/replayed.
+The local profile now uses the project default 1 round. Its NS-001 retest hit the 200k daily
+quota and failed safely (85.0s); capacity with 1 round remains unverified. Gemini model metadata
+query returned Unauthenticated; Cerebras key is not configured. No fallback was enabled.
+No new full accuracy claim, sealed-set run, public deployment or browser layout validation.
+The next priorities are working provider quota, shared-store connectivity, review UI and final
+submission evidence. See the repair report exported in the 2026-10-07 Codex chat outputs.

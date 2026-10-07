@@ -891,7 +891,29 @@
 
 <script>
 // ?api=http://localhost:8001 points the page at another backend (e.g. a test server)
-const API_BASE = new URLSearchParams(location.search).get('api') || 'http://localhost:8000';
+const API_BASE = (new URLSearchParams(location.search).get('api') ||
+    (location.protocol === 'file:' ? 'http://127.0.0.1:8000' : location.origin)).replace(/\/$/, '');
+let apiToken = '';
+let accessPrompt = null;
+let accessPrompted = false;
+async function apiFetch(url, options = {}) {
+    const send = () => fetch(url, { ...options, headers: {
+        ...options.headers, ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
+    }});
+    let response = await send();
+    if (response.status === 401 && !apiToken && (accessPrompt || !accessPrompted)) {
+        if (!accessPrompt) {
+            accessPrompted = true;
+            accessPrompt = Promise.resolve().then(() =>
+                window.prompt('Enter the access code supplied by the site administrator. Reload the page to try another code.'));
+        }
+        const token = await accessPrompt;
+        accessPrompt = null;
+        if (token) { apiToken = token.trim(); response = await send(); }
+    }
+    if (response.status === 401) apiToken = '';
+    return response;
+}
 const chatContainer = document.getElementById('chatContainer');
 const questionInput = document.getElementById('questionInput');
 const askBtn = document.getElementById('askBtn');
@@ -975,7 +997,7 @@ async function uploadFiles(fileList) {
             const formData = new FormData();
             formData.append('files', file);
 
-            const resp = await fetch(`${API_BASE}/api/rag/upload-multiple`, {
+            const resp = await apiFetch(`${API_BASE}/api/rag/upload-multiple`, {
                 method: 'POST',
                 body: formData,
             });
@@ -1081,10 +1103,14 @@ function renderFileList() {
 // ============================================================
 async function checkServerStatus() {
     try {
-        const resp = await fetch(`${API_BASE}/api/health`, { signal: AbortSignal.timeout(3000) });
+        const resp = await apiFetch(`${API_BASE}/api/readiness`, { signal: AbortSignal.timeout(12000) });
+        const data = await resp.json();
         const ok = resp.ok;
         document.getElementById('statusDot').classList.toggle('offline', !ok);
-        document.getElementById('statusText').textContent = ok ? 'Server Online' : 'Server Error';
+        const status = document.getElementById('statusText');
+        status.textContent = ok ? 'Ready for review' : 'Setup needs attention';
+        status.title = Object.entries(data.checks || {}).filter(([, check]) => !check.ok)
+            .map(([name, check]) => `${name}: ${check.message}`).join('\n');
     } catch {
         document.getElementById('statusDot').classList.add('offline');
         document.getElementById('statusText').textContent = 'Server Offline';
@@ -1093,7 +1119,8 @@ async function checkServerStatus() {
 
 async function refreshStats() {
     try {
-        const resp = await fetch(`${API_BASE}/api/rag/stats`);
+        const resp = await apiFetch(`${API_BASE}/api/rag/stats`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
 
         document.getElementById('statChunks').textContent = data.chunk_count || 0;
@@ -1101,7 +1128,10 @@ async function refreshStats() {
         document.getElementById('statMode').textContent = data.mode || '—';
 
         const embEl = document.getElementById('statEmbedding');
-        if (data.embedding_mode === 'gemini') {
+        embEl.title = data.embedding_model || '';
+        if (data.embedding_mode === 'fastembed') {
+            embEl.innerHTML = '<span class="badge lime">fastembed</span>';
+        } else if (data.embedding_mode === 'gemini') {
             embEl.innerHTML = '<span class="badge lime">gemini</span>';
         } else if (data.embedding_mode === 'hunyuan') {
             embEl.innerHTML = '<span class="badge violet">hunyuan</span>';
@@ -1118,7 +1148,8 @@ async function refreshStats() {
 async function clearCollection() {
     if (!confirm('Delete all documents from the knowledge base?')) return;
     try {
-        await fetch(`${API_BASE}/api/rag/collection`, { method: 'DELETE' });
+        const resp = await apiFetch(`${API_BASE}/api/rag/collection`, { method: 'DELETE' });
+        if (!resp.ok) throw new Error((await resp.json()).detail || `HTTP ${resp.status}`);
         uploadedFiles = [];
         renderFileList();
         showToast('Knowledge base cleared', 'success');
@@ -1166,7 +1197,7 @@ async function askQuestion() {
     askBtn.disabled = true;
 
     try {
-        const resp = await fetch(`${API_BASE}/api/rag/ask`, {
+        const resp = await apiFetch(`${API_BASE}/api/rag/ask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question }),
@@ -1177,7 +1208,7 @@ async function askQuestion() {
         if (resp.ok) {
             addMessage(data.answer, 'assistant', data.sources);
         } else {
-            addMessage(`Error: ${data.detail || 'Request failed'}`, 'assistant');
+            addMessage(`Error: ${data.detail || data.error || 'Request failed'}`, 'assistant');
         }
     } catch (e) {
         typingEl.remove();
@@ -1195,7 +1226,8 @@ function addMessage(text, role, sources = null) {
 
     const textDiv = document.createElement('div');
     textDiv.className = 'msg-body';
-    textDiv.innerHTML = text.replace(/\n/g, '<br>');
+    textDiv.textContent = String(text ?? '');
+    textDiv.style.whiteSpace = 'pre-wrap';
     msg.appendChild(textDiv);
 
     if (sources && sources.length > 0) {
@@ -1211,10 +1243,9 @@ function addMessage(text, role, sources = null) {
             const card = document.createElement('div');
             card.className = 'source-card';
 
-            const simPct = (s.similarity * 100).toFixed(1);
             const header = document.createElement('div');
             header.className = 'src-header';
-            header.innerHTML = `<span class="src-name">${s.source || 'Unknown'}</span><span class="src-sim">${simPct}%</span>`;
+            header.innerHTML = `<span class="src-name">${escapeHtml(s.source || 'Unknown')}</span><span class="src-sim">${relevanceLabel(s)}</span>`;
 
             const textEl = document.createElement('div');
             textEl.className = 'src-text';
@@ -1252,8 +1283,9 @@ async function searchChunks() {
     resultsEl.innerHTML = '<div style="color:var(--on-dark-muted); font-size:14px; text-align:center; padding:40px;">Searching...</div>';
 
     try {
-        const resp = await fetch(`${API_BASE}/api/rag/search?query=${encodeURIComponent(query)}&top_k=10`);
+        const resp = await apiFetch(`${API_BASE}/api/rag/search?query=${encodeURIComponent(query)}&top_k=10`);
         const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || data.error || `HTTP ${resp.status}`);
 
         if (!data.results || data.results.length === 0) {
             resultsEl.innerHTML = '<div style="color:var(--on-dark-muted); font-size:14px; text-align:center; padding:40px;">No matching chunks found</div>';
@@ -1261,30 +1293,32 @@ async function searchChunks() {
         }
 
         resultsEl.innerHTML = data.results.map((r, i) => {
-            const simPct = (r.similarity * 100).toFixed(1);
             return `
                 <div class="search-result-card">
                     <div class="sr-header">
-                        <div class="sr-source">${r.source || 'Unknown'}</div>
+                        <div class="sr-source">${escapeHtml(r.source || 'Unknown')}</div>
                         <div style="display:flex; align-items:center; gap:var(--s-sm);">
-                            <span style="font-size:13px; color:var(--accent-pink); font-weight:600;">${simPct}%</span>
-                            <div class="sr-sim-bar"><div class="sr-sim-fill" style="width:${simPct}%;"></div></div>
+                            <span style="font-size:13px; color:var(--accent-pink); font-weight:600;">${relevanceLabel(r)}</span>
                         </div>
                     </div>
                     <div class="sr-text">${escapeHtml(r.clause || '')}</div>
-                    <div class="sr-meta">Chunk ${r.chunk_index ?? i} · ${r.file_type || 'unknown'}</div>
+                    <div class="sr-meta">Chunk ${escapeHtml(String(r.chunk_index ?? i))} · ${escapeHtml(r.file_type || 'unknown')}</div>
                 </div>
             `;
         }).join('');
     } catch (e) {
-        resultsEl.innerHTML = `<div style="color:var(--accent-pink); font-size:14px; text-align:center; padding:40px;">Search error: ${e.message}</div>`;
+        resultsEl.innerHTML = `<div style="color:var(--accent-pink); font-size:14px; text-align:center; padding:40px;">Search error: ${escapeHtml(e.message)}</div>`;
     }
 }
 
 function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return String(str ?? '').replace(/[&<>"']/g, ch =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function relevanceLabel(source) {
+    const score = Number(source.combined_score ?? source.similarity);
+    return Number.isFinite(score) ? `Relevance ${score.toFixed(4)}` : 'Relevance unavailable';
 }
 
 // ============================================================
@@ -1307,7 +1341,7 @@ async function runAccuracyTest() {
     document.getElementById('ratingConfirm').style.display = 'none';
 
     try {
-        const resp = await fetch(`${API_BASE}/api/rag/ask`, {
+        const resp = await apiFetch(`${API_BASE}/api/rag/ask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question, top_k: topK }),
@@ -1319,12 +1353,11 @@ async function runAccuracyTest() {
 
             if (data.sources && data.sources.length > 0) {
                 document.getElementById('testSourcesDisplay').innerHTML = data.sources.map((s, i) => {
-                    const simPct = (s.similarity * 100).toFixed(1);
                     return `
                         <div class="source-card" style="margin-bottom:var(--s-sm);">
                             <div class="src-header">
-                                <span class="src-name">${s.source || 'Unknown'}</span>
-                                <span class="src-sim">${simPct}%</span>
+                                <span class="src-name">${escapeHtml(s.source || 'Unknown')}</span>
+                                <span class="src-sim">${relevanceLabel(s)}</span>
                             </div>
                             <div class="src-text expanded" style="max-height:none;">${escapeHtml(s.clause || '')}</div>
                         </div>
@@ -1336,7 +1369,7 @@ async function runAccuracyTest() {
 
             window._lastTest = { question, expected, answer: data.answer, sources: data.sources };
         } else {
-            document.getElementById('testAnswerDisplay').textContent = `Error: ${data.detail || 'Request failed'}`;
+            document.getElementById('testAnswerDisplay').textContent = `Error: ${data.detail || data.error || 'Request failed'}`;
         }
     } catch (e) {
         document.getElementById('testAnswerDisplay').textContent = `Connection error: ${e.message}`;
@@ -1375,17 +1408,17 @@ function updateAccuracySummary() {
     const wrong = accuracyRatings.filter(r => r.rating === 'wrong').length;
     const noAnswer = accuracyRatings.filter(r => r.rating === 'no_answer').length;
     const accuracy = ((correct + partial * 0.5) / total * 100).toFixed(1);
-    const avgSim = (accuracyRatings.reduce((a, r) => a + r.avg_similarity, 0) / total * 100).toFixed(1);
+    const avgSim = (accuracyRatings.reduce((a, r) => a + r.avg_similarity, 0) / total).toFixed(4);
 
     document.getElementById('accuracySummary').innerHTML = `
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-sm); margin-bottom:var(--s-md);">
             <div class="stat-card">
-                <div class="label">Accuracy</div>
+                <div class="label">User rating score</div>
                 <div class="value lime">${accuracy}%</div>
             </div>
             <div class="stat-card">
-                <div class="label">Avg Similarity</div>
-                <div class="value" style="color:var(--accent-pink);">${avgSim}%</div>
+                <div class="label">Avg relevance</div>
+                <div class="value" style="color:var(--accent-pink);">${avgSim}</div>
             </div>
             <div class="stat-card">
                 <div class="label">Tests</div>
@@ -1408,7 +1441,7 @@ function updateAccuracySummary() {
 // ============================================================
 checkServerStatus();
 refreshStats();
-setInterval(checkServerStatus, 10000);
+setInterval(checkServerStatus, 30000);
 </script>
 <script src="dispute.js"></script>
 </body>

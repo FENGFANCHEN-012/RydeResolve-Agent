@@ -156,7 +156,7 @@ async def test_failed_primary_falls_back_in_order(monkeypatch):
     monkeypatch.setattr(llm_module, "GROQ_API_KEY", "groq-key")
     client = LLMClient(provider="hunyuan", fallbacks=["hunyuan", "groq"])
     assert client._fallback_names == ["groq"]  # the primary is never its own backup
-    primary = _fake_openai(client, error=RuntimeError("401 bad key"))
+    primary = _fake_openai(client, error=_FakeAPIError(429, "rate_limit_exceeded"))
     backup = _fake_openai(client._chain()[1], reply='{"ok": true}')
     assert await client.chat_json([{"role": "user", "content": "give json"}]) == '{"ok": true}'
     assert len(primary.calls) == 1 and len(backup.calls) == 1
@@ -167,7 +167,7 @@ async def test_last_fallback_error_is_raised(monkeypatch):
     monkeypatch.setattr(llm_module, "GROQ_API_KEY", "groq-key")
     monkeypatch.setattr(llm_module, "CEREBRAS_API_KEY", "c-key")
     client = LLMClient(provider="groq", fallbacks=["cerebras"])
-    _fake_openai(client, error=RuntimeError("first"))
+    _fake_openai(client, error=_FakeAPIError(503, "unavailable"))
     _fake_openai(client._chain()[1], error=RuntimeError("second"))
     with pytest.raises(RuntimeError, match="second"):
         await client.chat([{"role": "user", "content": "q"}])
@@ -175,3 +175,30 @@ async def test_last_fallback_error_is_raised(monkeypatch):
 
 def test_no_fallback_by_default_in_tests():
     assert LLMClient()._fallback_names == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("error", [
+    llm_module.SpendCapReached("budget stopped"),
+    _FakeAPIError(401, "invalid_api_key"),
+    _FakeAPIError(400, "invalid_request"),
+    ValueError("invalid JSON"),
+    RuntimeError("provider misconfigured"),
+])
+async def test_terminal_errors_never_call_backup(monkeypatch, error):
+    client, _ = _groq_client(monkeypatch, error=error)
+    client._fallback_names = ["cerebras"]
+    backup = _fake_openai(client._chain()[1], reply="must not run")
+    with pytest.raises(type(error)):
+        await client.chat([{"role":"user", "content":"q"}])
+    assert not backup.calls
+
+
+def test_judge_and_fairness_accept_selected_provider_without_gemini_key(monkeypatch):
+    from src.agents.arbitrator import ArbitrationAgent
+    from src.agents.fairness import FairnessAgent
+    monkeypatch.setattr(llm_module, "LLM_API_KEY", "")
+    monkeypatch.setattr(llm_module, "LLM_PROVIDER", "groq")
+    monkeypatch.setattr(llm_module, "GROQ_API_KEY", "offline-groq")
+    for agent in (ArbitrationAgent(), FairnessAgent()):
+        assert agent._get_llm_client().provider == "groq"
