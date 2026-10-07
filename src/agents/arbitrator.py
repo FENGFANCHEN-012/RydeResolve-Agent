@@ -236,7 +236,7 @@ class ArbitrationAgent:
         if brief:
             parts.append(brief + "\n")
 
-        # Evidence pool: auto-queries from both advocates
+        # Evidence pool: lookups either advocate asked for, numbered E<n> (D23)
         from src.core.evidence_pool import EvidencePool
         pool_text = EvidencePool.render_for_prompt(context.get("evidence_pool") if isinstance(context, dict) else getattr(context, "evidence_pool", None))
         if pool_text:
@@ -246,27 +246,38 @@ class ArbitrationAgent:
         # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
         # repeated in the raw dump; without a brief the dump is unchanged
         # The fraud report gets its own block below; pair_history is the Fraud agent's input only
-        skip = {"case_brief", "fraud_report", "pair_history", "safety_alerts",
+        skip = {"case_brief", "fraud_report", "pair_history", "safety_alerts", "evidence_pool",
                 *(SUMMARISED_FIELDS if brief else ())}
         raw = {k: v for k, v in context.items() if k not in skip} if isinstance(context, dict) else context
         if brief and isinstance(context, dict) and context.get("gps_trace"):
             raw["gps_trace"] = f"{len(context['gps_trace'])} points, summarised in the CASE BRIEF"
         parts.append(json.dumps(raw, indent=2, default=str))
 
-        parts.append("\n=== PASSENGER ADVOCATE ANALYSIS ===")
+        ids = [e.get("id", f"D{i}") for i, e in enumerate(debate_history or [], 1)]
+
+        def label(i: int) -> str:
+            return f" [{ids[i]}]" if len(ids) > i else ""
+
+        parts.append(f"\n=== PASSENGER ADVOCATE ANALYSIS{label(0)} ===")
         parts.append(json.dumps(passenger_analysis, indent=2, default=str))
 
-        parts.append("\n=== DRIVER ADVOCATE ANALYSIS ===")
+        parts.append(f"\n=== DRIVER ADVOCATE ANALYSIS{label(1)} ===")
         parts.append(json.dumps(driver_analysis, indent=2, default=str))
 
-        parts.append("\n=== POLICY EVALUATION (RAG) ===")
+        parts.append(f"\n=== POLICY EVALUATION (RAG){label(2)} ===")
         parts.append(json.dumps(policy_evaluation, indent=2, default=str))
 
         if debate_history:
-            parts.append("\n=== DEBATE HISTORY ===")
-            for i, entry in enumerate(debate_history, 1):
-                parts.append(f"\n--- Round {i} ---")
-                parts.append(json.dumps(entry, indent=2, default=str))
+            parts.append("\n=== DEBATE POOL (every turn, numbered; cite as [D#]) ===")
+            for i, entry in enumerate(debate_history):
+                head = f"\n--- [{ids[i]}] {entry.get('speaker')}, round {entry.get('round')} ---"
+                if i < 3 and entry.get("round") == 0:
+                    # The opening analyses are printed in full above; not repeated
+                    parts.append(head + " (opening, shown above)")
+                    continue
+                parts.append(head)
+                content = entry.get("content")
+                parts.append(content if isinstance(content, str) else json.dumps(content, indent=2, default=str))
         else:
             parts.append("\n=== DEBATE HISTORY ===\nNone")
 
@@ -289,7 +300,10 @@ class ArbitrationAgent:
             "\n=== YOUR TASK ===\n"
             "Based on ALL of the above, produce the final arbitration decision. "
             "Weigh the evidence from both sides, apply the relevant policies, "
-            "and state your conclusion clearly with a confidence score."
+            "and state your conclusion clearly with a confidence score. "
+            "In the rationale, cite what the ruling rests on by id: verified fact ids from the case brief, "
+            "[E#] items from the evidence pool (either side may have found them; weigh them the same), "
+            "policy references, and the [D#] turns you accept or reject. Do not cite ids that are not shown."
         )
         return "\n".join(parts)
 

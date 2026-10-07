@@ -469,13 +469,17 @@ async def test_passenger_analyze_deposits_pool(name: str, builder):
     context = builder()
     assert context.evidence_pool == []
 
-    await agent.analyze(context)
-
+    # Seed lookups are made by the debate engine before the openings (D23)
+    seed = await QueryPlanner(agent_name="system").auto_query(context)
+    context.evidence_pool = EvidencePool.merge_pools(context.evidence_pool, seed)
     assert len(context.evidence_pool) >= 1, f"{name}: no pool items deposited"
-    for item in context.evidence_pool:
-        assert item.get("source_agent") == "passenger"
-        assert "item_id" in item
+    for n, item in enumerate(context.evidence_pool, 1):
+        assert item.get("item_id") == f"E{n}"
         assert "timestamp" in item
+
+    before = list(context.evidence_pool)
+    await agent.analyze(context)
+    assert context.evidence_pool == before, f"{name}: analyze() must not write the pool"
 
 
 @pytest.mark.parametrize("name,builder", _CASES)
@@ -517,11 +521,8 @@ async def test_driver_sees_passenger_pool_and_deposits_own(name: str, builder):
         ).model_dump(),
     ]
 
+    context.evidence_pool[0]["item_id"] = "E1"
     await agent.analyze(context)
-
-    # Driver should have added its own items
-    driver_items = [i for i in context.evidence_pool if i.get("source_agent") == "driver"]
-    assert len(driver_items) >= 1, f"{name}: driver deposited no items"
 
     # The prompt must contain the passenger's pool item
     user_prompt = _extract_user_prompt(llm)

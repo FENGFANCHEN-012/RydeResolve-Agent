@@ -234,12 +234,18 @@ def test_evidence_pool_merge():
         params={"timestamp": "2026-09-21T09:00:00+08:00"},
         findings=[],
     )
-    merged = EvidencePool.merge_pools([item1.model_dump()], [item2])
-    assert len(merged) == 2
+    item3 = EvidencePoolItem.from_collector_tool(
+        source_agent="driver", tool_name="gps_at",
+        params={"timestamp": "2026-09-21T09:05:00+08:00"},
+        findings=[],
+    )
+    # The same lookup (tool + arguments) is stored once, whoever asked for it
+    merged = EvidencePool.merge_pools([], [item1, item2])
+    assert len(merged) == 1 and merged[0]["item_id"] == "E1"
 
-    # Merging again should not duplicate
-    merged2 = EvidencePool.merge_pools(merged, [item1])
-    assert len(merged2) == 2
+    # A new lookup gets the next number; merging again does not duplicate
+    merged2 = EvidencePool.merge_pools(merged, [item3, item1])
+    assert [i["item_id"] for i in merged2] == ["E1", "E2"]
 
 
 # ---------------------------------------------------------------------------
@@ -261,13 +267,16 @@ async def test_passenger_agent_auto_query_deposits_to_pool():
     context = make_context_no_show_with_conflict()
     assert context.evidence_pool == []
 
-    await agent.analyze(context)
-
-    # The agent should have deposited auto-query results into the pool
+    # Lookups now happen in the debate engine (seed + research step), not inside analyze()
+    seed = await QueryPlanner(agent_name="system").auto_query(context)
+    context.evidence_pool = EvidencePool.merge_pools(context.evidence_pool, seed)
     assert len(context.evidence_pool) >= 1
-    for item in context.evidence_pool:
-        assert item["source_agent"] == "passenger"
-        assert "item_id" in item
+    assert [i["item_id"] for i in context.evidence_pool] == [
+        f"E{n}" for n in range(1, len(context.evidence_pool) + 1)]
+
+    before = list(context.evidence_pool)
+    await agent.analyze(context)
+    assert context.evidence_pool == before   # the advocate reads the pool, never writes it
 
 
 # ---------------------------------------------------------------------------
@@ -303,10 +312,8 @@ async def test_driver_agent_sees_passenger_pool_items():
         ).model_dump(),
     ]
 
+    context.evidence_pool[0]["item_id"] = "E1"
     await driver_agent.analyze(context)
-
-    # The driver agent should also deposit its own queries
-    assert len(context.evidence_pool) >= 2  # passenger's + driver's
 
     # Verify the prompt sent to the LLM contains the passenger's pool item
     call_args = llm.chat_json.call_args
