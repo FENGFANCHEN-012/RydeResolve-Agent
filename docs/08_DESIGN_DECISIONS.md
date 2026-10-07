@@ -900,3 +900,16 @@ over S$30 (complex), and P0 or chat safety alerts (dangerous). No LLM call.
 - NS-002-B1 correct once is not evidence of a fix; the regression with repeats decides.
 - The LLM was chosen for the classifier label, then rejected. Every signal triage needs is already
   in the data, and code gives the same grade every run, with reasons, at zero tokens.
+
+**D24 step 3 result (typed moves, 2026-10-07, smoke run 20261007-213712).** Rebuttals now come as
+claim, challenge or concede moves; the Judge gets an "issues after the debate" list. All 6
+rebuttals parsed as moves. The advocates did concede recorded facts against their own side:
+- NS-002-B1: the driver conceded "cancelled after 7 minutes, below the 8-minute threshold";
+  the passenger conceded the 17:59 arrival.
+- RD-001-P4: both sides accepted that the driver told the rider at once about the missed exit.
+- FD-002 (complex) ran a second round because a challenge was still unanswered.
+Verdicts 2/3. NS-002-B1 was escalated again, so it is right in only 1 of its last 4 runs; it is
+unstable, and the step did not cause it. Prompt tokens averaged 38k, flat against step 2.
+Two defects to fix later:
+- an advocate sometimes "concedes" its own turn (the driver conceding D2, its own opening);
+- "answered" is a loose match on the target or the turn id.
