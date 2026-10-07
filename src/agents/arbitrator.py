@@ -16,6 +16,7 @@ from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
 from src.agents.case_brief import SUMMARISED_FIELDS, disputed_charge, render_case_brief
+from src.agents.fraud import fraud_refs, render_for_judge
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +238,8 @@ class ArbitrationAgent:
         parts.append("=== DISPUTE CONTEXT ===")
         # Fields the brief already states (facts, timeline, case rules, GPS conclusions) are not
         # repeated in the raw dump; without a brief the dump is unchanged
-        skip = {"case_brief", *SUMMARISED_FIELDS} if brief else {"case_brief"}
+        # The fraud report gets its own block below; pair_history is the Fraud agent's input only
+        skip = {"case_brief", "fraud_report", "pair_history", *(SUMMARISED_FIELDS if brief else ())}
         raw = {k: v for k, v in context.items() if k not in skip} if isinstance(context, dict) else context
         if brief and isinstance(context, dict) and context.get("gps_trace"):
             raw["gps_trace"] = f"{len(context['gps_trace'])} points, summarised in the CASE BRIEF"
@@ -259,6 +261,11 @@ class ArbitrationAgent:
                 parts.append(json.dumps(entry, indent=2, default=str))
         else:
             parts.append("\n=== DEBATE HISTORY ===\nNone")
+
+        fraud = context.get("fraud_report") if isinstance(context, dict) else None
+        if fraud:
+            # Only MEDIUM / HIGH reports reach the Judge (src/agents/fraud.py)
+            parts.append("\n" + render_for_judge(fraud))
 
         if precedents:
             # Human-reviewed past rulings (learning feedback loop). Guidance for
@@ -305,6 +312,8 @@ class ArbitrationAgent:
         """Accept retrieved clauses and explicit platform case-policy fields."""
         refs = case_policy_refs(context)
         refs |= {c["reference"] for c in ((context or {}).get("case_brief") or {}).get("clauses") or []}
+        # A Judge that names a fraud signal is citing a real source, not inventing a clause
+        refs |= fraud_refs(context)
         if not isinstance(policy_evaluation, dict):
             return refs
         # policy_evaluation may contain a "policies" or "chunks" list
