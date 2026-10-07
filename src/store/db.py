@@ -284,8 +284,9 @@ def _make_engine(url: str):
     if not u.drivername.startswith("postgresql"):
         return create_engine(u, future=True)
     if u.port == 6543:
-        return create_engine(u, future=True, poolclass=NullPool, connect_args={"prepare_threshold": None})
-    return create_engine(u, future=True, pool_pre_ping=True)
+        return create_engine(u, future=True, poolclass=NullPool,
+                             connect_args={"prepare_threshold": None, "connect_timeout": 8})
+    return create_engine(u, future=True, pool_pre_ping=True, connect_args={"connect_timeout": 8})
 
 
 def case_family(dispute_id: str) -> str:

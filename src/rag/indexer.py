@@ -120,12 +120,12 @@ class DocumentIndexer:
     CHUNK_SIZE = 500  # words per chunk
     CHUNK_OVERLAP = 50  # words of overlap between chunks
 
-    def __init__(self):
+    def __init__(self, collection_name: str | None = None):
         # VECTOR_BACKEND=qdrant stores chunks in Qdrant Cloud instead of ChromaDB
         self.store = None
         if config.VECTOR_BACKEND == "qdrant":
             from src.rag.qdrant_store import QdrantStore
-            self.store = QdrantStore()
+            self.store = QdrantStore(collection_name)
             self.client, self.mode = None, "qdrant"
         else:
             self.client, self.mode = _get_chroma_client()

@@ -5,6 +5,8 @@ Centralized settings loaded from environment variables.
 import os
 from dotenv import load_dotenv
 
+# Per-machine overrides precede the shared .env; explicit process variables still win.
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env.local"))
 load_dotenv()
 
 
@@ -108,8 +110,10 @@ CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "8000"))
 CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS", "*"
+    "CORS_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000"
 ).split(",")
+# Wildcard access is unsuitable for a service that spends quota and edits records.
+CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS if origin.strip() and origin.strip() != "*"]
 
 # ============================================================
 # Supported Languages (Singapore Official Languages)

@@ -17,6 +17,7 @@ Events (all JSON-serialisable dicts with a "type" key):
                 already included in duration_ms
     retrieval   {step_id, dispute_type, clauses}
     tool_call   {step_id, tool, args, findings, duration_ms}
+                findings is the tool result: a list, a history object, or null
     step_end    {id, agent, output, duration_ms}
     step_error  {id, agent, error, duration_ms}
     result / error / done   (emitted by the API layer)
@@ -108,14 +109,15 @@ async def step(agent: str, title: str, input: Any = None):
 
 
 def record_llm_call(prompt: str, response: str | None, duration_ms: int, error: str | None = None,
-                    usage: dict | None = None, wait_ms: int = 0) -> None:
+                    usage: dict | None = None, wait_ms: int = 0,
+                    provider: str | None = None, model: str | None = None) -> None:
     """Called by LLMClient for every request; attaches it to the running step."""
     tracer = current_tracer()
     if tracer is None:
         return
     tracer.emit({"type": "llm_call", "step_id": _step_id.get(), "prompt": prompt,
                  "response": response, "duration_ms": duration_ms, "error": error,
-                 "usage": usage, "wait_ms": wait_ms})
+                 "usage": usage, "wait_ms": wait_ms, "provider": provider, "model": model})
 
 
 def record_retrieval(query_type: str, clauses: list[dict]) -> None:
@@ -132,7 +134,7 @@ def record_retrieval(query_type: str, clauses: list[dict]) -> None:
                              for i, c in enumerate(clauses)]})
 
 
-def record_tool_call(tool: str, args: dict, findings: list, duration_ms: int) -> None:
+def record_tool_call(tool: str, args: dict, findings: list | dict | None, duration_ms: int) -> None:
     """Attach one deterministic tool run (Collector tools) to the running step."""
     tracer = current_tracer()
     if tracer is None:

@@ -6,7 +6,6 @@ Flow: User question → Vector search (ChromaDB) → Context assembly → LLM an
 """
 from src.rag.retriever import DocumentRetriever
 from src.core.llm_client import llm_client
-from src.config import LLM_API_KEY
 
 
 class RAGQAEngine:
@@ -79,10 +78,10 @@ Answer:"""
         context = "\n\n".join(context_parts)
 
         # 3. Generate answer via LLM
-        if not LLM_API_KEY:
+        if not llm_client.api_key:
             # No LLM key configured — return retrieved context directly
             context_summary = "\n\n".join(
-                f"[{i+1}] Source: {chunk['source']} (similarity: {chunk['similarity']:.2%})\n    {chunk['clause'][:500]}"
+                f"[{i+1}] Source: {chunk['source']} (retrieval score: {chunk['similarity']:.4f})\n    {chunk['clause'][:500]}"
                 for i, chunk in enumerate(chunks)
             )
             answer_text = (
@@ -110,6 +109,7 @@ Answer:"""
                 "similarity": chunk["similarity"],
                 "chunk_index": chunk["chunk_index"],
                 "preview": chunk["clause"][:200] + "..." if len(chunk["clause"]) > 200 else chunk["clause"],
+                "clause": chunk["clause"],
             }
             for chunk in chunks
         ]

@@ -83,6 +83,22 @@ class SpendCapReached(RuntimeError):
     pass
 
 
+def recoverable_provider_error(exc: Exception) -> bool:
+    """Switch services only for quota, temporary server or transport failures."""
+    if isinstance(exc, SpendCapReached):
+        return False
+    from openai import APIConnectionError, APITimeoutError
+    import httpx
+    from google.api_core import exceptions as google_errors
+    if isinstance(exc, (APIConnectionError, APITimeoutError, httpx.TransportError,
+                        TimeoutError, ConnectionError, google_errors.ResourceExhausted,
+                        google_errors.ServiceUnavailable, google_errors.DeadlineExceeded,
+                        google_errors.InternalServerError)):
+        return True
+    status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+    return isinstance(status, int) and (status in (408, 429) or 500 <= status <= 599)
+
+
 def _groq_json_validation_failed(exc: Exception) -> bool:
     """Only Groq's malformed JSON response is safe to retry as a new request."""
     if getattr(exc, "status_code", None) != 400:
@@ -102,6 +118,8 @@ class LLMClient:
 
     def __init__(self, provider: str | None = None, fallbacks: list[str] | None = None):
         self.provider = provider or LLM_PROVIDER
+        if self.provider not in {"gemini", "groq", "cerebras", "hunyuan"}:
+            raise ValueError(f"Unsupported LLM provider: {self.provider}")
         if self.provider == "cerebras":
             self.api_key, self.model, self.base_url = CEREBRAS_API_KEY, CEREBRAS_MODEL, CEREBRAS_BASE_URL
         elif self.provider == "groq":
@@ -167,7 +185,7 @@ class LLMClient:
                                kwargs["max_tokens"])
         except Exception as exc:
             record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
-                            wait_ms=int(sum(waits) * 1000))
+                            wait_ms=int(sum(waits) * 1000), provider=self.provider, model=self.model)
             raise
         finally:
             _groq_rate_waits.reset(token)
@@ -179,7 +197,7 @@ class LLMClient:
                 _spent_usd += (response.usage.prompt_tokens * LLM_PRICE_IN_PER_M
                                + response.usage.completion_tokens * LLM_PRICE_OUT_PER_M) / 1_000_000
         record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
-                        usage=usage, wait_ms=int(sum(waits) * 1000))
+                        usage=usage, wait_ms=int(sum(waits) * 1000), provider=self.provider, model=self.model)
         return text
 
     def _ensure_configured(self):
@@ -272,7 +290,7 @@ class LLMClient:
             text = response.text
         except Exception as exc:
             record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
-                            wait_ms=int(waited * 1000))
+                            wait_ms=int(waited * 1000), provider=self.provider, model=self.model)
             raise
         meta = getattr(response, "usage_metadata", None)
         usage = None
@@ -280,7 +298,7 @@ class LLMClient:
             usage = {"prompt_tokens": getattr(meta, "prompt_token_count", None),
                      "completion_tokens": getattr(meta, "candidates_token_count", None)}
         record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
-                        usage=usage, wait_ms=int(waited * 1000))
+                        usage=usage, wait_ms=int(waited * 1000), provider=self.provider, model=self.model)
 
         # Handle JSON response format request
         if response_format and response_format.get("type") == "json_object":
@@ -346,7 +364,7 @@ class LLMClient:
             try:
                 return await getattr(client, method)(**kwargs)
             except Exception as exc:
-                if i == len(chain) - 1:
+                if i == len(chain) - 1 or not recoverable_provider_error(exc):
                     raise
                 # The failed call is already in the trace; say which provider takes over
                 logger.warning("LLM provider %s failed (%s); falling back to %s",

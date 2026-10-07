@@ -80,6 +80,8 @@ class Orchestrator:
         ruling_id = await asyncio.to_thread(_record_ruling, final_state, response)
         if ruling_id is not None:
             response["ruling_id"] = ruling_id  # a reviewer confirms or overrides it by this id
+        elif os.getenv("RECORD_RULINGS", "1") != "0":
+            response["storage_warning"] = "The decision could not be recorded. Human review history is unavailable."
         return response
 
     # ------------------------------------------------------------------
