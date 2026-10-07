@@ -885,3 +885,18 @@ The +20-25% target was not met. What remains is the research call itself (2-3k t
 chances to look things up, which is the autonomy this step exists for. **Accepted at +38%**: at
 Cerebras prices that is under US$0.005 per case. The binding limit is the 1M tokens/day per key,
 so a 38-run regression (~1.5M) needs two keys.
+
+**D24 step 2 result (triage, 2026-10-07, smoke run 20261007-212414).** Triage is computed in
+code from data conflicts, data gaps (2 or more), fraud level MEDIUM or above, a disputed amount
+over S$30 (complex), and P0 or chat safety alerts (dangerous). No LLM call.
+| Case | Grade | Rounds | Prompt tokens | Fairness LLM audit | Verdict |
+|---|---|---|---|---|---|
+| FD-002 | complex (fraud risk medium), safe | 2 | 53.5k | ran | correct |
+| NS-002-B1 | simple, safe | 1 | 36.6k | skipped (code checks only) | correct (missed in D20, D23 and step 1) |
+| RD-001-P4 | simple, safe | 1 | 34.2k | skipped | correct |
+- Simple cases saved another 3-4k tokens: the Fairness LLM audit is skipped while the code checks
+  still run.
+- A complex case pays for its second round.
+- NS-002-B1 correct once is not evidence of a fix; the regression with repeats decides.
+- The LLM was chosen for the classifier label, then rejected. Every signal triage needs is already
+  in the data, and code gives the same grade every run, with reasons, at zero tokens.
