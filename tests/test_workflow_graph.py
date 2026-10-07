@@ -261,9 +261,22 @@ class StubExecutor:
         }
 
 
+class StubSafety:
+    """D24 Safety agent stand-in: no LLM in unit tests. Default: a person now."""
+
+    def __init__(self, tier="imminent", human_review="now"):
+        self.result = {"tier": tier, "human_review": human_review, "actions": []}
+        self.calls = 0
+
+    async def assess(self, context, fraud_report=None, precedents=None):
+        self.calls += 1
+        return self.result
+
+
 def build_graph(collector=None, classifier=None, debate=None, arbitrator=None,
-                fairness=None, executor=None, case_brief=None):
+                fairness=None, executor=None, case_brief=None, safety=None):
     return build_dispute_graph(
+        safety_agent=safety or StubSafety(),
         case_brief=case_brief or StubCaseBrief(),
         collector=collector or StubCollector(),
         classifier=classifier or StubClassifier(),
@@ -647,3 +660,28 @@ class TestCaseBriefNode:
         classifier = StubClassifier(classification=make_classification(requires_human=True))
         await build_graph(classifier=classifier, case_brief=brief).ainvoke(initial_state())
         assert brief.calls == 0
+
+
+class TestSafetyNode:
+    @pytest.mark.asyncio
+    async def test_p0_verbal_abuse_continues_to_the_debate_with_protection(self):
+        safety = StubSafety(tier="verbal_abuse", human_review="after")
+        debate = StubDebate()
+        graph = build_graph(
+            classifier=StubClassifier(classification=make_classification(requires_human=True,
+                                                                         urgency=UrgencyLevel.P0)),
+            debate=debate, safety=safety)
+        final = await graph.ainvoke(initial_state())
+        assert safety.calls == 1 and debate.calls == 1
+        assert final["safety"]["tier"] == "verbal_abuse"
+
+    @pytest.mark.asyncio
+    async def test_p0_imminent_goes_to_a_person_and_skips_the_debate(self):
+        safety = StubSafety()
+        debate = StubDebate()
+        graph = build_graph(
+            classifier=StubClassifier(classification=make_classification(requires_human=True,
+                                                                         urgency=UrgencyLevel.P0)),
+            debate=debate, safety=safety)
+        final = await graph.ainvoke(initial_state())
+        assert safety.calls == 1 and debate.calls == 0 and final["status"] == STATUS_ESCALATED
