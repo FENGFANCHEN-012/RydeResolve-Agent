@@ -39,6 +39,12 @@ RECENT_WINDOW_DAYS = 90
 RECENT_DISPUTES = 3            # ">= 3 disputes in 90 days"
 YOUNG_ACCOUNT_DAYS = 30
 LARGE_CLAIM_SGD = 50.0
+# Soft: the same kind of dispute again and again, each time with a different counterparty, mostly
+# paid out (a rider farming fee-waiver vouchers; a driver whose no-show fees riders keep winning back)
+PATTERN_MIN_DISPUTES = 3       # earlier disputes of this case's type in the window
+PATTERN_MIN_COUNTERPARTIES = 2
+PATTERN_MIN_PAID_OUT = 2       # ... that went the filer's way (a refund or voucher was paid)
+PAID_OUT = ("upheld", "partially_upheld")
 # Hard: an abnormal repeat pairing of the same rider and driver (demo data only)
 PAIR_MATCHES_30D = 3
 PAIR_CANCELLED_30D = 2
@@ -71,6 +77,9 @@ class FraudReport(BaseModel):
     signals: list[FraudSignal] = Field(default_factory=list)
     summary: str = ""
     chat_review: str = "not run"   # not run | keywords | keywords + llm | llm failed
+    # A threat in the chat is a safety matter, not fraud: it never changes the level or anyone's
+    # record, and Fairness sends the case to a person (the threatened party may be the filer)
+    safety_alerts: list[str] = Field(default_factory=list)
     note: str = ("Risk signals inform, they never convict: a data-supported claim stays valid "
                  "whatever the filer's history.")
 
@@ -91,19 +100,31 @@ class FraudAgent:
         driver_id = (context.driver_profile or {}).get("driver_id") or trip.get("driver_id")
         filer_id, filer_profile = ((rider_id, context.rider_profile) if filer_role == "rider"
                                    else (driver_id, context.driver_profile))
+        resp_role = "driver" if filer_role == "rider" else "rider"
+        resp_id, resp_profile = ((driver_id, context.driver_profile) if filer_role == "rider"
+                                 else (rider_id, context.rider_profile))
 
         signals: list[FraudSignal] = []
         history = self._tool("get_user_history", {"user_id": filer_id},
                              lambda: user_history(filer_id, filer_role, filer_profile, context.dispute_id))
-        signals += prior_signals(history, filer_id, context)
+        pattern = claim_pattern_signals(history, filer_id, context, "filer")
+        # The pattern is the specific form of "frequent disputes"; one statement is enough
+        signals += [s for s in prior_signals(history, filer_id, context)
+                    if not (pattern and s.code == "frequent_disputes")] + pattern
+        # The respondent's record counts only for the same pattern from the other side, so the two
+        # parties are measured by one rule (a driver whose no-show fees riders keep winning back)
+        resp_history = self._tool("get_user_history", {"user_id": resp_id},
+                                  lambda: user_history(resp_id, resp_role, resp_profile, context.dispute_id))
+        signals += claim_pattern_signals(resp_history, resp_id, context, "respondent")
         signals += self._tool("check_evidence_timestamps", {},
                               lambda: evidence_timestamp_signals(context, filer_role, filer_id))
         signals += self._tool("get_pair_history", {"rider_id": rider_id, "driver_id": driver_id},
                               lambda: pair_signals(getattr(context, "pair_history", None)))
-        chat_signals, chat_review = await self._chat_signals(context, filer_id, filer_role)
+        chat_signals, safety, chat_review = await self._chat_signals(context, filer_id, filer_role)
         signals += chat_signals
 
-        report = FraudReport(signals=signals, level=score(signals), chat_review=chat_review)
+        report = FraudReport(signals=signals, level=score(signals), chat_review=chat_review,
+                             safety_alerts=safety)
         report.summary = render_summary(report)
         return report
 
@@ -123,10 +144,10 @@ class FraudAgent:
         return result
 
     async def _chat_signals(self, context, filer_id: str | None,
-                            filer_role: str) -> tuple[list[FraudSignal], str]:
+                            filer_role: str) -> tuple[list[FraudSignal], list[str], str]:
         chat = [m for m in context.chat_log or [] if isinstance(m, dict)]
         if not chat:
-            return [], "not run"
+            return [], [], "not run"
         found = keyword_chat_labels(chat)
         review = "keywords"
         llm = self._llm or LLMClient()
@@ -140,7 +161,7 @@ class FraudAgent:
             except Exception as exc:
                 logger.warning("Fraud chat review failed: %s", exc)
                 review = "llm failed"
-        return chat_label_signals(found, filer_id), review
+        return (*chat_label_signals(found, filer_id), review)
 
     async def _llm_chat_labels(self, chat: list[dict], claim: str, filer_role: str) -> list[dict]:
         llm = self._llm or LLMClient()
@@ -173,8 +194,10 @@ class FraudAgent:
 
 
 def user_history(user_id: str | None, role: str, profile: dict | None, dispute_id: str) -> dict | None:
-    """The filer's record: the store's history when the person is known there (platform priors
-    plus everything recorded since), else the platform profile alone. This case is excluded."""
+    """A party's record: the store's history when the person is known there (platform priors
+    plus everything recorded since), else the platform profile alone. This case is excluded.
+    Earlier disputes the platform profile lists are added in both cases (the store keeps only
+    their counts from the first sighting)."""
     if not user_id:
         return None
     try:
@@ -183,6 +206,7 @@ def user_history(user_id: str | None, role: str, profile: dict | None, dispute_i
         found = get_user_history(get_store(), user_id, exclude_dispute_id=dispute_id)
         if found:
             found["source"] = "store"
+            found["recent_disputes"] = _merge_disputes(found.get("recent_disputes"), profile, role, dispute_id)
             return found
     except Exception as exc:
         logger.info("History store unavailable, using the profile: %s", exc)
@@ -196,9 +220,22 @@ def user_history(user_id: str | None, role: str, profile: dict | None, dispute_i
         "complaints_filed_upheld": p.prior_complaints_filed_upheld,
         "fraud_confirmed": p.prior_fraud_confirmed,
         "fraud_confirmed_details": [p.prior_fraud_detail] if p.prior_fraud_detail else [],
-        "recent_disputes": [],
+        "recent_disputes": _merge_disputes([], profile, role, dispute_id),
         "account_age_days": profile.get("account_age_days"),
     }
+
+
+def _merge_disputes(recorded: list[dict] | None, profile: dict | None, role: str, dispute_id: str) -> list[dict]:
+    """Recorded disputes plus the platform profile's list (dispute_history.recent), once each.
+    A profile entry is one the person filed (riders) or received (drivers) unless it says."""
+    out = list(recorded or [])
+    seen = {d.get("dispute_id") for d in out}
+    for d in ((profile or {}).get("dispute_history") or {}).get("recent") or []:
+        if not isinstance(d, dict) or d.get("dispute_id") in seen or d.get("dispute_id") == dispute_id:
+            continue
+        seen.add(d.get("dispute_id"))
+        out.append({"role": "filer" if role == "rider" else "respondent", **d})
+    return out
 
 
 def prior_signals(history: dict | None, user_id: str | None, context) -> list[FraudSignal]:
@@ -227,6 +264,41 @@ def prior_signals(history: dict | None, user_id: str | None, context) -> list[Fr
         out.append(FraudSignal(code="frequent_disputes", kind=SOFT, user_id=user_id,
                                statement=f"{recent} disputes in the {RECENT_WINDOW_DAYS} days before this one."))
     return out
+
+
+def claim_pattern_signals(history: dict | None, user_id: str | None, context, as_role: str) -> list[FraudSignal]:
+    """Soft: this party has been in the same kind of dispute, on the same side, again and again
+    with different counterparties, and most went the filer's way. As filer (a rider farming
+    fee-waiver vouchers) or as respondent (a driver whose fees riders keep winning back). Code
+    only, over the record's type, counterparty, outcome and date; never the parties' wording."""
+    if not history:
+        return []
+    dispute_type = getattr(context.type, "value", context.type)
+    ref = _parse(context.submitted_at)
+    if not dispute_type or ref is None:
+        return []
+    ref = ref.replace(tzinfo=None)
+    start = ref - timedelta(days=RECENT_WINDOW_DAYS)
+    same = []
+    for d in history.get("recent_disputes") or []:
+        t = _parse(d.get("filed_at"))
+        if (d.get("role") == as_role and d.get("type") == dispute_type
+                and t and start <= t.replace(tzinfo=None) < ref):
+            same.append(d)
+    others = {d.get("counterparty") for d in same if d.get("counterparty")}
+    paid = sum(d.get("outcome") in PAID_OUT for d in same)
+    if (len(same) < PATTERN_MIN_DISPUTES or len(others) < PATTERN_MIN_COUNTERPARTIES
+            or paid < PATTERN_MIN_PAID_OUT):
+        return []
+    if as_role == "filer":
+        text = (f"{len(same)} earlier {dispute_type} disputes filed in the {RECENT_WINDOW_DAYS} days before "
+                f"this one, against {len(others)} different people; {paid} were paid out.")
+    else:
+        text = (f"The respondent faced {len(same)} earlier {dispute_type} disputes in the "
+                f"{RECENT_WINDOW_DAYS} days before this one, from {len(others)} different people; "
+                f"{paid} went against them.")
+    return [FraudSignal(code="repeat_claim_pattern" if as_role == "filer" else "respondent_claim_pattern",
+                        kind=SOFT, user_id=user_id, statement=text + " Context only: this case's own data decides it.")]
 
 
 def evidence_timestamp_signals(context, filer_role: str, filer_id: str | None) -> list[FraudSignal]:
@@ -318,13 +390,18 @@ def verified_labels(labels: list, chat: list[dict], claim: str = "",
     return out
 
 
-def chat_label_signals(found: list[dict], filer_id: str | None) -> list[FraudSignal]:
-    out, seen = [], set()
+def chat_label_signals(found: list[dict], filer_id: str | None) -> tuple[list[FraudSignal], list[str]]:
+    """Fraud signals, and safety alerts for threats (kept out of the fraud score: being threatened
+    says nothing about whether a claim is honest, and the sender may not be the filer)."""
+    out, safety, seen = [], [], set()
     for f in found:
+        if f["label"] == "threat":
+            safety.append(f"Threat in the chat ({f.get('sender') or '?'}): \"{f['quote'][:160]}\"")
+            continue
         if f["label"] in seen:
             continue
         seen.add(f["label"])
-        # A collusion offer or a threat is hard evidence; a message that merely contradicts
+        # A collusion offer is hard evidence; a message that merely contradicts
         # the claim is soft (it may be a misunderstanding), so it can reach MEDIUM at most
         kind = SOFT if f["label"] == "contradicts_claim" else HARD
         who = filer_id if f["label"] == "contradicts_claim" else None
@@ -332,7 +409,7 @@ def chat_label_signals(found: list[dict], filer_id: str | None) -> list[FraudSig
         if f.get("claim_quote"):
             statement += f" vs the claim: \"{f['claim_quote'][:160]}\""
         out.append(FraudSignal(code=f"chat_{f['label']}", kind=kind, user_id=who, statement=statement))
-    return out
+    return out, safety
 
 
 # ---------------------------------------------------------------------- scoring

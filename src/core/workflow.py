@@ -191,6 +191,9 @@ def build_dispute_graph(
         report = state.get("fraud_report")
         if report and report.get("level") != FRAUD_LOW:
             ctx["fraud_report"] = report
+        if report and report.get("safety_alerts"):
+            # Read by Fairness only (it routes the case to a person); not a fraud signal
+            ctx["safety_alerts"] = report["safety_alerts"]
         return ctx
 
     # -- Nodes ----------------------------------------------------------
