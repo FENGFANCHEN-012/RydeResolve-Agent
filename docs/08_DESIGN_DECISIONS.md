@@ -776,3 +776,92 @@ the verdict.
 
 **Not done (next):** the driver's false arrival as a hard signal (GPS far from pickup when "I'm
 here" is pressed, the NS-002-C1 pattern) and a claim that contradicts GPS/app events (design §4).
+
+## D23. Advocates choose their own lookups; numbered fact, policy and debate pools (2026-10-07)
+
+**Why.** The competition asks advocates to "autonomously gather evidence". Before D23 they argued
+only from a dossier the system had already assembled.
+
+**Step 1, rule-based auto-query (branch `feature/advocate-auto-query`, c5d0fee).** A
+`QueryPlanner` picked Collector lookups by fixed rules and put the results in a shared evidence
+pool. Regression run 20261007-145734 (38 runs, Cerebras `gpt-oss-120b`): verdict 34/37 plus one
+run lost to the daily token cap (D20 baseline 35/37). Misses: NS-002-B1 and NS-002-C1 (missed in
+D20 too) and RD-001-P4 (new; upheld in 8 of 9 earlier runs). An audit of the pool explained
+why accuracy did not move:
+- 63% of the 67 items were a bare count ("9 event(s) between ..."): `events_between` kept the
+  events in `value` but the pool showed only the statement.
+- The planner never used the agent's side, so the driver re-ran the passenger's lookups.
+- Item ids were random, so de-duplication never fired.
+Conclusion: "autonomous" in name only, since the LLM never chose anything.
+
+**Step 2, the design adopted (branch `feature/evidence-pools`, 3a78c40).** It follows the
+owner's blackboard design:
+- Policy pool = the case brief's clauses + every topic either side asks for (existing D14
+  mechanism, references `Source#chunk`).
+- Fact pool = the brief's computed facts (ids like `wait_time.after_arrival`) + lookups numbered
+  E1.. in order, de-duplicated by tool + arguments, each with who asked, the round and the reason.
+- Debate pool = every turn numbered D1.. with speaker and round.
+- Before each opening and rebuttal an advocate runs a research step (`src/agents/research.py`,
+  one LLM call): it sees the brief, the pool and the debate so far, and asks for up to 2 lookups
+  (`gps_at`, `events_between`) and up to 2 catalogue topics. Collector tools answer; an advocate
+  never writes a fact. Rebuttals see the numbered debate and must cite `[fact id]`, `[E#]`,
+  policy refs and `[D#]`. The Judge cites ids; Fairness flags an `[E#]` no lookup produced.
+- More rounds simply repeat research then rebuttal. `ADVOCATE_RESEARCH=0` switches it off for A/B.
+
+**Alternatives considered and rejected:**
+| Option | Why not |
+|---|---|
+| Keep the rule-based planner as the only lookup source | Measured above: no content, no side, no choice. Kept only as a free seed run once before the openings. |
+| Free-text policy search by advocates | An advocate could search for a clause out of context; the 25-topic catalogue keeps retrieval on known sections. Revisit only if a needed topic is missing. |
+| Multi-turn tool loop (ask, read, ask again) per advocate | Every extra turn re-sends the brief and the pool (2-3k tokens), and a key allows 5 requests/minute: ~25-30 calls per case, about 6 minutes per case. Lookups are batched in one call per turn instead. |
+| Remove raw chat and trip data and make everything a lookup | Measured on RD-001-P4: chat 100-270 and trip 270-460 tokens per call, 10-15% of a prompt, about 7% of a case. Little saving for the risk of a side not looking up the decisive message. GPS points and the full event list stay lookup-only. |
+
+**Smoke run 20261007-165141** (3 cases, third Cerebras key): FD-002 correct, RD-001-P4 correct (the
+passenger's round-1 lookup "no rider route request before the trip" answered the clause the Judge
+had misapplied in step 1; the Judge cited it as E6), NS-002-B1 still escalated (known). Advocates
+chose side-specific lookups with reasons; the Judge cited only existing ids. Problems found:
+- Rebuttal citations are not reliable (FD-002 cited nothing).
+- The same topics are requested every turn, though already in the pool.
+- There are some irrelevant lookups (waiting-fee events on a fare dispute).
+- Prompt tokens per case rose from 25-31k to 41-46k (+55-60%). Most of the increase is the four
+  research calls re-reading the brief and the pool (~9k), plus the pool growing to ~1.2k per call.
+
+**Tests:** 448 pass (7 new in `tests/test_research.py`; CodeBuddy's pool tests updated to the
+rule that agents read the pool and only the system writes it).
+
+## D24. Adaptive orchestration, an experimental branch with rollback rules (2026-10-07, planned)
+
+Branch `experiment/adaptive-orchestration`, from D23 (3a78c40). Every step is one commit plus a
+tag, and is kept only if the regression set (38 runs) meets all of these against the step before:
+- verdict accuracy drops by at most one case;
+- P0 safety recall stays 1.0;
+- escalation accuracy stays at 0.94 or higher;
+- tokens per case are reported.
+Otherwise the step is reverted to the previous tag, and the result is recorded here either way.
+
+1. **Token diet for D23.** The research step sees a slim brief (facts, conflicts, timeline, the
+   clause names already in the pool) and is told which topics are already present. The pool shows
+   new items in full and older ones as one line. Up to 4 lookups per call (more evidence, no more
+   calls). Target: +20-25% tokens over step 1, not +55%.
+2. **Triage = complexity x risk.** The classifier labels simple/complex and safe/dangerous. Code
+   signals can raise a tier but never lower it: data conflicts, fraud MEDIUM+, threats in the chat,
+   or a disputed amount above a threshold. Simple: one round. Complex: rounds continue while
+   either side declares new points, up to the maximum.
+   *Rejected:* skipping Fairness on simple cases. The NS-002 misses are "simple" no-shows that
+   Fairness caught (`fee_basis_not_met`). Fairness is split instead: code checks always run, and
+   the LLM audit runs only on complex or dangerous cases.
+3. **Typed debate moves.** Each point is a claim, a challenge (which the other side must answer
+   next turn) or a concession. After the debate the system lists agreed facts and open issues, and
+   the Judge rules on the open issues.
+4. **Safety agent with tiers.**
+   - Imminent harm (physical threat, stalking, sexual harassment, injury): a person right away
+     plus safety guidance. The AI does not rule.
+   - Verbal abuse without concrete danger: protective actions (no re-matching, account flag), the
+     money part ruled as usual, any penalty only recommended, and a human reviews afterwards.
+   - Rudeness: an ordinary service-quality dispute.
+   Uses the human-reviewed precedents (`find_precedents`) for consistency and cites them.
+   *Rejected:* letting the agent decide alone between "handle it" and "send to a person" for
+   safety reports. P0 recall 1.0 is a hard requirement, and a wrong automated call on a threat
+   costs far more than a delayed one.
+5. Judge remand once (one targeted lookup, both sides answer, re-rule); then a collaboration graph
+   in the UI (E/D nodes, cite, challenge and concede edges).
