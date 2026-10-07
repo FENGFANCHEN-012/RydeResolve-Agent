@@ -99,6 +99,9 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # A single rebuttal round keeps one full dispute within a small daily quota.
 # Set MAX_DEBATE_ROUNDS=3 explicitly when a larger request budget is available.
 MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
+# Before each turn an advocate may look up more records and policy topics (D23, src/agents/research.py).
+# ADVOCATE_RESEARCH=0 turns the step off (A/B runs); the rule-based seed lookups still run.
+ADVOCATE_RESEARCH = os.getenv("ADVOCATE_RESEARCH", "1").strip().lower() not in ("0", "false", "no", "off")
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 

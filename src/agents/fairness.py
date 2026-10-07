@@ -46,6 +46,7 @@ from src.config import (
 )
 from src.agents.fraud import fraud_refs
 from src.core.llm_client import LLMClient
+from src.core.evidence_pool import EvidencePool
 from src.core.policy_refs import case_policy_refs
 from src.models.dispute_state import FairnessAssessmentInput
 
@@ -76,6 +77,7 @@ class FairnessIssueCode(str, Enum):
     # #2 decision supported by retrieved policy
     UNCITED_POLICY_REFS = "uncited_policy_refs"
     HALLUCINATED_POLICY_REFS = "hallucinated_policy_refs"
+    HALLUCINATED_EVIDENCE_REFS = "hallucinated_evidence_refs"   # cites an E# no lookup produced
     NO_POLICY_SUPPORT = "no_policy_support"
 
     # #3 asymmetry / #4 reasoning
@@ -588,6 +590,18 @@ class FairnessAgent:
                 recommended_action="Re-run arbitration with grounded references, then re-assess.",
             )
             requires_human = True
+
+        # (e2) evidence ids the rationale cites that no lookup produced (D23)
+        unknown_evidence = EvidencePool.unknown_refs(rationale, (context or {}).get("evidence_pool"))
+        if unknown_evidence:
+            add_issue(
+                FairnessIssueCode.HALLUCINATED_EVIDENCE_REFS,
+                f"Decision cites evidence item(s) {', '.join(unknown_evidence)} that are not in the "
+                "shared evidence pool.",
+                severity="medium",
+                refs=unknown_evidence,
+                recommended_action="Check the ruling against the evidence pool items it actually rests on.",
+            )
 
         # (f) internal inconsistencies: decision verdict vs policy compliance
         pc_field = policy_evaluation.get("passenger_compliant") if isinstance(policy_evaluation, dict) else None
@@ -1315,12 +1329,12 @@ def _case_evidence_summary(context: dict | None) -> str:
             if not isinstance(item, dict):
                 continue
             pool_lines.append(
-                f"  [{item.get('source_agent')}] {item.get('description')}: "
+                f"  [{item.get('item_id')}] ({item.get('source_agent')}) {item.get('description')}: "
                 + "; ".join(
                     str(f.get("statement", "")) for f in (item.get("findings") or [])
                 )[:_EVIDENCE_LINE_MAX_CHARS]
             )
-        out += section("Auto-query results (shared evidence pool):", pool_lines)
+        out += section("Shared evidence pool (lookups by either side, numbered E#):", pool_lines)
 
     return "\n".join(out)
 
