@@ -188,6 +188,10 @@ class PolicyAgent:
             "- This trip's platform rules in the brief are citable as platform_policy.<key>."
         )
 
+        # Shared evidence pool: auto-queries from both advocates
+        from src.core.evidence_pool import EvidencePool
+        pool_text = EvidencePool.render_for_prompt(context.evidence_pool)
+
         user_prompt = (
             f"Dispute ID: {context.dispute_id}\n"
             f"Dispute Type: {self._extract_dispute_type(context)}\n"
@@ -199,8 +203,9 @@ class PolicyAgent:
             f"Chat log: {json.dumps(context.chat_log) if context.chat_log else 'N/A'}\n"
             f"{gps_line(context)}\n\n"
             f"{render_case_brief(context, with_clause_list=False)}\n\n"
-            f"Retrieved policy clauses (cite by the reference in brackets):\n{render_clauses(clause_summaries)}\n\n"
-            "Evaluate compliance now. Remember: respond ONLY with valid JSON."
+            + (pool_text + "\n\n" if pool_text else "")
+            + f"Retrieved policy clauses (cite by the reference in brackets):\n{render_clauses(clause_summaries)}\n\n"
+            + "Evaluate compliance now. Remember: respond ONLY with valid JSON."
         )
 
         llm = self._get_llm_client()
