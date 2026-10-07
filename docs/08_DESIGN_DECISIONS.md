@@ -913,3 +913,28 @@ unstable, and the step did not cause it. Prompt tokens averaged 38k, flat agains
 Two defects to fix later:
 - an advocate sometimes "concedes" its own turn (the driver conceding D2, its own opening);
 - "answered" is a loose match on the target or the turn id.
+
+**D24 step 4 result (Safety agent, 2026-10-07).** New node `safety`, reached from a P0
+classification or from chat safety alerts (fraud report). Code decides imminent (physical,
+sexual or stalking wording, e.g. "knows where you stay") and legal (police, lawsuit) with no LLM
+call. Only ambiguous reports go to the LLM (reasoning effort high), which sees human-reviewed
+precedents. Any failure or unknown tier counts as imminent. Verbal abuse continues the case:
+the pair is not matched again, the account is flagged, a penalty is only recommended, and a
+person reviews afterwards. When Fairness sees a chat threat with that tier, it raises a medium
+issue instead of a high one. The legacy escalation reason string is unchanged; tier and actions
+travel in a new `safety` field of the response.
+Live check (Cerebras):
+| Report | Tier | Decided by | Human review |
+|---|---|---|---|
+| SI-001: sexual remarks + "I know where you stay" | imminent | code (2 s, no LLM) | now |
+| vague threat in a fee argument ("you will regret this") | verbal_abuse | LLM | after |
+| insult only ("stupid") | verbal_abuse | LLM | after |
+| "I saw which block you went into. Wait and see." | imminent | LLM | now |
+P0 recall holds on SI-001.
+
+A defect found while building it: workflow unit tests built the graph without a Safety stub, so
+3 tests called a real LLM (Groq, then Cerebras) and spent quota. Tests now inject `StubSafety`;
+the suite (465) makes no LLM calls.
+
+**Still to do for D24:** the 38-run regression for each step against the rollback rule (step
+tags are set only when a step passes), the judge remand, and the collaboration graph in the UI.
