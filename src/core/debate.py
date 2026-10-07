@@ -11,6 +11,7 @@ from src.agents.research import render_debate, research_turn
 from src.config import ADVOCATE_RESEARCH, MAX_DEBATE_ROUNDS
 from src.core.evidence_pool import EvidencePool
 from src.core.llm_client import llm_client
+from src.core.moves import has_open_challenge, parse_moves, render_moves
 from src.core.trace import record_retrieval, step
 from src.agents.case_brief import add_requested_clauses, valid_requests
 
@@ -78,8 +79,12 @@ class DebateEngine:
         real_case = isinstance(context, DisputeContext)   # unit tests pass stand-ins
 
         def add_turn(round_num: int, speaker: str, content) -> None:
-            history.append({"id": f"D{len(history) + 1}", "round": round_num,
-                            "speaker": speaker, "content": content})
+            entry = {"id": f"D{len(history) + 1}", "round": round_num, "speaker": speaker, "content": content}
+            moves = parse_moves(content) if isinstance(content, str) else None
+            if moves:
+                # A typed rebuttal (D24 step 3): others read the moves as text, the system keeps them
+                entry.update({"content": render_moves(moves), "moves": moves})
+            history.append(entry)
 
         seen_pool: dict[str, int] = {}   # pool size when each side last looked up
 
@@ -144,8 +149,9 @@ class DebateEngine:
         # added evidence, otherwise the sides would repeat themselves.
         rounds = max_rounds or self.max_rounds
         for round_num in range(1, rounds + 1):
-            if round_num > 1 and len(context.evidence_pool or []) == pool_at_round_start:
-                break
+            if (round_num > 1 and len(context.evidence_pool or []) == pool_at_round_start
+                    and not has_open_challenge(history)):
+                break   # nothing new found and no challenge left unanswered
             pool_at_round_start = len(getattr(context, "evidence_pool", None) or [])
             last_driver = history[-2] if round_num == 1 else history[-1]
             driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
@@ -157,6 +163,7 @@ class DebateEngine:
                 s["output"] = p_rebuttal
             _fail_if_daily_quota_exhausted(p_rebuttal)
             add_turn(round_num, "passenger", p_rebuttal)
+            p_rebuttal = history[-1]["content"]   # the rendered moves, as the driver will read them
 
             await research("driver", round_num)
             async with step("Driver", f"Round {round_num}: driver rebuttal",
