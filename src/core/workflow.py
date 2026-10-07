@@ -63,6 +63,7 @@ from src.agents.executor import (
 )
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
+from src.core.triage import triage
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
@@ -194,6 +195,8 @@ def build_dispute_graph(
         if report and report.get("safety_alerts"):
             # Read by Fairness only (it routes the case to a person); not a fraud signal
             ctx["safety_alerts"] = report["safety_alerts"]
+        if state.get("triage"):
+            ctx["triage"] = state["triage"]   # Fairness: whether to run its LLM audit (D24)
         return ctx
 
     # -- Nodes ----------------------------------------------------------
@@ -253,9 +256,16 @@ def build_dispute_graph(
     @_safe_node(NODE_DEBATE)
     async def debate_node(state: DisputeWorkflowState) -> dict:
         if hasattr(debate_engine, "debate_with_context"):
+            # Triage (D24): complexity x risk decide how many rounds and how deep Fairness audits
+            async with step("Triage", "Grade complexity and risk", {
+                "sees": ["case brief conflicts and gaps", "fraud report", "classification", "disputed amount"],
+            }) as s:
+                grade = triage(state["context"], state.get("classification"), state.get("fraud_report"))
+                s["output"] = grade
             # Clauses the advocates requested join the shared brief the Judge reads (D14)
-            history, context = await debate_engine.debate_with_context(state["context"])
-            return {"debate_history": history, "context": context}
+            history, context = await debate_engine.debate_with_context(
+                state["context"], max_rounds=grade["max_rounds"])
+            return {"debate_history": history, "context": context, "triage": grade}
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
 

@@ -175,3 +175,19 @@ def test_events_between_gives_text_beyond_the_timeline():
     stmt = events_between(ctx, "2026-09-21T09:00:00+08:00", "2026-09-21T09:30:00+08:00")[0].statement
     assert "app_events[0]" in stmt and "detail 0" not in stmt                 # in the timeline
     assert f"detail {BRIEF_TIMELINE_EVENTS + 1}" in stmt                      # beyond it: full text
+
+
+@pytest.mark.asyncio
+async def test_extra_round_only_if_previous_round_added_evidence(monkeypatch):
+    monkeypatch.setattr("src.core.debate.ADVOCATE_RESEARCH", False)   # no lookups at all
+    engine = object.__new__(DebateEngine)
+    engine.max_rounds = 1
+    engine.passenger_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "p"}),
+                                             rebut=AsyncMock(return_value="p"))
+    engine.driver_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "d"}),
+                                          rebut=AsyncMock(return_value="d"))
+    engine.policy_agent = SimpleNamespace(evaluate_compliance=AsyncMock(return_value={}),
+                                          _get_retriever=lambda: None)
+    history, _ = await engine.debate_with_context(make_context(), max_rounds=3)
+    # Round 1 always runs; round 2 does not, since round 1 found nothing new
+    assert [h["round"] for h in history] == [0, 0, 0, 1, 1]

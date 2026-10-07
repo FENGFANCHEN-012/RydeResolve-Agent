@@ -45,6 +45,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     context: DisputeContext             # collector node
     classification: ClassificationResult  # classifier node
     fraud_report: dict                  # fraud node: risk report for the Judge and Fairness only
+    triage: dict                        # debate node: complexity x risk, rounds, audit depth (D24)
     debate_history: list[dict]          # debate node
     decision: Decision                  # arbitrator node
     precedents: list[dict]              # arbitrator node: human-reviewed precedents shown to the Judge

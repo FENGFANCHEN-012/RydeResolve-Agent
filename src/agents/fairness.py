@@ -732,11 +732,14 @@ class FairnessAgent:
         skipped_due_to_escalation = requires_human or high_severity_present
 
         if skipped_due_to_escalation or not self._should_call_semantic(
-            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0
+            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0,
+            triage=(context or {}).get("triage"),
         ):
             semantic_skipped_reason = (
                 "deterministic findings already require human review"
                 if (requires_human or high_severity_present)
+                else "simple, safe case (triage): code checks only"
+                if ((context or {}).get("triage") or {}).get("fairness_llm_audit") is False
                 else "deterministic checks already decisive"
             )
         else:
@@ -841,10 +844,14 @@ class FairnessAgent:
         decision_conf: float,
         cites: bool,
         has_evidence: bool,
+        triage: dict | None = None,
     ) -> bool:
         # Only useful when there IS something to scrutinise and the agent is
         # not already in "block / escalate" territory.
         if not has_evidence:
+            return False
+        if (triage or {}).get("fairness_llm_audit") is False:
+            # Simple and safe case (D24 triage): the code checks above are the audit
             return False
         if decision_conf <= FAIRNESS_DECISION_CONFIDENCE_LOW:
             return False
