@@ -62,7 +62,8 @@ class DebateEngine:
         history, _ = await self.debate_with_context(context)
         return history
 
-    async def debate_with_context(self, context: DisputeContext) -> tuple[list[dict], DisputeContext]:
+    async def debate_with_context(self, context: DisputeContext,
+                                  max_rounds: int | None = None) -> tuple[list[dict], DisputeContext]:
         """The debate, plus the context it ended with.
 
         Shared pools every turn reads (D23):
@@ -138,8 +139,14 @@ class DebateEngine:
         add_turn(0, "driver", driver_analysis)
         add_turn(0, "policy", policy_eval)
 
-        # Debate rounds: each side may look up more, then answers the other side's latest turn
-        for round_num in range(1, self.max_rounds + 1):
+        # Debate rounds: each side may look up more, then answers the other side's latest turn.
+        # Triage sets the cap (D24); a round after the first runs only if the previous round
+        # added evidence, otherwise the sides would repeat themselves.
+        rounds = max_rounds or self.max_rounds
+        for round_num in range(1, rounds + 1):
+            if round_num > 1 and len(context.evidence_pool or []) == pool_at_round_start:
+                break
+            pool_at_round_start = len(getattr(context, "evidence_pool", None) or [])
             last_driver = history[-2] if round_num == 1 else history[-1]
             driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
             await research("passenger", round_num)
