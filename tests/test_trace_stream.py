@@ -69,7 +69,7 @@ async def test_llm_call_attached_to_running_step():
 async def _stream_events(body):
     """Run the SSE endpoint in-process (same event loop) and parse its events."""
     transport = httpx.ASGITransport(app=api_main.app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with httpx.AsyncClient(transport=transport, base_url="http://test", headers={"Authorization": "Bearer offline-admin"}) as client:
         r = await client.post("/api/disputes/resolve-stream", json=body, timeout=60)
     assert r.status_code == 200
     return [json.loads(line[6:]) for line in r.text.splitlines() if line.startswith("data: ")]
@@ -112,14 +112,14 @@ async def test_stream_full_run_disp002(fake_llm, tmp_path):
     # Saved for replay
     saved = events[-1]["trace_name"]
     assert saved
-    r = TestClient(api_main.app).get("/api/disputes/traces")
+    r = TestClient(api_main.app, headers={"Authorization": "Bearer offline-admin"}).get("/api/disputes/traces")
     assert saved in r.json()["traces"]
-    replay = TestClient(api_main.app).get(f"/api/disputes/traces/{saved}").json()["events"]
+    replay = TestClient(api_main.app, headers={"Authorization": "Bearer offline-admin"}).get(f"/api/disputes/traces/{saved}").json()["events"]
     assert replay[0]["type"] == "run_start" and replay[-1]["type"] != "done"
 
 
 def test_cases_endpoint_lists_datasets_without_answers():
-    r = TestClient(api_main.app).get("/api/disputes/cases")
+    r = TestClient(api_main.app, headers={"Authorization": "Bearer offline-admin"}).get("/api/disputes/cases")
     cases = r.json()["cases"]
     ids = {c["order_id"] for c in cases}
     assert {"RYDE-DEMO-001", "RYDE-DEMO-003", "TRIP-2026-09945"} <= ids
@@ -127,7 +127,7 @@ def test_cases_endpoint_lists_datasets_without_answers():
 
 
 def test_trace_name_is_validated():
-    r = TestClient(api_main.app).get("/api/disputes/traces/..%2F..%2Fsecret.json")
+    r = TestClient(api_main.app, headers={"Authorization": "Bearer offline-admin"}).get("/api/disputes/traces/..%2F..%2Fsecret.json")
     assert r.status_code in (400, 404)
 
 
@@ -152,7 +152,7 @@ async def test_retrieval_attached_to_running_step():
 @pytest.mark.asyncio
 async def test_case_detail_separates_answer_key():
     transport = httpx.ASGITransport(app=api_main.app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+    async with httpx.AsyncClient(transport=transport, base_url="http://test", headers={"Authorization": "Bearer offline-admin"}) as client:
         r = await client.get("/api/disputes/cases/RYDE-DEMO-003")
         missing = await client.get("/api/disputes/cases/NOPE-1")
     body = r.json()

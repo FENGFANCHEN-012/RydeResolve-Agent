@@ -21,9 +21,11 @@ rules on every ask, with a confidence score and reasons. Code checks and a Fairn
 whether the ruling is executed automatically or sent to a person. Every step is traced and
 visible live.
 
-**Status (2026-10-05):** the full pipeline runs end to end. On 33 labelled cases it rules
-**31/33 correctly (93.9%)**, with 0 failed runs, in about 1.5 minutes and US$0.011 per case
-(`docs/08_DESIGN_DECISIONS.md`, D19).
+**Status (2026-10-07):** the pipeline includes Fraud and the D21/D22 chat safeguards.
+The latest full evaluation (D20, Cerebras `gpt-oss-120b`) matched **35/37 verdicts (94.6%)**
+and 27/29 refund amounts. It resumed 14 cases after a daily-quota reset. Both incorrect
+no-show rulings went to human review; this is evaluation accuracy, not an automatic resolution
+rate. D21/D22 checks were targeted, and the latest code still needs a new full live evaluation.
 
 ## Background
 
@@ -60,6 +62,7 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 | **Classifier** | Dispute type and urgency (P0-P3); safety and unclear cases go straight to a person |
 | **Case Brief** | One shared dossier (no LLM): facts, conflicts, the trip's rules, timeline and retrieved policy clauses |
 | **Rider / Driver advocates** | Each builds its side's case from the brief and cites policy, then rebuts the other |
+| **Fraud** | Deterministic risk signals and evidence-grounded chat labels; threats route separately to safety review |
 | **Policy** | Compliance check of both cases against the retrieved official Ryde policy (RAG) |
 | **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; sees approved precedents |
 | **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person |
@@ -104,11 +107,54 @@ complaints) and **driver rights**. Safety incidents are classified P0 and always
 ## Quick Start
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 # create .env with the variables below
-uvicorn src.api.main:app --port 8000
-# open frontend/index.html in a browser (add ?api=<url> to use another backend)
+python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000
+# Open http://127.0.0.1:8000 in your browser
 ```
+
+On Windows, run `./Start-Ryde.ps1` in PowerShell to check dependencies, open the dashboard,
+and start the API. Use `./Start-Ryde.ps1 -Port 8001` if the old server occupies port 8000.
+The terminal must remain open. Do not use CMD's `start "" ...` syntax in PowerShell.
+
+The dashboard and API share an origin. `/api/health` reports process liveness;
+`/api/readiness` separately checks model-key configuration, record connectivity and policy
+collection/model dimensions. It does not verify live quota or model quality.
+
+An optional untracked `.env.local` overrides `.env` for this machine (explicit process
+variables take precedence). For an isolated local demo with the existing official Qdrant index:
+
+```dotenv
+STORE_URL=sqlite:///data/ryde_resolve.local.db
+QDRANT_COLLECTION=ryde_policies_official
+QDRANT_DENSE_MODEL=BAAI/bge-base-en-v1.5
+POLICIES_DIR=data/policies/official
+MAX_DEBATE_ROUNDS=1
+```
+
+This local record database is separate from the shared store; it does not import shared
+history. Set STORE_URL explicitly to reconnect to the shared store after connectivity is fixed.
+The local Groq smoke run exceeded this account's 8,000-token single-request capacity with
+three debate rounds (8,927 requested). The local profile uses the project default of one
+round; this is a demo configuration change, not a new full-evaluation accuracy claim.
+Only select an existing Qdrant collection indexed with the same embedding model; do not rebuild
+any shared collection to start the demo.
+
+Before remote access, configure distinct `API_DEMO_KEY` and `API_ADMIN_KEY` secrets and HTTPS.
+With keys configured, the dashboard asks for an access code and keeps it only in memory.
+Demo access can run cases; uploads, deletions, reviews, precedents, flags and audit/history
+administration require the admin key. Audit actor names come from the authenticated role.
+Without keys, API access is limited to loopback clients and hosts, with origin checks.
+The API permits one dispute run at a time and cancels further work after a stream disconnect;
+an already-sent provider request can still complete and be billed.
+
+The shared `ryde_policies_official` collection is read-only through the upload/delete API
+unless `ALLOW_POLICY_MUTATIONS=1` is explicitly set. Use a separate collection for uploaded
+documents; evidence files never enter the policy index. Uploads accept at most 5 files,
+10 MB per file, with generated storage names and bounded multipart request bodies.
+The container keeps policy/case files in the image and mounts only writable data directories.
+If using SQLite in Docker, set `STORE_URL=sqlite:///data/records/ryde_resolve.db` to use its
+record volume. The default compose store is Postgres; a clean container build is still required.
 
 Main `.env` variables:
 
@@ -132,19 +178,20 @@ python -m pytest -q                                         # offline unit tests
 ```
 
 Each run writes `data/eval/<timestamp>/report.html`, `results.csv` and one trace per case. Evals
-never use fallback providers, so a run never mixes models. Latest full run (20261005-131434):
+never use fallback providers, so a run never mixes models. Latest full run (20261005-171730, D20):
 
 | Metric | Result |
 |--------|--------|
-| Verdict accuracy | 31/33 (93.9%): dev 13/14, held-out 18/19 |
-| Refund amount accuracy | 25/27 |
-| Classification accuracy | 28/28 |
-| Refund cap respected, citation validity, retrieval Hit@3 | 100% |
-| Failed runs | 0 |
-| Cost and time per case | US$0.011, about 91 s (model time about 12 s; the rest is free-tier rate limiting) |
+| Verdict accuracy | 35/37 (94.6%); two wrong no-show proposals routed to human review |
+| Refund amount accuracy | 27/29 |
+| Classification accuracy | 31/31 |
+| Refund cap respected / citation validity | 100% |
+| Retrieval Hit@3 | 36/37 |
+| Failed runs | 0 after resuming 14 cases when daily quota reset |
+| Cost | US$0.42 total; 983k tokens |
 
 A sealed case set (`data/eval_cases/sealed`) is run once, just before submission. It checks that
-the prompt changes made on these 33 cases generalise. The evaluation design, every change and its
+the prompt changes made on these labelled cases generalise. The evaluation design, every change and its
 measured effect are in `docs/06_EVAL_PLAN.md` and `docs/08_DESIGN_DECISIONS.md`.
 
 ## Project Structure
@@ -180,7 +227,7 @@ RydeResolve-Agent/
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect (D1–D19) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect (D1–D22) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 
 ## License

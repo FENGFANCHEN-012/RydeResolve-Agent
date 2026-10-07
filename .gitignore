@@ -1,12 +1,19 @@
 __pycache__/
 *.py[cod]
 *.env
+.env*
+!.env.example
 .venv/
 venv/
 *.egg-info/
 dist/
 build/
 .pytest_cache/
+.pytest_tmp*/
+.pytest_cache*/
+data/uploads/
+data/evidence/
+work/
 .ipynb_checkpoints/
 node_modules/
 frontend/dist/
@@ -26,3 +33,4 @@ data/eval/
 
 # Record store for rulings, reviews, precedents and the audit log (local data)
 data/ryde_resolve.db
+data/ryde_resolve*.db*

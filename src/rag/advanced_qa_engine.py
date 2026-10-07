@@ -5,7 +5,6 @@ Uses the full retrieval pipeline with confidence scoring and fallback handling.
 from src.rag.advanced_retriever import advanced_retriever
 from src.rag.confidence_scorer import fallback_handler
 from src.core.llm_client import llm_client
-from src.config import LLM_API_KEY
 
 
 class AdvancedRAGQAEngine:
@@ -82,7 +81,7 @@ Answer:"""
         context = "\n\n".join(context_parts)
 
         # 3. Generate answer via LLM (or fallback if low confidence)
-        if not LLM_API_KEY:
+        if not llm_client.api_key:
             answer_text = "LLM API key not configured."
         elif not should_answer:
             # Low confidence - use fallback
@@ -108,6 +107,7 @@ Answer:"""
                 "combined_score": chunk.get("combined_score", chunk.get("similarity", 0)),
                 "chunk_index": chunk.get("chunk_index", 0),
                 "preview": chunk["clause"][:200] + "..." if len(chunk["clause"]) > 200 else chunk["clause"],
+                "clause": chunk["clause"],
             }
             for chunk in chunks
         ]

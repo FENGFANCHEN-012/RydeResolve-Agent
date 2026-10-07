@@ -9,10 +9,14 @@ import json
 import asyncio
 import tempfile
 import shutil
+import logging
+from pathlib import Path
+from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.config import CORS_ORIGINS, CHROMA_COLLECTION, BASE_DIR, DATA_DIR
@@ -25,6 +29,10 @@ from src.rag.qa_engine import rag_qa_engine
 from src.rag.advanced_qa_engine import advanced_rag_qa_engine
 from src.rag.advanced_retriever import advanced_retriever
 from src.rag.embedding import embedding_manager
+from src import config
+from src.api.access import authorize
+from src.api.uploads import (read_upload, validate_filename, validate_count, upload_path,
+                             evidence_directory, EVIDENCE_EXTENSIONS, UploadLimitMiddleware)
 
 app = FastAPI(
     title="RydeResolve-Agent",
@@ -32,18 +40,50 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# CORS — allow all origins for local dev (includes file:// protocol)
+# The dashboard is served by this API, so it normally needs no cross-origin access.
+app.add_middleware(UploadLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+@app.middleware("http")
+async def api_access(request: Request, call_next):
+    if request.url.path.startswith("/api/") and request.method != "OPTIONS" and request.url.path != "/api/health":
+        try:
+            request.state.actor = authorize(request)
+        except HTTPException as exc:
+            return JSONResponse({"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers)
+    return await call_next(request)
+
+
 # Saved pipeline runs for replay (see /api/disputes/traces)
 _running_tasks: set = set()
+_active_runs = 0
+RUN_TIMEOUT_SECONDS = max(30, int(os.getenv("RUN_TIMEOUT_SECONDS", "900")))
+
+
+def _claim_run():
+    global _active_runs
+    if _active_runs >= 1:
+        raise HTTPException(409, "Another review is running. Wait for it to finish before starting a new one.")
+    _active_runs += 1
+
+
+def _release_run():
+    global _active_runs
+    _active_runs -= 1
+
+
+def _check_policy_mutation(collection_name: str | None):
+    collection = collection_name or (config.QDRANT_COLLECTION if config.VECTOR_BACKEND == "qdrant"
+                                     else CHROMA_COLLECTION)
+    if collection == "ryde_policies_official" and os.getenv("ALLOW_POLICY_MUTATIONS", "0") != "1":
+        raise HTTPException(403, "The official policy index is read-only. Use a separate document collection.")
 
 
 class EvidenceItem(BaseModel):
@@ -75,6 +115,8 @@ class QARequest(BaseModel):
 async def warm_up_vector_store():
     """Open the ChromaDB client in the background so the first dispute doesn't
     freeze the server while the client is created."""
+    if config.VECTOR_BACKEND != "chroma":
+        return
     from src.rag.indexer import _get_chroma_client
 
     task = asyncio.create_task(asyncio.to_thread(_get_chroma_client))
@@ -83,7 +125,7 @@ async def warm_up_vector_store():
 
 
 
-@app.get("/")
+@app.get("/api/info")
 async def root():
     return {
         "service": "RydeResolve-Agent",
@@ -97,6 +139,13 @@ async def root():
 @app.get("/api/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.get("/api/readiness")
+async def readiness():
+    from src.api.readiness import check_readiness
+    result = await check_readiness()
+    return JSONResponse(result, status_code=200 if result["status"] == "ready" else 503)
 
 
 # ============================================================
@@ -113,7 +162,8 @@ async def upload_document(
     Supported formats: PDF, Word (.docx/.doc), PowerPoint (.pptx),
     Excel (.xlsx), TXT, Markdown, HTML.
     """
-    ext = os.path.splitext(file.filename or "")[1].lower()
+    _check_policy_mutation(collection_name)
+    ext = validate_filename(file.filename, document_parser.SUPPORTED_EXTENSIONS)
     if ext not in document_parser.SUPPORTED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
@@ -123,7 +173,9 @@ async def upload_document(
 
     # Read file content in a thread to avoid blocking
     try:
-        content_bytes = await file.read()
+        content_bytes = await read_upload(file)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
 
@@ -149,7 +201,7 @@ async def upload_document(
         )
 
     # Index into vector DB
-    indexer = DocumentIndexer()
+    indexer = DocumentIndexer(collection_name)
     try:
         chunk_count = indexer.index_file(
             filename=file.filename,
@@ -166,7 +218,7 @@ async def upload_document(
     # Also save original file to data/uploads for reference
     upload_dir = os.path.join(BASE_DIR, "data", "uploads")
     os.makedirs(upload_dir, exist_ok=True)
-    save_path = os.path.join(upload_dir, file.filename)
+    save_path = upload_path(Path(upload_dir), ext)
     with open(save_path, "wb") as f:
         f.write(content_bytes)
 
@@ -188,37 +240,18 @@ async def upload_multiple_documents(
     collection_name: str | None = None,
 ):
     """Upload multiple documents at once."""
-    results = []
-    indexer = DocumentIndexer()
-
+    _check_policy_mutation(collection_name)
+    validate_count(files)
+    # Reject invalid names and sizes before any file is indexed.
+    contents = []
     for file in files:
+        validate_filename(file.filename, document_parser.SUPPORTED_EXTENSIONS)
+        contents.append(await read_upload(file))
+    results = []
+    indexer = DocumentIndexer(collection_name)
+
+    for file, content_bytes in zip(files, contents):
         ext = os.path.splitext(file.filename or "")[1].lower()
-        if ext not in document_parser.SUPPORTED_EXTENSIONS:
-            results.append({
-                "filename": file.filename,
-                "status": "error",
-                "error": f"Unsupported format: {ext}",
-            })
-            continue
-
-        try:
-            content_bytes = await file.read()
-        except Exception as e:
-            results.append({
-                "filename": file.filename,
-                "status": "error",
-                "error": f"Read failed: {str(e)}",
-            })
-            continue
-
-        if not content_bytes:
-            results.append({
-                "filename": file.filename,
-                "status": "error",
-                "error": "Empty file",
-            })
-            continue
-
         file_size_mb = len(content_bytes) / (1024 * 1024)
         file_obj = io.BytesIO(content_bytes)
         try:
@@ -269,9 +302,11 @@ async def upload_multiple_documents(
 @app.get("/api/rag/stats")
 async def rag_stats(collection_name: str | None = None):
     """Get knowledge base statistics."""
-    indexer = DocumentIndexer()
+    indexer = DocumentIndexer(collection_name)
     stats = indexer.get_collection_stats(collection_name)
-    stats["embedding_mode"] = embedding_manager.mode
+    stats["embedding_mode"] = "fastembed" if indexer.store is not None else embedding_manager.mode
+    stats["embedding_model"] = config.QDRANT_DENSE_MODEL if indexer.store is not None else config.EMBEDDING_MODEL
+    stats["score_type"] = "rrf" if indexer.store is not None else "similarity"
     return stats
 
 
@@ -285,7 +320,8 @@ async def list_collections():
 @app.delete("/api/rag/collection")
 async def delete_collection(collection_name: str | None = None):
     """Delete a collection (clear all documents)."""
-    indexer = DocumentIndexer()
+    _check_policy_mutation(collection_name)
+    indexer = DocumentIndexer(collection_name)
     indexer.clear_collection(collection_name)
     return {"status": "deleted", "collection": collection_name or CHROMA_COLLECTION}
 
@@ -371,8 +407,7 @@ async def rag_ask(request: QARequest, advanced: bool = True):
         )
         if is_quota:
             user_msg = (
-                "LLM API quota exceeded (Gemini free tier is 20 requests/day). "
-                "Please wait until tomorrow or switch to a paid API key in your .env (LLM_API_KEY)."
+                "The model provider's quota was exceeded. Retry after its reset or configure an available provider."
             )
         else:
             user_msg = f"{err_type}: {err_msg[:300]}"
@@ -407,15 +442,15 @@ async def resolve_dispute(request: DisputeRequest):
     - Rider and driver profiles
     - Uploaded evidence (screenshots, photos, receipts)
     """
-    orchestrator = Orchestrator()
-    result = await orchestrator.resolve(
-        report_text=request.report_text,
-        order_id=request.order_id,
-        reporter=request.reporter,
-        evidence=request.evidence,
-        language=request.language,
-    )
-    return result
+    _claim_run()
+    try:
+        return await asyncio.wait_for(Orchestrator().resolve(
+            report_text=request.report_text, order_id=request.order_id, reporter=request.reporter,
+            evidence=request.evidence, language=request.language), timeout=RUN_TIMEOUT_SECONDS)
+    except asyncio.TimeoutError:
+        raise HTTPException(504, "The review timed out. No completed decision is available.")
+    finally:
+        _release_run()
 
 
 @app.get("/api/disputes/cases")
@@ -454,26 +489,35 @@ async def resolve_dispute_stream(request: DisputeRequest):
     The full trace is also saved to the record store so it can be replayed
     without spending LLM quota.
     """
+    _claim_run()
     tracer = Tracer()
 
     async def run():
         set_tracer(tracer)  # only affects this task's context
         tracer.emit({"type": "run_start", "request": request.model_dump()})
         try:
-            result = await Orchestrator().resolve(
+            result = await asyncio.wait_for(Orchestrator().resolve(
                 report_text=request.report_text,
                 order_id=request.order_id,
                 reporter=request.reporter,
                 evidence=request.evidence,
                 language=request.language,
-            )
+            ), timeout=RUN_TIMEOUT_SECONDS)
             tracer.emit({"type": "result", "result": result})
+        except asyncio.CancelledError:
+            tracer.emit({"type": "error", "message": "The client disconnected; the review was cancelled."})
+            raise
+        except asyncio.TimeoutError:
+            tracer.emit({"type": "error", "message": "The review timed out. Retry the case."})
         except Exception as exc:
             tracer.emit({"type": "error", "message": str(exc)})
         finally:
-            name = await asyncio.to_thread(_save_trace, request.order_id, tracer.events)
-            tracer.emit({"type": "done", "trace_name": name})
-            tracer.close()
+            try:
+                name = await asyncio.to_thread(_save_trace, request.order_id, tracer.events)
+                tracer.emit({"type": "done", "trace_name": name, "trace_saved": name is not None})
+            finally:
+                tracer.close()
+                _release_run()
 
     # Keep a reference so the task isn't garbage-collected mid-run
     task = asyncio.create_task(run())
@@ -481,11 +525,19 @@ async def resolve_dispute_stream(request: DisputeRequest):
     task.add_done_callback(_running_tasks.discard)
 
     async def event_stream():
-        while True:
-            event = await tracer.queue.get()
-            if event is None:
-                break
-            yield f"data: {json.dumps(event)}\n\n"
+        try:
+            while True:
+                try:
+                    event = await asyncio.wait_for(tracer.queue.get(), timeout=15)
+                except asyncio.TimeoutError:
+                    yield ": keep-alive\n\n"
+                    continue
+                if event is None:
+                    break
+                yield f"data: {json.dumps(event, default=str)}\n\n"
+        finally:
+            if not task.done():
+                task.cancel()
 
     return StreamingResponse(
         event_stream(),
@@ -498,11 +550,12 @@ def _save_trace(order_id: str, events: list[dict]) -> str | None:
     from src.store.db import get_store
     try:
         safe = re.sub(r"[^A-Za-z0-9_-]", "_", order_id)
-        name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_{safe}.json"
+        name = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_{safe}_{uuid4().hex[:8]}.json"
         # Events can hold datetimes etc.; store them exactly as the stream sent them
         get_store().save_trace(name, order_id, json.loads(json.dumps(events, default=str)))
         return name
     except Exception:
+        logging.getLogger(__name__).warning("Could not save the pipeline trace.")
         return None
 
 
@@ -542,34 +595,27 @@ async def resolve_dispute_with_files(
     from src.agents.collector import EvidenceItem
 
     # Save uploaded evidence files
+    validate_count(evidence_files)
     evidence_items = []
-    upload_dir = os.path.join(BASE_DIR, "data", "evidence", order_id)
-    os.makedirs(upload_dir, exist_ok=True)
+    upload_dir = evidence_directory(Path(BASE_DIR) / "data" / "evidence", order_id)
+    validated = [(file, validate_filename(file.filename, EVIDENCE_EXTENSIONS)) for file in evidence_files]
+    contents = [await read_upload(file) for file, _ in validated]
 
-    for file in evidence_files:
-        if not file.filename:
-            continue
-        content = await file.read()
-        save_path = os.path.join(upload_dir, file.filename)
+    for (file, ext), content in zip(validated, contents):
+        save_path = upload_path(upload_dir, ext)
         with open(save_path, "wb") as f:
             f.write(content)
 
         evidence_items.append(EvidenceItem(
             evidence_type=_detect_evidence_type(file.filename),
             description=f"Uploaded evidence: {file.filename}",
-            file_url=f"/data/evidence/{order_id}/{file.filename}",
+            file_url=f"/data/evidence/{order_id}/{save_path.name}",
             uploaded_by=reporter,
         ))
 
-    orchestrator = Orchestrator()
-    result = await orchestrator.resolve(
-        report_text=report_text,
-        order_id=order_id,
-        reporter=reporter,
-        evidence=evidence_items,
-        language=language,
-    )
-    return result
+    return await resolve_dispute(DisputeRequest(report_text=report_text, order_id=order_id,
+                                               reporter=reporter, evidence=[e.model_dump() for e in evidence_items],
+                                               language=language))
 
 
 def _detect_evidence_type(filename: str) -> str:
@@ -650,13 +696,13 @@ def _precedent_json(p) -> dict:
 
 
 @app.post("/api/rulings/{ruling_id}/review")
-async def review_ruling(ruling_id: int, request: ReviewRequest):
+async def review_ruling(ruling_id: int, request: ReviewRequest, http_request: Request):
     """A reviewer confirms or overrides a ruling. Overrides (and decisions on escalated
     cases) become pending precedents."""
     from src.store.db import get_store
     try:
         review, precedent = await asyncio.to_thread(
-            get_store().submit_review, ruling_id, request.reviewer, request.action, request.reason,
+            get_store().submit_review, ruling_id, http_request.state.actor, request.action, request.reason,
             request.final_verdict, request.final_refund)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
@@ -672,13 +718,13 @@ async def list_precedents(status: str | None = None):
 
 
 @app.post("/api/precedents/{precedent_id}/approve")
-async def approve_precedent(precedent_id: int, request: PrecedentAction):
+async def approve_precedent(precedent_id: int, request: PrecedentAction, http_request: Request):
     """Human approval: pending -> staged. It goes live only after the evaluation gate."""
     from src.rag.precedents import PrecedentIndex
     from src.store import feedback
     from src.store.db import get_store
     try:
-        p = await asyncio.to_thread(feedback.approve, get_store(), PrecedentIndex(), precedent_id, request.actor)
+        p = await asyncio.to_thread(feedback.approve, get_store(), PrecedentIndex(), precedent_id, http_request.state.actor)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
@@ -687,7 +733,7 @@ async def approve_precedent(precedent_id: int, request: PrecedentAction):
 
 
 @app.post("/api/precedents/{precedent_id}/retire")
-async def retire_precedent(precedent_id: int, request: PrecedentAction):
+async def retire_precedent(precedent_id: int, request: PrecedentAction, http_request: Request):
     """Roll back a precedent: removed from the index, kept in the record."""
     from src.rag.precedents import PrecedentIndex
     from src.store import feedback
@@ -696,7 +742,7 @@ async def retire_precedent(precedent_id: int, request: PrecedentAction):
         raise HTTPException(status_code=400, detail="say why the precedent is retired")
     try:
         p = await asyncio.to_thread(feedback.retire, get_store(), PrecedentIndex(), precedent_id,
-                                    request.actor, request.reason)
+                                    http_request.state.actor, request.reason)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
@@ -746,22 +792,22 @@ async def list_flags(status: str | None = None, user_id: str | None = None):
 
 
 @app.post("/api/flags")
-async def raise_flag(request: FlagRaise):
+async def raise_flag(request: FlagRaise, http_request: Request):
     """Record a suspicion. It stays pending and does not count until a person confirms it."""
     from src.store import people
     from src.store.db import get_store
     f = await asyncio.to_thread(people.raise_flag, get_store(), user_id=request.user_id, signal=request.signal,
-                                detail=request.detail, dispute_id=request.dispute_id, raised_by=request.raised_by)
+                                detail=request.detail, dispute_id=request.dispute_id, raised_by=http_request.state.actor)
     return _flag_json(f)
 
 
 @app.post("/api/flags/{flag_id}/review")
-async def review_flag(flag_id: int, request: FlagReview):
+async def review_flag(flag_id: int, request: FlagReview, http_request: Request):
     """A person confirms or rejects a flag; only confirmed flags enter fraud history."""
     from src.store import people
     from src.store.db import get_store
     try:
-        f = await asyncio.to_thread(people.review_flag, get_store(), flag_id, request.reviewer,
+        f = await asyncio.to_thread(people.review_flag, get_store(), flag_id, http_request.state.actor,
                                     request.decision, request.reason)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
@@ -776,3 +822,7 @@ async def verify_audit():
     from src.store.db import get_store
     ok, bad = await asyncio.to_thread(get_store().verify_audit_chain)
     return {"intact": ok, "first_bad_entry": bad}
+
+
+# Only frontend assets are public: never expose data/, .env, or the repository root.
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend"), html=True), name="dashboard")
