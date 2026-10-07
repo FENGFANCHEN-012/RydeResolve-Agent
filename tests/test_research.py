@@ -64,9 +64,10 @@ async def test_research_turn_runs_lookups_into_numbered_pool():
     assert record["added_evidence"] == ["E1", "E2"]
     first = ctx.evidence_pool[0]
     assert first["source_agent"] == "driver" and first["why"] == "show the wait"
-    # events_between now states the events themselves, not just a count
+    # events_between names events the prompts already show (timeline, chat log) by id only
     text = EvidencePool.render_for_prompt(ctx.evidence_pool)
-    assert "driver_arrived" in text and "I'm at the lobby" in text and "[E2]" in text
+    assert "app_events[0]" in text and "chat_log[0]" in text and "[E2]" in text
+    assert "I'm at the lobby" not in text
 
     # The other side asking for the same lookup does not duplicate it
     ctx, record = await research_turn("passenger", ctx, llm, retriever=None, round_num=1)
@@ -134,3 +135,43 @@ def test_pool_shows_old_items_as_one_line():
     assert "[E1] (driver) statement 0" in compact and "asked by driver" not in compact.split("[E3]")[0]
     assert compact.count("asked by") == 4 and full.count("asked by") == 6
     assert len(compact) < len(full)
+
+
+@pytest.mark.asyncio
+async def test_rebuttal_research_skipped_when_other_side_added_nothing(monkeypatch):
+    calls = []
+
+    async def fake_research(side, context, llm, retriever, round_num, debate_so_far):
+        calls.append((side, round_num))
+        if (side, round_num) == ("driver", 0):   # only the driver finds something, at the opening
+            from src.core.evidence_pool import EvidencePoolItem
+            from src.agents.collector_tools import Finding
+            item = EvidencePoolItem.from_collector_tool("driver", "gps_at", {"timestamp": T0},
+                                                       [Finding(id="g", tool="gps_at", kind="fact", statement="s")])
+            context.evidence_pool = EvidencePool.merge_pools(context.evidence_pool, [item])
+        return context, {"added_evidence": []}
+
+    monkeypatch.setattr("src.core.debate.research_turn", fake_research)
+    monkeypatch.setattr("src.core.debate.QueryPlanner",
+                        lambda agent_name: SimpleNamespace(auto_query=AsyncMock(return_value=[])))
+    engine = object.__new__(DebateEngine)
+    engine.max_rounds = 1
+    engine.passenger_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "p"}),
+                                             rebut=AsyncMock(return_value="p"))
+    engine.driver_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "d"}),
+                                          rebut=AsyncMock(return_value="d"))
+    engine.policy_agent = SimpleNamespace(evaluate_compliance=AsyncMock(return_value={}),
+                                          _get_retriever=lambda: None)
+    await engine.debate_with_context(make_context())
+    # Passenger looks again in round 1 (the driver added E1); the driver does not (nothing new)
+    assert calls == [("passenger", 0), ("driver", 0), ("passenger", 1)]
+
+
+def test_events_between_gives_text_beyond_the_timeline():
+    from src.agents.collector_tools import BRIEF_TIMELINE_EVENTS, events_between
+    ctx = make_context()
+    ctx.app_events = [{"timestamp": f"2026-09-21T09:{i:02d}:00+08:00", "event_type": f"e{i}",
+                       "details": f"detail {i}"} for i in range(BRIEF_TIMELINE_EVENTS + 2)]
+    stmt = events_between(ctx, "2026-09-21T09:00:00+08:00", "2026-09-21T09:30:00+08:00")[0].statement
+    assert "app_events[0]" in stmt and "detail 0" not in stmt                 # in the timeline
+    assert f"detail {BRIEF_TIMELINE_EVENTS + 1}" in stmt                      # beyond it: full text

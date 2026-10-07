@@ -80,16 +80,25 @@ class DebateEngine:
             history.append({"id": f"D{len(history) + 1}", "round": round_num,
                             "speaker": speaker, "content": content})
 
+        seen_pool: dict[str, int] = {}   # pool size when each side last looked up
+
         async def research(side: str, round_num: int):
             nonlocal context
             if not ADVOCATE_RESEARCH or not real_case:
                 return
+            pool = context.evidence_pool or []
+            if round_num > 0 and not any(i.get("source_agent") not in (side, "system")
+                                         for i in pool[seen_pool.get(side, 0):]):
+                # Nothing new from the other side since this side last looked: skip the call (D24)
+                return
+            seen_pool[side] = len(pool)
             title = f"{side.capitalize()} advocate: look up evidence" + (
                 " (opening)" if round_num == 0 else f" (round {round_num})")
             async with step(side.capitalize(), title, {"sees": ["case brief", "evidence pool", "debate so far"]}) as s:
                 context, record = await research_turn(side, context, llm_client, retriever,
                                                       round_num, render_debate(history))
                 s["output"] = record
+            seen_pool[side] = len(context.evidence_pool or [])
             _fail_if_daily_quota_exhausted(record.get("error") or "")
 
         # Rule-based seed lookups (no LLM): the obvious checks for this dispute type
