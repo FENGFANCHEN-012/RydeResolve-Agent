@@ -44,6 +44,7 @@ from src.config import (
     CONFIDENCE_THRESHOLD_LOW as FAIRNESS_DECISION_CONFIDENCE_LOW,
     LLM_API_KEY,
 )
+from src.agents.fraud import fraud_refs
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs
 from src.models.dispute_state import FairnessAssessmentInput
@@ -91,6 +92,9 @@ class FairnessIssueCode(str, Enum):
     # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
     FEE_BASIS_NOT_MET = "fee_basis_not_met"
     REFUND_BEYOND_DISPUTED = "refund_beyond_disputed_amount"
+
+    # #8 the Fraud agent found hard evidence of fraud or collusion in this case
+    FRAUD_RISK_HIGH = "fraud_risk_high"
 
 
 # Verdict labels are about the COMPLAINT, not about any fee. Without this the semantic check read
@@ -434,7 +438,9 @@ class FairnessAgent:
 
         cited_refs: list[str] = list(getattr(decision, "policy_references", []) or [])
         retrieved_refs = self._build_valid_refs(policy_evaluation, context)
-        hallucinated_refs = sorted({r for r in cited_refs if r not in retrieved_refs})
+        # Fraud signals are a real source the Judge saw (design guard 1: accepted from day one),
+        # but not policy clauses, so they do not count toward the "uncited clauses" heuristic
+        hallucinated_refs = sorted({r for r in cited_refs if r not in retrieved_refs | fraud_refs(context)})
         uncited_retrieved = sorted(retrieved_refs - set(cited_refs))
 
         rationale = (getattr(decision, "rationale", "") or "").strip()
@@ -669,6 +675,20 @@ class FairnessAgent:
                 severity="high",
                 refs=["collector.findings", "platform_policy"],
                 recommended_action="Route to human review; the extra amount has no rule the system can verify.",
+            )
+            requires_human = True
+
+        # (k) hard evidence of fraud or collusion: a person decides, with the Judge's draft and
+        #     the report. Priors alone never reach HIGH, so this never fires on history only.
+        fraud = (context or {}).get("fraud_report") or {}
+        if fraud.get("level") == "high":
+            hard = [s for s in fraud.get("signals") or [] if s.get("kind") == "hard"]
+            add_issue(
+                FairnessIssueCode.FRAUD_RISK_HIGH,
+                "Fraud agent: " + " ".join(s.get("statement", "") for s in hard),
+                severity="high",
+                refs=[f"fraud_report.{s.get('code')}" for s in hard],
+                recommended_action="Route to human review with the fraud report; do not auto-dismiss the claim.",
             )
             requires_human = True
 
