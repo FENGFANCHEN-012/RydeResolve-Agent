@@ -26,7 +26,7 @@ from src.rag.policy_topics import TOPICS
 logger = logging.getLogger(__name__)
 
 # Lookups are batched in one call per turn (D24): more evidence without more calls
-MAX_LOOKUPS = 4
+MAX_LOOKUPS = 3
 MAX_TOPICS = 2
 
 # Arguments each query tool takes (all ISO-8601 times, e.g. 2026-09-21T09:08:00+08:00)
@@ -34,8 +34,9 @@ _TOOL_ARGS = {"gps_at": ("timestamp",), "events_between": ("start", "end")}
 _TOOL_HELP = {
     "gps_at": "gps_at(timestamp): where the driver's GPS was at (or nearest to) that time, "
               "with status, speed and distance from the pickup.",
-    "events_between": "events_between(start, end): every app event and chat message in that "
-                      "time window, in order, with what each one says.",
+    "events_between": "events_between(start, end): the app events and chat messages in that "
+                      "window. Ones already in the timeline / chat log you were given are named by "
+                      "id only; use it for events beyond the timeline or to pin down an exact window.",
 }
 
 _SYSTEM = """You are the {side} advocate in a ride-hailing dispute, preparing your next turn.

@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # Keep the brief small: it goes into every prompt of the debate
 _MAX_FINDINGS_PER_KIND = 12
-_MAX_EVENTS = 20
+_MAX_EVENTS = 20   # keep equal to collector_tools.BRIEF_TIMELINE_EVENTS
 # Base clauses handed to every agent (each is cut to 500 characters in the prompts)
 MAX_BASE_CLAUSES = 10
 _COMPLAINT_FIRST = 3     # complaint hits placed before the topic hits

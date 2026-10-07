@@ -865,3 +865,23 @@ Otherwise the step is reverted to the previous tag, and the result is recorded h
    costs far more than a delayed one.
 5. Judge remand once (one targeted lookup, both sides answer, re-rule); then a collaboration graph
    in the UI (E/D nodes, cite, challenge and concede edges).
+
+**D24 step 1 result (token diet, 2026-10-07).** Same 3 smoke cases each time (FD-002, NS-002-B1,
+RD-001-P4). Verdicts were the same in every run: 2 of 3, with NS-002-B1 the known miss.
+| Version | Avg prompt tokens per case | vs no research |
+|---|---|---|
+| No research step (run 20261007-145734) | 28.1k | - |
+| D23 as built (20261007-165141) | 45.5k | +62% |
+| Slim brief, fetched topics skipped, older pool items as one line, 4 lookups (20261007-205825) | 41.9k | +49% |
+| + 3 lookups; rebuttal research only if the other side added evidence; `events_between` names events already shown by id (20261007-210940) | 38.7k | +38% |
+
+Two findings:
+- `events_between` mostly repeated text every prompt already carries: the chat log in full and
+  the first 20 app events in the brief timeline. It now gives text only for what is not shown
+  elsewhere.
+- The same case varies by +-15% between runs, because the advocate picks different lookups.
+The +20-25% target was not met. What remains is the research call itself (2-3k tokens, at most
+4 per case), the fixed price of letting the advocate choose. Cutting it further means fewer
+chances to look things up, which is the autonomy this step exists for. **Accepted at +38%**: at
+Cerebras prices that is under US$0.005 per case. The binding limit is the 1M tokens/day per key,
+so a 38-run regression (~1.5M) needs two keys.

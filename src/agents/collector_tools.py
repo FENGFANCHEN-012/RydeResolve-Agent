@@ -36,6 +36,9 @@ _ARRIVAL_GPS_MISMATCH_KM = 0.5
 
 # events_between lists at most this many events in its statement (all are kept in value)
 _MAX_LISTED_EVENTS = 15
+_EVENT_TEXT_CHARS = 120
+# The case brief's timeline shows this many app events (case_brief._MAX_EVENTS)
+BRIEF_TIMELINE_EVENTS = 20
 
 
 class Finding(BaseModel):
@@ -455,12 +458,24 @@ def events_between(ctx, start: str, end: str) -> list[Finding]:
         if at and t0 <= at <= t1:
             rows.append((at, f"chat_log[{i}]", f"{m.get('sender')} ({m.get('message_type')}): {m.get('message', '')}"))
     rows.sort(key=lambda r: r[0])
-    # The statement carries the events themselves: a bare count gives an agent nothing to argue from
-    listed = "; ".join(f"{r[0].strftime('%H:%M:%S')} {r[2]} ({r[1]})" for r in rows[:_MAX_LISTED_EVENTS])
-    more = f"; and {len(rows) - _MAX_LISTED_EVENTS} more" if len(rows) > _MAX_LISTED_EVENTS else ""
+    # Every prompt already carries the chat log and the first BRIEF_TIMELINE_EVENTS app events
+    # (case brief timeline), so those are named by id only; the text is given for the rest (D24).
+    # A bare count gives an agent nothing to argue from; repeating known text only costs tokens.
+    def shown(src: str) -> bool:
+        return src.startswith("chat_log[") or int(src.split("[")[1].rstrip("]")) < BRIEF_TIMELINE_EVENTS
+    known = [r[1] for r in rows if shown(r[1])]
+    new = [r for r in rows if not shown(r[1])]
+    listed = "; ".join(f"{r[0].strftime('%H:%M:%S')} {r[2][:_EVENT_TEXT_CHARS]} ({r[1]})"
+                       for r in new[:_MAX_LISTED_EVENTS])
+    more = f"; and {len(new) - _MAX_LISTED_EVENTS} more" if len(new) > _MAX_LISTED_EVENTS else ""
+    parts = [f"{len(rows)} event(s) between {start} and {end}"]
+    if known:
+        parts.append("already in the timeline / chat log shown to you: " + ", ".join(known))
+    if new:
+        parts.append(f"not shown elsewhere: {listed}{more}")
     return [Finding(
         id="events_between.result", tool="events_between", kind="fact",
-        statement=f"{len(rows)} event(s) between {start} and {end}" + (f": {listed}{more}." if rows else "."),
+        statement="; ".join(parts) + ".",
         value={"events": [{"at": r[0].isoformat(), "source": r[1], "text": r[2]} for r in rows]},
         sources=[r[1] for r in rows],
     )]
