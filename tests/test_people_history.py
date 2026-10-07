@@ -112,7 +112,7 @@ def test_api_history_and_flag_review(monkeypatch, tmp_path):
     st = Store(f"sqlite:///{(tmp_path / 'api.db').as_posix()}")
     monkeypatch.setattr(store_db, "_store", st)
     _case(st, "FD-1")
-    c = TestClient(api_main.app)
+    c = TestClient(api_main.app, headers={"Authorization": "Bearer offline-admin"})
     assert c.get("/api/people/D-1/history").json()["complaints_received"] == 4
     assert c.get("/api/people/D-404/history").status_code == 404
     f = c.post("/api/flags", json={"user_id": "R-1", "signal": "s", "detail": "d", "raised_by": "fraud_agent"}).json()

@@ -356,10 +356,10 @@ class FairnessAgent:
     def _get_llm_client(self) -> LLMClient | None:
         if self._llm_client is not None:
             return self._llm_client
-        if not LLM_API_KEY:
-            return None
         try:
             self._llm_client = LLMClient()
+            if not self._llm_client.api_key:
+                self._llm_client = None
         except Exception as exc:
             logger.warning("Could not initialise LLMClient: %s", exc)
             self._llm_client = None

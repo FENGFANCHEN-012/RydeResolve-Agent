@@ -82,6 +82,8 @@ const RR_REASONING_KEYS = [
 const rr = {
     cases: [], filter: '', current: null, detail: null,
     steps: {}, order: [], result: null, running: false, selected: 'case', follow: true,
+    selection: 0, loading: false, loadError: null, failure: null, finished: false,
+    request: null, saveWarning: null,
 };
 
 const rrEl = id => document.getElementById(id);
@@ -121,12 +123,26 @@ function rrClip(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n 
 function rrStepIssue(step) {
     if (!step || step.status === 'running') return null;
     const out = rrParse(step.output);
+    // A successful retry/fallback is retained alongside earlier errors in the trace.
+    const lastCall = (step.llm || []).at(-1);
+    if (step.status === 'done' && lastCall && !lastCall.error &&
+            typeof lastCall.response === 'string' && lastCall.response.trim() &&
+            out && !out.error && !/LLM call failed|could not be generated automatically/i.test(
+                typeof out === 'string' ? out : out.reasoning || out.reason || '')) return null;
     const details = [
         ...(step.llm || []).map(call => call.error),
         step.error,
         typeof out === 'string' ? out : out?.error,
         out?.reasoning, out?.reason,
     ].filter(value => typeof value === 'string').join(' ');
+    if (/request too large|413.*tokens per minute/i.test(details)) {
+        return { kind: 'capacity', short: 'Case exceeds provider capacity',
+            message: 'The AI service could not accept the full case. No completed automated decision is available; this run requires manual review.' };
+    }
+    if (/token_quota_exceeded/i.test(details)) {
+        return { kind: 'daily', short: 'Daily token quota reached',
+            message: 'The provider’s daily token quota was reached. This review has no reliable completed verdict.' };
+    }
     if (/tokens per day|TPD/i.test(details) && /rate_limit_exceeded|429/i.test(details)) {
         return { kind: 'daily', short: 'Groq daily token limit reached',
             message: 'Groq’s daily token limit was reached. The remaining AI analysis was not completed, so this run has no reliable verdict.' };
@@ -149,7 +165,7 @@ function rrStepIssue(step) {
 
 function rrRunIssue() {
     const issues = rr.order.map(id => rrStepIssue(rr.steps[id])).filter(Boolean);
-    return issues.find(issue => issue.kind === 'daily') || null;
+    return issues.find(issue => issue.kind === 'daily') || issues[0] || null;
 }
 
 function rrDebateText(output, agent) {
@@ -177,7 +193,8 @@ function rrDebateText(output, agent) {
 
 async function rrLoadCases() {
     try {
-        const resp = await fetch(`${API_BASE}/api/disputes/cases`);
+        const resp = await apiFetch(`${API_BASE}/api/disputes/cases`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         rr.cases = ((await resp.json()).cases || []).sort((a, b) =>
             (a.dispute_type || '').localeCompare(b.dispute_type || '') || (a.dispute_id || '').localeCompare(b.dispute_id || ''));
         rrEl('rrCaseCount').textContent = rr.cases.length;
@@ -193,10 +210,14 @@ async function rrLoadCases() {
 
 async function rrLoadTraces() {
     try {
-        const names = (await (await fetch(`${API_BASE}/api/disputes/traces`)).json()).traces || [];
+        const resp = await apiFetch(`${API_BASE}/api/disputes/traces`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const names = (await resp.json()).traces || [];
         rrEl('rrTraces').innerHTML = `<option value="">${names.length ? 'Choose a saved run…' : 'No saved runs yet'}</option>` +
             names.map(n => `<option value="${rrEsc(n)}">${rrEsc(n.replace(/\.json$/, '').replace(/^(\d{8})-(\d{6})_/, '$1 $2 · '))}</option>`).join('');
-    } catch (e) { /* offline: keep placeholder */ }
+    } catch (e) {
+        rrEl('rrTraces').innerHTML = '<option value="">Saved runs unavailable — check server readiness</option>';
+    }
 }
 
 function rrRenderLibrary() {
@@ -217,20 +238,28 @@ function rrRenderLibrary() {
 
 async function rrSelectCase(orderId, keepRun = false) {
     if (rr.running && !keepRun) return;
+    const selection = ++rr.selection;
     rr.current = orderId;
     rr.detail = null;
+    rr.loading = true; rr.loadError = null;
     if (!keepRun) rrResetRun();
     rrRenderLibrary();
     rrRenderHeader();
     rrEl('rrBrief').innerHTML = '<div class="rr-empty">Loading case data…</div>';
     try {
-        const resp = await fetch(`${API_BASE}/api/disputes/cases/${encodeURIComponent(orderId)}`);
+        const resp = await apiFetch(`${API_BASE}/api/disputes/cases/${encodeURIComponent(orderId)}`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        rr.detail = await resp.json();
+        const detail = await resp.json();
+        if (selection !== rr.selection) return;
+        rr.detail = detail;
     } catch (e) {
+        if (selection !== rr.selection) return;
+        rr.loading = false; rr.loadError = e.message;
         rrEl('rrBrief').innerHTML = `<div class="rr-empty">Could not load case data (${rrEsc(e.message)}).</div>`;
+        rrRenderAll();
         return;
     }
+    rr.loading = false;
     rrRenderHeader();
     rrRenderBrief();
     rrRenderAll();
@@ -244,7 +273,10 @@ function rrRenderHeader() {
     const c = rrCaseMeta();
     const ticket = rr.detail?.dataset?.dispute_ticket || {};
     const status = rr.running ? ['running', `Running · ${rr.order.filter(id => rr.steps[id].status !== 'running').length} steps done`]
-        : rrRunIssue() ? ['error', 'Incomplete · quota reached']
+        : rr.loading ? ['', 'Loading case…']
+        : rr.loadError ? ['error', 'Case unavailable']
+        : rr.failure ? ['error', 'Incomplete · retry required']
+        : rrRunIssue() ? ['error', rrRunIssue().kind === 'daily' ? 'Incomplete · quota reached' : 'Incomplete · review error']
         : rr.result?.status === 'failed' ? ['error', 'Failed · sent to human review']
         : rr.result?.status === 'escalated_to_human' ? ['escalated', 'Escalated to human']
         : rr.result ? ['done', 'Resolved'] : ['', 'Ready'];
@@ -257,7 +289,7 @@ function rrRenderHeader() {
     st.className = `rr-status ${status[0]}`;
     st.textContent = status[1];
     const btn = rrEl('rrRunBtn');
-    btn.disabled = rr.running || !rr.current;
+    btn.disabled = rr.running || rr.loading || !rr.current || !rr.detail?.dataset;
     btn.textContent = rr.running ? 'Running…' : 'Run agents';
 }
 
@@ -318,6 +350,7 @@ function rrRenderBrief() {
 
 function rrResetRun() {
     rr.steps = {}; rr.order = []; rr.result = null; rr.selected = 'case'; rr.follow = true;
+    rr.failure = null; rr.finished = false; rr.request = null; rr.saveWarning = null;
 }
 
 function rrSetRunning(on) {
@@ -327,25 +360,28 @@ function rrSetRunning(on) {
 }
 
 async function rrRun() {
-    if (!rr.current || rr.running) return;
+    if (!rr.current || !rr.detail?.dataset || rr.loading || rr.running) return;
     const body = {
         order_id: rr.current,
         report_text: (rrEl('rrReport')?.value || '').trim(),
         reporter: rrEl('rrReporter')?.value || null,
     };
     rrResetRun();
+    rr.request = body;
     rrSetRunning(true);
     rrRenderAll();
+    let reader;
     try {
-        const resp = await fetch(`${API_BASE}/api/disputes/resolve-stream`, {
+        const resp = await apiFetch(`${API_BASE}/api/disputes/resolve-stream`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+            signal: AbortSignal.timeout(900000),
         });
         if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
-        const reader = resp.body.getReader();
+        reader = resp.body.getReader();
         const decoder = new TextDecoder();
         let buf = '';
         while (true) {
-            const { value, done } = await reader.read();
+            const { value, done } = await rrReadStream(reader);
             if (done) break;
             buf += decoder.decode(value, { stream: true });
             let cut;
@@ -355,7 +391,12 @@ async function rrRun() {
                 if (line) rrHandle(JSON.parse(line.slice(6)));
             }
         }
+        if (!rr.finished || (!rr.result && !rr.failure)) {
+            throw new Error('The connection ended before the review completed. Retry the case.');
+        }
     } catch (e) {
+        if (reader) await reader.cancel().catch(() => {});
+        rr.failure = e.message;
         showToast(`Run failed: ${e.message}`, 'error');
     } finally {
         rrSetRunning(false);
@@ -364,13 +405,28 @@ async function rrRun() {
     }
 }
 
+async function rrReadStream(reader) {
+    let timer;
+    try {
+        return await Promise.race([reader.read(), new Promise((_, reject) => {
+            timer = setTimeout(() => {
+                reader.cancel().catch(() => {});
+                reject(new Error('No response from the server. The review is incomplete.'));
+            }, 90000);
+        })]);
+    } finally { clearTimeout(timer); }
+}
+
 async function rrReplay(name) {
     if (!name || rr.running) return;
     try {
-        const events = (await (await fetch(`${API_BASE}/api/disputes/traces/${encodeURIComponent(name)}`)).json()).events || [];
+        const resp = await apiFetch(`${API_BASE}/api/disputes/traces/${encodeURIComponent(name)}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const events = (await resp.json()).events || [];
         const start = events.find(e => e.type === 'run_start');
         const orderId = start?.request?.order_id;
         rrResetRun();
+        rr.request = start?.request || null;
         rrSetRunning(true);
         if (orderId && orderId !== rr.current) await rrSelectCase(orderId, true);
         rrRenderAll();
@@ -378,7 +434,10 @@ async function rrReplay(name) {
             rrHandle(ev);
             if (ev.type === 'step_start' || ev.type === 'step_end') await new Promise(r => setTimeout(r, 160));
         }
+        // Old saved traces predate the terminal event but still contain a result.
+        if (!rr.result && !rr.failure) rr.failure = 'This saved run has no completed result.';
     } catch (e) {
+        rr.failure = e.message;
         showToast(`Replay failed: ${e.message}`, 'error');
     } finally {
         rrSetRunning(false);
@@ -388,7 +447,9 @@ async function rrReplay(name) {
 }
 
 function rrHandle(ev) {
-    if (ev.type === 'step_start') {
+    if (ev.type === 'run_start') {
+        rr.request = ev.request;
+    } else if (ev.type === 'step_start') {
         rr.steps[ev.id] = { id: ev.id, agent: ev.agent, title: ev.title, input: ev.input, output: null,
                             llm: [], retrievals: [], tools: [], status: 'running', duration: null };
         rr.order.push(ev.id);
@@ -408,9 +469,15 @@ function rrHandle(ev) {
         }
     } else if (ev.type === 'result') {
         rr.result = ev.result;
+        rr.saveWarning = ev.result?.storage_warning || null;
         if (rr.follow) rr.selected = ev.result?.status === 'escalated_to_human' ? 'human' : (rr.selected || 'case');
     } else if (ev.type === 'error') {
+        rr.failure = ev.message || 'The review could not be completed.';
         showToast(`Pipeline error: ${ev.message}`, 'error');
+    } else if (ev.type === 'done') {
+        rr.finished = true;
+        if (ev.trace_saved === false || ev.trace_name === null)
+            rr.saveWarning = 'The run could not be saved. Replay is unavailable; check the record store.';
     }
     rrRenderAll();
     if (ev.type === 'result' && rr.follow) rrEl('rrCaseTitle').scrollIntoView({ block: 'start' });
@@ -658,12 +725,15 @@ function rrRenderInspector() {
     }
     if (s.tools.length) {
         html += `<div class="rr-sec"><h5>Tools run (${s.tools.length} · deterministic, 0 tokens)</h5>
-            <div class="rr-clauses">${s.tools.map(t => `<details class="rr-clause"><summary>
+            <div class="rr-clauses">${s.tools.map(t => {
+                // Collector returns findings; Fraud lookups also return history objects or null.
+                const count = Array.isArray(t.findings) ? t.findings.length : t.findings == null ? 0 : 1;
+                return `<details class="rr-clause"><summary>
                 <span><span class="src">${rrEsc(t.tool)}</span>${Object.keys(t.args || {}).length
                     ? ` <span class="sec">${rrEsc(JSON.stringify(t.args))}</span>` : ''}</span>
-                <span class="rr-node-meta">${t.findings.length} result${t.findings.length === 1 ? '' : 's'}</span>
-                </summary><div class="excerpt">${t.findings.map(f => `[${rrEsc(f.kind)}] ${rrEsc(f.statement)}`).join('<br>')
-                    || 'Nothing to report for this case.'}</div></details>`).join('')}</div></div>`;
+                <span class="rr-node-meta">${count} result${count === 1 ? '' : 's'}</span>
+                </summary><div class="excerpt">${rrToolResult(t.findings)}</div></details>`;
+            }).join('')}</div></div>`;
     }
     if (/^Round /.test(s.title) && s.input?.rebutting) {
         html += `<div class="rr-sec"><h5>Responding to</h5><div class="rr-prose" style="color:var(--on-dark-muted)">${rrEsc(rrClip(
@@ -679,6 +749,18 @@ function rrRenderInspector() {
         ${!s.llm.length && s.status !== 'running' ? '<div class="rr-hint" style="margin-top:6px">No LLM call — this step is deterministic code.</div>' : ''}
     </div>`;
     el.innerHTML = html;
+}
+
+// Keep structured lookup data visible, including older saved tool events.
+function rrToolResult(value) {
+    if (value == null) return 'No result was returned by this lookup.';
+    if (Array.isArray(value)) {
+        if (!value.length) return 'Nothing to report for this case.';
+        return value.map(item => item && typeof item === 'object' && typeof item.statement === 'string'
+            ? `[${rrEsc(item.kind || 'result')}] ${rrEsc(item.statement)}`
+            : `<pre class="rr-json">${rrJson(item)}</pre>`).join('<br>');
+    }
+    return `<pre class="rr-json">${rrJson(value)}</pre>`;
 }
 
 // Collector findings: conflicts and gaps first, each with the data it came from
@@ -767,14 +849,19 @@ function rrRenderDebate() {
 // fee stands (what the organiser's sample calls "charge UPHELD"), so say it in words.
 function rrVerdictLabel(verdict) {
     if (!verdict) return 'No verdict available';
-    const filer = rr.detail?.dispute_ticket?.filed_by;
+    const filer = rrFiler();
     const who = filer === 'driver' ? "Driver's claim" : filer === 'rider' ? "Rider's complaint" : 'Complaint';
     return `${who} ${verdict.replace(/_/g, ' ')}`;
 }
 
+function rrFiler() {
+    const filer = rr.request?.reporter || rr.detail?.dataset?.dispute_ticket?.filed_by;
+    return filer === 'passenger' ? 'rider' : filer;
+}
+
 function rrChargeStands(verdict) {
-    const trip = rr.detail?.trip_data || {};
-    if (verdict !== 'dismissed' || rr.detail?.dispute_ticket?.filed_by !== 'rider') return null;
+    const trip = rr.detail?.dataset?.trip_data || {};
+    if (verdict !== 'dismissed' || rrFiler() !== 'rider') return null;
     if (trip.cancellation_fee != null) return `${rrMoney(trip.cancellation_fee)} cancellation fee stands`;
     if (trip.cleaning_fee != null) return `${rrMoney(trip.cleaning_fee)} cleaning fee stands`;
     if (trip.total_fare != null) return `${rrMoney(trip.total_fare)} fare stands`;
@@ -785,6 +872,12 @@ function rrRenderVerdict() {
     const el = rrEl('rrVerdict');
     const res = rr.result;
     const label = '<div class="rr-verdict-label">Resolution</div>';
+    if (rr.failure) {
+        el.innerHTML = label + `<div class="rr-pill-lg escalated">Incomplete</div>
+            <div class="rr-verdict-text">${rrEsc(rr.failure)} No completed decision is available. Retry the review.</div>`;
+        el.hidden = false;
+        return;
+    }
     if (!res) {
         el.innerHTML = label + `<div class="rr-pill-lg">${rr.running ? 'Review in progress' : 'Awaiting review'}</div>
             <div class="rr-verdict-text">${rr.running ? 'The agents are reviewing the evidence. The decision will appear here.'
@@ -794,7 +887,7 @@ function rrRenderVerdict() {
     const quotaIssue = rrRunIssue();
     if (quotaIssue) {
         el.innerHTML = label + `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">Incomplete</span>
-            <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review completed turns below and retry when the provider quota is available.</div></div>`;
+            <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review the completed turns below and retry after the service issue is resolved.</div></div>`;
         el.hidden = false;
         return;
     }
@@ -850,7 +943,7 @@ function rrRenderVerdict() {
             <div class="rr-notice-to">To the ${rrEsc(n.recipient)}</div>
             <div class="rr-notice-subj">${rrEsc(n.subject || '')}</div>
             <div class="rr-prose">${rrEsc(n.message)}</div></div>`).join('')}</div></div>` : '';
-    el.innerHTML = `${label}<div class="rr-verdict-main">${main}</div>${notices}
+    el.innerHTML = `${label}${rr.saveWarning ? `<div class="rr-verdict-text">${rrEsc(rr.saveWarning)}</div>` : ''}<div class="rr-verdict-main">${main}</div>${notices}
         <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;
 }

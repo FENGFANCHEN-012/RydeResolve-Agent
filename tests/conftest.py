@@ -19,9 +19,23 @@ from src.core import llm_client as llm_module
 
 @pytest.fixture(autouse=True)
 def _force_gemini_provider(monkeypatch, tmp_path):
+    monkeypatch.setenv("API_ADMIN_KEY", "offline-admin")
+    monkeypatch.setenv("API_DEMO_KEY", "offline-demo")
     monkeypatch.setattr(llm_module, "LLM_PROVIDER", "gemini")
+    monkeypatch.setattr(llm_module.llm_client, "api_key", "")
     monkeypatch.setattr(llm_module, "LLM_FALLBACK_PROVIDERS", [])  # a failing fake must not reach a real API
+    monkeypatch.setattr(llm_module, "_MIN_INTERVAL_SECONDS", 0.0)
+    monkeypatch.setattr(llm_module, "_next_request_at", 0.0)
     monkeypatch.setattr(config, "VECTOR_BACKEND", "chroma")
+    # Do not let file-upload regressions alter the developer's local policy index.
+    from src.rag import indexer, retriever
+    local_client = []
+    def test_chroma():
+        if not local_client:
+            local_client.append(indexer.chromadb.PersistentClient(path=str(tmp_path / "chroma")))
+        return local_client[0], "test"
+    monkeypatch.setattr(indexer, "_get_chroma_client", test_chroma)
+    monkeypatch.setattr(retriever, "_get_chroma_client", test_chroma)
     # No test reaches a real model: a key in .env made the "no LLM" tests call Gemini, so
     # they passed or failed on the model's answer and spent quota. Modules import the key by
     # name, so blank every copy; tests that need a key set a fake one themselves.
