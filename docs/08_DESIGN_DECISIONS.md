@@ -1060,3 +1060,36 @@ Across three runs the Judge's refund on ST-001 went S$37.40, S$37.40, S$0: the c
 judgement calls the platform rules do not settle (who causes a metered fallback that a rider's
 stop and a driver's early detour both pushed past 40%). It is kept as a stress case that must
 reach a person, not tuned further: more prompt rules for one hand-written case would overfit it.
+
+## D26. LLM complexity hint for cases code calls simple (2026-10-08, experimental)
+
+Code triage (D24 step 2) only sees signals it can compute. Stress case ST-002 is ST-001 with
+every code signal removed (S$17.50 disputed, no history, no threat, no GPS gap) and the same
+difficulty, so code grades it simple. `src/agents/complexity.py` asks an LLM, only for simple and
+safe cases, whether one of four named kinds of difficulty holds; it can raise the grade, never
+lower it, and a failed call keeps the code grade. The Classifier was not reused: when the
+dataset gives the dispute type and the keywords agree, it makes no LLM call at all.
+
+Probe of the hint alone (no pipeline), first prompt: 4 of 10 known-simple cases raised, mostly
+"consent" on metered RydeTAXI trips, where agreeing to a route already means agreeing to the
+meter. Tightened (consent only on fixed fares; timing only when an account contradicts the
+timestamps) and re-probed on 19 code-simple cases, 8 of them not used for tuning: the "rules"
+kind fired on 4 (RD-002-I3, SQ-002, CR-001, CR-003), each reading a general rule plus its
+exception as a conflict, so "rules" is now recorded and does not raise. Result: ST-002 raised
+(consent), NS-002-B1 raised (order; the case that fails 1 run in 4), the other 17 unchanged.
+
+A/B on ST-002 (runs 20261008-165753-hint1 and 20261008-170208-hint0, same commit ceb5c19):
+
+| | Hint off | Hint on |
+|---|---|---|
+| Grade | simple | complex (consent) |
+| Ruling | dismissed, S$0, executed | dismissed, S$0, executed |
+| Prompt / completion tokens | 24.6k / 8.2k | 65.2k / 21.2k |
+| LLM calls | 7 | 17 |
+
+The hint found the right difficulty, and the extra research and second round changed nothing:
+both Judges let the 40% metered fallback stand without asking what pushed the route past 40%,
+and both again called the rider's unrecorded stop the driver's breach. Fairness flagged an
+internal inconsistency at medium severity only, so both wrong rulings would have executed.
+The bottleneck in this kind of case is the Judge's reasoning about cause, not the depth of the
+process. Raising the grade cost 2.6x tokens for no gain here.
