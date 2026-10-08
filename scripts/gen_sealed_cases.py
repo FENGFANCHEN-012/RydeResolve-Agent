@@ -26,6 +26,7 @@ EXAMPLE_CASE = ROOT / "data" / "mock_disputes" / "fare_dispute_01.json"
 CONVENTIONS = ROOT / "data" / "mock_disputes" / "README.md"
 OUT_DIR = ROOT / "data" / "eval_cases" / "sealed"
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.1-pro-preview")
+CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
 BATCH = 5  # cases per call, keeps each response well under the output limit
 
 TYPES = ["no_show", "cancellation_refund", "fare_dispute", "route_deviation",
@@ -65,11 +66,22 @@ some where the right answer is to send the case to a human (evidence missing, co
 insufficient to decide safely). Include cases where the person who filed is wrong. Make the
 records realistic and internally consistent (timestamps, distances, fares, GPS points, chat).
 Do not copy the example's situation.
+
+Make the cases hard enough to test judgement, not rule lookup:
+- At least one case in this batch must have conflicting evidence (e.g. a party's statement or
+  chat contradicts the GPS / app events), or a party who misstates facts in their favour.
+- At least one case in this batch should involve more than one issue (e.g. part of the request
+  is justified and part is not, or a second problem surfaces in the records).
+- The case's own policy block states rules and numbers only (fees, thresholds, what evidence a
+  charge needs). It must NEVER name the outcome or the action to take (no keys or values such
+  as "action", "human_review", "refund", "verdict", "escalate"). The reviewer must work it out.
+- Give enough records to reason from: at least 8 GPS points for any trip that moved, at least
+  5 chat messages where the parties talked, and a full app event timeline.
 {avoid}
 FORMAT: each case is a JSON object with the same top-level keys as the example
 (dispute_ticket, rider_profile, driver_profile, trip_data, gps_telemetry, chat_logs, app_events,
 and the applicable policy block: cancellation_policy for no-show / cancellation, platform_policy
-otherwise), plus expected_outcome. Use dispute_id "{prefix}NN" and trip_id "RYDE-SEAL-NNN" with
+otherwise), plus expected_outcome. Use dispute_id "{prefix}NN" and trip_id "{trip_prefix}NNN" with
 the numbers given below. Amounts in SGD.
 
 expected_outcome keys:
@@ -114,6 +126,32 @@ def call_gemini(prompt: str) -> list[dict]:
     return cases
 
 
+def call_cerebras(prompt: str, model: str, retry: bool = True) -> list[dict]:
+    """Same prompt through Cerebras (OpenAI-compatible); JSON mode needs an object, so cases are wrapped."""
+    import httpx
+    key = os.environ.get("CEREBRAS_API_KEY_BACKUP") or os.environ["CEREBRAS_API_KEY"]
+    body = {"model": model, "temperature": 0.9, "max_completion_tokens": 40000,
+            "response_format": {"type": "json_object"},
+            "messages": [{"role": "user", "content": prompt +
+                          ' Wrap the array in an object: {"cases": [...]}.'}]}
+    r = httpx.post(CEREBRAS_URL, json=body, headers={"Authorization": f"Bearer {key}"}, timeout=600)
+    r.raise_for_status()
+    data = r.json()
+    u = data.get("usage") or {}
+    print(f"  tokens: {u.get('prompt_tokens')} in / {u.get('completion_tokens')} out")
+    try:
+        cases = json.loads(data["choices"][0]["message"]["content"]).get("cases")
+    except json.JSONDecodeError:
+        if not retry:
+            print("  invalid JSON again, batch skipped")
+            return []
+        print("  invalid JSON from the model, retrying once")
+        return call_cerebras(prompt, model, retry=False)
+    if not isinstance(cases, list):
+        raise ValueError("model did not return a cases array")
+    return cases
+
+
 def problems(case: dict, sections: set[str]) -> list[str]:
     """Mechanical checks only (format, ids, cited sections); never judges the answer."""
     out = []
@@ -131,6 +169,9 @@ def problems(case: dict, sections: set[str]) -> list[str]:
         out.append(f"bad verdict value")
     if (e.get("verdict") is None) != bool(e.get("must_escalate")):
         out.append("verdict null and must_escalate disagree")
+    policy = json.dumps(case.get("cancellation_policy") or case.get("platform_policy") or {}).lower()
+    if re.search(r"action|human_review|verdict|escalat|refund_due|uphold|dismiss", policy):
+        out.append("case policy block names an outcome or action")
     bad = [s for s in e.get("expected_official_sections") or [] if s not in sections]
     if bad:
         out.append(f"{len(bad)} cited section(s) not in the policy index")
@@ -140,32 +181,43 @@ def problems(case: dict, sections: set[str]) -> list[str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=10)
+    ap.add_argument("--prefix", default="SL-", help='case id prefix, e.g. "SA-"')
+    ap.add_argument("--out", default=str(OUT_DIR), help="output folder")
+    ap.add_argument("--provider", choices=["gemini", "cerebras"], default="gemini")
+    ap.add_argument("--types", default=None, help="comma-separated dispute types to cycle (default: all)")
+    ap.add_argument("--batch", type=int, default=BATCH, help="cases per call (use 3 for qwen)")
+    ap.add_argument("--model", default=None, help="Cerebras model (default qwen-3.8-27b)")
     args = ap.parse_args()
-    if not os.environ.get("GEMINI_API_KEY"):
-        from dotenv import load_dotenv
-        load_dotenv(ROOT / ".env")
-    if not os.environ.get("GEMINI_API_KEY"):
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+    if args.provider == "gemini" and not os.environ.get("GEMINI_API_KEY"):
         print("GEMINI_API_KEY is not set (environment or .env).")
         return 1
+    out_dir = Path(args.out)
+    tag = args.prefix.rstrip("-")
+    trip_prefix = f"RYDE-{tag}-" if args.prefix != "SL-" else "RYDE-SEAL-"
+    generate = (call_gemini if args.provider == "gemini"
+                else lambda pr: call_cerebras(pr, args.model or "qwen-3.8-27b"))
 
     policies, sections = load_policies()
     example = EXAMPLE_CASE.read_text(encoding="utf-8")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    start = len(list(OUT_DIR.glob("SL-*.json"))) + 1
+    out_dir.mkdir(parents=True, exist_ok=True)
+    start = len(list(out_dir.glob(f"{args.prefix}*.json"))) + 1
     written, summaries = [], []
-    for b in range(0, args.count, BATCH):
-        n = min(BATCH, args.count - b)
+    for b in range(0, args.count, args.batch):
+        n = min(args.batch, args.count - b)
         nums = list(range(start + b, start + b + n))
-        types_ = [TYPES[(i - 1) % len(TYPES)] for i in nums]
+        pool = args.types.split(",") if args.types else TYPES
+        types_ = [pool[(i - 1) % len(pool)] for i in nums]
         avoid = ("Already written (do not repeat these situations): " + "; ".join(summaries) + "\n"
                  if summaries else "")
         prompt = PROMPT.format(
-            n=n, types=", ".join(types_), avoid=avoid, prefix="SL-",
-            numbers=", ".join(f"SL-{i:02d} / RYDE-SEAL-{i:03d}" for i in nums),
+            n=n, types=", ".join(types_), avoid=avoid, prefix=args.prefix, trip_prefix=trip_prefix,
+            numbers=", ".join(f"{args.prefix}{i:02d} / {trip_prefix}{i:03d}" for i in nums),
             conventions=conventions(), example=example, policies=policies)
-        for case in call_gemini(prompt):
-            cid = (case.get("dispute_ticket") or {}).get("dispute_id") or f"SL-{nums[0]:02d}-x"
-            path = OUT_DIR / f"{cid}.json"
+        for case in generate(prompt):
+            cid = (case.get("dispute_ticket") or {}).get("dispute_id") or f"{args.prefix}{nums[0]:02d}-x"
+            path = out_dir / f"{cid}.json"
             if path.exists():
                 print(f"{cid}: already exists, skipped")
                 continue
@@ -175,7 +227,7 @@ def main() -> int:
             summaries.append(f"{ticket.get('dispute_type')}: {str(ticket.get('description'))[:80]}")
             issues = problems(case, sections)
             print(f"{cid} ({ticket.get('dispute_type')}): " + ("OK" if not issues else "; ".join(issues)))
-    print(f"\n{len(written)} cases written to {OUT_DIR.relative_to(ROOT)} (answer keys not shown).")
+    print(f"\n{len(written)} cases written to {out_dir} (answer keys not shown).")
     return 0
 
 
