@@ -122,7 +122,15 @@ def ruling_problems(parsed: dict, open_issues: list[str], excess: float | None =
             problems.append(f"No ruling on contested issue(s) {', '.join(missing)}. For each, say which "
                             "side the records support, citing the fact ids or E# items.")
     if excess:
-        problems.extend(cause_problems(parsed.get("charge_causes")))
+        listed = cause_problems(parsed.get("charge_causes"))
+        problems.extend(listed)
+        implied = None if listed else causes_refund(parsed.get("charge_causes"), excess)
+        if implied is not None and abs(implied - refund) > 0.01:
+            # Not overridden silently: the rationale would argue the opposite of the result (D29)
+            problems.append(f"charge_causes give a refund of S${implied:.2f} (the driver and platform "
+                            f"share of the S${excess:.2f} excess) but refund_amount is S${refund:.2f}. "
+                            "Correct the causes or the amount so they match, and make the rationale "
+                            "state that same result.")
     return problems
 
 
@@ -170,16 +178,23 @@ def cause_problems(causes) -> list[str]:
     return problems
 
 
+def causes_refund(causes, excess: float) -> float | None:
+    """The refund a valid causes list implies: the excess times the driver + platform share."""
+    if not excess or cause_problems(causes):
+        return None
+    total = sum(float(c["share"]) for c in causes)
+    share = sum(float(c["share"]) for c in causes if c["party"] in REFUNDED_PARTIES) / total
+    return round(excess * max(0.0, min(1.0, share)), 2)
+
+
 def apply_causes(parsed: dict, excess: float | None) -> dict:
     """Set the refund from a valid charge_causes list: the excess times the share of the causes
     the rider does not pay for. The money asks and fare_finding follow the computed amount.
     An invalid or missing list leaves the ruling as it is (the checks send it back)."""
-    causes = parsed.get("charge_causes")
-    if not excess or cause_problems(causes):
+    refund = causes_refund(parsed.get("charge_causes"), excess)
+    if refund is None:
         return parsed
-    share = sum(float(c["share"]) for c in causes if c["party"] in REFUNDED_PARTIES)
-    share = max(0.0, min(1.0, share / sum(float(c["share"]) for c in causes)))
-    refund = round(excess * share, 2)
+    share = refund / excess
     stated = parsed.get("refund_amount")
     parsed["refund_amount"] = refund
     parsed["fare_finding"] = "overcharged" if refund > 0 else "charge_correct"
@@ -333,11 +348,14 @@ class ArbitrationAgent:
             "charge_causes every cause of the extra amount and whose cause it is: \"driver\" (the "
             "driver's own choice or error), \"rider\" (something the rider asked for or did), "
             "\"external\" (a cause outside both parties that this trip's rules make billable, e.g. a "
-            "road closure verified BEFORE the detour began), \"platform\" (an app or pricing error). "
-            "Give each cause its share of the extra amount (shares add up to 1) and the ids that "
-            "show it. A rule that switches the fare basis (e.g. a metered fallback) does not decide "
-            "whose cause the extra distance was. Code computes the refund from these: the driver and "
-            "platform shares are refunded, so set refund_amount to match.\n"
+            "road closure verified BEFORE the detour began), \"platform\" (only an app or pricing "
+            "MALFUNCTION; a rule working as designed is never a cause). A cause is an event in the "
+            "trip, not a rule: a metered fallback or a threshold only says how the fare is "
+            "computed, so name the events that added the distance (e.g. \"the driver left the "
+            "planned route at 23:38\", \"the rider asked for a stop\") and give each its own share. "
+            "Shares add up to 1; cite the ids that show each one. Code computes the refund from "
+            "these (the driver and platform shares are refunded); set refund_amount to the same "
+            "figure and make the rationale state it.\n"
             "- If ISSUES AFTER THE DEBATE lists contested issues (I1, I2, ...), rule on every one in "
             "issue_rulings: which side the records support and why, citing fact ids or E# items. "
             "Check each advocate's account of times and order of events against the records.\n\n"
@@ -588,7 +606,6 @@ class ArbitrationAgent:
         open_issues = [c["id"] for c in issue_summary(debate_history or [])["contested"] if c.get("id")]
         # On a charge above the quote, the refund is computed from the causes (D29)
         excess = fare_excess(context)
-        parsed = apply_causes(parsed, excess)
         remanded_for = ruling_problems(parsed, open_issues, excess)
         if remanded_for:
             remand = ("Your ruling has these problems:\n" + "\n".join(f"- {p}" for p in remanded_for)
@@ -608,12 +625,14 @@ class ArbitrationAgent:
                 logger.warning("ArbitrationAgent remand call failed: %s", exc)
                 parsed2 = None
             if parsed2 is not None:
-                parsed = apply_causes(parsed2, excess)
+                parsed = parsed2
             still = ruling_problems(parsed, open_issues, excess)
             if still:
                 parsed["human_review_needed"] = True
                 parsed["rationale"] = ((parsed.get("rationale") or "")
                                        + " [CHECK: still inconsistent after one remand: " + " ".join(still) + "]")
+        # The amount is always the one the causes give; a mismatch left after the remand is on record
+        parsed = apply_causes(parsed, excess)
 
         # Sanitise policy references
         parsed = self._sanitize_policy_refs(parsed, valid_refs)

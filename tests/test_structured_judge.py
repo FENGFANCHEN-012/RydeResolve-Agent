@@ -82,7 +82,7 @@ INPUTS = dict(context=EXCESS_CTX, passenger_analysis={}, driver_analysis={}, pol
 
 @pytest.mark.asyncio
 async def test_missing_causes_are_remanded_then_the_refund_is_computed():
-    llm = SequenceLLM(ruling(), ruling(charge_causes=CAUSES))
+    llm = SequenceLLM(ruling(), ruling(charge_causes=CAUSES, refund_amount=10.5, fare_finding="overcharged"))
     decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
     assert len(llm.calls) == 2 and "charge_causes" in llm.calls[1][-1]["content"]
     assert decision.refund_amount == 10.5 and decision.verdict.value == "partially_upheld"
@@ -91,8 +91,27 @@ async def test_missing_causes_are_remanded_then_the_refund_is_computed():
 
 
 @pytest.mark.asyncio
-async def test_a_valid_first_ruling_needs_one_call_and_its_amount_is_replaced():
-    llm = SequenceLLM(ruling(refund_amount=17.5, charge_causes=CAUSES))
+async def test_a_matching_first_ruling_needs_one_call():
+    llm = SequenceLLM(ruling(refund_amount=10.5, fare_finding="overcharged", charge_causes=CAUSES,
+                             asks=[{"ask": "refund the difference", "outcome": "partly"}]))
     decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
-    assert len(llm.calls) == 1 and decision.refund_amount == 10.5
+    assert len(llm.calls) == 1 and decision.refund_amount == 10.5 and not decision.remanded_for
+
+
+@pytest.mark.asyncio
+async def test_amount_that_contradicts_the_causes_is_sent_back_not_overridden():
+    # RD-002-I3 in run 20261008-211749-d29: refund S$3.10 stated, causes all external
+    fixed = ruling(refund_amount=10.5, fare_finding="overcharged", charge_causes=CAUSES, asks=[{"ask": "refund the difference", "outcome": "partly"}])
+    llm = SequenceLLM(ruling(refund_amount=17.5, charge_causes=CAUSES), fixed)
+    decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
+    assert len(llm.calls) == 2 and "give a refund of S$10.50" in llm.calls[1][-1]["content"]
+    assert decision.refund_amount == 10.5 and not decision.human_review_needed
+
+
+@pytest.mark.asyncio
+async def test_mismatch_left_after_remand_uses_the_causes_and_goes_to_a_person():
+    bad = ruling(refund_amount=17.5, charge_causes=CAUSES)
+    llm = SequenceLLM(bad, bad)
+    decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
+    assert decision.refund_amount == 10.5 and decision.human_review_needed
     assert "the Judge had stated 17.5" in decision.rationale
