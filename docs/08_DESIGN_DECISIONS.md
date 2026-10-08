@@ -938,3 +938,35 @@ the suite (465) makes no LLM calls.
 
 **Still to do for D24:** the 38-run regression for each step against the rollback rule (step
 tags are set only when a step passes), the judge remand, and the collaboration graph in the UI.
+
+**D24 regression of step 4 (run 20261007-222213, stopped early).** 21 runs saved, verdict 21/21,
+including NS-002-B1. It was stopped on purpose to cut spending once the FD-002 trace showed
+waste. Prompt tokens averaged 41k against 24.7k without research (+67%). Simple one-round cases
+were +18% to +55%; complex two-round cases were +93% to +143%.
+Two infrastructure faults, neither of them a model error:
+- When the harness killed the background job for low memory, only the outer shell script died.
+  Its eval process kept running, so the next morning's resume ran a second full copy on the same
+  keys and the same run folder. That doubled rate-limit hits and memory use. Both were stopped by
+  process id.
+- The research step and the Safety agent call the shared `llm_client` singleton. It was built at
+  import with the .env fallbacks, before `eval.py` clears them, so after a Cerebras 429 those
+  calls fell back to Gemini. Gemini had no credit, so the calls failed: some lookups were lost,
+  and no second model's answers entered the run. `eval.py` now clears the singleton's chain too.
+  Cerebras rate spacing is set to 15 s for evals (`LLM_MIN_REQUEST_INTERVAL_SECONDS`), because the
+  SDK's own 429 retries bypass the limiter.
+
+**D24 step 3b (branch `experiment/step3b-fixes`, 40915cb).** These fixes came from reading the
+FD-002 trace:
+1. A second round runs only if one side is not done (new `done` flag) and something new was found,
+   or a challenge targets a point not already conceded. FD-002 had run a whole second round that
+   only repeated the first round's concessions.
+2. An advocate concedes facts, never the outcome. The passenger advocate had argued "no refund is
+   warranted".
+3. A lookup that returns the same records as an earlier one (tool + sources) is not stored again.
+   The research prompt lists the lookups already made. FD-002 had stored one window three times.
+4. Repeated concessions become one line, marked "passenger and driver".
+5. A concession of the speaker's own turn is dropped.
+FD-002 re-run (20261008-094420): 1 round, both sides `done`. The passenger advocate conceded the
+charge equals the quote, then challenged whether the 1.8x surge was justified and asked for the
+S$9.60 surge part. The driver answered with the heavy-rain banner. The Judge dismissed (correct,
+0.96) on that contested point. Prompt tokens fell 54.7k -> 42.1k (-23%).
