@@ -90,6 +90,7 @@ class FairnessIssueCode(str, Enum):
 
     # #6 the deciding fact cannot be verified from platform data
     DECISIVE_EVIDENCE_GAP = "decisive_evidence_gap"
+    SHORT_EVIDENCE_GAP = "short_evidence_gap"   # restored, short GPS outage: noted, not blocking
 
     # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
     FEE_BASIS_NOT_MET = "fee_basis_not_met"
@@ -220,9 +221,23 @@ def _fare_is_metered(context: dict) -> bool:
                for e in context.get("app_events") or [])
 
 
-def _location_evidence_gaps(context: dict) -> list[str]:
+# A GPS outage that was restored and covers less than this share of the trip leaves the route
+# before and after it verifiable, so it is reported but does not block the ruling (D25: ST-001
+# lost 6 of 49 minutes, after the detour in dispute had begun, and was escalated for it)
+SHORT_GPS_GAP_SHARE = 0.25
+
+
+def _is_short_gps_gap(finding: dict) -> bool:
+    share = (finding.get("value") or {}).get("share_of_trip")
+    return (finding.get("id") == "data_gaps.gps_signal_lost" and isinstance(share, (int, float))
+            and share < SHORT_GPS_GAP_SHARE)
+
+
+def _location_evidence_gaps(context: dict, short: bool = False) -> list[str]:
     """Collector gaps that leave the driver's location unverifiable, for dispute
-    types where that location decides the case. Empty list = nothing blocking."""
+    types where that location decides the case. Empty list = nothing blocking.
+    A short, restored GPS outage is not blocking (see SHORT_GPS_GAP_SHARE); short=True lists
+    those instead, for a note on the record."""
     dispute_type = getattr(context.get("type"), "value", context.get("type"))
     # A metered fare is decided by the route driven, so a GPS gap blocks it like a route
     # deviation; an upfront fare is fixed by the quote and is not (eval case FD-003)
@@ -236,7 +251,7 @@ def _location_evidence_gaps(context: dict) -> list[str]:
         return []
     gaps = []
     for f in context.get("findings") or []:
-        if not isinstance(f, dict) or f.get("kind") != "gap":
+        if not isinstance(f, dict) or f.get("kind") != "gap" or _is_short_gps_gap(f) != short:
             continue
         fid = f.get("id", "")
         missing = (f.get("value") or {}).get("missing") or []
@@ -671,6 +686,16 @@ class FairnessAgent:
                 recommended_action="Route to human review; the ruling would rest on one party's word.",
             )
             requires_human = True
+        short_gaps = _location_evidence_gaps(context, short=True)
+        if short_gaps and not gps_gaps:
+            add_issue(
+                FairnessIssueCode.SHORT_EVIDENCE_GAP,
+                "A short GPS outage was restored; the route before and after it can be checked: "
+                + " ".join(short_gaps),
+                severity="low",
+                refs=["collector.findings"],
+                recommended_action="Check that the ruling does not rest on where the driver was inside the gap.",
+            )
 
         # (i) the ruling keeps a fee whose basis the case data contradicts or does not meet
         for problem in _fee_basis_problems(context or {}, verdict_value,

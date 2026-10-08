@@ -451,13 +451,29 @@ def data_gaps(ctx) -> list[Finding]:
             statement=f"Missing platform data: {', '.join(missing)}.",
             value={"missing": missing}, sources=["data_completeness"],
         ))
+    restores = [(j, _ts(r.get("timestamp"))) for j, r in _events(ctx, "gps_signal_restored")]
+    trip = ctx.trip or {}
+    start, end = _ts(trip.get("pickup_time")), _ts(trip.get("dropoff_time"))
+    trip_min = _minutes(start, end) if start and end and end > start else None
     for i, e in _events(ctx, "gps_signal_lost"):
-        out.append(Finding(
-            id="data_gaps.gps_signal_lost", tool="data_gaps", kind="gap",
-            statement=f"Driver GPS stopped reporting at {e.get('timestamp')}; "
-                      "location after that point cannot be verified.",
-            value={"at": e.get("timestamp")}, sources=[f"app_events[{i}]"],
-        ))
+        lost = _ts(e.get("timestamp"))
+        back = next(((j, at) for j, at in restores if lost and at and at > lost), None)
+        value = {"at": e.get("timestamp")}
+        sources = [f"app_events[{i}]"]
+        if back:
+            # A restored signal bounds the gap: the route before and after it can be checked (D25)
+            mins = _minutes(lost, back[1])
+            value.update({"restored_at": back[1].isoformat(), "minutes": mins,
+                          "share_of_trip": round(mins / trip_min, 2) if trip_min else None})
+            sources.append(f"app_events[{back[0]}]")
+            statement = (f"Driver GPS stopped reporting from {e.get('timestamp')} until {_hhmm(back[1])} "
+                         f"({mins} min" + (f" of a {trip_min:g} min trip" if trip_min else "")
+                         + "); location in that window cannot be verified.")
+        else:
+            statement = (f"Driver GPS stopped reporting at {e.get('timestamp')}; "
+                         "location after that point cannot be verified.")
+        out.append(Finding(id="data_gaps.gps_signal_lost", tool="data_gaps", kind="gap",
+                           statement=statement, value=value, sources=sources))
     return out
 
 

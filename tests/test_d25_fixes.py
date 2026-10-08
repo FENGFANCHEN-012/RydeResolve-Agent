@@ -169,3 +169,48 @@ async def test_open_issues_need_rulings():
     llm = SequenceLLM(good)
     await ArbitrationAgent(llm_client=llm).arbitrate(**inputs)
     assert len(llm.calls) == 1
+
+
+# ---------------------------------------------------------------- GPS gap length
+
+from src.agents.fairness import _location_evidence_gaps  # noqa: E402
+
+
+def gap_ctx(lost: str, restored: str | None) -> DisputeContext:
+    events = [{"timestamp": lost, "event_type": "gps_signal_lost"}]
+    if restored:
+        events.append({"timestamp": restored, "event_type": "gps_signal_restored"})
+    return DisputeContext(dispute_id="T", type=DisputeType.ROUTE_DEVIATION, reporter="passenger", order_id="O",
+                          description="x", app_events=events,
+                          trip={"pickup_time": "2026-10-02T23:31:00+08:00", "dropoff_time": "2026-10-03T00:20:00+08:00"})
+
+
+def test_restored_gps_gap_states_its_length():
+    [f] = collector_tools.data_gaps(gap_ctx("2026-10-02T23:44:00+08:00", "2026-10-02T23:50:00+08:00"))
+    assert f.value["minutes"] == 6.0 and f.value["share_of_trip"] == 0.12
+    assert "until 23:50 (6.0 min of a 49 min trip)" in f.statement
+    [f] = collector_tools.data_gaps(gap_ctx("2026-10-02T23:44:00+08:00", None))
+    assert "restored_at" not in f.value and "after that point" in f.statement
+
+
+def fairness_ctx(ctx):
+    return {"type": "route_deviation", "findings": [f.model_dump() for f in collector_tools.data_gaps(ctx)]}
+
+
+def test_short_restored_gap_is_not_decisive_but_a_long_or_open_one_is():
+    short = fairness_ctx(gap_ctx("2026-10-02T23:44:00+08:00", "2026-10-02T23:50:00+08:00"))
+    assert _location_evidence_gaps(short) == [] and _location_evidence_gaps(short, short=True)
+    long = fairness_ctx(gap_ctx("2026-10-02T23:44:00+08:00", "2026-10-03T00:00:00+08:00"))  # 16 of 49 min
+    assert _location_evidence_gaps(long) and _location_evidence_gaps(long, short=True) == []
+    assert _location_evidence_gaps(fairness_ctx(gap_ctx("2026-10-02T23:44:00+08:00", None)))
+
+
+# ---------------------------------------------------------------- who a rule binds
+
+def test_brief_says_who_a_rule_binds():
+    from src.agents.case_brief import render_case_brief
+    brief = {"dispute_type": "route_deviation", "case_rules": {"platform_policy.stops_must_be_added_in_app": True},
+             "rule_binds": {"platform_policy.stops_must_be_added_in_app": "rider"}}
+    text = render_case_brief({"case_brief": brief})
+    assert "stops_must_be_added_in_app = True (binds: rider)" in text
+    assert "do not assume it binds the driver" in text
