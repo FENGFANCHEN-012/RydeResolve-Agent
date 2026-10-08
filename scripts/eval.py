@@ -41,6 +41,9 @@ from src.core import llm_client as llm_module  # noqa: E402
 
 # A fallback provider would put a second model's answers into the run; fail instead
 llm_module.LLM_FALLBACK_PROVIDERS = []
+# The shared singleton was built at import time with the .env fallbacks; the research step and the
+# Safety agent call it (D23/D24), so clear its chain too or they silently fall back to another model
+llm_module.llm_client._fallback_names = []
 from src.core.policy_refs import case_policy_refs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent

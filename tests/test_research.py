@@ -191,3 +191,23 @@ async def test_extra_round_only_if_previous_round_added_evidence(monkeypatch):
     history, _ = await engine.debate_with_context(make_context(), max_rounds=3)
     # Round 1 always runs; round 2 does not, since round 1 found nothing new
     assert [h["round"] for h in history] == [0, 0, 0, 1, 1]
+
+
+@pytest.mark.asyncio
+async def test_step3b_self_concession_dropped_and_both_done_stops(monkeypatch):
+    monkeypatch.setattr("src.core.debate.ADVOCATE_RESEARCH", False)
+    import json as _j
+    p = _j.dumps({"moves": [{"type": "concede", "target": "D1", "text": "own", "cites": ["E1"]},
+                            {"type": "claim", "target": "", "text": "x", "cites": ["E1"]}], "done": True})
+    d = _j.dumps({"moves": [{"type": "claim", "target": "", "text": "y", "cites": ["E1"]}], "done": True})
+    engine = object.__new__(DebateEngine)
+    engine.max_rounds = 1
+    engine.passenger_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "p"}),
+                                             rebut=AsyncMock(return_value=p))
+    engine.driver_agent = SimpleNamespace(analyze=AsyncMock(return_value={"reasoning": "d"}),
+                                          rebut=AsyncMock(return_value=d))
+    engine.policy_agent = SimpleNamespace(evaluate_compliance=AsyncMock(return_value={}),
+                                          _get_retriever=lambda: None)
+    history, _ = await engine.debate_with_context(make_context(), max_rounds=3)
+    assert [m["type"] for m in history[3]["moves"]] == ["claim"]     # D1 is the passenger's own turn
+    assert max(h["round"] for h in history) == 1                    # both done: no second round

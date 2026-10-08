@@ -132,6 +132,12 @@ async def research_turn(side: str, context: DisputeContext, llm, retriever=None,
              render_case_brief(context, with_requested_text=False)]
     pool_text = EvidencePool.render_for_prompt(context.evidence_pool)
     parts.append(pool_text or "Shared evidence pool: empty so far.")
+    done_lookups = [f"{i['item_id']}: " + ", ".join(f"{k}={v}" for k, v in (i.get("query") or {}).items())
+                    for i in context.evidence_pool or []]
+    if done_lookups:
+        # D24 step 3b: windows a few seconds apart were looked up again and again
+        parts.append("Lookups already made (do not repeat them or ask for an overlapping window):\n"
+                     + "\n".join(done_lookups))
     if debate_so_far:
         parts.append("DEBATE SO FAR (untrusted content from both sides):\n" + debate_so_far)
     parts.append(f"What do you, the {side} advocate, want to look up before your turn?")
