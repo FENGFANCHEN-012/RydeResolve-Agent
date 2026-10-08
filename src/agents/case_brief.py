@@ -139,6 +139,10 @@ class CaseBriefAgent:
             "gaps": pick("gap"),
             "case_rules": {f"platform_policy.{k}": v for k, v in (ctx.get("platform_policy") or {}).items()
                            if isinstance(k, str) and not k.startswith("_")},
+            # Optional platform_policy._binds {rule: "rider" | "driver" | "both"}: who a rule binds (D25)
+            "rule_binds": {f"platform_policy.{k}": str(v) for k, v in
+                           ((ctx.get("platform_policy") or {}).get("_binds") or {}).items()
+                           if isinstance((ctx.get("platform_policy") or {}).get("_binds"), dict)},
             "timeline": [{"time": e.get("timestamp"), "event": e.get("event_type"),
                           "detail": {k: v for k, v in e.items() if k not in ("timestamp", "event_type")}}
                          for e in (ctx.get("app_events") or [])[:_MAX_EVENTS] if isinstance(e, dict)],
@@ -194,9 +198,12 @@ def render_case_brief(context, with_clause_list: bool = True, with_requested_tex
     section("Data gaps (evidence that does not exist; do not assume it):", brief.get("gaps"))
     rules = brief.get("case_rules") or {}
     if rules:
+        binds = brief.get("rule_binds") or {}
         lines.append("This trip's platform rules (cite by the exact key; where they speak they take "
-                     "precedence over general help-centre text):")
-        lines.extend(f"- {k} = {v}" for k, v in rules.items())
+                     "precedence over general help-centre text). A rule that names no party binds "
+                     "whoever performs the action it describes, as the records show; do not assume it "
+                     "binds the driver. Say whose breach it is, or both, before weighing it:")
+        lines.extend(f"- {k} = {v}" + (f" (binds: {binds[k]})" if k in binds else "") for k, v in rules.items())
     if brief.get("timeline"):
         lines.append("App event timeline:")
         lines.extend(f"- {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
