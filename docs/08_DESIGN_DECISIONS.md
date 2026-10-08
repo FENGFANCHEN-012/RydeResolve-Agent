@@ -1114,3 +1114,36 @@ reconsideration, the second audit raised the same inconsistency, and the case we
 instead of executing. 31.6k prompt tokens (24.6k without the remand). The ruling itself is still
 wrong (it again calls the closure verified although the detour began before the alert); D27 makes
 that error reach a person, it does not fix the Judge's reasoning.
+
+## D28. Before and after the D23-D27 architecture (2026-10-08)
+
+"Before" is tag `eval-baseline-d22` (d52fdb7, the last main before evidence pools); "after" is
+the versions measured since. Only the same cases on both sides are compared.
+
+**Accuracy (matched cases).** Step 4: 21/21 vs D20 20/21. Step 3b: 14/16 vs 15/16. Together
+35/37 vs 35/37; the one gained (NS-002-B1) fails 1 run in 4 anyway, and the one lost (RD-002-I3)
+is fixed in D25. D25 on 4 simple cases: 4/4 vs 4/4. Escalation 36/37 vs 35/37. Valid citations
+100% before; 97% in step 4 (68/70), 100% since. No accuracy gain is shown; the latest version
+has not run the full set.
+
+**Tokens per case (prompt / completion / calls).** D20 21.9k / 5.5k / 7.7. Step 4 40.3k /
+11.9k / 12.1. Step 3b 34.1k / 10.4k / 10.6. D25 simple cases 21.9k / 6.5k / 7.0 (back to D20).
+Complex cases still run research (about +50-75%); at the 3b mix (6 of 16 complex) the estimate is
++20-30% overall, not yet measured.
+
+**Rigor: the stress cases on the old version** (run 20261008-174425-baseline-d22):
+
+| | Before (d52fdb7) | After (D25-D27) |
+|---|---|---|
+| ST-001 timing | "the traffic incident alert confirms a road closure": the detour began 3 min before it, unnoticed | Judge rules the detour began before the alert (I1), citing `route_timing` |
+| ST-001 money vs conduct | conduct breach listed as grounds; label partially_upheld with no refund | `fare_finding` and refund checked for agreement |
+| ST-001 threat | whole case escalated (threat high) | Safety tier verbal_abuse: protective actions, money ruled, review after |
+| ST-001 outcome | escalated (GPS gap + threat) | escalated (D25b: inconsistency caught by Fairness) |
+| ST-002 outcome | **S$17.50 refunded and executed**: "because the driver violated a core policy, Ryde may exercise refund_at_ryde_discretion" - the conduct-into-money error, passed by Fairness ("proceed") | wrong dismissal sent back once (D27), then to a person; not executed |
+| Tokens ST-001 / ST-002 | 24.4k / 24.5k | 54.0k / 31.6k |
+
+Neither version gets the stress cases right: the verdicts are wrong on both sides. The difference
+is what happens to a wrong ruling. Before, a ruling that turned a conduct breach into a refund
+was executed with Fairness's approval; after, the money/conduct check, the issue rulings and the
+inconsistency remand make the same kind of error reach a person, at about 1.3-2.2x the tokens on
+these two cases.
