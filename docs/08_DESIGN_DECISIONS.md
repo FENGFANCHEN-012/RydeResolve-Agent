@@ -996,3 +996,49 @@ NS-002-I1, which was still correct.
 Against the rollback rule: verdict drops by one case (allowed), P0 recall stays 1.0, escalation
 stays at 0.94. Step 3b passes, at the limit. It does not improve accuracy on these cases, and
 costs much more.
+
+## D25. Judge checks, route timing, research only where it pays (2026-10-08)
+
+Branch `feature/judge-and-cost-fixes` (e32893d), from D24 step 3b. Four changes, each from a
+failure seen in run 20261008-113816-s3b or in stress case ST-001 (run 20261008-130700-stress):
+1. **Money apart from conduct.** The Judge returns `fare_finding` (charge_correct / overcharged /
+   no_money_at_stake). Code checks it against the refund: charge_correct with a refund, or
+   overcharged with none, is a contradiction. RD-002-I3 and ST-001 both found the charge owed and
+   then refunded it for the driver's conduct.
+2. **A ruling on every contested issue.** Open challenges after the debate are numbered I1, I2...;
+   the Judge must rule on each in `issue_rulings`. A contradiction or a missing ruling sends the
+   ruling back to the Judge once with the problems listed (remand); still wrong after that, it goes
+   to a person. The decision records `remanded_for`. A second call is spent only when a check fails.
+3. **Route timing as a computed fact.** Collector tool `route_timing` states when the driver first
+   raised a route change in chat and when the route was recalculated, against the first traffic
+   incident alert. In ST-001 the driver advocate said the detour followed the closure alert; it
+   came 4.2 min before it, and neither the Judge nor anyone else checked.
+4. **Advocate research only on complex or dangerous cases** (`triage.advocate_research`). The
+   rule-based seed lookups still run everywhere.
+*Rejected:* an LLM orchestrator choosing the next agent (worktree RydeResolve-llm-orch): the
+fixed graph already routes on code signals, and a model choosing the route makes runs harder to
+compare and to audit.
+
+Case test (run 20261008-151546-d25, `VERSION.txt` in the folder), one run each:
+
+| Case | Triage | Step 3b | D25 | Prompt tokens 3b -> D25 (D20) |
+|---|---|---|---|---|
+| NS-004 | simple | correct | correct | 37.4k -> 21.1k (22.6k) |
+| RD-002 | simple | correct | correct | 34.1k -> 22.0k (22.7k) |
+| RD-002-I3 | simple | wrong (S$3.10 refunded) | correct | 35.7k -> 23.3k (23.2k) |
+| SQ-002 | simple | correct | correct | 36.4k -> 21.3k (22.5k) |
+| ST-001 | complex, dangerous | escalated, Judge: full refund | escalated, Judge: full refund | 47.2k -> 70.1k |
+
+Simple cases are back to D20 cost (11 -> 7 LLM calls). RD-002-I3 was right on the first pass,
+citing `route_timing.vs_incident_alert` and ruling on both open issues; no remand fired on any of
+the five, so the remand path is covered by unit tests only so far. One run does not show the
+RD-002-I3 fix is stable.
+
+ST-001 is better reasoned but still not right. The Judge now rules that the detour began before
+the closure alert (I1), and its money finding and refund agree (overcharged, S$37.40). It still
+counts the rider's unrecorded 7-Eleven stop as the driver's breach, so the rider's own extra
+distance is refunded too; the expected outcome is a partial refund. Fairness escalated it on a
+"decisive" GPS gap (23:44-23:50) that begins after the detour it would have to explain. ST-001 ran
+two debate rounds this time (one before), hence the higher cost. Still to do: say in the platform
+rules which party each obligation binds, and relate a GPS gap to the time in dispute before
+calling it decisive.
