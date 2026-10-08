@@ -1147,3 +1147,30 @@ is what happens to a wrong ruling. Before, a ruling that turned a conduct breach
 was executed with Fairness's approval; after, the money/conduct check, the issue rulings and the
 inconsistency remand make the same kind of error reach a person, at about 1.3-2.2x the tokens on
 these two cases.
+
+## D29. Structured Judge: causes of the extra charge, refund computed by code (2026-10-08, experimental)
+
+Branch `experiment/structured-judge` (from D28). On a charge above the quote the Judge returns
+`charge_causes` (cause, party driver / rider / external / platform, share, cites); code checks
+the list (parties valid, shares add to 1, every cause cited; otherwise one remand) and sets the
+refund to the excess times the driver + platform share. The prompt adds: a rule that switches
+the fare basis (a metered fallback) does not decide whose cause the extra distance was.
+
+Run 20261008-211749-d29 (COMPLEXITY_HINT=0), one run each:
+- RD-002, SQ-002: correct, ~22k tokens as before.
+- RD-002-I3: correct, and this is the first evidence the structure catches the Judge: it wrote
+  refund S$3.10 again (the D24 error), but listed the only cause as the verified closure
+  (external, 100%), so code set the refund to S$0.
+- ST-001: one cause, named "driver", 100%: S$37.40. The list did not split the rider's stop from
+  the driver's early detour, so the structure added nothing; the rationale still said "no refund
+  is owed", contradicting the computed amount. Fairness flagged it, remand, same answer, person.
+  90k prompt tokens (2 rounds + remand).
+- ST-002: not a valid result. Cerebras returned 429 "queue exceeded" on both rebuttals and on
+  the Judge; the Fairness remand then produced the ruling (S$8.75: "metered fallback" as a
+  platform cause 50%, "verified closure" external 50%). The amount lands in the expected range
+  for the wrong reasons. To be re-run.
+
+Two weaknesses seen: (1) when the causes imply a different amount from the one the Judge stated,
+code overrides it silently and the rationale argues the opposite of the result; that mismatch
+should be sent back to the Judge instead. (2) "platform" was used for a rule working as
+designed; it must mean an app or pricing malfunction only.
