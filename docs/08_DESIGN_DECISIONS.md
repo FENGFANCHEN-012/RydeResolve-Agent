@@ -1042,3 +1042,21 @@ distance is refunded too; the expected outcome is a partial refund. Fairness esc
 two debate rounds this time (one before), hence the higher cost. Still to do: say in the platform
 rules which party each obligation binds, and relate a GPS gap to the time in dispute before
 calling it decisive.
+
+**D25b (475f99a): who a rule binds, short GPS gaps.** The brief now says that a platform rule
+naming no party binds whoever performs the action, as the records show, and data may state it
+(`platform_policy._binds`). A restored GPS outage under 25% of the trip is a low "short evidence
+gap" note instead of a decisive gap. Run 20261008-161005-d25b, one run each:
+- FD-003 (13 of 35 min lost, 37%): still a decisive gap, escalated as expected.
+- ST-001 (6 of 49 min): the gap is now only a note. The Judge swung the other way: charge
+  correct, no refund (money and conduct now kept apart, the warning stands for the insult). The
+  Policy agent and the Judge still called the unrecorded 7-Eleven stop the driver's breach,
+  although the new instruction was in their prompts, so the instruction alone does not fix it.
+  The Judge also let the 40% metered fallback stand on a detour it had itself found began before
+  the closure alert. Fairness's LLM audit caught that ("cites detour_for_verified_road_closure_
+  billable, then says verification is not required") and the case went to a person, so the
+  safety net held. Tokens 54k (13 calls).
+Across three runs the Judge's refund on ST-001 went S$37.40, S$37.40, S$0: the case sits on
+judgement calls the platform rules do not settle (who causes a metered fallback that a rider's
+stop and a driver's early detour both pushed past 40%). It is kept as a stress case that must
+reach a person, not tuned further: more prompt rules for one hand-written case would overfit it.
