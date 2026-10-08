@@ -41,6 +41,7 @@ class Decision(BaseModel):
     fare_finding: str | None = None   # was the money charged owed? (D25)
     issue_rulings: list[dict] = []    # one ruling per contested issue I# from the debate (D25)
     remanded_for: list[str] = []      # problems the code checks sent back to the Judge once (D25)
+    charge_causes: list[dict] = []    # causes of a charge above the quote, by party and share (D29)
 
 
 # Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
@@ -86,7 +87,7 @@ def label_from_asks(parsed: dict) -> dict:
 FARE_FINDINGS = {"charge_correct", "overcharged", "no_money_at_stake"}
 
 
-def ruling_problems(parsed: dict, open_issues: list[str]) -> list[str]:
+def ruling_problems(parsed: dict, open_issues: list[str], excess: float | None = None) -> list[str]:
     """Contradictions and omissions in a ruling that code can see. Each one is sent back to the
     Judge once (remand); one still there after that sends the case to a person.
 
@@ -120,7 +121,80 @@ def ruling_problems(parsed: dict, open_issues: list[str]) -> list[str]:
         if missing:
             problems.append(f"No ruling on contested issue(s) {', '.join(missing)}. For each, say which "
                             "side the records support, citing the fact ids or E# items.")
+    if excess:
+        problems.extend(cause_problems(parsed.get("charge_causes")))
     return problems
+
+
+# ---------------------------------------------------------------- charge causes (D29)
+# On a charge above the quote the Judge lists what caused the extra amount and whose cause each
+# one is; code computes the refund. On ST-001/ST-002 the Judge set the amount in one step and
+# never asked what pushed the route past the metered-fallback threshold (D26, D28).
+CAUSE_PARTIES = ("driver", "rider", "external", "platform")
+REFUNDED_PARTIES = ("driver", "platform")   # the rider does not pay for these causes
+_SHARE_TOLERANCE = 0.05
+_MONEY_ASK = ("refund", "fare", "charge", "difference", "money", "$", "pay")
+
+
+def fare_excess(context) -> float | None:
+    """The amount charged above the quote, from platform data; None when the dispute is about a
+    fee or the data names no excess (the causes list is then not asked for)."""
+    from src.agents.case_brief import _finding_values
+    fee = _finding_values(context, "fee_check.charged")
+    if fee and fee.get("fee"):
+        return None
+    fare = _finding_values(context, "fare_check.quoted_vs_charged")
+    if fare and (fare.get("difference") or 0) > 0:
+        return round(float(fare["difference"]), 2)
+    return None
+
+
+def cause_problems(causes) -> list[str]:
+    """What is wrong with a charge_causes list, as remand text; [] when it can be used."""
+    need = ("List charge_causes: each cause of the extra amount, the party whose action or choice "
+            "caused it (driver, rider, external, platform), its share of the extra amount, and the "
+            "ids that show it. Shares add up to 1.")
+    if not isinstance(causes, list) or not causes:
+        return [need]
+    problems = []
+    if any(not isinstance(c, dict) or c.get("party") not in CAUSE_PARTIES for c in causes):
+        problems.append(f"Every cause needs a party from {list(CAUSE_PARTIES)}.")
+    try:
+        total = sum(float(c.get("share")) for c in causes if isinstance(c, dict))
+    except (TypeError, ValueError):
+        total = -1.0
+    if abs(total - 1.0) > _SHARE_TOLERANCE:
+        problems.append(f"The shares in charge_causes add up to {total:.2f}, not 1.")
+    if any(isinstance(c, dict) and not c.get("cites") for c in causes):
+        problems.append("Every cause in charge_causes must cite the fact ids, E# items or records that show it.")
+    return problems
+
+
+def apply_causes(parsed: dict, excess: float | None) -> dict:
+    """Set the refund from a valid charge_causes list: the excess times the share of the causes
+    the rider does not pay for. The money asks and fare_finding follow the computed amount.
+    An invalid or missing list leaves the ruling as it is (the checks send it back)."""
+    causes = parsed.get("charge_causes")
+    if not excess or cause_problems(causes):
+        return parsed
+    share = sum(float(c["share"]) for c in causes if c["party"] in REFUNDED_PARTIES)
+    share = max(0.0, min(1.0, share / sum(float(c["share"]) for c in causes)))
+    refund = round(excess * share, 2)
+    stated = parsed.get("refund_amount")
+    parsed["refund_amount"] = refund
+    parsed["fare_finding"] = "overcharged" if refund > 0 else "charge_correct"
+    for ask in parsed.get("asks") or []:
+        if isinstance(ask, dict) and any(w in str(ask.get("ask", "")).lower() for w in _MONEY_ASK):
+            # Only a contradiction is corrected: the filer may have asked for more than the excess
+            if refund > 0 and ask.get("outcome") == "denied":
+                ask["outcome"] = "partly"
+            elif refund == 0 and ask.get("outcome") in ("granted", "partly"):
+                ask["outcome"] = "denied"
+    parsed["rationale"] = ((parsed.get("rationale") or "")
+                           + f" [Refund computed from charge_causes: {share:.0%} of the S${excess:.2f} excess"
+                           f" is driver or platform caused = S${refund:.2f}"
+                           + (f"; the Judge had stated {stated}" if stated not in (None, refund) else "") + ".]")
+    return parsed
 
 
 def align_verdict_label(parsed: dict, context: dict | None) -> dict:
@@ -255,6 +329,15 @@ class ArbitrationAgent:
             "no charge is disputed. A conduct breach (rudeness, a threat, a rule broken that did not "
             "change what was owed) is answered with driver_penalty or other action. It never changes "
             "refund_amount, and a discretion clause does not turn it into a refund.\n"
+            "- If the charge is above the quoted fare (the case brief's fare_check fact), list in "
+            "charge_causes every cause of the extra amount and whose cause it is: \"driver\" (the "
+            "driver's own choice or error), \"rider\" (something the rider asked for or did), "
+            "\"external\" (a cause outside both parties that this trip's rules make billable, e.g. a "
+            "road closure verified BEFORE the detour began), \"platform\" (an app or pricing error). "
+            "Give each cause its share of the extra amount (shares add up to 1) and the ids that "
+            "show it. A rule that switches the fare basis (e.g. a metered fallback) does not decide "
+            "whose cause the extra distance was. Code computes the refund from these: the driver and "
+            "platform shares are refunded, so set refund_amount to match.\n"
             "- If ISSUES AFTER THE DEBATE lists contested issues (I1, I2, ...), rule on every one in "
             "issue_rulings: which side the records support and why, citing fact ids or E# items. "
             "Check each advocate's account of times and order of events against the records.\n\n"
@@ -265,6 +348,9 @@ class ArbitrationAgent:
             "  \"fare_finding\": \"charge_correct\" | \"overcharged\" | \"no_money_at_stake\",\n"
             "  \"issue_rulings\": list of {\"issue\": \"I#\", \"ruling\": string, \"cites\": list of ids} "
             "([] when no issue is contested),\n"
+            "  \"charge_causes\": list of {\"cause\": string, \"party\": \"driver\" | \"rider\" | "
+            "\"external\" | \"platform\", \"share\": float, \"cites\": list of ids} ([] when the "
+            "charge is not above the quote),\n"
             "  \"verdict\": string (one of: \"upheld\", \"partially_upheld\", \"dismissed\"),\n"
             "  \"confidence\": float (0.0-1.0),\n"
             "  \"refund_amount\": float | null (refund in SGD, or null if none),\n"
@@ -500,7 +586,10 @@ class ArbitrationAgent:
         # Code checks; a ruling that fails one goes back to the Judge once (remand, D25)
         from src.core.moves import issue_summary
         open_issues = [c["id"] for c in issue_summary(debate_history or [])["contested"] if c.get("id")]
-        remanded_for = ruling_problems(parsed, open_issues)
+        # On a charge above the quote, the refund is computed from the causes (D29)
+        excess = fare_excess(context)
+        parsed = apply_causes(parsed, excess)
+        remanded_for = ruling_problems(parsed, open_issues, excess)
         if remanded_for:
             remand = ("Your ruling has these problems:\n" + "\n".join(f"- {p}" for p in remanded_for)
                       + "\nReturn the complete corrected JSON object with the same keys.")
@@ -519,8 +608,8 @@ class ArbitrationAgent:
                 logger.warning("ArbitrationAgent remand call failed: %s", exc)
                 parsed2 = None
             if parsed2 is not None:
-                parsed = parsed2
-            still = ruling_problems(parsed, open_issues)
+                parsed = apply_causes(parsed2, excess)
+            still = ruling_problems(parsed, open_issues, excess)
             if still:
                 parsed["human_review_needed"] = True
                 parsed["rationale"] = ((parsed.get("rationale") or "")
@@ -566,6 +655,7 @@ class ArbitrationAgent:
             fare_finding=parsed.get("fare_finding") if parsed.get("fare_finding") in FARE_FINDINGS else None,
             issue_rulings=[r for r in parsed.get("issue_rulings") or [] if isinstance(r, dict)],
             remanded_for=remanded_for,
+            charge_causes=[c for c in parsed.get("charge_causes") or [] if isinstance(c, dict)],
         )
 
         # Enforce threshold overrides (belt-and-suspenders)
