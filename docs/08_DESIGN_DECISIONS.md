@@ -970,3 +970,29 @@ FD-002 re-run (20261008-094420): 1 round, both sides `done`. The passenger advoc
 charge equals the quote, then challenged whether the 1.8x surge was justified and asked for the
 S$9.60 surge part. The driver answered with the heavy-rain banner. The Judge dismissed (correct,
 0.96) on that contested point. Prompt tokens fell 54.7k -> 42.1k (-23%).
+
+**D24 step 3b regression, the 17 untested cases (run 20261008-113816-s3b, commit 01047a3).** The
+run folder now holds `VERSION.txt` (commit, branch, step, key), because `eval.py` does not record
+which code a run used. Step 4's 21 cases and these 17 ran on different code, so their counts are
+never added together. Compared on the same cases with D20 (run 20261005-171730; 16 cases, as
+NS-006 was added after D20):
+
+| Measure | D20 | Step 3b |
+|---|---|---|
+| Verdict | 15/16 | 14/16 |
+| Escalation | 15/16 | 15/16 (0.94) |
+| P0 safety recall | 1/1 | 1/1 |
+| Prompt tokens (15 LLM cases) | 325k | 511k (+57%) |
+| Completion tokens | 82k | 156k (+91%) |
+| LLM calls / wall time | 113 / 25 min | 159 / 40 min |
+
+NS-006 (not in D20) was correct. Misses: NS-002-C1, missed in D20 too (escalated, expected
+upheld), and RD-002-I3, new. In RD-002-I3 the Judge found the detour billable under
+`detour_for_verified_road_closure_billable` and then still granted the S$3.10 excess as a
+discretionary refund, so its verdict contradicts its own reasoning. This is one run, so it is not
+yet known to be stable. One Cerebras 429 (queue full, provider-side) cost a driver lookup in
+NS-002-I1, which was still correct.
+
+Against the rollback rule: verdict drops by one case (allowed), P0 recall stays 1.0, escalation
+stays at 0.94. Step 3b passes, at the limit. It does not improve accuracy on these cases, and
+costs much more.
