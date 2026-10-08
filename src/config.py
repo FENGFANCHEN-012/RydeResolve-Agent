@@ -102,6 +102,9 @@ MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
 # Before each turn an advocate may look up more records and policy topics (D23, src/agents/research.py).
 # ADVOCATE_RESEARCH=0 turns the step off (A/B runs); the rule-based seed lookups still run.
 ADVOCATE_RESEARCH = os.getenv("ADVOCATE_RESEARCH", "1").strip().lower() not in ("0", "false", "no", "off")
+# LLM second opinion on cases code triage calls simple and safe; it can only raise them (D26).
+# COMPLEXITY_HINT=0 turns it off (A/B runs).
+COMPLEXITY_HINT = os.getenv("COMPLEXITY_HINT", "1").strip().lower() not in ("0", "false", "no", "off")
 # Reasoning effort for the Safety agent's LLM call (D24); the more careful the better here
 SAFETY_REASONING_EFFORT = os.getenv("SAFETY_REASONING_EFFORT", "high").strip().lower()
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))

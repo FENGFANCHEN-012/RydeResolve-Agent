@@ -63,8 +63,10 @@ from src.agents.executor import (
 )
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
-from src.core.triage import triage
+from src.config import COMPLEXITY_HINT
+from src.core.triage import apply_hint, needs_hint, triage
 from src.agents.safety import SafetyAgent
+from src.agents.complexity import ComplexityAgent
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
@@ -172,6 +174,7 @@ def build_dispute_graph(
     case_brief: CaseBriefAgent | None = None,
     fraud_agent: FraudAgent | None = None,
     safety_agent: SafetyAgent | None = None,
+    complexity_agent: ComplexityAgent | None = None,
 ):
     """Compile and return the dispute-resolution LangGraph.
 
@@ -187,6 +190,7 @@ def build_dispute_graph(
     case_brief = case_brief or CaseBriefAgent()
     fraud_agent = fraud_agent or FraudAgent()
     safety_agent = safety_agent or SafetyAgent()
+    complexity_agent = complexity_agent or ComplexityAgent()
 
     def judge_context(state: DisputeWorkflowState) -> dict:
         """The context the Judge and Fairness read: a MEDIUM / HIGH fraud report is added here,
@@ -280,6 +284,14 @@ def build_dispute_graph(
             }) as s:
                 grade = triage(state["context"], state.get("classification"), state.get("fraud_report"))
                 s["output"] = grade
+            if COMPLEXITY_HINT and needs_hint(grade):
+                # D26: an LLM second opinion on a simple, safe case; it can only raise the grade
+                async with step("Triage", "LLM complexity hint (simple cases only)", {
+                    "sees": ["complaint", "case brief", "chat log"], "code_grade": grade["complexity"],
+                }) as s:
+                    hint = await complexity_agent.hint(state["context"])
+                    grade = apply_hint(grade, hint)
+                    s["output"] = {"hint": hint, "grade": grade}
             # Clauses the advocates requested join the shared brief the Judge reads (D14)
             history, context = await debate_engine.debate_with_context(
                 state["context"], max_rounds=grade["max_rounds"],

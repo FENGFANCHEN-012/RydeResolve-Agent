@@ -60,6 +60,23 @@ def triage(context, classification=None, fraud_report: dict | None = None) -> di
     if report.get("safety_alerts"):
         danger_reasons.append(f"{len(report['safety_alerts'])} safety alert(s) in the chat")
 
+    return _grade(complex_reasons, danger_reasons)
+
+
+def needs_hint(grade: dict) -> bool:
+    """Only a simple, safe case can be raised by the LLM hint (D26)."""
+    return grade.get("complexity") == "simple" and grade.get("risk") == "safe"
+
+
+def apply_hint(grade: dict, hint: dict | None) -> dict:
+    """Raise a simple case to complex when the LLM hint names a reason. Never lowers a grade."""
+    if not hint or hint.get("level") != "complex" or not needs_hint(grade):
+        return grade
+    reason = f"LLM hint ({hint.get('kind')}): {hint.get('reason')}"
+    return {**_grade([reason], []), "raised_by_hint": True}
+
+
+def _grade(complex_reasons: list[str], danger_reasons: list[str]) -> dict:
     complexity = "complex" if complex_reasons else "simple"
     risk = "dangerous" if danger_reasons else "safe"
     return {

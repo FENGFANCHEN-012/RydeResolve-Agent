@@ -273,10 +273,18 @@ class StubSafety:
         return self.result
 
 
+class StubComplexity:
+    """D26 complexity hint stand-in: no LLM in unit tests; never raises the grade."""
+
+    async def hint(self, context):
+        return {"level": "simple", "kind": None, "reason": ""}
+
+
 def build_graph(collector=None, classifier=None, debate=None, arbitrator=None,
                 fairness=None, executor=None, case_brief=None, safety=None):
     return build_dispute_graph(
         safety_agent=safety or StubSafety(),
+        complexity_agent=StubComplexity(),
         case_brief=case_brief or StubCaseBrief(),
         collector=collector or StubCollector(),
         classifier=classifier or StubClassifier(),
