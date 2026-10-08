@@ -213,8 +213,9 @@ class StubArbitrator:
         self.calls = 0
 
     async def arbitrate(self, context, passenger_analysis, driver_analysis,
-                        policy_evaluation, debate_history):
+                        policy_evaluation, debate_history, **kwargs):
         self.calls += 1
+        self.last_kwargs = kwargs
         if self.raise_error:
             raise RuntimeError("arbitrator boom")
         return self.decision
@@ -693,3 +694,46 @@ class TestSafetyNode:
             debate=debate, safety=safety)
         final = await graph.ainvoke(initial_state())
         assert safety.calls == 1 and debate.calls == 0 and final["status"] == STATUS_ESCALATED
+
+
+class SequenceFairness(StubFairness):
+    """Returns the given assessments in order (the last one repeats)."""
+
+    def __init__(self, *assessments):
+        super().__init__(assessment=assessments[0])
+        self.assessments = list(assessments)
+
+    async def assess(self, input_payload):
+        self.calls += 1
+        return self.assessments[min(self.calls, len(self.assessments)) - 1]
+
+
+def inconsistent_fairness():
+    from src.agents.fairness import FairnessIssueCode, FairnessIssueDetail
+    return make_fairness(
+        recommendation=FairnessRecommendation.AMEND_RECOMMENDED, fairness_passed=False,
+        issues=[FairnessIssueDetail(code=FairnessIssueCode.INTERNAL_INCONSISTENCY, severity="medium",
+                                    description="Policy check marks the driver non-compliant, yet the verdict dismisses.",
+                                    evidence_refs=[], recommended_action="")])
+
+
+class TestFairnessRemand:
+    """D27: an inconsistent ruling goes back to the Judge once, then to a person."""
+
+    @pytest.mark.asyncio
+    async def test_inconsistent_ruling_is_reconsidered_then_executes_when_clean(self):
+        arbitrator, executor = StubArbitrator(), StubExecutor()
+        fairness = SequenceFairness(inconsistent_fairness(), make_fairness())
+        final = await build_graph(arbitrator=arbitrator, fairness=fairness, executor=executor).ainvoke(initial_state())
+        assert arbitrator.calls == 2 and fairness.calls == 2 and executor.calls == 1
+        assert "non-compliant" in arbitrator.last_kwargs["audit_feedback"][0]
+        assert arbitrator.last_kwargs["previous"] is not None
+        assert final["fairness_remands"] == 1 and final["status"] == STATUS_RESOLVED
+
+    @pytest.mark.asyncio
+    async def test_still_inconsistent_after_one_remand_goes_to_a_person(self):
+        arbitrator, executor = StubArbitrator(), StubExecutor()
+        fairness = SequenceFairness(inconsistent_fairness())
+        final = await build_graph(arbitrator=arbitrator, fairness=fairness, executor=executor).ainvoke(initial_state())
+        assert arbitrator.calls == 2 and fairness.calls == 2 and executor.calls == 0
+        assert final["status"] == STATUS_ESCALATED

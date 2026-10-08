@@ -61,7 +61,7 @@ from src.agents.executor import (
     STATUS_ESCALATED as EXECUTION_STATUS_ESCALATED,
     STATUS_EXECUTED as EXECUTION_STATUS_EXECUTED,
 )
-from src.agents.fairness import FairnessAgent, FairnessRecommendation
+from src.agents.fairness import FairnessAgent, FairnessIssueCode, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.config import COMPLEXITY_HINT
 from src.core.triage import apply_hint, needs_hint, triage
@@ -300,6 +300,11 @@ def build_dispute_graph(
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
 
+    def _inconsistencies(fairness) -> list[str]:
+        """Fairness findings that the ruling contradicts itself, the evidence or the policy check."""
+        return [i.description for i in getattr(fairness, "issues", None) or []
+                if getattr(i, "code", None) == FairnessIssueCode.INTERNAL_INCONSISTENCY]
+
     @_safe_node(NODE_ARBITRATOR)
     async def arbitrator_node(state: DisputeWorkflowState) -> dict:
         # Preserve the legacy orchestrator convention: the round-0 debate
@@ -308,7 +313,11 @@ def build_dispute_graph(
         # Human-reviewed past rulings similar to this case (none -> the Judge rules as before)
         precedents = await asyncio.to_thread(find_precedents, state["context"])
         context = judge_context(state)
-        async with step("Arbitrator", "Weigh both sides & rule", {
+        # A second visit: Fairness found the ruling inconsistent and sent it back once (D27)
+        feedback = _inconsistencies(state.get("fairness")) if state.get("fairness") else []
+        remand = {"audit_feedback": feedback, "previous": state.get("decision")} if feedback else {}
+        title = "Reconsider after the fairness audit" if feedback else "Weigh both sides & rule"
+        async with step("Arbitrator", title, {
             "sees": ["full dispute context", "passenger analysis", "driver analysis",
                      "policy evaluation", f"debate history ({len(history)} turns)",
                      f"precedents ({len(precedents)})",
@@ -323,9 +332,13 @@ def build_dispute_graph(
                 debate_history=history,
                 # Only passed when there are some, so with an empty index the call is unchanged
                 **({"precedents": precedents} if precedents else {}),
+                **remand,
             )
             s["output"] = decision
-        return {"decision": decision, "precedents": precedents}
+        update = {"decision": decision, "precedents": precedents}
+        if feedback:
+            update["fairness_remands"] = (state.get("fairness_remands") or 0) + 1
+        return update
 
     @_safe_node(NODE_FAIRNESS)
     async def fairness_node(state: DisputeWorkflowState) -> dict:
@@ -442,9 +455,13 @@ def build_dispute_graph(
         if state.get("error"):
             return NODE_HUMAN_REVIEW
         decision = state.get("decision")
+        fairness = state.get("fairness")
+        # A ruling that contradicts itself goes back to the Judge once; still inconsistent after
+        # that, a person decides (D27: ST-002 executed a self-contradicting dismissal)
+        if decision is not None and _inconsistencies(fairness):
+            return NODE_ARBITRATOR if not state.get("fairness_remands") else NODE_HUMAN_REVIEW
         if decision is None or decision.human_review_needed:
             return NODE_HUMAN_REVIEW
-        fairness = state.get("fairness")
         if fairness is None:
             # No assessment available — cannot attest fairness; do not execute.
             return NODE_HUMAN_REVIEW
@@ -512,7 +529,7 @@ def build_dispute_graph(
     builder.add_conditional_edges(
         NODE_FAIRNESS,
         route_after_fairness,
-        {NODE_EXECUTOR: NODE_EXECUTOR, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+        {NODE_EXECUTOR: NODE_EXECUTOR, NODE_ARBITRATOR: NODE_ARBITRATOR, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
     )
 
     builder.add_edge(NODE_EXECUTOR, END)

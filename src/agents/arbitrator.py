@@ -447,9 +447,14 @@ class ArbitrationAgent:
         policy_evaluation: dict,
         debate_history: list[dict],
         precedents: list[dict] | None = None,
+        audit_feedback: list[str] | None = None,
+        previous=None,
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision via LLM.
+
+        audit_feedback / previous: the Fairness audit found the previous ruling inconsistent and
+        sent it back once (D27); the Judge sees its earlier ruling and the findings.
 
         If the LLM call fails or returns invalid JSON, falls back to a
         safe decision with human_review_needed=True.
@@ -464,6 +469,15 @@ class ArbitrationAgent:
         user_prompt = self._build_user_prompt(
             context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents
         )
+        if audit_feedback:
+            prev = previous.model_dump(mode="json") if hasattr(previous, "model_dump") else previous
+            user_prompt += (
+                "\n\n=== FAIRNESS AUDIT OF YOUR PREVIOUS RULING ===\n"
+                "Your previous ruling:\n" + json.dumps(prev, indent=1, default=str)
+                + "\nThe audit found these inconsistencies:\n" + "\n".join(f"- {f}" for f in audit_feedback)
+                + "\nReconsider. Either correct the ruling, or keep it and say in the rationale exactly "
+                "why each finding does not change the outcome. Do not change a point the audit did not "
+                "question.")
 
         # Call LLM
         try:

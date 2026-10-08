@@ -51,6 +51,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     decision: Decision                  # arbitrator node
     precedents: list[dict]              # arbitrator node: human-reviewed precedents shown to the Judge
     fairness: FairnessAssessment        # fairness node
+    fairness_remands: int               # arbitrator node: times Fairness sent the ruling back (D27)
     execution: dict                     # executor node
 
     # --- Control / audit ----------------------------------------------
