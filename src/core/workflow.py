@@ -282,7 +282,8 @@ def build_dispute_graph(
                 s["output"] = grade
             # Clauses the advocates requested join the shared brief the Judge reads (D14)
             history, context = await debate_engine.debate_with_context(
-                state["context"], max_rounds=grade["max_rounds"])
+                state["context"], max_rounds=grade["max_rounds"],
+                research=grade.get("advocate_research", True))
             return {"debate_history": history, "context": context, "triage": grade}
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
