@@ -1093,3 +1093,24 @@ and both again called the rider's unrecorded stop the driver's breach. Fairness 
 internal inconsistency at medium severity only, so both wrong rulings would have executed.
 The bottleneck in this kind of case is the Judge's reasoning about cause, not the depth of the
 process. Raising the grade cost 2.6x tokens for no gain here.
+
+## D27. An inconsistent ruling goes back to the Judge once (2026-10-08)
+
+Found in D26: on ST-002 both runs executed a dismissal that Fairness had flagged as
+`internal_inconsistency` (the policy check found the driver non-compliant and the filer
+compliant, yet the verdict dismissed). It was medium severity, and medium findings execute.
+Before changing that, the flag's record: in the six runs of 7-8 Oct it appeared on 3 of 49
+audited cases, all three wrong rulings, and on no correct one.
+
+Now any `internal_inconsistency` finding, whatever its severity, sends the ruling back to the
+Judge once (graph edge Fairness -> Arbitrator), with the earlier ruling and the findings; the
+Judge corrects it or says why each finding does not change the outcome. Fairness audits again;
+still inconsistent, a person decides (`fairness_remands` in the state). This is the second
+remand, after D25's code checks inside the Judge: D25 catches contradictions code can see, D27
+those only the audit sees.
+
+ST-002 (run 20261008-171215-remand, e89a9a9, hint off): the Judge kept the dismissal on
+reconsideration, the second audit raised the same inconsistency, and the case went to a person
+instead of executing. 31.6k prompt tokens (24.6k without the remand). The ruling itself is still
+wrong (it again calls the closure verified although the detour began before the alert); D27 makes
+that error reach a person, it does not fix the Judge's reasoning.
