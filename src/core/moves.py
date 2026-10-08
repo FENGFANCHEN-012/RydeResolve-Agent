@@ -26,10 +26,13 @@ MOVES_INSTRUCTION = (
     "Answer as JSON only, no prose outside it:\n"
     '{"moves": [{"type": "claim" | "challenge" | "concede", "target": "<D#, E# or fact id; '
     'required for challenge and concede>", "text": "<one or two sentences>", '
-    '"cites": ["<ids you rely on: fact ids, E#, policy refs, D#>"]}]}\n'
+    '"cites": ["<ids you rely on: fact ids, E#, policy refs, D#>"]}], "done": true | false}\n'
     "- claim: a point for your side. challenge: dispute a specific turn, item or fact of the other "
     "side (they must answer it). concede: accept something true even if it hurts you; conceding "
-    "honestly is better than denying a recorded fact.\n"
+    "honestly is better than denying a recorded fact. You may concede FACTS, never the OUTCOME: do "
+    "not argue for the other side's result (that is the Judge's call). Never concede your own turns.\n"
+    "- done: true when you have no new point for your side (nothing new found, nothing left to "
+    "answer); then give at most one claim stating your remaining position.\n"
     f"- At most {_MAX_MOVES} moves, about 180 words in total. Every move cites at least one id; a "
     "move with no id carries no weight. Answer the other side's open challenges first. If the "
     "other side found new evidence, address it."
@@ -58,6 +61,17 @@ def parse_moves(raw) -> list[dict] | None:
     return moves[:_MAX_MOVES] or None
 
 
+def parse_done(raw) -> bool:
+    """The advocate's "done" flag: nothing new to add for its side."""
+    text = str(raw or "")
+    start, end = text.find("{"), text.rfind("}")
+    try:
+        data = json.loads(text[start:end + 1]) if 0 <= start < end else {}
+    except json.JSONDecodeError:
+        return False
+    return bool(isinstance(data, dict) and data.get("done") is True)
+
+
 def render_moves(moves: list[dict]) -> str:
     """Moves as the text other agents read, e.g. 'CHALLENGE D4: ... (cites E3)'."""
     lines = []
@@ -72,12 +86,19 @@ def issue_summary(history: list[dict]) -> dict:
     agreed: every concession (who accepted what). contested: every challenge, marked answered
     when the challenged side made any later move about the same target or turn."""
     agreed, contested = [], []
+    agreed_at: dict[tuple, dict] = {}   # one line per conceded fact, however often it was conceded
     turns = [h for h in history if h.get("moves")]
     for i, turn in enumerate(turns):
         for m in turn["moves"]:
             if m["type"] == "concede":
-                agreed.append({"by": turn["speaker"], "turn": turn.get("id"), "target": m["target"],
-                               "text": m["text"]})
+                key = tuple(sorted(m.get("cites") or [])) or (m["target"],)
+                if key in agreed_at:
+                    if turn["speaker"] not in agreed_at[key]["by"]:
+                        agreed_at[key]["by"] += f" and {turn['speaker']}"
+                    continue
+                agreed_at[key] = {"by": turn["speaker"], "turn": turn.get("id"), "target": m["target"],
+                                  "text": m["text"]}
+                agreed.append(agreed_at[key])
             elif m["type"] == "challenge":
                 later = [t for t in turns[i + 1:] if t["speaker"] != turn["speaker"]]
                 answered = any(mv.get("target") in (m["target"], turn.get("id")) or
@@ -107,5 +128,20 @@ def render_issue_summary(summary: dict) -> str:
 
 
 def has_open_challenge(history: list[dict]) -> bool:
-    """True when the last turn challenges something (the other side has not had its say)."""
-    return bool(history) and any(m["type"] == "challenge" for m in history[-1].get("moves") or [])
+    """True when the last turn challenges something the other side has not already conceded.
+    A challenge against a point already accepted as common ground needs no further round
+    (D24 step 3b: FD-002 ran a whole second round that only repeated the concessions)."""
+    if not history:
+        return False
+    conceded = {m["target"] for h in history for m in h.get("moves") or [] if m["type"] == "concede"}
+    conceded |= {c for h in history for m in h.get("moves") or [] if m["type"] == "concede"
+                 for c in m.get("cites") or []}
+    return any(m["type"] == "challenge" and m["target"] not in conceded
+               and not set(m.get("cites") or []) <= conceded
+               for m in history[-1].get("moves") or [])
+
+
+def both_done(history: list[dict], round_num: int) -> bool:
+    """Both advocates said they have nothing new in this round."""
+    turns = [h for h in history if h.get("round") == round_num and h.get("speaker") in ("passenger", "driver")]
+    return len(turns) == 2 and all(h.get("done") for h in turns)

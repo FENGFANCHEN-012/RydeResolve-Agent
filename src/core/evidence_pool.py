@@ -74,6 +74,15 @@ def _query_key(item: dict) -> str:
     return json.dumps(item.get("query") or {}, sort_keys=True, default=str)
 
 
+def _content_key(item: dict) -> str | None:
+    """The records a lookup returned (tool + sources). Two windows a few seconds apart that
+    return the same events are the same evidence (D24 step 3b: FD-002 stored one window 3 times)."""
+    sources = sorted({s for f in item.get("findings") or [] if isinstance(f, dict) for s in f.get("sources") or []})
+    if not sources:
+        return None
+    return (item.get("query") or {}).get("tool", "") + "|" + ",".join(sources)
+
+
 class EvidencePool:
     """Helper to build, render and merge evidence-pool items."""
 
@@ -112,15 +121,15 @@ class EvidencePool:
         """Append new items numbered E<n>. A lookup already in the pool (same tool and
         arguments) is not stored twice, whoever asked for it."""
         out = list(existing or [])
-        seen = {_query_key(i) for i in out}
+        seen = {_query_key(i) for i in out} | {k for k in map(_content_key, out) if k}
         for item in new_items:
             data = item.model_dump() if isinstance(item, EvidencePoolItem) else dict(item)
-            key = _query_key(data)
-            if key in seen:
-                continue
+            keys = {_query_key(data), _content_key(data)} - {None}
+            if keys & seen:
+                continue   # same lookup, or a different lookup that returned the same records
             data["item_id"] = f"E{len(out) + 1}"
             out.append(data)
-            seen.add(key)
+            seen |= keys
         return out
 
     @staticmethod
