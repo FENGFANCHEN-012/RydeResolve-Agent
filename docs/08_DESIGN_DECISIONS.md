@@ -1174,3 +1174,21 @@ Two weaknesses seen: (1) when the causes imply a different amount from the one t
 code overrides it silently and the rationale argues the opposite of the result; that mismatch
 should be sent back to the Judge instead. (2) "platform" was used for a rule working as
 designed; it must mean an app or pricing malfunction only.
+
+**D29b (ca96c3f): mismatch remand, causes are events.** A refund that contradicts the Judge's own
+causes is sent back instead of overridden; "platform" means a malfunction only; a cause is an
+event in the trip, not a rule. Run 20261008-231427-d29b (key 4, no 429 this time):
+- ST-001: causes "detour due to verified road closure" (external 80%) and the rider's stop (rider
+  20%), refund S$0, executed. The split now exists, but the closure is called verified although
+  `route_timing` states the driver raised the detour 4.2 min before the alert. The eval scores the
+  label (partially_upheld, from the conduct ask) as correct; the money is wrong. Fairness flagged
+  `unsupported_reasoning` (medium), which does not stop execution.
+- ST-002: the first ruling was sent back (causes gave S$8.75, amount S$17.50); the second listed
+  one cause, "driver failed to add the 7-Eleven stop in the app", driver 100%: S$17.50, executed.
+  A record-keeping breach became the "cause" of the distance: the D25 conduct-into-money error
+  again, now inside the causes list.
+Summary of D29: it caught one real error (RD-002-I3, S$3.10 -> S$0) at no extra cost, and made
+the reasoning on the stress cases visible line by line, but it does not fix them: the model
+misreads the same two facts (the order of detour and alert, whose stop it was) under every format
+tried. `unsupported_reasoning` has appeared once in 404 audited runs since 1 Oct, on this wrong
+ST-001 ruling.
