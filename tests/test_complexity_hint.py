@@ -44,7 +44,10 @@ async def test_agent_parses_and_requires_a_named_kind():
     h = await agent(json.dumps({"level": "complex", "kind": "consent", "reason": "ok covered the route only"})).hint(ctx())
     assert h == {"level": "complex", "kind": "consent", "reason": "ok covered the route only"}
     h = await agent(json.dumps({"level": "complex", "kind": None, "reason": "hard"})).hint(ctx())
-    assert h["level"] == "simple"
+    assert h["level"] == "simple" and h["noted_not_raised"]
+    # A rule "conflict" is noted but does not raise (general rule + exception misread, D26 probe)
+    h = await agent(json.dumps({"level": "complex", "kind": "rules", "reason": "fee vs waiver"})).hint(ctx())
+    assert h["level"] == "simple" and h["kind"] == "rules" and h["noted_not_raised"]
     prompt = agent("{}")._llm.chat_json
     await ComplexityAgent(llm_client=SimpleNamespace(chat_json=prompt)).hint(ctx())
     assert "chat_log[0] driver: via SLE ok?" in prompt.call_args.kwargs["messages"][1]["content"]
