@@ -106,7 +106,9 @@ def issue_summary(history: list[dict]) -> dict:
                 conceded = any(mv["type"] == "concede" and mv.get("target") == m["target"]
                                for t in later for mv in t["moves"])
                 if not conceded:
-                    contested.append({"by": turn["speaker"], "turn": turn.get("id"), "target": m["target"],
+                    # Numbered I<n>: the Judge must rule on each one by its id (D25)
+                    contested.append({"id": f"I{len(contested) + 1}", "by": turn["speaker"],
+                                      "turn": turn.get("id"), "target": m["target"],
                                       "text": m["text"], "answered": answered})
     return {"agreed": agreed, "contested": contested}
 
@@ -119,8 +121,8 @@ def render_issue_summary(summary: dict) -> str:
         lines.append("Accepted by the side it hurts (treat as common ground unless the records contradict it):")
         lines.extend(f"- {a['by']} conceded {a['target']} [{a['turn']}]: {a['text']}" for a in summary["agreed"])
     if summary.get("contested"):
-        lines.append("Still contested (rule on these):")
-        lines.extend(f"- {c['by']} challenged {c['target']} [{c['turn']}]"
+        lines.append("Still contested (rule on each one by its I# id in issue_rulings):")
+        lines.extend(f"- [{c['id']}] {c['by']} challenged {c['target']} [{c['turn']}]"
                      + ("" if c["answered"] else " (not answered)") + f": {c['text']}"
                      for c in summary["contested"])
     lines.append("=== END OF ISSUES ===")

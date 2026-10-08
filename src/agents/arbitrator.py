@@ -38,6 +38,9 @@ class Decision(BaseModel):
     escalation_recommended: bool = False
     human_review_needed: bool = False
     asks: list[dict] = []             # each thing the filer asked for and its outcome
+    fare_finding: str | None = None   # was the money charged owed? (D25)
+    issue_rulings: list[dict] = []    # one ruling per contested issue I# from the debate (D25)
+    remanded_for: list[str] = []      # problems the code checks sent back to the Judge once (D25)
 
 
 # Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
@@ -77,6 +80,47 @@ def label_from_asks(parsed: dict) -> dict:
                                + f" [Label: from the asks ({', '.join(outcomes)}), {label}.]")
         parsed["verdict"] = label
     return parsed
+
+
+# Was the money charged owed under this trip's rules? Decided before, and apart from, conduct (D25)
+FARE_FINDINGS = {"charge_correct", "overcharged", "no_money_at_stake"}
+
+
+def ruling_problems(parsed: dict, open_issues: list[str]) -> list[str]:
+    """Contradictions and omissions in a ruling that code can see. Each one is sent back to the
+    Judge once (remand); one still there after that sends the case to a person.
+
+    - charge_correct with a refund: the Judge found the charge was owed, then refunded it anyway
+      because of the driver's conduct or "discretion" (RD-002-I3 run 20261008-113816-s3b, ST-001
+      run 20261008-130700-stress). Conduct is answered with a penalty, never with the fare.
+    - overcharged with no refund: the finding and the amount disagree the other way.
+    - an open issue from the debate with no ruling: the Judge skipped a contested point (ST-001:
+      the detour began before the closure alert; the driver advocate said the opposite).
+    Fields the Judge did not return are not checked, so older replies behave as before."""
+    problems = []
+    finding = parsed.get("fare_finding")
+    try:
+        refund = float(parsed.get("refund_amount") or 0)
+    except (TypeError, ValueError):
+        refund = 0.0
+    if finding == "charge_correct" and refund > 0:
+        problems.append(f"fare_finding is charge_correct but refund_amount is S${refund:.2f}. If the "
+                        "charge was owed, the refund is 0 and any conduct breach goes to driver_penalty; "
+                        "if part of it was not owed, the finding is overcharged.")
+    elif finding == "overcharged" and refund <= 0:
+        problems.append("fare_finding is overcharged but refund_amount is 0. Refund the part that was "
+                        "not owed, or change the finding.")
+    elif finding is not None and finding not in FARE_FINDINGS:
+        problems.append(f"fare_finding must be one of {sorted(FARE_FINDINGS)}, not {finding!r}.")
+    if open_issues:
+        rulings = parsed.get("issue_rulings")
+        ruled = ({str(r.get("issue")).strip("[] ") for r in rulings if isinstance(r, dict)}
+                 if isinstance(rulings, list) else set())
+        missing = [i for i in open_issues if i not in ruled]
+        if missing:
+            problems.append(f"No ruling on contested issue(s) {', '.join(missing)}. For each, say which "
+                            "side the records support, citing the fact ids or E# items.")
+    return problems
 
 
 def align_verdict_label(parsed: dict, context: dict | None) -> dict:
@@ -204,11 +248,23 @@ class ArbitrationAgent:
             "- A filing can contain more than one ask (e.g. a refund AND a promo code back, "
             "or a refund AND a complaint about the driver's conduct). List each ask separately "
             "and decide each: \"granted\" (fully), \"partly\" (less than asked), \"denied\", or "
-            "\"already_resolved\" (the record shows it was already done before this ruling).\n\n"
+            "\"already_resolved\" (the record shows it was already done before this ruling).\n"
+            "- Decide the money apart from conduct. fare_finding: \"charge_correct\" = every dollar "
+            "charged was owed under this trip's rules, so refund_amount is 0; \"overcharged\" = some or "
+            "all of it was not owed, and refund_amount is the part not owed; \"no_money_at_stake\" = "
+            "no charge is disputed. A conduct breach (rudeness, a threat, a rule broken that did not "
+            "change what was owed) is answered with driver_penalty or other action. It never changes "
+            "refund_amount, and a discretion clause does not turn it into a refund.\n"
+            "- If ISSUES AFTER THE DEBATE lists contested issues (I1, I2, ...), rule on every one in "
+            "issue_rulings: which side the records support and why, citing fact ids or E# items. "
+            "Check each advocate's account of times and order of events against the records.\n\n"
             "Respond ONLY with a valid JSON object (no markdown, no extra text) "
             "with exactly these keys:\n"
             "  \"asks\": list of {\"ask\": string, \"outcome\": \"granted\" | \"partly\" | "
             "\"denied\" | \"already_resolved\"} (each thing the filer asked for),\n"
+            "  \"fare_finding\": \"charge_correct\" | \"overcharged\" | \"no_money_at_stake\",\n"
+            "  \"issue_rulings\": list of {\"issue\": \"I#\", \"ruling\": string, \"cites\": list of ids} "
+            "([] when no issue is contested),\n"
             "  \"verdict\": string (one of: \"upheld\", \"partially_upheld\", \"dismissed\"),\n"
             "  \"confidence\": float (0.0-1.0),\n"
             "  \"refund_amount\": float | null (refund in SGD, or null if none),\n"
@@ -427,6 +483,35 @@ class ArbitrationAgent:
         if parsed is None:
             return self._safe_decision("LLM returned invalid JSON.")
 
+        # Code checks; a ruling that fails one goes back to the Judge once (remand, D25)
+        from src.core.moves import issue_summary
+        open_issues = [c["id"] for c in issue_summary(debate_history or [])["contested"] if c.get("id")]
+        remanded_for = ruling_problems(parsed, open_issues)
+        if remanded_for:
+            remand = ("Your ruling has these problems:\n" + "\n".join(f"- {p}" for p in remanded_for)
+                      + "\nReturn the complete corrected JSON object with the same keys.")
+            try:
+                raw2 = await llm.chat_json(
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                        {"role": "assistant", "content": raw if isinstance(raw, str) else json.dumps(raw)},
+                        {"role": "user", "content": remand},
+                    ],
+                    temperature=0.2,
+                )
+                parsed2 = self._parse_llm_json(raw2)
+            except Exception as exc:
+                logger.warning("ArbitrationAgent remand call failed: %s", exc)
+                parsed2 = None
+            if parsed2 is not None:
+                parsed = parsed2
+            still = ruling_problems(parsed, open_issues)
+            if still:
+                parsed["human_review_needed"] = True
+                parsed["rationale"] = ((parsed.get("rationale") or "")
+                                       + " [CHECK: still inconsistent after one remand: " + " ".join(still) + "]")
+
         # Sanitise policy references
         parsed = self._sanitize_policy_refs(parsed, valid_refs)
         # The label follows the asks, then the refund (a full refund of the disputed amount
@@ -464,6 +549,9 @@ class ArbitrationAgent:
                 parsed.get("human_review_needed", confidence <= CONFIDENCE_THRESHOLD_LOW)
             ),
             asks=valid_asks(parsed),
+            fare_finding=parsed.get("fare_finding") if parsed.get("fare_finding") in FARE_FINDINGS else None,
+            issue_rulings=[r for r in parsed.get("issue_rulings") or [] if isinstance(r, dict)],
+            remanded_for=remanded_for,
         )
 
         # Enforce threshold overrides (belt-and-suspenders)

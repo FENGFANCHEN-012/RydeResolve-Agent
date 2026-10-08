@@ -64,7 +64,8 @@ class DebateEngine:
         return history
 
     async def debate_with_context(self, context: DisputeContext,
-                                  max_rounds: int | None = None) -> tuple[list[dict], DisputeContext]:
+                                  max_rounds: int | None = None,
+                                  research: bool = True) -> tuple[list[dict], DisputeContext]:
         """The debate, plus the context it ended with.
 
         Shared pools every turn reads (D23):
@@ -72,7 +73,9 @@ class DebateEngine:
         - evidence pool: lookups either side asked for, answered by Collector tools, numbered E<n>
         - debate pool: every turn, numbered D<n>, with its speaker and round
         Before each advocate turn the advocate may ask for more evidence and rules (research step),
-        so a rebuttal can answer the other side's new evidence with evidence of its own."""
+        so a rebuttal can answer the other side's new evidence with evidence of its own.
+        research=False (triage: simple and safe, D25) skips that LLM step; the rule-based seed
+        lookups still run."""
         history: list[dict] = []
         get_retriever = getattr(self.policy_agent, "_get_retriever", None)
         retriever = get_retriever() if get_retriever else None
@@ -91,9 +94,11 @@ class DebateEngine:
 
         seen_pool: dict[str, int] = {}   # pool size when each side last looked up
 
+        do_research = research
+
         async def research(side: str, round_num: int):
             nonlocal context
-            if not ADVOCATE_RESEARCH or not real_case:
+            if not ADVOCATE_RESEARCH or not real_case or not do_research:
                 return
             pool = context.evidence_pool or []
             if round_num > 0 and not any(i.get("source_agent") not in (side, "system")

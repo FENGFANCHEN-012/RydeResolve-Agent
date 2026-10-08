@@ -312,6 +312,51 @@ def route_check(ctx) -> list[Finding]:
     return out
 
 
+# Words in a driver's chat message that announce a change of route
+_ROUTE_WORDS = ("detour", "jam", "closed", "closure", "another way", "other way", "different way",
+                "via ", "route", "avoid")
+
+
+def route_timing(ctx) -> list[Finding]:
+    """When the driver first raised a route change, and when the route was recalculated, against
+    the first traffic incident alert. A detour started before any alert cannot be explained by it;
+    an advocate claimed the opposite in stress case ST-001 and nobody checked (D25)."""
+    alerts = [(i, e, _ts(e.get("timestamp"))) for i, e in _events(ctx, "traffic_incident_alert")]
+    alerts = [a for a in alerts if a[2]]
+    if not alerts:
+        return []
+    j, _, alert_at = alerts[0]
+    parts, value, sources = [], {"alert_at": alert_at.isoformat()}, [f"app_events[{j}]"]
+
+    def when(at: datetime) -> str:
+        mins = _minutes(alert_at, at)
+        return f"{abs(mins)} min {'BEFORE' if mins < 0 else 'after'} the alert"
+
+    msg = next(((i, m, _ts(m.get("timestamp"))) for i, m in enumerate(ctx.chat_log or [])
+                if m.get("sender") == "driver" and _ts(m.get("timestamp"))
+                and any(w in str(m.get("message") or "").lower() for w in _ROUTE_WORDS)), None)
+    if msg:
+        i, m, at = msg
+        text = " ".join(str(m.get("message") or "").split())[:80]
+        parts.append(f"the driver first raised a route change in chat at {_hhmm(at)} (\"{text}\"), {when(at)}")
+        value["driver_message_minutes_from_alert"] = _minutes(alert_at, at)
+        sources.append(f"chat_log[{i}]")
+    recalcs = [(i, _ts(e.get("timestamp"))) for i, e in _events(ctx, "route_recalculated")]
+    recalcs = [r for r in recalcs if r[1]]
+    if recalcs:
+        i, at = recalcs[0]
+        parts.append(f"the first route recalculation was at {_hhmm(at)}, {when(at)}")
+        value["recalculation_minutes_from_alert"] = _minutes(alert_at, at)
+        sources.append(f"app_events[{i}]")
+    if not parts:
+        return []
+    return [Finding(
+        id="route_timing.vs_incident_alert", tool="route_timing", kind="fact",
+        statement=f"First traffic incident alert at {_hhmm(alert_at)}; " + "; ".join(parts) + ".",
+        value=value, sources=sources,
+    )]
+
+
 def speed_profile(ctx) -> list[Finding]:
     """Top recorded speed and any driving-behaviour alerts."""
     speeds = [(i, p) for i, p in enumerate(ctx.gps_trace or []) if isinstance(p.get("speed_kmh"), (int, float))]
@@ -491,6 +536,7 @@ STANDARD_TOOLS: dict[str, Callable] = {
     "contact_attempts": contact_attempts,
     "fare_check": fare_check,
     "route_check": route_check,
+    "route_timing": route_timing,
     "speed_profile": speed_profile,
     "fee_check": fee_check,
     "consistency_check": consistency_check,

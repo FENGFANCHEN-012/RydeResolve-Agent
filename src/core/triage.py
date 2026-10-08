@@ -13,6 +13,10 @@ What the labels change:
 - simple + safe: Fairness runs its code checks only, no LLM audit. Every other case gets
   the full audit.
 - dangerous: always the full audit (and, from step 4, the Safety agent).
+- advocate research (the LLM lookup step before each turn, D23) runs only on complex or
+  dangerous cases. Simple cases still get the rule-based seed lookups, which cost no tokens:
+  on the 10 simple cases of run 20261008-113816-s3b research added about 50% prompt tokens
+  and no verdict changed (D25).
 
 A label can only be raised by a signal, never lowered: no input can make a case with a data
 conflict "simple", or a case with a threat "safe".
@@ -63,5 +67,6 @@ def triage(context, classification=None, fraud_report: dict | None = None) -> di
         "risk": risk,
         "max_rounds": COMPLEX_MAX_ROUNDS if complexity == "complex" else 1,
         "fairness_llm_audit": not (complexity == "simple" and risk == "safe"),
+        "advocate_research": not (complexity == "simple" and risk == "safe"),
         "reasons": complex_reasons + danger_reasons or ["no complexity or risk signal"],
     }

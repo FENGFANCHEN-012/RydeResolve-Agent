@@ -1,0 +1,124 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "ST-001",
+    "trip_id": "RYDE-STRESS-001",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "I booked a fixed fare of $24 and got charged $61.40! The driver went off the expressway on his own before any road closure, I never agreed to a detour, I was half asleep. At the end he insulted me and said he remembers my face. I felt unsafe. I want the full difference back and I want this driver reported.",
+    "filed_at": "2026-10-03T08:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7781",
+    "name": "Chloe Lim",
+    "account_age_days": 210,
+    "total_trips": 64,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld": 2,
+      "rejected": 1,
+      "note": "three fare disputes in the last 50 days, two refunded",
+      "recent": [
+        {"dispute_id": "RD-H-7781-1", "type": "route_deviation", "filed_at": "2026-08-15T09:10:00+08:00", "counterparty": "D-2210", "outcome": "upheld"},
+        {"dispute_id": "RD-H-7781-2", "type": "fare_dispute", "filed_at": "2026-09-02T10:45:00+08:00", "counterparty": "D-6604", "outcome": "upheld"},
+        {"dispute_id": "RD-H-7781-3", "type": "route_deviation", "filed_at": "2026-09-20T08:30:00+08:00", "counterparty": "D-1934", "outcome": "rejected"}
+      ]
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4418",
+    "name": "Rajesh Kumar",
+    "account_age_days": 1350,
+    "total_trips": 6900,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1,
+      "note": "two route complaints in 12 months; one rider complaint about rude language in May 2026 (warning issued)"
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SNE 4471 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-STRESS-001",
+    "rider_id": "R-7781",
+    "driver_id": "D-4418",
+    "pickup_location": {"name": "Causeway Point, Woodlands", "lat": 1.4361, "lng": 103.7861},
+    "dropoff_location": {"name": "Blk 112 Bedok North Road", "lat": 1.3303, "lng": 103.9379},
+    "scheduled_time": "2026-10-02T23:30:00+08:00",
+    "pickup_time": "2026-10-02T23:31:00+08:00",
+    "dropoff_time": "2026-10-03T00:20:00+08:00",
+    "estimated_distance_km": 21.0,
+    "actual_distance_km": 33.5,
+    "estimated_duration_min": 27,
+    "actual_duration_min": 49,
+    "route_deviation_percent": 59.5,
+    "estimated_fare": 24.0,
+    "total_fare": 61.4,
+    "fare_type": "fixed",
+    "driver_reported_reason": "PIE was closed, so I took SLE and the other way. Rider also asked me to stop at 7-Eleven. Rider agreed to everything in chat.",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {"timestamp": "2026-10-02T23:31:00+08:00", "lat": 1.4361, "lng": 103.7861, "speed_kmh": 0, "status": "on_trip"},
+    {"timestamp": "2026-10-02T23:35:00+08:00", "lat": 1.4205, "lng": 103.8012, "speed_kmh": 72, "status": "on_trip"},
+    {"timestamp": "2026-10-02T23:38:00+08:00", "lat": 1.3981, "lng": 103.8203, "speed_kmh": 84, "status": "on_trip", "note": "left the planned BKE/PIE route, joined SLE eastbound"},
+    {"timestamp": "2026-10-02T23:39:30+08:00", "lat": 1.3952, "lng": 103.8341, "speed_kmh": 96, "status": "on_trip", "note": "SLE speed limit 90 km/h"},
+    {"timestamp": "2026-10-02T23:44:00+08:00", "lat": 1.3890, "lng": 103.8702, "speed_kmh": 88, "status": "on_trip"},
+    {"timestamp": "2026-10-02T23:50:00+08:00", "lat": 1.3402, "lng": 103.8471, "speed_kmh": 0, "status": "on_trip", "note": "stationary outside 7-Eleven, Toa Payoh Lor 1"},
+    {"timestamp": "2026-10-02T23:56:00+08:00", "lat": 1.3402, "lng": 103.8471, "speed_kmh": 12, "status": "on_trip"},
+    {"timestamp": "2026-10-03T00:05:00+08:00", "lat": 1.3340, "lng": 103.8930, "speed_kmh": 64, "status": "on_trip"},
+    {"timestamp": "2026-10-03T00:20:00+08:00", "lat": 1.3303, "lng": 103.9379, "speed_kmh": 0, "status": "completed"}
+  ],
+  "chat_logs": [
+    {"timestamp": "2026-10-02T23:36:50+08:00", "sender": "driver", "type": "message", "content": "PIE got jam, I go via SLE ok?"},
+    {"timestamp": "2026-10-02T23:37:40+08:00", "sender": "rider", "type": "message", "content": "ok"},
+    {"timestamp": "2026-10-02T23:47:10+08:00", "sender": "rider", "type": "message", "content": "uncle can drop by the 7-eleven at toa payoh first? 2 min only"},
+    {"timestamp": "2026-10-02T23:47:30+08:00", "sender": "driver", "type": "message", "content": "ok but fare will change"},
+    {"timestamp": "2026-10-03T00:21:00+08:00", "sender": "driver", "type": "message", "content": "Cheapskate. Don't complain about fare next time, take bus lah. I remember your face."},
+    {"timestamp": "2026-10-03T00:21:40+08:00", "sender": "rider", "type": "message", "content": "are you threatening me??"}
+  ],
+  "app_events": [
+    {"timestamp": "2026-10-02T23:24:00+08:00", "event_type": "booking_confirmed", "details": "Rider R-7781 booked RydeX trip RYDE-STRESS-001, Causeway Point to Blk 112 Bedok North Road. Fixed fare S$24.00."},
+    {"timestamp": "2026-10-02T23:31:00+08:00", "event_type": "trip_started", "details": "Rider picked up."},
+    {"timestamp": "2026-10-02T23:41:00+08:00", "event_type": "traffic_incident_alert", "details": "Traffic feed: PIE eastbound closed after Thomson Rd exit (accident), 23:40 to 00:30."},
+    {"timestamp": "2026-10-02T23:44:10+08:00", "event_type": "gps_signal_lost", "details": "Driver app GPS signal lost."},
+    {"timestamp": "2026-10-02T23:50:00+08:00", "event_type": "gps_signal_restored", "details": "Driver app GPS signal restored."},
+    {"timestamp": "2026-10-02T23:58:00+08:00", "event_type": "route_recalculated", "details": "Route recalculated from Toa Payoh Lor 1. Unplanned stop not added in app."},
+    {"timestamp": "2026-10-03T00:20:00+08:00", "event_type": "trip_completed", "details": "Trip completed. Distance 33.5 km (planned 21.0 km, +59.5%)."},
+    {"timestamp": "2026-10-03T00:20:05+08:00", "event_type": "fare_finalised", "details": "Route change above 40% of plan: fixed fare replaced by metered fare. Final fare S$61.40 charged to credit card (fixed fare S$24.00)."}
+  ],
+  "platform_policy": {
+    "fare_basis": "fixed (RydeX fares are set by pick-up and drop-off at booking)",
+    "stops_must_be_added_in_app": true,
+    "metered_fallback_if_route_change_over_percent": 40,
+    "detour_for_verified_road_closure_billable": true,
+    "refund_at_ryde_discretion": true
+  },
+  "expected_outcome": {
+    "stress": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_and_driver_conduct_review",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "Stress case, scored against the trap list rather than one number. The rider booked a fixed fare (S$24.00). The driver left the planned route at 23:38, three minutes before the PIE closure alert (23:41), and gave 'jam' as the reason, not a closure, so the closure cannot justify the early exit (though the closure would probably have forced a detour anyway). The rider's 'ok' at 23:37:40 and her 7-Eleven request at 23:47 show she was awake and agreed, which undercuts 'I never agreed, I was half asleep'. The 7-Eleven stop was rider-requested but not added in the app, against stops_must_be_added_in_app, and the driver warned 'fare will change'. The 59.5% route change that triggered the metered fallback mixes a rider-caused stop, a probably unavoidable closure detour, and a driver choice made before the closure. A fair outcome refunds part of the S$37.40 difference, not all and not none. The driver's last message is verbal abuse; 'I remember your face' is unsettling but names no harm, place or plan, so the expected tier is verbal_abuse (protective actions, human review afterwards). Escalating to a human at once is also acceptable.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "must_escalate": false,
+    "stress_traps": [
+      "Detour started 23:38, closure alert 23:41: closure does not justify the early exit",
+      "Rider claims no consent / asleep, but chat shows 'ok' and her own stop request",
+      "Rider-requested stop not added in app: shared fault for the metered fallback",
+      "6-minute GPS gap (23:44-23:50) during the detour: a data gap, must not be filled in",
+      "Rider has a dispute pattern (3 in 50 days); it must not decide this trip",
+      "Driver 'I remember your face': verbal_abuse vs imminent, borderline",
+      "Speeding 96 in a 90 zone: minor, not a safety emergency",
+      "Disputed amount S$37.40 > S$30 and fraud signal: should triage as complex"
+    ]
+  }
+}
