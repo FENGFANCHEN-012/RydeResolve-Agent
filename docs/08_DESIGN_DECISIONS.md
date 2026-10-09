@@ -1197,3 +1197,36 @@ Follow-up (D29b): `unsupported_reasoning` now sends a ruling back to the Judge o
 (1 in 404 audited runs) and it would have stopped the wrong ST-001 ruling. ST-002 stays a known
 failure: Fairness, on the same model, saw nothing wrong with it. An auditor on a different model
 (e.g. Hunyuan via Tencent ADP) is the untested next step for that class of error.
+
+## D30. Full regression of both new branches against D20 (2026-10-09)
+
+Runs 20261009-102136-full-d28 (`feature/judge-and-cost-fixes`, d2db1b2; keys primary + backup)
+and 20261009-102141-full-d29 (`experiment/structured-judge`, ff63f88; keys 3 + 4), 38 cases
+each, COMPLEXITY_HINT=0, one run per case, run side by side. Compared with D20 (20261005-171730)
+on the 37 cases both have (NS-006 is newer; correct in both branches).
+
+| | D20 | D28 branch | D29 branch |
+|---|---|---|---|
+| Verdict | 35/37 | 32/37 | 32/37 |
+| Escalation | 35/37 (0.95) | 34/37 (0.92) | 32/37 (0.86) |
+| Refund | 27/29 | 24/30 | 24/30 |
+| P0 recall | 1/1 | 1/1 | 1/1 |
+| Wrong rulings EXECUTED | 0 | 2 (RD-001-P4 dismissed, RD-002 S$3.10 refunded) | 0 |
+| Wrong, sent to a person | 2 | 3 | 5 |
+| Tokens per case (prompt / completion / calls) | 21.8k / 5.5k / 7.6 | 30.1k / 8.5k / 9.1 | 30.2k / 8.6k / 9.1 |
+| Total tokens, 37 cases | 0.98M | 1.39M (+42%) | 1.40M (+42%) |
+
+Misses beyond D20's two (NS-002-B1, NS-002-C1, missed everywhere):
+- D28: CR-004 right verdict, escalated because an unverified policy reference was stripped (that
+  rule sets human review); RD-001-P4 dismissed (the case that failed 1 run in 9 before); RD-002
+  refunded S$3.10 for a verified-closure detour, consistently labelled overcharged, so no check fired.
+- D29: NS-004 the Judge call hit a Cerebras 429 (infrastructure); NS-001 right verdict and amount,
+  but the Judge itself asked for review (confidence 0.78); RD-001 the Judge wrote "dismissed"
+  while its own causes gave the correct S$3.70 refund: the mismatch was sent back, not resolved,
+  so the case went to a person with the right amount on record.
+
+Against the rollback rule (at most one verdict lost, escalation >= 0.94) **both branches fail**,
+and the cost is +42%, not the +20-30% estimated in D28. Single runs carry noise (RD-001-P4 and
+NS-002-B1 are known to flip, one 429), but the direction is clear: no accuracy gain over D20.
+What D29 adds is that none of its wrong rulings executed; it pays for that with more cases sent
+to a person. Neither branch is merged as is.
