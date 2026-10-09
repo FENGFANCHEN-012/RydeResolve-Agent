@@ -101,6 +101,9 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # A single rebuttal round keeps one full dispute within a small daily quota.
 # Set MAX_DEBATE_ROUNDS=3 explicitly when a larger request budget is available.
 MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
+# Triage (src/core/triage.py) may give complex cases more rounds: COMPLEX_MAX_ROUNDS, default 2.
+# Reasoning effort for the Safety agent's LLM call (D24); the more careful the better here
+SAFETY_REASONING_EFFORT = os.getenv("SAFETY_REASONING_EFFORT", "high").strip().lower()
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 

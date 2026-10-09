@@ -686,14 +686,20 @@ class FairnessAgent:
         #     not a fraud signal and does not count against anyone's record.
         safety = (context or {}).get("safety_alerts") or []
         if safety:
+            # The Safety agent's tier decides (D24): verbal abuse / rudeness are ruled as usual with
+            # protective actions and a later human review; anything else (or no tier) goes to a person
+            tier = ((context or {}).get("safety") or {}).get("tier")
+            later = tier in ("verbal_abuse", "minor")
             add_issue(
                 FairnessIssueCode.SAFETY_THREAT_IN_CHAT,
-                "Safety: " + " ".join(safety),
-                severity="high",
+                "Safety: " + " ".join(safety) + (f" (Safety agent tier: {tier})" if tier else ""),
+                severity="medium" if later else "high",
                 refs=["chat_log"],
-                recommended_action="Route to human review as a safety matter; protect the threatened party.",
+                recommended_action=("Protective actions taken; a person reviews after the ruling." if later
+                                    else "Route to human review as a safety matter; protect the threatened party."),
             )
-            requires_human = True
+            if not later:
+                requires_human = True
 
         # (k) hard evidence of fraud or collusion: a person decides, with the Judge's draft and
         #     the report. Priors alone never reach HIGH, so this never fires on history only.
@@ -718,11 +724,14 @@ class FairnessAgent:
         skipped_due_to_escalation = requires_human or high_severity_present
 
         if skipped_due_to_escalation or not self._should_call_semantic(
-            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0
+            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0,
+            triage=(context or {}).get("triage"),
         ):
             semantic_skipped_reason = (
                 "deterministic findings already require human review"
                 if (requires_human or high_severity_present)
+                else "simple, safe case (triage): code checks only"
+                if ((context or {}).get("triage") or {}).get("fairness_llm_audit") is False
                 else "deterministic checks already decisive"
             )
         else:
@@ -827,10 +836,14 @@ class FairnessAgent:
         decision_conf: float,
         cites: bool,
         has_evidence: bool,
+        triage: dict | None = None,
     ) -> bool:
         # Only useful when there IS something to scrutinise and the agent is
         # not already in "block / escalate" territory.
         if not has_evidence:
+            return False
+        if (triage or {}).get("fairness_llm_audit") is False:
+            # Simple and safe case (D24 triage): the code checks above are the audit
             return False
         if decision_conf <= FAIRNESS_DECISION_CONFIDENCE_LOW:
             return False
