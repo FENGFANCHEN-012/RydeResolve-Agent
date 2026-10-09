@@ -1243,3 +1243,23 @@ Judge pass. Neither fix fired: no 429 came, and RD-001's Judge got the verdict r
 remand. So this run shows variance, not the fixes working; re-running only the misses is biased
 upward and is not counted as a score. The fixes are covered by unit tests; the next full
 regression and the sealed set are the real measure.
+
+## D31. Second full regression of the D29 branch (2026-10-09)
+
+Run 20261009-131006-final-d29 (ed43bcf + docs, keys 5 / backup / 3, one process at a time, no 429 or quota error).
+On the 37 cases shared with D20: verdict 31/37 (D20 35/37, first D29 run 32/37), escalation
+32/37, refund 24/30, P0 1/1, 31.2k / 8.9k tokens and 9.2 calls per case (+47% tokens), 138 s per
+case. One wrong ruling executed (RD-001-P4); five wrong ones went to a person.
+
+Three of the four misses beyond D20's two were caused by the D29 machinery itself:
+- RD-002 and RD-002-I3: the Judge dismissed correctly but its first causes list gave the driver a
+  share; on the remand it answered by dropping the list altogether, and the empty list then failed
+  the check, so two correct dismissals went to a person.
+- RD-001-P4: the refund came out right (S.70, the whole excess) through the causes, but the money
+  ask was moved from "denied" only to "partly", so the label read partially_upheld instead of upheld.
+- CR-001: Fairness's fee-basis check (driver 12.5 min late) escalated a kept fee; not D29-related.
+
+Two full runs of the D29 branch (32/37, 31/37) and one of the D28 branch (32/37) against D20's
+35/37: no version of the new architecture has matched the baseline's accuracy, every one costs
+40-50% more tokens, and each fails the rollback rule. D20 is itself one run, and single runs move
+by about two cases, but three runs below it is a consistent signal, not noise.
