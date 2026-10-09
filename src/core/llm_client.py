@@ -42,6 +42,8 @@ logger = logging.getLogger(__name__)
 # Space calls across all agent instances in this server process. Paid projects
 # can lower the interval via LLM_MIN_REQUEST_INTERVAL_SECONDS.
 _MIN_INTERVAL_SECONDS = max(0.0, float(os.getenv("LLM_MIN_REQUEST_INTERVAL_SECONDS", "13")))
+# Waits (seconds) before retrying a call the provider rejected because its queue was full
+_QUEUE_RETRY_DELAYS = (20, 40, 60)
 _rate_lock = asyncio.Lock()
 _next_request_at = 0.0
 
@@ -159,7 +161,21 @@ class LLMClient:
         token = _groq_rate_waits.set(waits)
         t0 = time.perf_counter()
         try:
-            response = await self._get_groq().chat.completions.create(**kwargs)
+            for attempt in range(len(_QUEUE_RETRY_DELAYS) + 1):
+                try:
+                    response = await self._get_groq().chat.completions.create(**kwargs)
+                    break
+                except Exception as exc:
+                    # Cerebras "queue_exceeded" is a busy server, not our quota: wait and try again
+                    # (D30: one such 429 failed a Judge call outright). The daily token cap
+                    # (token_quota_exceeded) is never retried.
+                    if attempt < len(_QUEUE_RETRY_DELAYS) and "queue_exceeded" in str(exc):
+                        delay = _QUEUE_RETRY_DELAYS[attempt]
+                        logger.warning("Provider queue full; retrying in %ss", delay)
+                        waits.append(delay)
+                        await asyncio.sleep(delay)
+                        continue
+                    raise
             text = response.choices[0].message.content or ""
             if not text.strip() and response.choices[0].finish_reason == "length":
                 # A reasoning model can spend the whole budget thinking and return no answer
