@@ -1230,3 +1230,16 @@ and the cost is +42%, not the +20-30% estimated in D28. Single runs carry noise 
 NS-002-B1 are known to flip, one 429), but the direction is clear: no accuracy gain over D20.
 What D29 adds is that none of its wrong rulings executed; it pays for that with more cases sent
 to a person. Neither branch is merged as is.
+
+**D30b (ed43bcf): two fixes for the D29 misses, and a re-run.** (1) A Cerebras "queue_exceeded"
+429 is retried after 20, 40, 60 s; the daily token cap is not. (2) When, after the remand, the
+only problem left is that the stated amount differs from the Judge's own valid causes, the amount
+follows the causes and the ruling executes (noted in the rationale); any other problem left still
+goes to a person. NS-001 (the Judge asked for review at confidence 0.78) is left alone: the
+threshold is unchanged since D20 and changing it for one run would be tuning to noise.
+
+Re-run of NS-001, NS-004, RD-001, RD-002 (run 20261009-120805-d29c, key 4): all four correct, all on the first
+Judge pass. Neither fix fired: no 429 came, and RD-001's Judge got the verdict right without a
+remand. So this run shows variance, not the fixes working; re-running only the misses is biased
+upward and is not counted as a score. The fixes are covered by unit tests; the next full
+regression and the sealed set are the real measure.
