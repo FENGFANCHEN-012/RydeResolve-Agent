@@ -300,10 +300,15 @@ def build_dispute_graph(
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
 
+    # Findings that send a ruling back to the Judge once (D27). unsupported_reasoning joined in D29b:
+    # in 404 audited runs since 1 Oct it appeared once, on a wrong ST-001 ruling that executed.
+    _REMAND_CODES = (FairnessIssueCode.INTERNAL_INCONSISTENCY, FairnessIssueCode.UNSUPPORTED_REASONING)
+
     def _inconsistencies(fairness) -> list[str]:
-        """Fairness findings that the ruling contradicts itself, the evidence or the policy check."""
+        """Fairness findings that the ruling contradicts itself, the evidence or the policy check,
+        or rests on a claim the evidence does not support."""
         return [i.description for i in getattr(fairness, "issues", None) or []
-                if getattr(i, "code", None) == FairnessIssueCode.INTERNAL_INCONSISTENCY]
+                if getattr(i, "code", None) in _REMAND_CODES]
 
     @_safe_node(NODE_ARBITRATOR)
     async def arbitrator_node(state: DisputeWorkflowState) -> dict:

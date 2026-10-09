@@ -737,3 +737,17 @@ class TestFairnessRemand:
         final = await build_graph(arbitrator=arbitrator, fairness=fairness, executor=executor).ainvoke(initial_state())
         assert arbitrator.calls == 2 and fairness.calls == 2 and executor.calls == 0
         assert final["status"] == STATUS_ESCALATED
+
+
+@pytest.mark.asyncio
+async def test_unsupported_reasoning_is_also_sent_back_once():
+    from src.agents.fairness import FairnessIssueCode, FairnessIssueDetail
+    flagged = make_fairness(
+        recommendation=FairnessRecommendation.AMEND_RECOMMENDED, fairness_passed=False,
+        issues=[FairnessIssueDetail(code=FairnessIssueCode.UNSUPPORTED_REASONING, severity="medium",
+                                    description="Asserts a verified closure the timeline contradicts.",
+                                    evidence_refs=[], recommended_action="")])
+    arbitrator, executor = StubArbitrator(), StubExecutor()
+    final = await build_graph(arbitrator=arbitrator, fairness=SequenceFairness(flagged),
+                              executor=executor).ainvoke(initial_state())
+    assert arbitrator.calls == 2 and executor.calls == 0 and final["status"] == STATUS_ESCALATED
