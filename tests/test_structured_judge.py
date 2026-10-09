@@ -109,9 +109,17 @@ async def test_amount_that_contradicts_the_causes_is_sent_back_not_overridden():
 
 
 @pytest.mark.asyncio
-async def test_mismatch_left_after_remand_uses_the_causes_and_goes_to_a_person():
-    bad = ruling(refund_amount=17.5, charge_causes=CAUSES)
+async def test_mismatch_left_after_remand_uses_the_causes_without_escalating():
+    bad = ruling(refund_amount=17.5, fare_finding="overcharged", charge_causes=CAUSES)
     llm = SequenceLLM(bad, bad)
     decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
-    assert decision.refund_amount == 10.5 and decision.human_review_needed
-    assert "the Judge had stated 17.5" in decision.rationale
+    assert decision.refund_amount == 10.5 and not decision.human_review_needed
+    assert "the amount follows the causes" in decision.rationale and "the Judge had stated 17.5" in decision.rationale
+
+
+@pytest.mark.asyncio
+async def test_other_problems_left_after_remand_still_go_to_a_person():
+    bad = ruling(refund_amount=17.5, charge_causes=[{**CAUSES[0], "share": 0.9}, CAUSES[1]])   # shares 1.3
+    llm = SequenceLLM(bad, bad)
+    decision = await ArbitrationAgent(llm_client=llm).arbitrate(**INPUTS)
+    assert decision.human_review_needed and "[CHECK: still inconsistent" in decision.rationale

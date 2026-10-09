@@ -127,7 +127,7 @@ def ruling_problems(parsed: dict, open_issues: list[str], excess: float | None =
         implied = None if listed else causes_refund(parsed.get("charge_causes"), excess)
         if implied is not None and abs(implied - refund) > 0.01:
             # Not overridden silently: the rationale would argue the opposite of the result (D29)
-            problems.append(f"charge_causes give a refund of S${implied:.2f} (the driver and platform "
+            problems.append(f"{MISMATCH_PREFIX} S${implied:.2f} (the driver and platform "
                             f"share of the S${excess:.2f} excess) but refund_amount is S${refund:.2f}. "
                             "Correct the causes or the amount so they match, and make the rationale "
                             "state that same result.")
@@ -139,6 +139,7 @@ def ruling_problems(parsed: dict, open_issues: list[str], excess: float | None =
 # one is; code computes the refund. On ST-001/ST-002 the Judge set the amount in one step and
 # never asked what pushed the route past the metered-fallback threshold (D26, D28).
 CAUSE_PARTIES = ("driver", "rider", "external", "platform")
+MISMATCH_PREFIX = "charge_causes give a refund of"
 REFUNDED_PARTIES = ("driver", "platform")   # the rider does not pay for these causes
 _SHARE_TOLERANCE = 0.05
 _MONEY_ASK = ("refund", "fare", "charge", "difference", "money", "$", "pay")
@@ -627,7 +628,15 @@ class ArbitrationAgent:
             if parsed2 is not None:
                 parsed = parsed2
             still = ruling_problems(parsed, open_issues, excess)
-            if still:
+            # Only the stated amount still disagrees with valid causes: the causes win and code
+            # computes the amount below (D30: RD-001 listed the right cause, wrote "dismissed",
+            # and went to a person with the correct S$3.70 on record)
+            amount_only = [p for p in still if not p.startswith(MISMATCH_PREFIX)]
+            if still and not amount_only:
+                parsed["rationale"] = ((parsed.get("rationale") or "")
+                                       + " [CHECK: after one remand the stated amount still differed from the "
+                                       "Judge's own causes; the amount follows the causes.]")
+            elif still:
                 parsed["human_review_needed"] = True
                 parsed["rationale"] = ((parsed.get("rationale") or "")
                                        + " [CHECK: still inconsistent after one remand: " + " ".join(still) + "]")
