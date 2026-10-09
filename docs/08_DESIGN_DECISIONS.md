@@ -1192,3 +1192,8 @@ the reasoning on the stress cases visible line by line, but it does not fix them
 misreads the same two facts (the order of detour and alert, whose stop it was) under every format
 tried. `unsupported_reasoning` has appeared once in 404 audited runs since 1 Oct, on this wrong
 ST-001 ruling.
+Follow-up (D29b): `unsupported_reasoning` now sends a ruling back to the Judge once, like
+`internal_inconsistency` (D27); still flagged, a person decides. Expected cost is near zero
+(1 in 404 audited runs) and it would have stopped the wrong ST-001 ruling. ST-002 stays a known
+failure: Fairness, on the same model, saw nothing wrong with it. An auditor on a different model
+(e.g. Hunyuan via Tencent ADP) is the untested next step for that class of error.
