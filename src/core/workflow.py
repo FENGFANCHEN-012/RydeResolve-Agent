@@ -325,7 +325,7 @@ def build_dispute_graph(
         sides = objecting_sides(decision, getattr(state["context"], "reporter", None)) if OBJECTION_ROUND else []
         if not sides:
             return update
-        # D32: the side the draft goes against may object once (rule + record, checked by code);
+        # D33: the filer, when the draft goes against them, may object once (rule + record, checked by code);
         # only a valid objection makes the Judge reconsider
         valid_rules = arbitrator._build_valid_refs(judge_inputs["policy_evaluation"], context)
         objections = []

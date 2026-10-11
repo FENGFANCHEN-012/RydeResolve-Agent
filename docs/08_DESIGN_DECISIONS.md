@@ -776,3 +776,81 @@ the verdict.
 
 **Not done (next):** the driver's false arrival as a hard signal (GPS far from pickup when "I'm
 here" is pressed, the NS-002-C1 pattern) and a claim that contradicts GPS/app events (design §4).
+
+## D23-D31. Experimental architecture, not adopted (2026-10-07 to 2026-10-09)
+
+D23-D31 live on the branches `feature/judge-and-cost-fixes` (D23-D28) and
+`experiment/structured-judge` (D29-D31); read them there. In short: advocate-chosen lookups with
+numbered evidence pools, adaptive orchestration, Judge checks, and a structured Judge whose refund
+is computed by code. Three full regressions scored 31-32/37 on D20's cases (D20: 35/37) at +42% to
++47% tokens, so `main` keeps the D22 pipeline. D32 ports only the cheap parts of D24 onto `main`.
+
+## D32. Adaptive triage on main, without evidence pools; Fairness adds up the disputed total (2026-10-09)
+
+Branch `feature/adaptive-triage` (off `origin/main`). From D24 it keeps what cost no tokens:
+
+1. **Triage, code only** (`src/core/triage.py`): two labels from signals already in the case, each
+   with its reasons. complexity simple/complex (a data conflict, 2+ data gaps, fraud risk above LOW, disputed amount above
+   `COMPLEX_AMOUNT_SGD` = S$30), risk safe/dangerous (P0 report or a safety alert in the chat). A label can only be
+   raised by a signal, never lowered.
+2. **Safety agent and graph node** (`src/agents/safety.py`): imminent danger or a legal threat goes
+   to a person now; verbal abuse gets protective actions, the money question is still ruled, and a
+   person reviews afterwards. Before this, `main` escalated any "threatened" wording at the
+   classifier, so a money dispute with a vague threat never got a ruling.
+3. **Fairness audit depth:** a simple + safe case gets the code checks only, no LLM audit. Every
+   other case gets the full audit. The code checks always run.
+4. **Round cap with a NEW_POINT tag** (`src/core/debate.py`): a complex case may run a further
+   round only when a side says its last rebuttal raised a new point.
+
+**Fix found by the stress cases:** the Fairness guard `refund_beyond_disputed_amount` compared the
+refund with one charge only. ST-003 disputes a fee, a fare excess and a rider cleaning fee, so a
+correct S$39.60 refund was flagged. New `case_brief.disputed_total()` adds up all three; only this
+guard uses it. Replayed on 731 saved traces: only ST-003 changes.
+
+**New stress cases** (`data/eval_cases/stress_new/`, run with
+`EXTRA_DISPUTE_DIRS=data/eval_cases/stress_new`):
+- ST-003: several asks, updated quote S$30, a cleaning photo sent late. Expected partially upheld,
+  S$39.60.
+- ST-003-T: ST-003 plus a vague threat. The money must still be ruled.
+- ST-004: consent to a fare change withdrawn. Expected upheld, S$17.80.
+- ST-005: pickup changed by the rider. Expected upheld, S$8.
+
+**Regression run 20261009-164028** (38 cases): 35/38 (92.1%). On D20's 37 cases 34/37 against
+D20's 35/37, +6% tokens, median 92 s per case, 0 wrong payouts executed. Misses: CR-001 (new; the
+Judge varies on it), NS-002-B1 and NS-002-C1. The one-case gap to D20 is
+within single-run noise on CR-001.
+
+## D33. One debate round for complex cases; the filer may object to the draft ruling (2026-10-11)
+
+**1. Second debate round: no effect, so the default is now one.** A/B on ST-003/004/005, three
+runs each: `COMPLEX_MAX_ROUNDS=2` (run 20261011-093011) against `=1` (run 20261011-094751): 9/9
+against 9/9, and the second round cost +18% tokens. The Judge reads all the raw records, so the
+driver's misleading last rebuttal never misled it. `COMPLEX_MAX_ROUNDS` now defaults to 1 (still
+set by env). The NEW_POINT machinery stays for when the cap is raised.
+
+**2. Objection to the Judge's draft (court-style rehearing, `src/agents/objection.py`).** The
+Judge's remaining errors are misread rules, not missing arguments: a 7-minute wait held to an
+8-minute threshold (NS-002-B1), a fee kept although the driver was past the delay waiver (CR-001),
+an arrival trusted although GPS put the driver 0.96 km away (NS-002-C1). More rounds do not fix
+that. So after the draft:
+- code picks who may object: the **filer only**, when the draft dismisses or only partly upholds
+  the claim; nobody when the draft already goes to a person;
+- that advocate may file ONE objection naming a rule the Judge may cite and a record that exists
+  (`app_events[i]`, `chat_log[i]`, `gps_trace[i]` or a finding id);
+- code checks both; an invalid objection is dropped and the Judge never sees it;
+- a valid objection makes the Judge reconsider once.
+
+Switched by `OBJECTION_ROUND=1`, **off by default** until a full regression shows it flips no
+correct ruling.
+
+**A/B on the three missed cases, three runs each** (ON run 20261011-102412, OFF run
+20261011-104150): 5/9 against 4/9, which is within noise, at +19% tokens. Where it fired: 2 of 2
+wrong drafts corrected, 0 of 2 correct drafts flipped, 1 wrong draft missed (the advocate said the
+draft was fine). Objections from the respondent (driver) side never corrected anything, so the
+first version, which let both sides object, was narrowed to the filer only.
+
+**Next:** full 38-case regression with `OBJECTION_ROUND=1` (about 1.25M tokens). Keep it on only if
+no correct ruling is flipped and the score is not lower than run 20261009-164028.
+
+**Tests:** 448 passed (objection: who may object, rule and record checks, a dropped objection
+changes nothing, off by default).

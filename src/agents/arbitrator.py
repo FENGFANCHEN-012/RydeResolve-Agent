@@ -107,7 +107,7 @@ def align_verdict_label(parsed: dict, context: dict | None) -> dict:
 
 
 def render_objection(objection: dict) -> str:
-    """The draft ruling and the objections to it that code accepted (D32). The Judge checks each
+    """The draft ruling and the objections to it that code accepted (D33). The Judge checks each
     objection against the record itself; an advocate's claim is not evidence."""
     lines = ["\n=== OBJECTIONS TO YOUR DRAFT RULING ===",
              "Your draft ruling: " + json.dumps(objection.get("draft") or {}, default=str),
