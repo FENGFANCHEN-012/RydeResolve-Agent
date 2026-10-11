@@ -179,12 +179,13 @@ def _fee_basis_problems(context: dict, verdict: str, refund) -> list[str]:
 
 
 def _refund_basis_problems(context: dict, refund) -> list[str]:
-    """A refund larger than the amount in dispute that the platform data computes (the fee charged,
-    or the excess over the quoted fare) has no rule the system can check behind the extra money.
-    The Judge refunded a whole S$22.60 fare where only the S$4.20 detour excess was refundable
-    (SQ-002, run 20261002-211912). Not decided here: the case goes to a person (D17)."""
-    from src.agents.case_brief import disputed_charge
-    disputed = disputed_charge(context)
+    """A refund larger than the amount in dispute that the platform data computes (every charge on
+    the filer it names: fee, excess over the quoted fare, cleaning fee) has no rule the system can
+    check behind the extra money. The Judge refunded a whole S$22.60 fare where only the S$4.20
+    detour excess was refundable (SQ-002, run 20261002-211912). Not decided here: the case goes to
+    a person (D17)."""
+    from src.agents.case_brief import disputed_total
+    disputed = disputed_total(context)
     try:
         refunded = float(refund or 0)
     except (TypeError, ValueError):

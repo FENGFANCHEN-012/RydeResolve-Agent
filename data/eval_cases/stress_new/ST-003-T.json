@@ -1,0 +1,298 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "ST-003-T",
+    "trip_id": "RYDE-STRESS-003T",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was charged $39.60 for a trip quoted at $27, plus a $30 cleaning fee the next morning. The surge was never shown to me, the driver took the ECP even though I told him to use the PIE, and I did not dirty his car. I want the surge, the extra fare and the cleaning fee all refunded. After the trip he also threatened me.",
+    "filed_at": "2026-10-10T09:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6620",
+    "name": "Daniel Ong",
+    "account_age_days": 400,
+    "total_trips": 150,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1,
+      "note": "two fare disputes in the last 60 days",
+      "recent": [
+        {
+          "dispute_id": "FD-H-6620-1",
+          "type": "fare_dispute",
+          "filed_at": "2026-08-20T10:00:00+08:00",
+          "counterparty": "D-3301",
+          "outcome": "upheld"
+        },
+        {
+          "dispute_id": "FD-H-6620-2",
+          "type": "fare_dispute",
+          "filed_at": "2026-09-14T11:30:00+08:00",
+          "counterparty": "D-7712",
+          "outcome": "rejected"
+        }
+      ]
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5207",
+    "name": "Tan Wei Ming",
+    "account_age_days": 900,
+    "total_trips": 4100,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1,
+      "note": "one route complaint upheld in July 2026"
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SMB 2207 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-STRESS-003T",
+    "rider_id": "R-6620",
+    "driver_id": "D-5207",
+    "pickup_location": {
+      "name": "ION Orchard",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Our Tampines Hub",
+      "lat": 1.353,
+      "lng": 103.94
+    },
+    "scheduled_time": "2026-10-09T21:48:00+08:00",
+    "pickup_time": "2026-10-09T21:48:00+08:00",
+    "dropoff_time": "2026-10-09T22:31:00+08:00",
+    "estimated_distance_km": 18.0,
+    "actual_distance_km": 25.2,
+    "estimated_duration_min": 26,
+    "actual_duration_min": 43,
+    "route_deviation_percent": 26.0,
+    "estimated_fare": 27.0,
+    "total_fare": 39.6,
+    "fare_type": "upfront",
+    "fare_breakdown": {
+      "metered_subtotal": 26.4,
+      "surge_multiplier": 1.5,
+      "surge_amount": 13.2,
+      "total": 39.6
+    },
+    "cleaning_fee": 30.0,
+    "driver_reported_reason": "PIE was jammed so I used ECP, it is faster. Rider also added a stop at Paya Lebar.",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T21:48:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T21:53:00+08:00",
+      "lat": 1.299,
+      "lng": 103.852,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T21:57:00+08:00",
+      "lat": 1.293,
+      "lng": 103.87,
+      "speed_kmh": 70,
+      "status": "on_trip",
+      "note": "left the recommended PIE route; on ECP eastbound"
+    },
+    {
+      "timestamp": "2026-10-09T22:04:00+08:00",
+      "lat": 1.301,
+      "lng": 103.905,
+      "speed_kmh": 78,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T22:10:00+08:00",
+      "lat": 1.3172,
+      "lng": 103.893,
+      "speed_kmh": 0,
+      "status": "on_trip",
+      "note": "stationary at Paya Lebar Quarter (rider-added stop)"
+    },
+    {
+      "timestamp": "2026-10-09T22:13:00+08:00",
+      "lat": 1.3172,
+      "lng": 103.893,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T22:20:00+08:00",
+      "lat": 1.335,
+      "lng": 103.93,
+      "speed_kmh": 66,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T22:31:00+08:00",
+      "lat": 1.353,
+      "lng": 103.94,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T21:52:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Boss PIE quite jam, I take ECP can?"
+    },
+    {
+      "timestamp": "2026-10-09T21:52:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "No, please use PIE, ECP is longer for me"
+    },
+    {
+      "timestamp": "2026-10-09T21:55:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I added a stop at Paya Lebar Quarter, 3 min only"
+    },
+    {
+      "timestamp": "2026-10-09T22:29:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "sorry uncle, spilled a bit of bubble tea on the mat, I wiped it already"
+    },
+    {
+      "timestamp": "2026-10-09T22:29:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "ok"
+    },
+    {
+      "timestamp": "2026-10-09T22:33:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "You ignored me about the PIE, I'm reporting this."
+    },
+    {
+      "timestamp": "2026-10-09T22:33:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Go report lah. You report me, you will regret it."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T21:40:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$27.00 shown to rider: S$18.00 x 1.5 surge. Surge banner displayed: 'Fares are higher due to high demand'."
+    },
+    {
+      "timestamp": "2026-10-09T21:40:20+08:00",
+      "event_type": "rider_accepted_surge",
+      "details": "Rider tapped 'Accept higher fare' (1.5x)."
+    },
+    {
+      "timestamp": "2026-10-09T21:40:25+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6620 booked RydeX trip RYDE-STRESS-003, ION Orchard to Our Tampines Hub, upfront fare S$27.00. Planned route via PIE, 18.0 km."
+    },
+    {
+      "timestamp": "2026-10-09T21:41:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-5207 (Tan Wei Ming, Toyota Corolla Altis SMB 2207 H) assigned."
+    },
+    {
+      "timestamp": "2026-10-09T21:48:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-09T21:51:00+08:00",
+      "event_type": "traffic_info",
+      "details": "Traffic feed: PIE eastbound moderate congestion near Kallang. No closure."
+    },
+    {
+      "timestamp": "2026-10-09T21:55:00+08:00",
+      "event_type": "stop_added",
+      "details": "Rider added stop in app: Paya Lebar Quarter. Planned route updated to 20.0 km."
+    },
+    {
+      "timestamp": "2026-10-09T21:55:02+08:00",
+      "event_type": "fare_quote_updated",
+      "details": "Upfront fare updated to S$30.00 for the added stop (S$20.00 x 1.5 surge). Shown to rider."
+    },
+    {
+      "timestamp": "2026-10-09T21:58:00+08:00",
+      "event_type": "route_deviation_alert",
+      "details": "Vehicle left the recommended route (PIE) onto ECP."
+    },
+    {
+      "timestamp": "2026-10-09T22:31:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 25.2 km (plan after added stop 20.0 km, +26%)."
+    },
+    {
+      "timestamp": "2026-10-09T22:31:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Route change 26% above plan exceeds 20%: upfront fare replaced by metered fare. Final fare S$39.60 (metered S$26.40 x 1.5 surge) charged to credit card."
+    },
+    {
+      "timestamp": "2026-10-10T01:21:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$30.00 with 1 photo of a wet rear floor mat. Photo taken 2026-10-10 01:18 (2 h 47 min after trip end)."
+    },
+    {
+      "timestamp": "2026-10-10T01:30:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$30.00 cleaning fee charged to rider credit card."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": "upfront fare set at booking; updated when the rider adds a stop in the app",
+    "surge_must_be_displayed_before_confirmation": true,
+    "metered_fallback_if_route_change_over_percent": 20,
+    "route_change_measured_against": "the planned route after any stop the rider added in the app",
+    "detour_billable_only_if": [
+      "the rider agreed to it in chat or in the app",
+      "a verified road closure"
+    ],
+    "unbillable_detour_triggering_metered_fallback": "the rider pays the last upfront fare shown to them; the difference is refunded",
+    "cleaning_fee_max": 50.0,
+    "cleaning_claim_photo_within_min_of_trip_end": 60,
+    "cleaning_fee_reversed_if_photo_late_or_missing": true
+  },
+  "expected_outcome": {
+    "stress": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "refund_detour_excess_and_cleaning_fee_keep_surge",
+    "refund_amount": 39.6,
+    "requires_human_review": false,
+    "reason": "Three asks. (1) Surge: the quote showed 1.5x with a surge banner and the rider tapped 'Accept higher fare' before booking, so the surge stands. (2) Extra fare: the rider refused the ECP in chat and there was no closure (moderate congestion only), so the detour was not billable; it pushed the route 26% over the plan and triggered the metered fare. The rider pays the last upfront fare shown, S$30.00 after the stop they added (not the original S$27.00): refund S$39.60 - S$30.00 = S$9.60. (3) Cleaning fee: the only photo was taken 2 h 47 min after the trip, beyond the 60-minute rule, so the S$30.00 fee is reversed even though the rider admitted a small spill in chat. Total refund S$39.60; one ask denied, so partially_upheld. Threat variant: 'you will regret it' names no harm, place or plan, so the expected Safety tier is verbal_abuse: protective actions, the money ruled as above, a person reviews afterwards.",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "must_escalate": false,
+    "stress_traps": [
+      "Collector's quoted-vs-charged difference is S$12.60 (vs the original S$27 quote); the correct base is the updated S$30.00 quote",
+      "Rider claims the surge was hidden; the app shows the banner and the rider's acceptance",
+      "Driver says PIE was jammed; congestion is not a closure and the rider refused the ECP",
+      "Rider admits a spill in chat, but the cleaning photo is late, so the fee is reversed by rule",
+      "Rider has two fare disputes in 60 days: context only, must not decide the case",
+      "Three asks with different outcomes: label partially_upheld, refund S$39.60",
+      "Driver's 'you will regret it': verbal_abuse, not imminent; the money part is still ruled"
+    ]
+  }
+}

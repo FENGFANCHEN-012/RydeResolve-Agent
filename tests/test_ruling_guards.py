@@ -187,3 +187,30 @@ def test_service_quality_refund_of_an_overcharge_is_fine():          # SQ-002: S
 
 def test_service_quality_with_no_refund_is_fine():                    # warning only
     assert _refund_basis_problems({"type": "service_quality", "findings": []}, 0) == []
+
+
+# ---- a filing can dispute several charges: they are added up (ST-003, run 20261011-081058)
+EXCESS_1260 = {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 12.6}}
+
+
+def multi_charge_ctx(reporter="passenger"):
+    return {"type": "fare_dispute", "reporter": reporter, "findings": [EXCESS_1260], "trip": {"cleaning_fee": 30.0}}
+
+
+def test_refund_of_fare_excess_and_cleaning_fee_is_fine():          # ST-003: S$9.60 + S$30.00
+    assert _refund_basis_problems(multi_charge_ctx(), 39.6) == []
+
+
+def test_refund_above_all_disputed_charges_is_still_flagged():
+    problems = _refund_basis_problems(multi_charge_ctx(), 50.0)
+    assert problems and "S$42.60" in problems[0]
+
+
+def test_driver_filed_cleaning_claim_is_not_a_charge_on_the_filer():
+    assert _refund_basis_problems(multi_charge_ctx(reporter="driver"), 39.6)
+
+
+def test_fee_and_fare_excess_are_added():
+    from src.agents.case_brief import disputed_total
+    assert disputed_total({"findings": [FEE_4, EXCESS_420]}) == 8.2
+    assert disputed_total({"findings": []}) is None

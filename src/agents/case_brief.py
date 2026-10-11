@@ -291,6 +291,27 @@ def disputed_charge(context) -> float | None:
     return None
 
 
+def disputed_total(context) -> float | None:
+    """Every charge on the filer that the platform data names, added up: the cancellation fee, what
+    was charged above the quoted fare, and a cleaning fee charged to a rider who filed. One filing
+    can dispute several charges; disputed_charge names only one, so a correct refund of both a fare
+    excess and a cleaning fee looked like an over-refund (ST-003, run 20261011-081058). None when
+    the data names no amount."""
+    parts = []
+    fee = _finding_values(context, "fee_check.charged")
+    if fee and fee.get("fee"):
+        parts.append(float(fee["fee"]))
+    fare = _finding_values(context, "fare_check.quoted_vs_charged")
+    if fare and (fare.get("difference") or 0) > 0:
+        parts.append(float(fare["difference"]))
+    get = context.get if isinstance(context, dict) else lambda k: getattr(context, k, None)
+    trip = (get("trip") or {}) if isinstance(get("trip") or {}, dict) else {}
+    cleaning = trip.get("cleaning_fee")
+    if str(get("reporter") or "").lower() != "driver" and isinstance(cleaning, (int, float)) and cleaning > 0:
+        parts.append(float(cleaning))   # a driver's own cleaning claim is not a charge on the filer
+    return round(sum(parts), 2) if parts else None
+
+
 def has_brief(context) -> bool:
     brief = getattr(context, "case_brief", None)
     if brief is None and isinstance(context, dict):
