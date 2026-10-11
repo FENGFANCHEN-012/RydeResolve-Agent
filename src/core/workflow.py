@@ -69,7 +69,7 @@ from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.agents.safety import SafetyAgent
 from src.agents.objection import ObjectionAgent, objecting_sides
-from src.config import OBJECTION_ROUND
+from src.config import OBJECTION_ROUND, OBJECTION_SIDES
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
@@ -322,7 +322,7 @@ def build_dispute_graph(
             decision = await arbitrator.arbitrate(**judge_inputs)
             s["output"] = decision
         update = {"decision": decision, "precedents": precedents}
-        sides = objecting_sides(decision, getattr(state["context"], "reporter", None)) if OBJECTION_ROUND else []
+        sides = objecting_sides(decision, getattr(state["context"], "reporter", None), OBJECTION_SIDES) if OBJECTION_ROUND else []
         if not sides:
             return update
         # D33: the filer, when the draft goes against them, may object once (rule + record, checked by code);

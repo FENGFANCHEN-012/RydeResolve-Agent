@@ -107,6 +107,9 @@ SAFETY_REASONING_EFFORT = os.getenv("SAFETY_REASONING_EFFORT", "high").strip().l
 # D33: the filer, when a draft ruling goes against them, may object once (rule + record, checked by code) and
 # the Judge reconsiders. Off by default until measured; OBJECTION_ROUND=1 turns it on.
 OBJECTION_ROUND = os.getenv("OBJECTION_ROUND", "0").strip().lower() in ("1", "true", "yes", "on")
+# "filer" (default): only the filer objects. "both": the respondent may object to an upheld or
+# partly upheld draft too (RD-002 test: a misread rule that only the driver had reason to contest)
+OBJECTION_SIDES = os.getenv("OBJECTION_SIDES", "filer").strip().lower()
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 
