@@ -6,8 +6,9 @@ The Judge's real errors are misread rules, not missing arguments: a 7-minute wai
 (CR-001), an arrival trusted although GPS put the driver 0.96 km away (NS-002-C1). More debate
 rounds did not fix them (A/B runs 20261011-093011 / -094751). Here the side the draft goes
 against reads the draft and may file ONE objection that names a rule and a record. Code decides:
-- who may object: the filer when the claim is dismissed, the respondent when it is upheld,
-  both when it is partly upheld; nobody when the draft already goes to a person;
+- who may object: only the filer, when the claim is dismissed or only partly upheld; nobody
+  when the draft already goes to a person. Respondent (driver-side) objections were tried and
+  never corrected a ruling (A/B 20261011-102412 vs -104150), so they only cost tokens;
 - whether an objection is valid: the rule must be one the Judge may cite (a case-policy key or a
   retrieved clause) and the record must exist (a list item such as app_events[3], or a finding id).
 An invalid objection is dropped and the Judge never sees it. Advocate text is untrusted.
@@ -43,9 +44,9 @@ def objecting_sides(decision, reporter: str | None) -> list[str]:
     if decision is None or getattr(decision, "human_review_needed", False):
         return []
     filer = "driver" if str(reporter or "").lower() == "driver" else "passenger"
-    other = "driver" if filer == "passenger" else "passenger"
     verdict = getattr(getattr(decision, "verdict", None), "value", getattr(decision, "verdict", None))
-    return {"dismissed": [filer], "upheld": [other], "partially_upheld": [filer, other]}.get(verdict, [])
+    # Filer only: respondent objections never helped in the A/B (see module docstring)
+    return [filer] if verdict in ("dismissed", "partially_upheld") else []
 
 
 def _records(context: dict) -> str:

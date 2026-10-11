@@ -8,7 +8,7 @@ every label carries its reasons):
 
 What the labels change:
 - simple: one debate round.
-- complex: up to COMPLEX_MAX_ROUNDS rounds; a further round runs only when a side says its
+- complex: up to COMPLEX_MAX_ROUNDS rounds (default 1); a further round runs only when a side says its
   last rebuttal raised a new point (NEW_POINT tag, see src/core/debate.py). Otherwise the
   sides would repeat themselves: on main the advocates cannot find new evidence mid-debate.
 - simple + safe: Fairness runs its code checks only, no LLM audit. Every other case gets
@@ -25,7 +25,9 @@ import os
 from src.agents.case_brief import disputed_charge
 from src.agents.fraud import LOW as FRAUD_LOW
 
-COMPLEX_MAX_ROUNDS = int(os.getenv("COMPLEX_MAX_ROUNDS", "2"))
+# Default 1: a second round changed no ruling in the A/B (runs 20261011-093011 vs -094751,
+# 9/9 vs 9/9) and cost +18% tokens; the Judge reads the raw records, not the last word
+COMPLEX_MAX_ROUNDS = int(os.getenv("COMPLEX_MAX_ROUNDS", "1"))
 # A disputed amount above this (SGD) is enough on its own to make a case complex
 COMPLEX_AMOUNT_SGD = float(os.getenv("COMPLEX_AMOUNT_SGD", "30"))
 # This many data gaps (missing records) make a case complex

@@ -25,8 +25,8 @@ def decision(verdict="dismissed", review=False):
 
 def test_the_side_the_draft_goes_against_may_object():
     assert objecting_sides(decision("dismissed"), "passenger") == ["passenger"]
-    assert objecting_sides(decision("upheld"), "passenger") == ["driver"]
-    assert objecting_sides(decision("partially_upheld"), "passenger") == ["passenger", "driver"]
+    assert objecting_sides(decision("upheld"), "passenger") == []
+    assert objecting_sides(decision("partially_upheld"), "passenger") == ["passenger"]
     assert objecting_sides(decision("dismissed"), "driver") == ["driver"]
 
 
