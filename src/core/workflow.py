@@ -68,6 +68,8 @@ from src.agents.executor import (
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.agents.safety import SafetyAgent
+from src.agents.objection import ObjectionAgent, objecting_sides
+from src.config import OBJECTION_ROUND
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
@@ -176,6 +178,7 @@ def build_dispute_graph(
     case_brief: CaseBriefAgent | None = None,
     fraud_agent: FraudAgent | None = None,
     safety_agent: SafetyAgent | None = None,
+    objection_agent: ObjectionAgent | None = None,
 ):
     """Compile and return the dispute-resolution LangGraph.
 
@@ -191,6 +194,7 @@ def build_dispute_graph(
     case_brief = case_brief or CaseBriefAgent()
     fraud_agent = fraud_agent or FraudAgent()
     safety_agent = safety_agent or SafetyAgent()
+    objection_agent = objection_agent or ObjectionAgent()
 
     def judge_context(state: DisputeWorkflowState) -> dict:
         """The context the Judge and Fairness read: a MEDIUM / HIGH fraud report is added here,
@@ -306,7 +310,7 @@ def build_dispute_graph(
                      *(["fraud risk report"] if "fraud_report" in context else [])],
             "precedent_ids": [p["precedent_id"] for p in precedents],
         }) as s:
-            decision = await arbitrator.arbitrate(
+            judge_inputs = dict(
                 context=context,
                 passenger_analysis=_as_analysis(history[0]["content"]) if len(history) > 0 else {},
                 driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
@@ -315,8 +319,37 @@ def build_dispute_graph(
                 # Only passed when there are some, so with an empty index the call is unchanged
                 **({"precedents": precedents} if precedents else {}),
             )
+            decision = await arbitrator.arbitrate(**judge_inputs)
             s["output"] = decision
-        return {"decision": decision, "precedents": precedents}
+        update = {"decision": decision, "precedents": precedents}
+        sides = objecting_sides(decision, getattr(state["context"], "reporter", None)) if OBJECTION_ROUND else []
+        if not sides:
+            return update
+        # D32: the side the draft goes against may object once (rule + record, checked by code);
+        # only a valid objection makes the Judge reconsider
+        valid_rules = arbitrator._build_valid_refs(judge_inputs["policy_evaluation"], context)
+        objections = []
+        for side in sides:
+            async with step("Objection", f"{side.title()} advocate: objection to the draft ruling", {
+                "sees": ["draft ruling", "case brief", "numbered records", "rules the Judge may cite"],
+            }) as s:
+                o = await objection_agent.object(side, context, decision, valid_rules)
+                s["output"] = o
+            objections.append(o)
+        update["objections"] = objections
+        standing = [o for o in objections if o.get("objection")]
+        if not standing:
+            return update
+        draft = {"verdict": getattr(decision.verdict, "value", decision.verdict),
+                 "refund_amount": decision.refund_amount, "asks": decision.asks}
+        async with step("Arbitrator", "Reconsider the draft after objections", {
+            "objections": [f"{o['side']}: {o['claim']}" for o in standing],
+        }) as s:
+            reconsidered = await arbitrator.arbitrate(
+                **judge_inputs, objection={"draft": draft, "objections": standing})
+            s["output"] = reconsidered
+        update.update({"decision": reconsidered, "draft_decision": decision})
+        return update
 
     @_safe_node(NODE_FAIRNESS)
     async def fairness_node(state: DisputeWorkflowState) -> dict:
