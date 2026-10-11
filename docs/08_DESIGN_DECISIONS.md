@@ -1049,3 +1049,27 @@ tests/test_code_judge.py. **Tests:** 484 passed (20 new).
 regressions it could cause (cases with correct partial refunds: DS-05, DS-06, DS-14, DS-17, RD-001,
 SQ-002), then the full 38. The Sonnet DS set was used for tuning (D37); the final measure must use
 a fresh set.
+
+**First A/B, run 20261011-232103 (code Judge ON, 13 targeted cases, one run each).** Compared with
+the same cases in runs 20261011-181308 / -221641 (code Judge off):
+
+| Case | Before (off) | Code Judge on |
+|---|---|---|
+| DS-11 | WRONG, paid S$4.50 | to a person (correct): remand, Judge then marked the closure unverifiable |
+| DS-20 | WRONG, paid S$180 | to a person (correct): remand |
+| DS-18 | wrong (driver claim dismissed) | to a person (correct): remand |
+| RD-002 | WRONG, paid S$3.10 / S$1.55 | correct, dismissed (no remand: the D37 discretion text, not the check) |
+| DS-05, DS-06, DS-14, RD-001, SQ-002 | correct refunds | correct (DS-06, DS-14 after a remand) |
+| DS-09 | WRONG, paid S$5 | WRONG, paid S$5 (window direction: not covered) |
+| CR-001, NS-002-C1 | to a person | to a person |
+| DS-17 | refund S$2.50 correct | dismissed (Judge variance, no remand) |
+
+10/13 correct; wrong payouts executed 4 -> 1 (DS-09). Remands on 6/13 cases; tokens 437.7k
+(33.7k per case, about +25% against 27k, all from the remands). One run each: within-noise for any
+single case, but the three escalations come from the mechanism (remand, then the Judge's own
+"unverifiable"), not chance.
+
+**Known looseness to fix next:** (1) a record that IS the gap event (telemetry_gap_start) proves
+that the gap exists; the check now treats it as unverified too (over-strict). (2) The Judge marked
+chat messages "verified"; the prompt forbids it, code does not yet. (3) DS-09: the rule's own
+comparison needs to be evaluated by code.
