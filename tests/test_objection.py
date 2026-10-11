@@ -28,6 +28,8 @@ def test_the_side_the_draft_goes_against_may_object():
     assert objecting_sides(decision("upheld"), "passenger") == []
     assert objecting_sides(decision("partially_upheld"), "passenger") == ["passenger"]
     assert objecting_sides(decision("dismissed"), "driver") == ["driver"]
+    assert objecting_sides(decision("upheld"), "passenger", "both") == ["driver"]
+    assert objecting_sides(decision("partially_upheld"), "passenger", "both") == ["passenger", "driver"]
 
 
 def test_no_objection_when_the_draft_already_goes_to_a_person():

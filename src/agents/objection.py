@@ -39,14 +39,17 @@ Respond ONLY with JSON: {{"objection": true|false, "claim": "<one sentence: what
 "rule": "<rule reference>", "record": "<record reference>"}}"""
 
 
-def objecting_sides(decision, reporter: str | None) -> list[str]:
+def objecting_sides(decision, reporter: str | None, sides: str = "filer") -> list[str]:
     """Who may object to this draft (code only)."""
     if decision is None or getattr(decision, "human_review_needed", False):
         return []
     filer = "driver" if str(reporter or "").lower() == "driver" else "passenger"
     verdict = getattr(getattr(decision, "verdict", None), "value", getattr(decision, "verdict", None))
-    # Filer only: respondent objections never helped in the A/B (see module docstring)
-    return [filer] if verdict in ("dismissed", "partially_upheld") else []
+    # Filer only by default: respondent objections never helped in the A/B (see module docstring)
+    out = [filer] if verdict in ("dismissed", "partially_upheld") else []
+    if sides == "both" and verdict in ("upheld", "partially_upheld"):
+        out.append("driver" if filer == "passenger" else "passenger")
+    return out
 
 
 def _records(context: dict) -> str:
