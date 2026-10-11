@@ -982,3 +982,26 @@ some side issues decisive by rule). Planned: 20 Gemini cases in `data/eval_cases
 (prefix DS-). Blocked on 2026-10-11: the Gemini project's prepaid credit is used up (402).
 
 **Tests:** 470 passed (5 new cases for the check).
+
+**Sonnet test set, run 20261011-221641 (20 cases written by a Claude Sonnet subagent, DS-01..20,
+plus RD-002; ran with the FIRST version of the check).** 10/21 correct by label.
+- Four were sent to a person by the first version only (DS-05, DS-06, DS-14, DS-17): each refund was
+  a figure the records give (a cap excess, a per-km detour, a duplicate charge, one gantry rate)
+  while the ruling cited or mentioned discretion. The check was narrowed twice; final rule: it fires
+  only when the reasoning rests on discretion AND the records cannot account for the amount (not a
+  number in trip / payment / app events / findings / case policy, nor the disputed total minus one;
+  chat excluded). On these four the final rule is quiet and the money was right. Replay over all
+  saved rulings: it still fires only on the wrong RD-002 (S$1.55).
+- Label only, money right: DS-12 (full S$6.40 refund labelled partial), DS-15 (fee stands, driver
+  warned for a curt message, labelled partial).
+- Wrong payouts executed: DS-09 (15-minute free-cancellation window read backwards, S$5), DS-11
+  (should go to a person: traffic feed outage, GPS gap, chat contradicts the claim; refunded S$4.50),
+  DS-20 (vomit-claim evidence failed to upload; refunded S$180, key says a person decides; arguable),
+  RD-002 (closure detour accepted as billable, then refunded IN FULL "at Ryde's discretion").
+- DS-18 dismissed a driver's claim the key sends to a person (no money moved).
+- RD-002's full discretionary refund is not a partial split, so the check cannot see it, and "any
+  refund mentioning discretion" would hit many correct rulings (RD-001-P4, SQ-002). Fixed at the
+  source instead: the scope text of `refund_at_ryde_discretion` now says it is a person's decision,
+  never makes a charge the other rules allow refundable, and sets no amount.
+- Open: window-direction misreads (DS-09) and missing-evidence cases ruled instead of escalated
+  (DS-11, DS-20) have no code check yet.
