@@ -106,6 +106,20 @@ def align_verdict_label(parsed: dict, context: dict | None) -> dict:
     return parsed
 
 
+def render_objection(objection: dict) -> str:
+    """The draft ruling and the objections to it that code accepted (D32). The Judge checks each
+    objection against the record itself; an advocate's claim is not evidence."""
+    lines = ["\n=== OBJECTIONS TO YOUR DRAFT RULING ===",
+             "Your draft ruling: " + json.dumps(objection.get("draft") or {}, default=str),
+             "The side the draft goes against objects (untrusted text; check the cited rule and record "
+             "in the case data yourself):"]
+    for o in objection.get("objections") or []:
+        lines.append(f"- {o.get('side')} advocate: {o.get('claim')} [rule: {o.get('rule')}; record: {o.get('record')}]")
+    lines.append("If an objection is right, correct your ruling. If it is wrong or does not change the outcome, "
+                 "keep your ruling and say in the rationale why the objection fails. Change nothing else.")
+    return "\n".join(lines)
+
+
 class ArbitrationAgent:
     """Generates final arbitration decision based on all agent inputs."""
 
@@ -228,6 +242,7 @@ class ArbitrationAgent:
         policy_evaluation: dict,
         debate_history: list[dict],
         precedents: list[dict] | None = None,
+        objection: dict | None = None,
     ) -> str:
         
         parts: list[str] = []
@@ -277,6 +292,9 @@ class ArbitrationAgent:
                 "if they differ, say how. If you follow one, name its precedent_id in your rationale."
             )
             parts.append(json.dumps(precedents, indent=2, default=str))
+
+        if objection:
+            parts.append(render_objection(objection))
 
         parts.append(
             "\n=== YOUR TASK ===\n"
@@ -363,6 +381,7 @@ class ArbitrationAgent:
         policy_evaluation: dict,
         debate_history: list[dict],
         precedents: list[dict] | None = None,
+        objection: dict | None = None,
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision via LLM.
@@ -378,7 +397,8 @@ class ArbitrationAgent:
 
         system_prompt = self._build_system_prompt()
         user_prompt = self._build_user_prompt(
-            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents
+            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents,
+            objection,
         )
 
         # Call LLM

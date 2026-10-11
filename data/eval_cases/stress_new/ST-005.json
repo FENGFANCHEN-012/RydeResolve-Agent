@@ -1,0 +1,176 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "ST-005",
+    "trip_id": "RYDE-STRESS-005",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was charged an $8 no-show fee. I changed my pickup to the multi-storey carpark before the driver arrived because I had luggage, and I waited there the whole time. The driver stayed at the lobby and cancelled on me.",
+    "filed_at": "2026-10-10T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4471",
+    "name": "Aaron Chua",
+    "account_age_days": 700,
+    "total_trips": 260,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2286",
+    "name": "Muthu Raman",
+    "account_age_days": 1200,
+    "total_trips": 5200,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SMQ 2286 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-STRESS-005",
+    "rider_id": "R-4471",
+    "driver_id": "D-2286",
+    "pickup_location": {
+      "name": "Blk 123 Tampines St 11, lift lobby (pickup pin at booking)",
+      "lat": 1.348,
+      "lng": 103.944
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3555,
+      "lng": 103.9864
+    },
+    "scheduled_time": "2026-10-10T08:00:00+08:00",
+    "estimated_fare": 14.5,
+    "total_fare": 0.0,
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "no_show",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T07:56:00+08:00",
+      "lat": 1.3462,
+      "lng": 103.941,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T08:02:00+08:00",
+      "lat": 1.34803,
+      "lng": 103.94402,
+      "speed_kmh": 0,
+      "status": "arrived",
+      "note": "at the lift lobby kerb"
+    },
+    {
+      "timestamp": "2026-10-10T08:07:00+08:00",
+      "lat": 1.34803,
+      "lng": 103.94402,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-10T08:11:00+08:00",
+      "lat": 1.34803,
+      "lng": 103.94402,
+      "speed_kmh": 0,
+      "status": "arrived"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T08:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi I'm at the carpark level 1 as updated in the app, where are you?"
+    },
+    {
+      "timestamp": "2026-10-10T08:05:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the lobby already, come down"
+    },
+    {
+      "timestamp": "2026-10-10T08:06:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I changed the pickup to the carpark L1, can you drive in? I have 2 big luggage"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T07:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-4471 booked RydeX to Changi T3. Pickup pin: Blk 123 Tampines St 11, lift lobby."
+    },
+    {
+      "timestamp": "2026-10-10T07:51:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2286 assigned, ETA 08:01."
+    },
+    {
+      "timestamp": "2026-10-10T07:58:00+08:00",
+      "event_type": "pickup_point_changed",
+      "details": "Rider moved the pickup point to Blk 123 multi-storey carpark, level 1 (120 m from the lift lobby). Driver notified."
+    },
+    {
+      "timestamp": "2026-10-10T07:58:20+08:00",
+      "event_type": "driver_acknowledged_pickup_change",
+      "details": "Driver tapped 'Got it' on the new pickup point."
+    },
+    {
+      "timestamp": "2026-10-10T08:02:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'Arrived'."
+    },
+    {
+      "timestamp": "2026-10-10T08:02:05+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started."
+    },
+    {
+      "timestamp": "2026-10-10T08:11:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled: rider no-show after 9 min."
+    },
+    {
+      "timestamp": "2026-10-10T08:11:05+08:00",
+      "event_type": "cancellation_fee_charged",
+      "details": "S$8.00 no-show fee charged to rider credit card."
+    }
+  ],
+  "platform_policy": {
+    "no_show_threshold_min": 8,
+    "no_show_fee": 8.0,
+    "no_show_fee_requires_driver_waiting_at_current_pickup_point": true,
+    "pickup_point_change_before_driver_arrival_binds_the_driver": true
+  },
+  "expected_outcome": {
+    "stress": true,
+    "verdict": "upheld",
+    "recommended_action": "refund_no_show_fee",
+    "refund_amount": 8.0,
+    "requires_human_review": false,
+    "reason": "The rider moved the pickup to the carpark at 07:58 and the driver acknowledged it at 07:58:20, before arriving at 08:02. The driver waited at the lift lobby, the old pin, 120 m away, not at the current pickup point, so the no-show fee's basis is not met even though GPS is 5 m from the booking pin and the wait was 9 min. Refund S$8.00.",
+    "expected_dispute_type": null,
+    "expected_urgency": null,
+    "must_escalate": false,
+    "stress_traps": [
+      "GPS is 5 m from the booking pin, which supports the driver on a naive reading",
+      "Wait of 9 min passes the 8-min threshold",
+      "The pickup change and the driver's acknowledgement are only in the app events"
+    ]
+  }
+}
