@@ -92,6 +92,8 @@ class FairnessIssueCode(str, Enum):
     # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
     FEE_BASIS_NOT_MET = "fee_basis_not_met"
     REFUND_BEYOND_DISPUTED = "refund_beyond_disputed_amount"
+    # #7b a conduct complaint is dismissed although the ruling penalises the driver for that conduct
+    PENALTY_WITH_DISMISSAL = "penalty_with_dismissal"
 
     # #8 the Fraud agent found hard evidence of fraud or collusion in this case
     FRAUD_RISK_HIGH = "fraud_risk_high"
@@ -668,6 +670,25 @@ class FairnessAgent:
                 severity="high",
                 refs=["collector.findings", "platform_policy"],
                 recommended_action="Route to human review; the fee rests on a record the data does not support.",
+            )
+            requires_human = True
+
+        # (i2) a service-quality complaint is about the driver's conduct, so penalising the driver
+        #      means the complaint was at least partly accepted. The Judge issued a formal warning
+        #      and still labelled SQ-001 "dismissed" (runs 20261011-111637, -132910). Limited to
+        #      service quality: in other types a warning can sit beside a correct dismissal (CR-004,
+        #      RD-002-I3 in the replay of 731 traces)
+        dispute_type = getattr((context or {}).get("type"), "value", (context or {}).get("type"))
+        penalty = str(getattr(decision, "driver_penalty", None) or "").strip()
+        if (dispute_type == "service_quality" and verdict_value == "dismissed"
+                and penalty and penalty.lower() not in ("none", "no", "n/a", "no penalty")):
+            add_issue(
+                FairnessIssueCode.PENALTY_WITH_DISMISSAL,
+                f"The ruling dismisses a service-quality complaint but penalises the driver for the "
+                f"conduct complained of ({penalty[:120]}). The label and the action contradict each other.",
+                severity="high",
+                refs=["decision.verdict", "decision.driver_penalty"],
+                recommended_action="Route to human review; the complaint looks at least partly upheld.",
             )
             requires_human = True
 

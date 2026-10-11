@@ -214,3 +214,22 @@ def test_fee_and_fare_excess_are_added():
     from src.agents.case_brief import disputed_total
     assert disputed_total({"findings": [FEE_4, EXCESS_420]}) == 8.2
     assert disputed_total({"findings": []}) is None
+
+
+# ---- a conduct complaint dismissed while the driver is penalised (SQ-001, run 20261011-111637)
+@pytest.mark.asyncio
+@pytest.mark.parametrize("type_,penalty,flagged", [
+    ("service_quality", "formal warning issued to driver", True),
+    ("service_quality", "", False),
+    ("service_quality", "none", False),
+    ("cancellation_refund", "warning issued to driver", False),   # CR-004: a warning beside a correct dismissal
+])
+async def test_penalty_with_dismissal(type_, penalty, flagged):
+    from tests.test_fairness_agent import FakeLLMClient, make_context, make_decision, make_input
+    from src.agents.fairness import FairnessAgent, FairnessIssueCode
+    from src.agents.arbitrator import Verdict
+    d = make_decision(verdict=Verdict.DISMISSED, refund_amount=None)
+    d.driver_penalty = penalty or None
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(
+        make_input(context=make_context(type=type_), decision=d))
+    assert (FairnessIssueCode.PENALTY_WITH_DISMISSAL in {i.code for i in a.issues}) is flagged
