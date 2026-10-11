@@ -237,6 +237,7 @@ async def test_penalty_with_dismissal(type_, penalty, flagged):
 
 # ---- a refund that splits the disputed amount on Ryde's discretion (RD-002, run 20261011-181308)
 EXCESS_310 = {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 3.1}}
+GANTRY_100 = {"id": "erp_check.gantry_rate", "kind": "fact", "value": {"rate": 1.0}}  # a number in the records
 DISC_SPLIT = ("The closure detour is billable. However, the driver did not disclose the fare increase; "
               "given platform_policy.refund_at_ryde_discretion a partial refund of $1.55 balances this.")
 
@@ -247,7 +248,7 @@ DISC_SPLIT = ("The closure detour is billable. However, the driver did not discl
     (1.55, "Half of the excess is refunded at Ryde's discretion.", [], True),
     (20.0, "The fee exceeds the S$40 cap, so the excess S$20 is refunded.",                    # DS-05
      ["platform_policy.cleaning_fee_max", "platform_policy.refund_at_ryde_discretion"], False),
-    (2.0, "Ryde's discretion allows the partial refund of the unbillable 1.6 km.", [], False),  # DS-06 shape
+    (1.0, "One gantry rate was wrongly charged; Ryde's discretion allows refunding it.", [], False),  # DS-17 shape
     (1.03, "At Ryde's discretion a third of the charge is returned.", [], True),
     (3.1, "The whole detour excess is refunded under Ryde's discretion.", [], False),  # computed amount
     (1.55, "The rider asked for one stop; half the excess is billable.", ["platform_policy.detour_billable_only_if"], False),
@@ -259,7 +260,7 @@ async def test_discretionary_partial_refund(refund, rationale, refs, flagged):
     d = make_decision(refund_amount=refund, rationale=rationale)
     d.policy_references = refs
     a = await FairnessAgent(llm_client=FakeLLMClient()).assess(
-        make_input(context=make_context(findings=[EXCESS_310]), decision=d))
+        make_input(context=make_context(findings=[EXCESS_310, GANTRY_100]), decision=d))
     codes = {i.code for i in a.issues}
     assert (FairnessIssueCode.DISCRETIONARY_PARTIAL_REFUND in codes) is flagged
     if flagged:

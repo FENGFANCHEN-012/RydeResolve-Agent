@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
@@ -208,6 +209,43 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
     return []
 
 
+_NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
+
+
+def _record_numbers(context: dict) -> set[float]:
+    """Every number in the platform records (trip, payment, app events, findings, case policy),
+    including numbers written inside strings such as "S$2.50 gantry rate". Not the chat."""
+    from src.core.case_policy import policy_values
+    nums: set[float] = set()
+
+    def walk(v):
+        if isinstance(v, bool):
+            return
+        if isinstance(v, (int, float)):
+            nums.add(round(float(v), 2))
+        elif isinstance(v, str):
+            nums.update(round(float(x), 2) for x in _NUMBER_RE.findall(v))
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, (list, tuple)):
+            for x in v:
+                walk(x)
+
+    for section in ("trip", "payment", "app_events"):
+        walk(context.get(section))
+    walk(policy_values(context.get("platform_policy")))
+    walk([f.get("value") for f in _dump_findings(context)])
+    return nums
+
+
+def _traceable_amount(amount: float, disputed: float, context: dict) -> bool:
+    """True when the records account for `amount`: it is a number in them, or the disputed total
+    minus one."""
+    nums = _record_numbers(context)
+    return any(abs(amount - n) <= 0.01 or abs(amount - (disputed - n)) <= 0.01 for n in nums if n > 0)
+
+
 def _discretionary_split_problems(context: dict, decision) -> list[str]:
     """A refund grounded on Ryde's discretion that is smaller than the disputed amount the platform
     data computes: no rule sets that figure, so a person decides it. The Judge accepted that a
@@ -228,11 +266,12 @@ def _discretionary_split_problems(context: dict, decision) -> list[str]:
     # rule computes, and listed refund_at_ryde_discretion among its references only
     if "discretion" not in str(getattr(decision, "rationale", "") or "").lower():
         return []
-    # ...and the amount must look like splitting the difference (a half, a third, a quarter...),
-    # not a figure the rules compute. DS-06 refunded S$4.80 of S$8.40 (4 km of unrequested detour
-    # x S$1.20, computed from the case rules) and still wrote "Ryde's discretion allows the partial
-    # refund"; RD-002 refunded exactly half. A heuristic: it targets the goodwill split only
-    if not any(abs(refunded - disputed * f) <= 0.01 for f in (1 / 2, 1 / 3, 2 / 3, 1 / 4, 3 / 4)):
+    # ...and the platform records must not account for the amount. A refund that is a charge line,
+    # a rate, a cap or the disputed total minus one of those comes from the records (DS-17 refunded
+    # one S$2.50 gantry rate, DS-14 a duplicate S$5 charge, DS-05 the S$20 above a S$40 cap, all
+    # while mentioning discretion). RD-002's S$1.55 (half the excess) appears nowhere. The chat is
+    # left out: a party can type any number there
+    if _traceable_amount(refunded, disputed, context):
         return []
     return ["The refund S$%.2f is part of the S$%.2f in dispute and rests on Ryde's discretion; no rule "
             "sets that amount, so a person decides it." % (refunded, disputed)]
