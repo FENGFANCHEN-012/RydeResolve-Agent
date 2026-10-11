@@ -955,3 +955,30 @@ payout executed, 1.02M tokens (26.9k per run, no rise; the rounds-2 baseline was
   folder (void traces in `20261011-181308_void_network`).
 - SI-001 (P0 safety) escalates with zero LLM tokens by design; the key-rotation script read that
   as a quota failure. Its trace was restored; the rotation check must skip zero-token P0 cases.
+
+## D37. Fairness sends a discretionary partial refund to a person (2026-10-11)
+
+**Error (RD-002, run 20261011-181308).** The Judge applied the case rules correctly (a verified
+road-closure detour is billable) and then refunded half the extra charge, S$1.55 of S$3.10, under
+`refund_at_ryde_discretion` for a "fare increase not disclosed" lapse. No code check covered it,
+so the payout was executed.
+
+**Check `discretionary_partial_refund` (high, to a person).** It fires when the refund is above
+zero, the ruling rests on Ryde's discretion (cites `refund_at_ryde_discretion` or says
+"discretion"), and the refund is below the disputed amount the platform data computes
+(`disputed_total`). A discretionary amount has no rule behind it, so a person sets it, the same
+principle as the service-quality refund rule in D17. A refund of the computed amount itself is
+untouched.
+
+**Why this rule and not "any refund citing discretion".** Correct rulings cite the discretion
+key often (RD-001, RD-001-P4, FD-003, SQ-002: about 60 saved rulings) but refund exactly the
+computed amount. A replay over 790 saved rulings (634 correct, 156 wrong) fired once: the wrong
+RD-002 above. Zero correct rulings flagged.
+
+**Test set for this error class.** `scripts/gen_sealed_cases.py` now takes `--out-dir`,
+`--prefix`, `--types` and `--focus-file`. Brief: `data/eval_cases/focus_discretion.txt` (charge
+allowed / not / partly by the case's own rules, plus a side issue that tempts a goodwill split;
+some side issues decisive by rule). Planned: 20 Gemini cases in `data/eval_cases/discretion/`
+(prefix DS-). Blocked on 2026-10-11: the Gemini project's prepaid credit is used up (402).
+
+**Tests:** 470 passed (5 new cases for the check).
