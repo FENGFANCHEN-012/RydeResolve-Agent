@@ -1,0 +1,212 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-16",
+    "trip_id": "RYDE-DS-016",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "I was quoted S$19.40 but charged S$24.30. The driver went a completely different way to Bishan, we reached my brunch 4 minutes late and I was upset. I want the S$4.90 route charge refunded.",
+    "filed_at": "2026-10-10T11:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7116",
+    "name": "Rachel Sim",
+    "account_age_days": 560,
+    "total_trips": 188,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8116",
+    "name": "Hassan Ali",
+    "account_age_days": 760,
+    "total_trips": 3600,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 0,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Civic (SKA 7731 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-016",
+    "rider_id": "R-7116",
+    "driver_id": "D-8116",
+    "pickup_location": {
+      "name": "Woodlands MRT",
+      "lat": 1.437,
+      "lng": 103.7865
+    },
+    "dropoff_location": {
+      "name": "Bishan MRT",
+      "lat": 1.3509,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-10T10:00:00+08:00",
+    "pickup_time": "2026-10-10T10:01:00+08:00",
+    "dropoff_time": "2026-10-10T10:34:00+08:00",
+    "estimated_distance_km": 14.0,
+    "actual_distance_km": 18.9,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 33,
+    "route_deviation_percent": 35.0,
+    "estimated_fare": 19.4,
+    "total_fare": 24.3,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 9.8,
+      "time_fare": 5.7,
+      "subtotal": 19.4,
+      "route_adjustment_extra_km": 4.9,
+      "route_adjustment_fare": 4.9,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 24.3
+    },
+    "driver_reported_reason": "Avoiding jam on the usual expressway",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T10:01:00+08:00",
+      "lat": 1.437,
+      "lng": 103.7865,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T10:08:00+08:00",
+      "lat": 1.43,
+      "lng": 103.81,
+      "speed_kmh": 29,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T10:15:00+08:00",
+      "lat": 1.415,
+      "lng": 103.845,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T10:22:00+08:00",
+      "lat": 1.39,
+      "lng": 103.865,
+      "speed_kmh": 38,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T10:29:00+08:00",
+      "lat": 1.37,
+      "lng": 103.86,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T10:34:00+08:00",
+      "lat": 1.3509,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T09:58:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the bus interchange exit."
+    },
+    {
+      "timestamp": "2026-10-10T10:09:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we going east? Bishan is south."
+    },
+    {
+      "timestamp": "2026-10-10T10:09:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Jam ahead. Trust me."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T09:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7116 booked RydeX trip RYDE-DS-016 at upfront fare S$19.40 (14.0 km, 22 min)."
+    },
+    {
+      "timestamp": "2026-10-10T10:01:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-10T10:07:30+08:00",
+      "event_type": "off_route_detected",
+      "details": "Vehicle left the recommended route. No LTA road closure, accident or traffic alert recorded for the recommended route in the period 09:30-10:45."
+    },
+    {
+      "timestamp": "2026-10-10T10:34:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 18.9 km (+4.9 km versus the 14.0 km quote)."
+    },
+    {
+      "timestamp": "2026-10-10T10:34:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Automatic route adjustment 4.9 km x S$1.00 = S$4.90 added; final fare S$24.30."
+    },
+    {
+      "timestamp": "2026-10-10T10:40:00+08:00",
+      "event_type": "app_notice",
+      "details": "The in-app rating screen failed to load for about 5 minutes after the trip."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront for the pickup/drop-off pair; extra distance billed at the extra-distance rate",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "extra_distance_rate_per_km": {
+      "value": 1.0,
+      "text": "The rate in SGD per km applied to any extra distance that is billable on this trip."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    },
+    "driver_chosen_route_changes_fixed_fare": {
+      "value": false,
+      "text": "Governs whether a route the driver chooses for their own reasons changes a fixed upfront fare. A false value means it does not."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 4.9,
+    "recommended_action": "refund_route_adjustment",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The fare was fixed upfront at S$19.40 and the driver left the recommended route at 10:07:30. The app found no road closure, accident or traffic alert on the recommended route in the period, and the driver's own reason was a 'jam'. Under this trip's policy extra distance is billable only for a verified closure, and a driver-chosen route does not change a fixed fare, so the automatic route adjustment of 4.9 km x S$1.00 = S$4.90 must be refunded. The 4-minute lateness and the rider's upset do not affect the amount.",
+    "expected_dispute_type": "route_deviation",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
+  }
+}

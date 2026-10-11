@@ -1,0 +1,198 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-07",
+    "trip_id": "RYDE-DS-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The app quoted S$22.90 but I was charged S$27.90. Nobody told me about ERP and the receipt screen showed the total twice for a few minutes. I did not pass any gantry and want S$5.00 back.",
+    "filed_at": "2026-10-06T10:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7107",
+    "name": "Samuel Goh",
+    "account_age_days": 900,
+    "total_trips": 420,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": "credit_card",
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8107",
+    "name": "Teo Beng Hock",
+    "account_age_days": 1700,
+    "total_trips": 9100,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mercedes E200 (SLN 1190 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-007",
+    "rider_id": "R-7107",
+    "driver_id": "D-8107",
+    "pickup_location": {
+      "name": "Jurong East MRT",
+      "lat": 1.3331,
+      "lng": 103.7421
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-06T08:30:00+08:00",
+    "pickup_time": "2026-10-06T08:31:00+08:00",
+    "dropoff_time": "2026-10-06T08:59:00+08:00",
+    "estimated_distance_km": 17.3,
+    "actual_distance_km": 17.4,
+    "estimated_duration_min": 28,
+    "actual_duration_min": 28,
+    "estimated_fare": 22.9,
+    "total_fare": 27.9,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 11.8,
+      "time_fare": 7.2,
+      "subtotal": 22.9,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "erp_charges": 5.0,
+      "total": 27.9
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T08:31:00+08:00",
+      "lat": 1.3331,
+      "lng": 103.7421,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T08:38:00+08:00",
+      "lat": 1.318,
+      "lng": 103.77,
+      "speed_kmh": 38,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T08:44:00+08:00",
+      "lat": 1.308,
+      "lng": 103.8,
+      "speed_kmh": 44,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T08:50:00+08:00",
+      "lat": 1.295,
+      "lng": 103.83,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T08:55:00+08:00",
+      "lat": 1.288,
+      "lng": 103.85,
+      "speed_kmh": 35,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T08:59:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T08:29:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arrived, black Mercedes at Exit A."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T08:20:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$22.90 shown. Note: 'ERP and tolls are charged separately.' Surge 1.0x."
+    },
+    {
+      "timestamp": "2026-10-06T08:20:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7107 confirmed trip RYDE-DS-007 at S$22.90 plus ERP."
+    },
+    {
+      "timestamp": "2026-10-06T08:31:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-06T08:41:30+08:00",
+      "event_type": "erp_gantry_crossing",
+      "details": "Gantry AYE-Pandan at 08:41:30: GPS crossing confirmed, gantry log rate S$2.00."
+    },
+    {
+      "timestamp": "2026-10-06T08:53:10+08:00",
+      "event_type": "erp_gantry_crossing",
+      "details": "Gantry MCE-Marina at 08:53:10: GPS crossing confirmed, gantry log rate S$3.00."
+    },
+    {
+      "timestamp": "2026-10-06T08:59:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 17.4 km, 28 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-06T08:59:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$27.90 (fare S$22.90 + ERP S$5.00) charged to credit card."
+    },
+    {
+      "timestamp": "2026-10-06T09:00:00+08:00",
+      "event_type": "app_notice",
+      "details": "Receipt screen displayed the total twice for about 2 minutes, then showed one entry. Only one charge was made."
+    }
+  ],
+  "platform_policy": {
+    "erp_charged_to_rider_on_confirmed_gantry_crossing": {
+      "value": true,
+      "text": "Governs ERP tolls on this trip. A true value means a toll for a gantry crossing confirmed by GPS and the gantry log is charged to the rider in addition to the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    },
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The app log shows two GPS-confirmed gantry crossings with gantry-log rates, AYE-Pandan S$2.00 at 08:41:30 and MCE-Marina S$3.00 at 08:53:10, and the GPS track passes both areas. The fare quote at 08:20 said ERP is charged separately and the rider confirmed on that basis. Under this trip's policy a confirmed crossing is charged on top of the fare, so S$22.90 + S$5.00 = S$27.90 stands. The duplicated receipt display was cosmetic; only one charge was made.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Do I need to pay ERP charges?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll",
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}

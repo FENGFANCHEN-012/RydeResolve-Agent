@@ -1,0 +1,190 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-02",
+    "trip_id": "RYDE-DS-002",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was charged $21.00 for a trip that normally costs about $15. The driver never told me the fare would be higher and I was in a rush for a dinner reservation. Please refund the $6.00 surge.",
+    "filed_at": "2026-10-03T19:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7102",
+    "name": "Priya Nair",
+    "account_age_days": 410,
+    "total_trips": 133,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8102",
+    "name": "Lim Chee Keong",
+    "account_age_days": 980,
+    "total_trips": 4100,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLM 8802 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-002",
+    "rider_id": "R-7102",
+    "driver_id": "D-8102",
+    "pickup_location": {
+      "name": "Bishan MRT",
+      "lat": 1.3509,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-03T18:12:00+08:00",
+    "pickup_time": "2026-10-03T18:13:00+08:00",
+    "dropoff_time": "2026-10-03T18:41:00+08:00",
+    "estimated_distance_km": 9.8,
+    "actual_distance_km": 9.9,
+    "estimated_duration_min": 27,
+    "actual_duration_min": 28,
+    "estimated_fare": 21.0,
+    "total_fare": 21.0,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 7.2,
+      "time_fare": 3.9,
+      "subtotal": 15.0,
+      "surge_multiplier": 1.4,
+      "surge_amount": 6.0,
+      "total": 21.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T18:13:00+08:00",
+      "lat": 1.3509,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T18:20:00+08:00",
+      "lat": 1.34,
+      "lng": 103.849,
+      "speed_kmh": 13,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T18:28:00+08:00",
+      "lat": 1.325,
+      "lng": 103.852,
+      "speed_kmh": 16,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T18:35:00+08:00",
+      "lat": 1.304,
+      "lng": 103.859,
+      "speed_kmh": 26,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T18:41:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-03T18:11:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I am 2 minutes away, white Vezel."
+    },
+    {
+      "timestamp": "2026-10-03T18:12:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At Exit A."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T18:06:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$21.00 shown to rider. Surge multiplier 1.4x; banner displayed: 'Fares are higher than usual because of high demand'."
+    },
+    {
+      "timestamp": "2026-10-03T18:06:25+08:00",
+      "event_type": "surge_acknowledged",
+      "details": "Rider R-7102 tapped 'Accept higher fare' on the surge banner."
+    },
+    {
+      "timestamp": "2026-10-03T18:06:40+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7102 confirmed trip RYDE-DS-002 at S$21.00."
+    },
+    {
+      "timestamp": "2026-10-03T18:07:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8102 assigned."
+    },
+    {
+      "timestamp": "2026-10-03T18:13:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-03T18:41:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 9.9 km, 28 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-03T18:41:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$21.00 (subtotal S$15.00 x 1.4 surge) charged to credit card. Receipt screen failed to refresh for about 4 minutes, then loaded."
+    }
+  ],
+  "platform_policy": {
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    },
+    "service_fee_max_percent_of_user_charges": {
+      "value": 20,
+      "text": "The maximum service fee as a percentage of the rider's charges. It governs the platform's service fee, not the fare."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The app log shows the 1.4x surge banner at 18:06:00 before booking, the rider tapping 'Accept higher fare' at 18:06:25 and confirming at S$21.00 at 18:06:40, so this trip's surge-display rule was met. The charge equals the quote (S$15.00 x 1.4 = S$21.00), distance and time match the quote and the route was the recommended one. The driver having said nothing about price, the rider's hurry and the receipt screen delay do not alter the charge.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
+  }
+}

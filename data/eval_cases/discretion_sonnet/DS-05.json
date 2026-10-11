@@ -1,0 +1,194 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-05",
+    "trip_id": "RYDE-DS-005",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I spilled a little bubble tea on the back seat but I was charged $60. The driver was rude and just wanted money. I should not pay anything, please remove the whole $60.",
+    "filed_at": "2026-10-04T11:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7105",
+    "name": "Hannah Teo",
+    "account_age_days": 200,
+    "total_trips": 57,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8105",
+    "name": "Anwar Hussin",
+    "account_age_days": 1100,
+    "total_trips": 5200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SMA 9981 U)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-005",
+    "rider_id": "R-7105",
+    "driver_id": "D-8105",
+    "pickup_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3178,
+      "lng": 103.8928
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-04T20:30:00+08:00",
+    "pickup_time": "2026-10-04T20:31:00+08:00",
+    "dropoff_time": "2026-10-04T20:48:00+08:00",
+    "estimated_distance_km": 6.4,
+    "actual_distance_km": 6.5,
+    "estimated_duration_min": 17,
+    "actual_duration_min": 17,
+    "estimated_fare": 12.8,
+    "total_fare": 12.8,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 5.2,
+      "time_fare": 3.7,
+      "subtotal": 12.8,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 12.8
+    },
+    "cleaning_fee": 60.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T20:31:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8928,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-04T20:36:00+08:00",
+      "lat": 1.311,
+      "lng": 103.887,
+      "speed_kmh": 15,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-04T20:41:00+08:00",
+      "lat": 1.301,
+      "lng": 103.876,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-04T20:45:00+08:00",
+      "lat": 1.29,
+      "lng": 103.866,
+      "speed_kmh": 31,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-04T20:48:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-04T20:44:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Oops sorry, my drink fell."
+    },
+    {
+      "timestamp": "2026-10-04T20:48:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Seat is wet, I need to clean it. I will report to Ryde."
+    },
+    {
+      "timestamp": "2026-10-04T20:49:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "It is just a small spill lah."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T20:24:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7105 booked trip RYDE-DS-005."
+    },
+    {
+      "timestamp": "2026-10-04T20:31:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-04T20:48:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-04T20:55:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted claim: 3 photos (timestamps 20:52-20:54, car plate SMA 9981 U visible in photo 1) of drink spillage on rear seat; cleaning receipt from 'CleanPro Auto Care' dated 2026-10-04 for S$60.00 with company name, contact number, address and plate number."
+    },
+    {
+      "timestamp": "2026-10-04T21:10:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "Cleaning fee S$60.00 charged to rider R-7105."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max_food_drink_spill": {
+      "value": 40.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip when the mess is a food, groceries or drink spillage."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "cleaning_claim_submission_window_hours": {
+      "value": 48,
+      "text": "Hours after the trip ends within which a driver must submit a cleaning claim. It governs driver claims only."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 20.0,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The rider's own chat at 20:44 admits the drink fell, the claim has timestamped photos showing the plate and a compliant cleaning receipt, and it was filed within 48 hours, so a drink-spill cleaning fee is payable. But this trip's policy caps a food or drink spillage fee at S$40.00 and S$60.00 was charged. The rider owes S$40.00 and the S$20.00 above the cap is refunded; the driver's tone does not change the amount.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

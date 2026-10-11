@@ -1,0 +1,216 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-11",
+    "trip_id": "RYDE-DS-011",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a very long way to Changi T3 and added S$4.50 to my fare. I never asked for any special route and he never told me the price would go up. I was in a hurry for my flight check-in. I want the S$4.50 refunded.",
+    "filed_at": "2026-10-09T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7111",
+    "name": "Alicia Wong",
+    "account_age_days": 260,
+    "total_trips": 64,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8111",
+    "name": "Chen Wei Ming",
+    "account_age_days": 990,
+    "total_trips": 4700,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 1,
+      "rejected": 5
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKV 2208 N)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-011",
+    "rider_id": "R-7111",
+    "driver_id": "D-8111",
+    "pickup_location": {
+      "name": "Tampines Hub",
+      "lat": 1.3535,
+      "lng": 103.9405
+    },
+    "dropoff_location": {
+      "name": "Changi Airport T3",
+      "lat": 1.3572,
+      "lng": 103.9886
+    },
+    "scheduled_time": "2026-10-09T07:45:00+08:00",
+    "pickup_time": "2026-10-09T07:46:00+08:00",
+    "dropoff_time": "2026-10-09T08:06:00+08:00",
+    "estimated_distance_km": 6.5,
+    "actual_distance_km": 11.5,
+    "estimated_duration_min": 12,
+    "actual_duration_min": 20,
+    "route_deviation_percent": 76.9,
+    "estimated_fare": 8.4,
+    "total_fare": 12.9,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 3.0,
+      "time_fare": 1.5,
+      "route_adjustment_extra_km": 5.0,
+      "route_adjustment_fare": 4.5,
+      "subtotal": 12.9,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 12.9
+    },
+    "driver_reported_reason": "Closure ahead on the usual road; also rider mentioned wanting to avoid ERP",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T07:46:00+08:00",
+      "lat": 1.3535,
+      "lng": 103.9405,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T07:50:00+08:00",
+      "lat": 1.356,
+      "lng": 103.95,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T07:53:00+08:00",
+      "lat": 1.36,
+      "lng": 103.958,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T08:03:00+08:00",
+      "lat": 1.36,
+      "lng": 103.98,
+      "speed_kmh": 18,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T08:06:00+08:00",
+      "lat": 1.3572,
+      "lng": 103.9886,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T07:44:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arrived, grey Prius."
+    },
+    {
+      "timestamp": "2026-10-09T07:49:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Boss, road ahead got problem, I go around ok?"
+    },
+    {
+      "timestamp": "2026-10-09T07:49:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "ok"
+    },
+    {
+      "timestamp": "2026-10-09T08:06:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why the fare is higher?"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T07:38:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7111 booked RydeX trip RYDE-DS-011. Upfront fare S$8.40 (6.5 km)."
+    },
+    {
+      "timestamp": "2026-10-09T07:46:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-09T07:53:00+08:00",
+      "event_type": "telemetry_gap_start",
+      "details": "Vehicle location updates stopped (device reported GPS unavailable)."
+    },
+    {
+      "timestamp": "2026-10-09T08:03:00+08:00",
+      "event_type": "telemetry_gap_end",
+      "details": "Vehicle location updates resumed after 10 minutes."
+    },
+    {
+      "timestamp": "2026-10-09T08:03:30+08:00",
+      "event_type": "traffic_feed_status",
+      "details": "Traffic alert feed for the area was in outage from 07:40 to 08:10; closure status for the planned route cannot be confirmed or ruled out."
+    },
+    {
+      "timestamp": "2026-10-09T08:06:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Odometer-based distance 11.5 km (+5.0 km versus the 6.5 km quote). No telemetry between 07:53 and 08:03."
+    },
+    {
+      "timestamp": "2026-10-09T08:06:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Route adjustment 5.0 km x S$0.90 = S$4.50 added; final fare S$12.90."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront for the pickup/drop-off pair; extra distance billed at the extra-distance rate",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "extra_distance_rate_per_km": {
+      "value": 0.9,
+      "text": "The rate in SGD per km applied to any extra distance that is billable on this trip."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    },
+    "rider_route_requests_must_be_agreed_before_trip": {
+      "value": true,
+      "text": "Binds the rider. A route or stop that the rider asks for must be agreed with the driver before the trip starts. It does not govern route changes the driver makes."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The records conflict and have gaps on the points that decide this trip's policy. A closure detour is billable only if the closure is verified, but the traffic feed was in outage from 07:40 to 08:10 so it can neither confirm nor rule out a closure, and there is no GPS between 07:53 and 08:03 to show the route taken. The chat shows the driver proposing to go around at 07:49:30 and the rider answering 'ok', which contradicts the rider's claim of never agreeing, while the driver's stated reasons (closure and ERP avoidance) differ from each other and the 5.0 km extra cannot be verified. A human reviewer must decide, for example after getting the odometer or phone logs.",
+    "expected_dispute_type": "route_deviation",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}
