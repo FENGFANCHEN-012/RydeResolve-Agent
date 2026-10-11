@@ -21,6 +21,9 @@ from src.agents.fraud import fraud_refs, render_for_judge
 logger = logging.getLogger(__name__)
 
 
+from src.agents.code_judge import CODE_JUDGE  # noqa: E402
+
+
 class Verdict(str, Enum):
     UPHELD = "upheld"                 # fully in favour of the reporter
     PARTIALLY_UPHELD = "partially_upheld"  # partial relief
@@ -38,6 +41,9 @@ class Decision(BaseModel):
     escalation_recommended: bool = False
     human_review_needed: bool = False
     asks: list[dict] = []             # each thing the filer asked for and its outcome
+    # D38 code Judge: what the ruling turns on, and the arithmetic behind any refund
+    decisive_facts: list[dict] = []   # {"fact", "sources": [record refs], "status"}
+    refund_calculation: str | None = None
 
 
 # Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
@@ -118,6 +124,21 @@ def render_objection(objection: dict) -> str:
     lines.append("If an objection is right, correct your ruling. If it is wrong or does not change the outcome, "
                  "keep your ruling and say in the rationale why the objection fails. Change nothing else.")
     return "\n".join(lines)
+
+
+# D38: the two extra output keys code checks (src/agents/code_judge.py)
+_CODE_JUDGE_KEYS = (
+    ",\n  \"decisive_facts\": list of {\"fact\": string, \"sources\": list of record references "
+    "(e.g. \"app_events[3]\", \"gps_trace[5]\", \"trip.driver_arrival_time\", a finding id), "
+    "\"status\": \"verified\" | \"unverifiable\" | \"contradicted\"} - the facts your ruling turns on. "
+    "\"verified\" only when a record that nothing contradicts shows it; a party's chat claim alone is not "
+    "verified; a record the CASE BRIEF lists under CONFLICTS or data gaps is not verified. If the ruling "
+    "turns on a fact that is not verified, say so and set human_review_needed to true,\n"
+    "  \"refund_calculation\": string | null - when refund_amount > 0, the plain arithmetic that gives it, "
+    "using only numbers and + - * / ( ), every number a figure from the platform records or this trip's "
+    "rules (e.g. \"60 - 40\", \"4 * 1.20\"); null when nothing is refunded. A goodwill or discretionary "
+    "amount has no such calculation: that is a person's decision"
+)
 
 
 class ArbitrationAgent:
@@ -232,6 +253,7 @@ class ArbitrationAgent:
             "  \"policy_references\": list of strings (only from provided clauses),\n"
             "  \"escalation_recommended\": boolean (true if confidence is borderline),\n"
             "  \"human_review_needed\": boolean (true if evidence is too weak)"
+            + (_CODE_JUDGE_KEYS if CODE_JUDGE else "")
         )
 
     @staticmethod
@@ -243,6 +265,7 @@ class ArbitrationAgent:
         debate_history: list[dict],
         precedents: list[dict] | None = None,
         objection: dict | None = None,
+        code_review: str | None = None,
     ) -> str:
         
         parts: list[str] = []
@@ -295,6 +318,8 @@ class ArbitrationAgent:
 
         if objection:
             parts.append(render_objection(objection))
+        if code_review:
+            parts.append(code_review)
 
         parts.append(
             "\n=== YOUR TASK ===\n"
@@ -382,6 +407,7 @@ class ArbitrationAgent:
         debate_history: list[dict],
         precedents: list[dict] | None = None,
         objection: dict | None = None,
+        code_review: str | None = None,
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision via LLM.
@@ -398,7 +424,7 @@ class ArbitrationAgent:
         system_prompt = self._build_system_prompt()
         user_prompt = self._build_user_prompt(
             context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents,
-            objection,
+            objection, code_review,
         )
 
         # Call LLM
@@ -458,6 +484,9 @@ class ArbitrationAgent:
                 parsed.get("human_review_needed", confidence <= CONFIDENCE_THRESHOLD_LOW)
             ),
             asks=valid_asks(parsed),
+            decisive_facts=[f for f in parsed.get("decisive_facts") or [] if isinstance(f, dict)],
+            refund_calculation=(str(parsed["refund_calculation"]) if parsed.get("refund_calculation")
+                                not in (None, "", "null") else None),
         )
 
         # Enforce threshold overrides (belt-and-suspenders)

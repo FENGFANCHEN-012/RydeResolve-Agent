@@ -407,7 +407,29 @@ def data_gaps(ctx) -> list[Finding]:
                       "location after that point cannot be verified.",
             value={"at": e.get("timestamp")}, sources=[f"app_events[{i}]"],
         ))
+    # Any other app event whose name says the platform's own data failed (a telemetry gap, a feed
+    # outage, an upload error or retry): what that record should have shown cannot be checked.
+    # Generic by name, not by case (D38; DS-11 telemetry_gap_start / traffic_feed_status outage,
+    # DS-20 claim_attachment_retry)
+    for i, e in enumerate(ctx.app_events or []):
+        if not isinstance(e, dict) or e.get("event_type") == "gps_signal_lost":
+            continue
+        name = str(e.get("event_type") or "").lower()
+        detail = " ".join(str(v) for k, v in e.items() if k not in ("timestamp", "event_type")).lower()
+        if _DATA_PROBLEM_RE.search(name) or _DATA_PROBLEM_RE.search(detail):
+            out.append(Finding(
+                id=f"data_gaps.data_problem_event[{i}]", tool="data_gaps", kind="gap",
+                statement=f"The platform logged a data problem at {e.get('timestamp')} "
+                          f"({e.get('event_type')}): what that record should show cannot be verified.",
+                value={"event_type": e.get("event_type"), "at": e.get("timestamp")},
+                sources=[f"app_events[{i}]"],
+            ))
     return out
+
+
+_DATA_PROBLEM_RE = __import__("re").compile(
+    r"\b(gap|outage|offline|unavailable|fail(ed|ure)?|error|retry|timeout|timed out|corrupt\w*|lost)\b"
+    r"|telemetry_gap|_gap_|_fail|_error|_retry|_outage")
 
 
 # ---------------------------------------------------------------------- #

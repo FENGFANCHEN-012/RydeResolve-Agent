@@ -203,8 +203,9 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
                      for k, v in rules.items())
     if brief.get("timeline"):
         lines.append("App event timeline:")
-        lines.extend(f"- {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
-                     for e in brief["timeline"])
+        # Numbered as app_events[i] (the timeline keeps the events' order), so a ruling can cite them
+        lines.extend(f"- [app_events[{i}]] {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
+                     for i, e in enumerate(brief["timeline"]))
     if brief.get("clauses") and with_clause_list:
         lines.append("Official policy clauses found for this case (full text is given separately):")
         lines.extend(f"- {c['reference']} ({c['section']})"

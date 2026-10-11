@@ -69,6 +69,7 @@ from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.agents.safety import SafetyAgent
 from src.agents.objection import ObjectionAgent, objecting_sides
+from src.agents import code_judge
 from src.config import OBJECTION_ROUND, OBJECTION_SIDES
 from src.core.debate import DebateEngine
 from src.core.trace import step
@@ -297,6 +298,41 @@ def build_dispute_graph(
 
     @_safe_node(NODE_ARBITRATOR)
     async def arbitrator_node(state: DisputeWorkflowState) -> dict:
+        update, judge_inputs = await _rule(state)
+        if code_judge.CODE_JUDGE:
+            update = await _code_judge(update, judge_inputs)
+        return update
+
+    async def _code_judge(update: dict, judge_inputs: dict) -> dict:
+        """D38: code checks the draft (decisive facts verified, refund computed from record figures).
+        A failed check sends it back to the Judge once; a second failure goes to a person."""
+        context = judge_inputs["context"]
+        decision = update["decision"]
+        async with step("CodeJudge", "Code checks the draft ruling", {
+            "checks": ["decisive facts verified by uncontradicted records", "refund arithmetic on record figures"],
+        }) as s:
+            problems = code_judge.review(decision, context)
+            s["output"] = {"problems": problems}
+        if not problems:
+            return update
+        draft = {"verdict": getattr(decision.verdict, "value", decision.verdict),
+                 "refund_amount": decision.refund_amount, "refund_calculation": decision.refund_calculation,
+                 "decisive_facts": decision.decisive_facts}
+        async with step("Arbitrator", "Reconsider the draft after the code check", {"problems": problems}) as s:
+            revised = await arbitrator.arbitrate(
+                **judge_inputs, code_review=code_judge.render_code_review(draft, problems))
+            s["output"] = revised
+        async with step("CodeJudge", "Code checks the revised ruling", {}) as s:
+            remaining = code_judge.review(revised, context)
+            s["output"] = {"problems": remaining}
+        if remaining:
+            revised.human_review_needed = True
+            revised.rationale = (revised.rationale or "") + " [Code check: " + " ".join(remaining)[:600] + "]"
+        update.update({"decision": revised, "code_judge_draft": decision,
+                       "code_judge": {"first": problems, "after_revision": remaining}})
+        return update
+
+    async def _rule(state: DisputeWorkflowState) -> tuple[dict, dict]:
         # Preserve the legacy orchestrator convention: the round-0 debate
         # entries carry the passenger / driver / policy analyses.
         history = state.get("debate_history") or []
@@ -324,7 +360,7 @@ def build_dispute_graph(
         update = {"decision": decision, "precedents": precedents}
         sides = objecting_sides(decision, getattr(state["context"], "reporter", None), OBJECTION_SIDES) if OBJECTION_ROUND else []
         if not sides:
-            return update
+            return update, judge_inputs
         # D33: the filer, when the draft goes against them, may object once (rule + record, checked by code);
         # only a valid objection makes the Judge reconsider
         valid_rules = arbitrator._build_valid_refs(judge_inputs["policy_evaluation"], context)
@@ -339,7 +375,7 @@ def build_dispute_graph(
         update["objections"] = objections
         standing = [o for o in objections if o.get("objection")]
         if not standing:
-            return update
+            return update, judge_inputs
         draft = {"verdict": getattr(decision.verdict, "value", decision.verdict),
                  "refund_amount": decision.refund_amount, "asks": decision.asks}
         async with step("Arbitrator", "Reconsider the draft after objections", {
@@ -349,7 +385,7 @@ def build_dispute_graph(
                 **judge_inputs, objection={"draft": draft, "objections": standing})
             s["output"] = reconsidered
         update.update({"decision": reconsidered, "draft_decision": decision})
-        return update
+        return update, judge_inputs
 
     @_safe_node(NODE_FAIRNESS)
     async def fairness_node(state: DisputeWorkflowState) -> dict:
