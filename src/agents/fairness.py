@@ -223,9 +223,16 @@ def _discretionary_split_problems(context: dict, decision) -> list[str]:
     disputed = disputed_total(context)
     if refunded <= 0 or not disputed or refunded >= disputed - 0.01:
         return []
-    refs = " ".join(str(r) for r in (getattr(decision, "policy_references", None) or []))
-    text = (refs + " " + str(getattr(decision, "rationale", "") or "")).lower()
-    if "refund_at_ryde_discretion" not in text and "discretion" not in text:
+    # The REASONING must rest on discretion; a citation list that merely includes the key is not
+    # enough. DS-05 (run 20261011-221641) refunded the S$20 above a S$40 cleaning-fee cap, a figure a
+    # rule computes, and listed refund_at_ryde_discretion among its references only
+    if "discretion" not in str(getattr(decision, "rationale", "") or "").lower():
+        return []
+    # ...and the amount must look like splitting the difference (a half, a third, a quarter...),
+    # not a figure the rules compute. DS-06 refunded S$4.80 of S$8.40 (4 km of unrequested detour
+    # x S$1.20, computed from the case rules) and still wrote "Ryde's discretion allows the partial
+    # refund"; RD-002 refunded exactly half. A heuristic: it targets the goodwill split only
+    if not any(abs(refunded - disputed * f) <= 0.01 for f in (1 / 2, 1 / 3, 2 / 3, 1 / 4, 3 / 4)):
         return []
     return ["The refund S$%.2f is part of the S$%.2f in dispute and rests on Ryde's discretion; no rule "
             "sets that amount, so a person decides it." % (refunded, disputed)]
