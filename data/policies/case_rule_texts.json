@@ -94,7 +94,7 @@
   "professional_cleaning_required": "Governs a driver's cleaning fee claim against a rider. A true value means the fee must be for professional cleaning.",
   "professional_cleaning_window_hours": "Hours after the trip within which professional cleaning must be done for a cleaning fee claim against the rider.",
   "promo_returns_on_cancellation": "Governs a promo code used on a booking that is later cancelled. A true value means the promo is returned to the rider.",
-  "refund_at_ryde_discretion": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund.",
+  "refund_at_ryde_discretion": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount.",
   "rider_agreement_withdrawn_before_the_detour_does_not_count": "Governs a rider who agreed to a detour and then withdrew that agreement before the detour began. A true value means the earlier agreement no longer counts.",
   "rider_cancellation_grace_minutes": "Minutes after the driver is matched during which the rider may cancel without a fee.",
   "rider_compensation": "States how compensation to the rider is decided for this type of complaint.",

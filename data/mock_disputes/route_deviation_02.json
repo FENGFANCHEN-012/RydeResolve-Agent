@@ -161,7 +161,7 @@
   "platform_policy": {
     "refund_at_ryde_discretion": {
       "value": true,
-      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
     },
     "rider_route_requests_must_be_agreed_before_trip": {
       "value": true,
