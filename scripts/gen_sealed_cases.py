@@ -69,7 +69,10 @@ Do not copy the example's situation.
 FORMAT: each case is a JSON object with the same top-level keys as the example
 (dispute_ticket, rider_profile, driver_profile, trip_data, gps_telemetry, chat_logs, app_events,
 and the applicable policy block: cancellation_policy for no-show / cancellation, platform_policy
-otherwise), plus expected_outcome. Use dispute_id "{prefix}NN" and trip_id "RYDE-SEAL-NNN" with
+otherwise), plus expected_outcome. Every key in the policy block is an object
+{{"value": <the rule's value>, "text": "<one or two sentences>"}}. The text states only the rule's
+SCOPE: which party it binds, which event it governs, and the unit of the value. It must never say
+how this case should be decided or mention this case's facts. Use dispute_id "{prefix}NN" and trip_id "RYDE-SEAL-NNN" with
 the numbers given below. Amounts in SGD.
 
 expected_outcome keys:

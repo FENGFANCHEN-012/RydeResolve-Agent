@@ -67,11 +67,26 @@
     {"timestamp": "2026-09-23T21:10:00+08:00", "event_type": "dispute_filed", "details": "Rider filed a service quality dispute requesting a full fare refund of S$22.60."}
   ],
   "platform_policy": {
-    "fare_basis": "metered_for_rydetaxi",
-    "refund_at_ryde_discretion": true,
-    "detour_not_agreed_by_rider_refundable": "excess over the optimal-route fare",
-    "driver_conduct_standard": "professional and courteous at all times",
-    "conduct_violation_first_action": "formal_warning_to_driver"
+    "fare_basis": {
+      "value": "metered_for_rydetaxi",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    },
+    "detour_not_agreed_by_rider_refundable": {
+      "value": "excess over the optimal-route fare",
+      "text": "Governs a detour that the rider did not agree to. The value states which part of the fare is refunded to the rider in that situation."
+    },
+    "driver_conduct_standard": {
+      "value": "professional and courteous at all times",
+      "text": "The standard of behaviour expected of the driver toward riders. It governs driver conduct complaints."
+    },
+    "conduct_violation_first_action": {
+      "value": "formal_warning_to_driver",
+      "text": "The action taken against a driver for a first confirmed conduct violation. It governs driver conduct complaints only, not refunds."
+    }
   },
   "expected_outcome": {
     "heldout": true,

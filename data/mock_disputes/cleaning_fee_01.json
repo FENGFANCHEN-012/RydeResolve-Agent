@@ -126,17 +126,26 @@
     }
   ],
   "platform_policy": {
-    "cleaning_fee_max": 200.0,
-    "cleaning_claim_evidence_required": [
-      "timestamped photos",
-      "cleaning company receipt with name, contact, address and date"
-    ],
-    "rider_may_dispute_if": [
-      "damage pre-existing",
-      "wrong timestamp",
-      "disproportionate amount",
-      "caused by previous rider"
-    ]
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
   },
   "expected_outcome": {
     "verdict": "upheld",

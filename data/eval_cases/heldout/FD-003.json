@@ -66,10 +66,22 @@
     {"timestamp": "2026-09-24T09:40:00+08:00", "event_type": "dispute_filed", "details": "Rider filed a fare dispute for the S$7.20 above the estimate."}
   ],
   "platform_policy": {
-    "fare_basis": "metered_for_rydetaxi",
-    "refund_at_ryde_discretion": true,
-    "detour_not_agreed_by_rider_refundable": "excess over the optimal-route fare",
-    "metered_fare_variation_normal_range_percent": 15
+    "fare_basis": {
+      "value": "metered_for_rydetaxi",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    },
+    "detour_not_agreed_by_rider_refundable": {
+      "value": "excess over the optimal-route fare",
+      "text": "Governs a detour that the rider did not agree to. The value states which part of the fare is refunded to the rider in that situation."
+    },
+    "metered_fare_variation_normal_range_percent": {
+      "value": 15,
+      "text": "Governs metered fares. It sets the percentage by which the final metered fare may normally differ from the estimate."
+    }
   },
   "expected_outcome": {
     "heldout": true,

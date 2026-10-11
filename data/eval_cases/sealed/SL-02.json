@@ -96,8 +96,14 @@
     }
   ],
   "cancellation_policy": {
-    "free_cancellation_window_min": 3,
-    "cancellation_fee_sgd": 6.61
+    "free_cancellation_window_min": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "cancellation_fee_sgd": {
+      "value": 6.61,
+      "text": "The cancellation fee in SGD that this trip's policy allows to be charged to the rider when a fee is due."
+    }
   },
   "expected_outcome": {
     "heldout": true,

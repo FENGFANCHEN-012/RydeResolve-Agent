@@ -71,7 +71,10 @@
   "chat_logs": [],
   "app_events": [],
   "platform_policy": {
-    "zero_tolerance_unsafe_driving": true
+    "zero_tolerance_unsafe_driving": {
+      "value": true,
+      "text": "Governs confirmed unsafe driving by the driver. A true value means it is not treated as a first minor offence."
+    }
   },
   "expected_outcome": {
     "heldout": true,

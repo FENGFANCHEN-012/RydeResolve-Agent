@@ -107,8 +107,14 @@
     }
   ],
   "platform_policy": {
-    "abuse_zero_tolerance": true,
-    "pool_pax_limit_strict": true
+    "abuse_zero_tolerance": {
+      "value": true,
+      "text": "Governs abusive language or behaviour by a driver or rider toward the other party during a trip. A true value means a confirmed incident is not treated as a first minor offence."
+    },
+    "pool_pax_limit_strict": {
+      "value": true,
+      "text": "Governs the number of passengers on a shared (pool) booking. A true value means the booked passenger count may not be exceeded."
+    }
   },
   "expected_outcome": {
     "heldout": true,

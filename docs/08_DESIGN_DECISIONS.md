@@ -854,3 +854,81 @@ no correct ruling is flipped and the score is not lower than run 20261009-164028
 
 **Tests:** 448 passed (objection: who may object, rule and record checks, a dropped objection
 changes nothing, off by default).
+
+## D34. Objection stays off; Judge reasoning effort brings nothing; Fairness checks a dismissal with a penalty (2026-10-11)
+
+**1. Full regression with the objection on (run 20261011-111637, `OBJECTION_ROUND=1`, filer
+only): 34/38, two wrong payouts executed.** One of them, RD-002, was a correct draft that the
+objection flipped: the passenger's advocate cited
+`platform_policy.rider_route_requests_must_be_agreed_before_trip` and the Judge was persuaded,
+although that rule binds route requests made by the rider and the detour was the driver's. The
+other (SQ-001) was a label error unrelated to the objection. A first trace scan claimed the
+advocates never object; that was a scanner bug (`objections` appears several times in a trace and
+only the first was read).
+
+**2. `OBJECTION_SIDES=both` (run 20261011-132910, RD-002 and SQ-001, three runs each).** Letting
+the respondent object back kept RD-002 correct 3/3, but SQ-001 still executed one wrong payout.
+The objection mechanism stays **off by default** (`OBJECTION_ROUND` unset). The switch
+`OBJECTION_SIDES=filer|both` stays for experiments.
+
+**3. `JUDGE_REASONING_EFFORT=high` (run 20261011-154025, the hard cases, three runs each).** Same
+accuracy as the default (4/9 on CR-001, NS-002-B1, NS-002-C1), no wrong payout executed, tokens
+flat. High effort first used all 4096 output tokens on reasoning and returned invalid JSON, so
+`JUDGE_MAX_TOKENS=16000` now applies whenever an effort is set. The default stays unset.
+
+**4. Fairness check `penalty_with_dismissal` (service_quality only).** A replay of 731 saved
+traces found rulings that dismissed a conduct complaint but still issued a driver warning
+(CR-004, RD-002-I3). A dismissal with a driver penalty is now flagged and sent to a person.
+
+**What actually stops wrong payouts:** the code checks (`fee_basis`, `refund_beyond_disputed`,
+`penalty_with_dismissal`) caught every Judge error in these runs before payment. More
+deliberation (rounds, objections, effort) did not.
+
+**Tests:** 452 passed.
+
+## D35. Clerk (rule-applicability checker) rejected; root cause is rules with no text (2026-10-11)
+
+**Idea:** a Clerk agent reads the Judge's draft and, for each cited rule, asks whether the event
+that rule governs actually happened here (`src/agents/clerk.py`). `scripts/clerk_replay.py`
+replays it over a finished run's saved rulings, with no new pipeline run.
+
+**Replay on run 20261011-111637** (`data/eval/20261011-111637_clerk.json`): it missed the RD-002
+trap (it called the misapplied rule "sound") and wrongly flagged four correct rulings (NS-001,
+NS-001-P1, NS-002-B1, FD-003). Not adopted; the code stays for the record and is not wired in.
+
+**Root cause.** A case's policy block gave each rule only a name and a value, for example
+`rider_route_requests_must_be_agreed_before_trip = true`. Whom the rule binds lived only in the
+name. The official help-centre clauses have full text; the case rules had none. No agent, Judge or
+checker, can verify that a rule applies when the rule has no words to check against. That is
+fixed at the source in D36.
+
+## D36. Every case rule carries a scope text (2026-10-11)
+
+**Format.** A key in `cancellation_policy` / `platform_policy` may now be
+`{"value": ..., "text": "..."}`. The text states only the rule's SCOPE: which party it binds,
+which event it governs, the unit of the value. It never says how a case should be decided. Old
+plain values are still accepted everywhere (`src/core/case_policy.py`).
+
+**Where it goes.**
+- The Collector splits the block: `platform_policy` keeps the old key -> value shape, so every
+  code check (fee basis, wait thresholds, the eval charge cap, citation whitelists) is unchanged;
+  `platform_policy_text` holds the texts.
+- The case brief shows each rule as `key = value` with a `scope:` line under it. The Judge's raw
+  copy of the field is dropped, as for the other summarised fields.
+- The objection prompt and the Clerk also show the scope.
+- `scripts/eval.py` unwraps the new format before computing the charge cap; a wrapped fee would
+  otherwise sit under the key "value" and drop out of the cap.
+
+**Texts.** One text per key in `data/policies/case_rule_texts.json` (135 keys across all case
+sets), written into the case files by `scripts/apply_case_rule_texts.py`, which rewrites only the
+policy blocks and prints only key names, so it is safe over the sealed sets. The sealed-case
+generator now asks for the same format.
+
+**Checks.** For all 50 tracked case files, old and new give the same values, the same citable
+rule names and the same charge cap. **Tests:** 457 passed (new `tests/test_case_policy.py`).
+
+**Cost:** about 170 tokens per brief render, roughly +4% tokens per case.
+
+**Next:** full 38-case regression on a fresh key (about 1.15M tokens). Compare with run
+20261009-164028 and run 20261011-111637, with special attention to RD-002 and the route-deviation
+cases. A checker agent comes back only if rule-misreading errors remain after this.

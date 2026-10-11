@@ -162,9 +162,18 @@
     }
   ],
   "platform_policy": {
-    "p1_incident_review_within_hours": 24,
-    "p1_first_action": "formal_warning",
-    "rider_compensation": "at_ryde_discretion"
+    "p1_incident_review_within_hours": {
+      "value": 24,
+      "text": "Hours within which a P1 (serious but not safety-critical) report must be reviewed."
+    },
+    "p1_first_action": {
+      "value": "formal_warning",
+      "text": "The first action taken against a driver for a confirmed P1 (serious but not safety-critical) report."
+    },
+    "rider_compensation": {
+      "value": "at_ryde_discretion",
+      "text": "States how compensation to the rider is decided for this type of complaint."
+    }
   },
   "expected_outcome": {
     "verdict": "partially_upheld",

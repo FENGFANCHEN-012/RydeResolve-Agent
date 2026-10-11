@@ -64,9 +64,18 @@
     {"timestamp": "2026-09-25T23:20:00+08:00", "event_type": "cleaning_fee_charged", "details": "S$85.00 cleaning fee charged to rider R-7093."}
   ],
   "platform_policy": {
-    "cleaning_fee_max": 200.0,
-    "cleaning_claim_evidence_required": "photos taken promptly after the trip and a receipt where available",
-    "rider_may_dispute_if": "evidence does not show the mess, predates the trip, or the fee exceeds the actual cleaning cost"
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photos taken promptly after the trip and a receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "rider_may_dispute_if": {
+      "value": "evidence does not show the mess, predates the trip, or the fee exceeds the actual cleaning cost",
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
   },
   "expected_outcome": {
     "heldout": true,

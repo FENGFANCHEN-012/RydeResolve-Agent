@@ -139,6 +139,9 @@ class CaseBriefAgent:
             "gaps": pick("gap"),
             "case_rules": {f"platform_policy.{k}": v for k, v in (ctx.get("platform_policy") or {}).items()
                            if isinstance(k, str) and not k.startswith("_")},
+            # What each rule covers (D36); shown next to its value, never computed with
+            "case_rule_texts": {f"platform_policy.{k}": t for k, t in (ctx.get("platform_policy_text") or {}).items()
+                                if isinstance(k, str) and not k.startswith("_")},
             "timeline": [{"time": e.get("timestamp"), "event": e.get("event_type"),
                           "detail": {k: v for k, v in e.items() if k not in ("timestamp", "event_type")}}
                          for e in (ctx.get("app_events") or [])[:_MAX_EVENTS] if isinstance(e, dict)],
@@ -195,7 +198,9 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
     if rules:
         lines.append("This trip's platform rules (cite by the exact key; where they speak they take "
                      "precedence over general help-centre text):")
-        lines.extend(f"- {k} = {v}" for k, v in rules.items())
+        texts = brief.get("case_rule_texts") or {}
+        lines.extend(f"- {k} = {v}" + (f"\n    scope: {texts[k]}" if texts.get(k) else "")
+                     for k, v in rules.items())
     if brief.get("timeline"):
         lines.append("App event timeline:")
         lines.extend(f"- {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
@@ -268,7 +273,7 @@ async def add_requested_clauses(context, requests: dict[str, list[str]], retriev
 # Raw context fields whose content the brief already carries (as computed facts, the event
 # timeline and the case rules). With a brief they are left out of prompts: the same data was
 # sent twice per prompt, and the raw GPS points made each agent re-derive distances (D15).
-SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy")
+SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy", "platform_policy_text")
 
 
 def _finding_values(context, finding_id: str) -> dict | None:
