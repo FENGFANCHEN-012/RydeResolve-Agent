@@ -1005,3 +1005,47 @@ plus RD-002; ran with the FIRST version of the check).** 10/21 correct by label.
   never makes a charge the other rules allow refundable, and sets no amount.
 - Open: window-direction misreads (DS-09) and missing-evidence cases ruled instead of escalated
   (DS-11, DS-20) have no code check yet.
+
+## D38. Code Judge: the draft must pass code checks before it can execute (2026-10-11, branch feature/code-judge)
+
+**Why.** The remaining errors fall into general classes, not case-specific rules (D37 Sonnet set,
+plus CR-001, NS-002-B1, NS-002-C1): the Judge rules on a fact the records cannot verify (DS-11,
+DS-20, DS-18, NS-002-C1), invents an amount (RD-002), or misreads a numeric rule (DS-09, CR-001).
+More LLM helpers did not fix this (D23-D31, Clerk D35, objection D34: same model, same misreads),
+and an optional helper would not be called when the Judge is confidently wrong. Code checks are
+what has stopped every wrong payout so far. So the Judge now states what its ruling rests on, in a
+form code can check, and the check is mandatory.
+
+**What the Judge adds (src/agents/arbitrator.py, CODE_JUDGE on):**
+- `decisive_facts`: the facts the ruling turns on, each with its records (`app_events[i]`,
+  `gps_trace[i]`, a finding id...) and a status `verified` / `unverifiable` / `contradicted`.
+- `refund_calculation`: for any refund, plain arithmetic on figures from the records or the case
+  rules ("60 - 40", "4 * 1.20").
+
+**What code checks (src/agents/code_judge.py):**
+1. Every decisive fact is `verified`, and none of its records is named by a Collector conflict or
+   gap finding. Otherwise the ruling cannot be automated.
+2. The refund calculation is arithmetic, gives the refund, and uses only numbers that are figures
+   in the platform records (trip, payment, app events, findings, case rules). Dates, times and ids
+   are stripped first so they cannot supply small constants; the chat is never a source.
+
+A failed check sends the draft back to the Judge once with the problems; a second failure sets
+human_review_needed (a person decides). The check never changes a ruling itself.
+
+**Collector (general, not per case):** an app event whose name or detail says the platform's own
+data failed (gap, outage, unavailable, failed, error, retry, timeout, lost) becomes a data-gap
+finding, so the brief and the check see it. On the 41 dev / held-out / fraud / stress cases it adds
+one finding, NS-003's manual arrival "GPS unavailable", where the key already says a person decides.
+The brief's event timeline is now numbered `app_events[i]` so the Judge can cite events.
+
+**Not covered yet:** a numeric rule read in the wrong direction (DS-09) when the Judge marks its
+facts verified and refunds a record figure. That needs code to evaluate the rule itself (planned
+next if this step helps).
+
+**Switch:** CODE_JUDGE=0 restores the old prompt and flow (for A/B). Tests run with it off except
+tests/test_code_judge.py. **Tests:** 484 passed (20 new).
+
+**Next:** A/B on the cases this targets (DS-09, DS-11, DS-18, DS-20, RD-002, NS-002-C1, CR-001) plus
+regressions it could cause (cases with correct partial refunds: DS-05, DS-06, DS-14, DS-17, RD-001,
+SQ-002), then the full 38. The Sonnet DS set was used for tuning (D37); the final measure must use
+a fresh set.

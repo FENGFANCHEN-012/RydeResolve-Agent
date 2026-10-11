@@ -52,6 +52,8 @@ class DisputeWorkflowState(TypedDict, total=False):
     precedents: list[dict]              # arbitrator node: human-reviewed precedents shown to the Judge
     objections: list[dict]              # arbitrator node: objections to the draft ruling (D33)
     draft_decision: Decision            # arbitrator node: the draft, when an objection made the Judge reconsider
+    code_judge_draft: Decision          # arbitrator node: the draft the code check sent back (D38)
+    code_judge: dict                    # arbitrator node: problems found, first draft and after revision (D38)
     fairness: FairnessAssessment        # fairness node
     execution: dict                     # executor node
 

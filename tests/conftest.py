@@ -27,6 +27,11 @@ def _force_gemini_provider(monkeypatch, tmp_path):
     monkeypatch.setattr(llm_module, "_MIN_INTERVAL_SECONDS", 0.0)
     monkeypatch.setattr(llm_module, "_next_request_at", 0.0)
     monkeypatch.setattr(config, "VECTOR_BACKEND", "chroma")
+    # The code Judge (D38) is off in tests by default: the workflow stubs return rulings without
+    # decisive facts. tests/test_code_judge.py turns it on for its own tests
+    from src.agents import arbitrator as arbitrator_module, code_judge
+    monkeypatch.setattr(code_judge, "CODE_JUDGE", False)
+    monkeypatch.setattr(arbitrator_module, "CODE_JUDGE", False)
     # Do not let file-upload regressions alter the developer's local policy index.
     from src.rag import indexer, retriever
     local_client = []
