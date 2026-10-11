@@ -244,7 +244,11 @@ DISC_SPLIT = ("The closure detour is billable. However, the driver did not discl
 @pytest.mark.asyncio
 @pytest.mark.parametrize("refund,rationale,refs,flagged", [
     (1.55, DISC_SPLIT, ["platform_policy.refund_at_ryde_discretion"], True),          # RD-002
-    (1.55, "Half of the excess is refunded.", ["platform_policy.refund_at_ryde_discretion"], True),
+    (1.55, "Half of the excess is refunded at Ryde's discretion.", [], True),
+    (20.0, "The fee exceeds the S$40 cap, so the excess S$20 is refunded.",                    # DS-05
+     ["platform_policy.cleaning_fee_max", "platform_policy.refund_at_ryde_discretion"], False),
+    (2.0, "Ryde's discretion allows the partial refund of the unbillable 1.6 km.", [], False),  # DS-06 shape
+    (1.03, "At Ryde's discretion a third of the charge is returned.", [], True),
     (3.1, "The whole detour excess is refunded under Ryde's discretion.", [], False),  # computed amount
     (1.55, "The rider asked for one stop; half the excess is billable.", ["platform_policy.detour_billable_only_if"], False),
     (None, DISC_SPLIT, [], False),                                                       # nothing refunded
