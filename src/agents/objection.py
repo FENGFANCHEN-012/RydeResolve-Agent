@@ -1,5 +1,5 @@
 """
-Objection to the Judge's draft ruling (court-style rehearing, D32).
+Objection to the Judge's draft ruling (court-style rehearing, D33).
 
 The Judge's real errors are misread rules, not missing arguments: a 7-minute wait held to an
 8-minute no-show threshold (NS-002-B1), a fee kept although the driver was past the delay waiver

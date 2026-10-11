@@ -1,4 +1,4 @@
-"""D32: the side a draft ruling goes against may object once; code checks the objection."""
+"""D33: the filer may object once to a draft that goes against them; code checks the objection."""
 import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
