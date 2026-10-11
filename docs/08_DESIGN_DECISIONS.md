@@ -932,3 +932,26 @@ rule names and the same charge cap. **Tests:** 457 passed (new `tests/test_case_
 **Next:** full 38-case regression on a fresh key (about 1.15M tokens). Compare with run
 20261009-164028 and run 20261011-111637, with special attention to RD-002 and the route-deviation
 cases. A checker agent comes back only if rule-misreading errors remain after this.
+
+**Result: run 20261011-181308 (703fc62, objection off, keys rotated).** 34/38 correct, one wrong
+payout executed, 1.02M tokens (26.9k per run, no rise; the rounds-2 baseline was 28.2k).
+
+| Case | D32 base (164028) | D33 objection on (111637) | D36 scope text (181308) |
+|---|---|---|---|
+| CR-001 | to a person | correct | to a person |
+| NS-002-B1 | to a person | correct | correct |
+| NS-002-C1 | to a person | to a person | to a person |
+| RD-002 | correct | WRONG, paid (upheld) | WRONG, paid (partially upheld, S$1.55) |
+| RD-002-I3 | correct | to a person | correct |
+| SQ-001 | correct | WRONG, paid | correct |
+| SQ-002 | correct | correct | to a person |
+
+- The scope text fixed the original RD-002 misreading: the Judge now reads the route rule as
+  binding rider requests and the closure detour as billable. It then found a "communication
+  breach" (fare increase not stated in chat) and used `refund_at_ryde_discretion` to refund half
+  of the extra charge. A new error class: a discretionary split of a charge the case rules allow.
+  No code check covers it yet.
+- A network outage (about 18:40-20:40) voided DR-002 and DR-003; both were re-run in the same
+  folder (void traces in `20261011-181308_void_network`).
+- SI-001 (P0 safety) escalates with zero LLM tokens by design; the key-rotation script read that
+  as a quota failure. Its trace was restored; the rotation check must skip zero-token P0 cases.
