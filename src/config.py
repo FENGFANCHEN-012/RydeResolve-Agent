@@ -104,6 +104,9 @@ MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
 # Triage (src/core/triage.py) may give complex cases more rounds: COMPLEX_MAX_ROUNDS, default 1.
 # Reasoning effort for the Safety agent's LLM call (D24); the more careful the better here
 SAFETY_REASONING_EFFORT = os.getenv("SAFETY_REASONING_EFFORT", "high").strip().lower()
+# Reasoning effort for the Judge's LLM call (D34). Empty = provider default (medium for gpt-oss).
+# The Judge's remaining errors are misread rule conditions, which more reasoning may fix.
+JUDGE_REASONING_EFFORT = os.getenv("JUDGE_REASONING_EFFORT", "").strip().lower()
 # D33: the filer, when a draft ruling goes against them, may object once (rule + record, checked by code) and
 # the Judge reconsiders. Off by default until measured; OBJECTION_ROUND=1 turns it on.
 OBJECTION_ROUND = os.getenv("OBJECTION_ROUND", "0").strip().lower() in ("1", "true", "yes", "on")

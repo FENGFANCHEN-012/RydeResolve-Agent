@@ -12,7 +12,7 @@ import logging
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_API_KEY
+from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, JUDGE_REASONING_EFFORT, LLM_API_KEY
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
 from src.agents.case_brief import SUMMARISED_FIELDS, disputed_charge, render_case_brief
@@ -409,6 +409,7 @@ class ArbitrationAgent:
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.2,
+                **({"reasoning_effort": JUDGE_REASONING_EFFORT} if JUDGE_REASONING_EFFORT else {}),
             )
         except Exception as exc:
             logger.warning("ArbitrationAgent arbitrate LLM call failed: %s", exc)
