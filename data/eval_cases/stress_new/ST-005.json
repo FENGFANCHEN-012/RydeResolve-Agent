@@ -152,10 +152,22 @@
     }
   ],
   "platform_policy": {
-    "no_show_threshold_min": 8,
-    "no_show_fee": 8.0,
-    "no_show_fee_requires_driver_waiting_at_current_pickup_point": true,
-    "pickup_point_change_before_driver_arrival_binds_the_driver": true
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "no_show_fee": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider when the rider does not appear after the driver waits past the no-show threshold."
+    },
+    "no_show_fee_requires_driver_waiting_at_current_pickup_point": {
+      "value": true,
+      "text": "Governs a no-show fee against the rider. A true value means the driver must have waited at the pickup point in force at that moment, including any change the rider made."
+    },
+    "pickup_point_change_before_driver_arrival_binds_the_driver": {
+      "value": true,
+      "text": "Governs a rider who changes the pickup point in the app before the driver arrives. A true value means the driver must go to the new point."
+    }
   },
   "expected_outcome": {
     "stress": true,

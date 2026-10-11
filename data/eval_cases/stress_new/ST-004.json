@@ -181,14 +181,29 @@
     }
   ],
   "platform_policy": {
-    "fare_basis": "upfront fare set at booking",
-    "metered_fallback_if_route_change_over_percent": 20,
-    "detour_billable_only_if": [
-      "the rider agreed to it in chat or in the app",
-      "a verified road closure"
-    ],
-    "rider_agreement_withdrawn_before_the_detour_does_not_count": true,
-    "unbillable_detour_triggering_metered_fallback": "the rider pays the upfront fare; the difference is refunded"
+    "fare_basis": {
+      "value": "upfront fare set at booking",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "metered_fallback_if_route_change_over_percent": {
+      "value": 20,
+      "text": "Governs an upfront-priced trip whose route changes during the trip. It sets the percentage of route change above which the fare is recalculated as metered."
+    },
+    "detour_billable_only_if": {
+      "value": [
+        "the rider agreed to it in chat or in the app",
+        "a verified road closure"
+      ],
+      "text": "Governs extra distance driven away from the planned route on this trip. It lists the only conditions under which the rider may be billed for that extra distance."
+    },
+    "rider_agreement_withdrawn_before_the_detour_does_not_count": {
+      "value": true,
+      "text": "Governs a rider who agreed to a detour and then withdrew that agreement before the detour began. A true value means the earlier agreement no longer counts."
+    },
+    "unbillable_detour_triggering_metered_fallback": {
+      "value": "the rider pays the upfront fare; the difference is refunded",
+      "text": "Governs a detour that cannot be billed but is large enough to trigger the metered fallback. The value states what the rider pays in that case."
+    }
   },
   "expected_outcome": {
     "stress": true,

@@ -79,8 +79,14 @@
     }
   ],
   "platform_policy": {
-    "carpool_erp_split_percent": 50,
-    "service_type": "RydePOOL"
+    "carpool_erp_split_percent": {
+      "value": 50,
+      "text": "On a shared (pool) trip, the percentage of an ERP toll charged to each rider. It governs ERP on shared trips only."
+    },
+    "service_type": {
+      "value": "RydePOOL",
+      "text": "The Ryde service booked for this trip, for example RydeX, RydePOOL or RydeTAXI. It is a fact about the trip, not a rule."
+    }
   },
   "expected_outcome": {
     "heldout": true,

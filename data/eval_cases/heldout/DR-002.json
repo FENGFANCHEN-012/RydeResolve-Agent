@@ -62,10 +62,22 @@
     {"timestamp": "2026-09-27T11:15:00+08:00", "event_type": "cleaning_receipt_submitted", "details": "Driver submitted a full interior detailing receipt for S$300.00 dated 2026-09-27 10:30."}
   ],
   "platform_policy": {
-    "cleaning_fee_max": 200.0,
-    "cleaning_claim_evidence_required": "photos taken promptly after the trip and a receipt where available",
-    "typical_vomit_cleaning_range": "S$80-S$150; full detailing above this range requires justification",
-    "amounts_above_cap_not_chargeable_to_rider": true
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photos taken promptly after the trip and a receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "typical_vomit_cleaning_range": {
+      "value": "S$80-S$150; full detailing above this range requires justification",
+      "text": "The usual cost range in SGD for cleaning up vomit. It governs whether a cleaning fee claimed against a rider is reasonable."
+    },
+    "amounts_above_cap_not_chargeable_to_rider": {
+      "value": true,
+      "text": "Governs any fee charged to the rider that has a stated maximum in this trip's policy. A true value means the part of a charge above that maximum may not be billed to the rider."
+    }
   },
   "expected_outcome": {
     "heldout": true,

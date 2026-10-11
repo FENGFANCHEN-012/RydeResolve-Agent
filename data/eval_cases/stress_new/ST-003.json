@@ -250,18 +250,45 @@
     }
   ],
   "platform_policy": {
-    "fare_basis": "upfront fare set at booking; updated when the rider adds a stop in the app",
-    "surge_must_be_displayed_before_confirmation": true,
-    "metered_fallback_if_route_change_over_percent": 20,
-    "route_change_measured_against": "the planned route after any stop the rider added in the app",
-    "detour_billable_only_if": [
-      "the rider agreed to it in chat or in the app",
-      "a verified road closure"
-    ],
-    "unbillable_detour_triggering_metered_fallback": "the rider pays the last upfront fare shown to them; the difference is refunded",
-    "cleaning_fee_max": 50.0,
-    "cleaning_claim_photo_within_min_of_trip_end": 60,
-    "cleaning_fee_reversed_if_photo_late_or_missing": true
+    "fare_basis": {
+      "value": "upfront fare set at booking; updated when the rider adds a stop in the app",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "metered_fallback_if_route_change_over_percent": {
+      "value": 20,
+      "text": "Governs an upfront-priced trip whose route changes during the trip. It sets the percentage of route change above which the fare is recalculated as metered."
+    },
+    "route_change_measured_against": {
+      "value": "the planned route after any stop the rider added in the app",
+      "text": "Says which route a change is measured against when computing the percentage of route change on this trip."
+    },
+    "detour_billable_only_if": {
+      "value": [
+        "the rider agreed to it in chat or in the app",
+        "a verified road closure"
+      ],
+      "text": "Governs extra distance driven away from the planned route on this trip. It lists the only conditions under which the rider may be billed for that extra distance."
+    },
+    "unbillable_detour_triggering_metered_fallback": {
+      "value": "the rider pays the last upfront fare shown to them; the difference is refunded",
+      "text": "Governs a detour that cannot be billed but is large enough to trigger the metered fallback. The value states what the rider pays in that case."
+    },
+    "cleaning_fee_max": {
+      "value": 50.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_photo_within_min_of_trip_end": {
+      "value": 60,
+      "text": "Minutes after the trip ends within which the driver's photo of the mess must be taken for a cleaning fee claim against the rider."
+    },
+    "cleaning_fee_reversed_if_photo_late_or_missing": {
+      "value": true,
+      "text": "Governs a cleaning fee already charged to a rider. A true value means the fee is reversed when the driver's photo is missing or taken outside the allowed time."
+    }
   },
   "expected_outcome": {
     "stress": true,

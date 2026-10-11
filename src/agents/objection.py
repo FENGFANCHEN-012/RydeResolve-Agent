@@ -100,6 +100,8 @@ class ObjectionAgent:
                  "rationale": decision.rationale}
         user = ("\n".join(x for x in (render_case_brief(context),) if x)
                 + "\n\nCase rules (platform_policy): " + json.dumps(context.get("platform_policy") or {}, default=str)
+                + ("\nScope of each rule: " + json.dumps(context.get("platform_policy_text"), default=str)
+                   if context.get("platform_policy_text") else "")
                 + "\n\nRecords:\n" + _records(context)
                 + "\n\nRules you may cite: " + ", ".join(sorted(valid_rules))[:3000]
                 + "\n\nJudge's DRAFT ruling:\n" + json.dumps(draft, indent=1, default=str))
