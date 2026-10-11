@@ -94,6 +94,8 @@ class FairnessIssueCode(str, Enum):
     REFUND_BEYOND_DISPUTED = "refund_beyond_disputed_amount"
     # #7b a conduct complaint is dismissed although the ruling penalises the driver for that conduct
     PENALTY_WITH_DISMISSAL = "penalty_with_dismissal"
+    # #7c a refund that rests on Ryde's discretion and is smaller than the disputed amount
+    DISCRETIONARY_PARTIAL_REFUND = "discretionary_partial_refund"
 
     # #8 the Fraud agent found hard evidence of fraud or collusion in this case
     FRAUD_RISK_HIGH = "fraud_risk_high"
@@ -204,6 +206,29 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
         return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
                 "sets an amount, so a person decides it." % refunded]
     return []
+
+
+def _discretionary_split_problems(context: dict, decision) -> list[str]:
+    """A refund grounded on Ryde's discretion that is smaller than the disputed amount the platform
+    data computes: no rule sets that figure, so a person decides it. The Judge accepted that a
+    verified road-closure detour was billable, then found a "fare increase not disclosed" breach and
+    refunded half the extra charge under refund_at_ryde_discretion (RD-002, run 20261011-181308).
+    Correct rulings that cite discretion refund the computed amount itself (RD-001, SQ-002, FD-001),
+    so they are untouched; a replay of 790 saved rulings flagged only that RD-002 (D37)."""
+    from src.agents.case_brief import disputed_total
+    try:
+        refunded = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        return []
+    disputed = disputed_total(context)
+    if refunded <= 0 or not disputed or refunded >= disputed - 0.01:
+        return []
+    refs = " ".join(str(r) for r in (getattr(decision, "policy_references", None) or []))
+    text = (refs + " " + str(getattr(decision, "rationale", "") or "")).lower()
+    if "refund_at_ryde_discretion" not in text and "discretion" not in text:
+        return []
+    return ["The refund S$%.2f is part of the S$%.2f in dispute and rests on Ryde's discretion; no rule "
+            "sets that amount, so a person decides it." % (refunded, disputed)]
 
 
 def _dump_findings(context: dict) -> list[dict]:
@@ -700,6 +725,17 @@ class FairnessAgent:
                 severity="high",
                 refs=["collector.findings", "platform_policy"],
                 recommended_action="Route to human review; the extra amount has no rule the system can verify.",
+            )
+            requires_human = True
+
+        # (j2) a partial refund that rests on Ryde's discretion: no rule sets the amount
+        for problem in _discretionary_split_problems(context or {}, decision):
+            add_issue(
+                FairnessIssueCode.DISCRETIONARY_PARTIAL_REFUND,
+                problem,
+                severity="high",
+                refs=["decision.refund_amount", "platform_policy.refund_at_ryde_discretion"],
+                recommended_action="Route to human review; a discretionary amount is a person's call.",
             )
             requires_human = True
 

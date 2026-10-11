@@ -60,7 +60,7 @@ guess at it. Write realistic disputes and the answer a careful, fair human revie
 under the policies below.
 
 Write exactly {n} NEW dispute cases. Dispute types for this batch: {types}.
-Across the set, vary the correct outcome: some upheld, some partially upheld, some dismissed, and
+{focus}Across the set, vary the correct outcome: some upheld, some partially upheld, some dismissed, and
 some where the right answer is to send the case to a human (evidence missing, contradictory or
 insufficient to decide safely). Include cases where the person who filed is wrong. Make the
 records realistic and internally consistent (timestamps, distances, fares, GPS points, chat).
@@ -72,8 +72,8 @@ and the applicable policy block: cancellation_policy for no-show / cancellation,
 otherwise), plus expected_outcome. Every key in the policy block is an object
 {{"value": <the rule's value>, "text": "<one or two sentences>"}}. The text states only the rule's
 SCOPE: which party it binds, which event it governs, and the unit of the value. It must never say
-how this case should be decided or mention this case's facts. Use dispute_id "{prefix}NN" and trip_id "RYDE-SEAL-NNN" with
-the numbers given below. Amounts in SGD.
+how this case should be decided or mention this case's facts. Use the dispute_id and trip_id pairs given
+below. Amounts in SGD.
 
 expected_outcome keys:
   heldout: true
@@ -143,6 +143,11 @@ def problems(case: dict, sections: set[str]) -> list[str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=10)
+    ap.add_argument("--out-dir", default=str(OUT_DIR.relative_to(ROOT)),
+                    help="Folder for the cases, relative to the repo root")
+    ap.add_argument("--prefix", default="SL-", help="dispute_id prefix, e.g. DS-")
+    ap.add_argument("--types", default=",".join(TYPES), help="Comma-separated dispute types to cycle through")
+    ap.add_argument("--focus-file", help="Text file with an extra brief: the kind of case this set must test")
     args = ap.parse_args()
     if not os.environ.get("GEMINI_API_KEY"):
         from dotenv import load_dotenv
@@ -153,22 +158,29 @@ def main() -> int:
 
     policies, sections = load_policies()
     example = EXAMPLE_CASE.read_text(encoding="utf-8")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    start = len(list(OUT_DIR.glob("SL-*.json"))) + 1
+    out_dir = ROOT / args.out_dir
+    prefix = args.prefix
+    types_all = [t.strip() for t in args.types.split(",") if t.strip()]
+    focus = ""
+    if args.focus_file:
+        focus = "\nFOCUS OF THIS SET:\n" + Path(args.focus_file).read_text(encoding="utf-8").strip() + "\n"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    start = len(list(out_dir.glob(f"{prefix}*.json"))) + 1
     written, summaries = [], []
     for b in range(0, args.count, BATCH):
         n = min(BATCH, args.count - b)
         nums = list(range(start + b, start + b + n))
-        types_ = [TYPES[(i - 1) % len(TYPES)] for i in nums]
+        types_ = [types_all[(i - 1) % len(types_all)] for i in nums]
         avoid = ("Already written (do not repeat these situations): " + "; ".join(summaries) + "\n"
                  if summaries else "")
+        tag = prefix.strip("-") or "SEAL"
         prompt = PROMPT.format(
-            n=n, types=", ".join(types_), avoid=avoid, prefix="SL-",
-            numbers=", ".join(f"SL-{i:02d} / RYDE-SEAL-{i:03d}" for i in nums),
+            n=n, types=", ".join(types_), avoid=avoid, prefix=prefix, focus=focus,
+            numbers=", ".join(f"{prefix}{i:02d} / RYDE-{tag}-{i:03d}" for i in nums),
             conventions=conventions(), example=example, policies=policies)
         for case in call_gemini(prompt):
-            cid = (case.get("dispute_ticket") or {}).get("dispute_id") or f"SL-{nums[0]:02d}-x"
-            path = OUT_DIR / f"{cid}.json"
+            cid = (case.get("dispute_ticket") or {}).get("dispute_id") or f"{prefix}{nums[0]:02d}-x"
+            path = out_dir / f"{cid}.json"
             if path.exists():
                 print(f"{cid}: already exists, skipped")
                 continue
@@ -178,7 +190,7 @@ def main() -> int:
             summaries.append(f"{ticket.get('dispute_type')}: {str(ticket.get('description'))[:80]}")
             issues = problems(case, sections)
             print(f"{cid} ({ticket.get('dispute_type')}): " + ("OK" if not issues else "; ".join(issues)))
-    print(f"\n{len(written)} cases written to {OUT_DIR.relative_to(ROOT)} (answer keys not shown).")
+    print(f"\n{len(written)} cases written to {args.out_dir} (answer keys not shown).")
     return 0
 
 
