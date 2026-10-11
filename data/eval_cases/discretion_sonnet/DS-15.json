@@ -1,0 +1,202 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-15",
+    "trip_id": "RYDE-DS-015",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I came straight from a work site and my shoes were muddy, but I was in a rush and the driver was rude about it. I was charged S$90 which is far too much for some dirt. Please remove the whole S$90.",
+    "filed_at": "2026-10-07T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7115",
+    "name": "Muhammad Haziq",
+    "account_age_days": 280,
+    "total_trips": 71,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8115",
+    "name": "Lee Teck Seng",
+    "account_age_days": 1600,
+    "total_trips": 8300,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SMB 1177 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-015",
+    "rider_id": "R-7115",
+    "driver_id": "D-8115",
+    "pickup_location": {
+      "name": "Compass One, Sengkang",
+      "lat": 1.3917,
+      "lng": 103.8951
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3178,
+      "lng": 103.8928
+    },
+    "scheduled_time": "2026-10-06T18:15:00+08:00",
+    "pickup_time": "2026-10-06T18:16:00+08:00",
+    "dropoff_time": "2026-10-06T18:50:00+08:00",
+    "estimated_distance_km": 10.2,
+    "actual_distance_km": 10.3,
+    "estimated_duration_min": 33,
+    "actual_duration_min": 34,
+    "estimated_fare": 14.3,
+    "total_fare": 14.3,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 7.0,
+      "time_fare": 3.4,
+      "subtotal": 14.3,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 14.3
+    },
+    "cleaning_fee": 90.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T18:16:00+08:00",
+      "lat": 1.3917,
+      "lng": 103.8951,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:25:00+08:00",
+      "lat": 1.375,
+      "lng": 103.894,
+      "speed_kmh": 16,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:35:00+08:00",
+      "lat": 1.355,
+      "lng": 103.8935,
+      "speed_kmh": 17,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:44:00+08:00",
+      "lat": 1.335,
+      "lng": 103.893,
+      "speed_kmh": 19,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:50:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8928,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T18:51:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Boss, your shoes got mud all over the seat and mat. I will report it, you pay."
+    },
+    {
+      "timestamp": "2026-10-06T18:51:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Alright whatever, I'm late."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T18:09:00+08:00",
+      "event_type": "pre_trip_vehicle_check",
+      "details": "Driver pre-trip photo, 18:09, plate SMB 1177 T visible: rear seats and floor mats clean."
+    },
+    {
+      "timestamp": "2026-10-06T18:16:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-06T18:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-06T18:56:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted claim within 6 minutes of drop-off: 4 photos timestamped 18:52-18:55, plate visible in photo 1, showing mud stains on rear seat and floor mats."
+    },
+    {
+      "timestamp": "2026-10-07T08:30:00+08:00",
+      "event_type": "vehicle_cleaned",
+      "details": "Receipt from 'ShineWorks Auto Detailing' dated 2026-10-07 08:30 for S$90.00: shampoo and steam clean of rear seat and floor mats; includes company name, contact number, address, plate SMB 1177 T, signature and stamp."
+    },
+    {
+      "timestamp": "2026-10-07T09:00:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "Cleaning fee S$90.00 charged to rider R-7115."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max_stains": {
+      "value": 120.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip when the mess is a stain such as mud, dirt, paint, cement, tar or oil."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "cleaning_claim_submission_window_hours": {
+      "value": 48,
+      "text": "Hours after the trip ends within which a driver must submit a cleaning claim. It governs driver claims only."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The pre-trip photo at 18:09 shows the seats clean, so the stain was not pre-existing. The claim was filed 6 minutes after drop-off with four timestamped photos showing the plate, and a cleaning receipt dated the next morning with company name, contact, address, plate, signature and stamp, so this trip's evidence list and 48-hour window are met. The S$90.00 fee is below this trip's S$120.00 cap for stains and matches the receipt, so none of the dispute grounds apply. The rider's hurry and the driver's curt message do not change that.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

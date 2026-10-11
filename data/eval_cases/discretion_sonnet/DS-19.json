@@ -1,0 +1,164 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-19",
+    "trip_id": "RYDE-DS-019",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "The driver asked me to cancel because he was stuck and I said no. He then cancelled himself and I was charged a S$6.00 cancellation fee. I was already late for my class and he was very curt with me. Please refund the fee.",
+    "filed_at": "2026-10-10T13:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7119",
+    "name": "Aaron Pang",
+    "account_age_days": 230,
+    "total_trips": 48,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8119",
+    "name": "Siva Kumar",
+    "account_age_days": 930,
+    "total_trips": 3500,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 7,
+      "upheld_against": 1,
+      "rejected": 6
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKC 8854 S)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-019",
+    "rider_id": "R-7119",
+    "driver_id": "D-8119",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.315,
+      "lng": 103.764
+    },
+    "dropoff_location": {
+      "name": "NUS Computing",
+      "lat": 1.295,
+      "lng": 103.774
+    },
+    "scheduled_time": "2026-10-10T13:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-10T13:03:50+08:00",
+    "cancellation_fee": 6.0,
+    "cancellation_reason": "driver_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T13:00:30+08:00",
+      "lat": 1.33,
+      "lng": 103.78,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T13:02:00+08:00",
+      "lat": 1.329,
+      "lng": 103.779,
+      "speed_kmh": 8,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T13:03:50+08:00",
+      "lat": 1.329,
+      "lng": 103.779,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T13:02:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Can you cancel for me? I'm stuck, car problem."
+    },
+    {
+      "timestamp": "2026-10-10T13:02:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "No, I won't cancel. Please come, I'm late."
+    },
+    {
+      "timestamp": "2026-10-10T13:03:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Then I cancel."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T13:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Rider R-7119 booked trip RYDE-DS-019; driver D-8119 assigned. Match time 13:00:00."
+    },
+    {
+      "timestamp": "2026-10-10T13:03:50+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Cancelled by driver D-8119, reason selected: 'rider asked to cancel'. No cancel request from the rider is recorded for this booking."
+    },
+    {
+      "timestamp": "2026-10-10T13:03:51+08:00",
+      "event_type": "fee_applied",
+      "details": "Cancellation fee S$6.00 charged to rider (system treated the cancellation as rider-initiated after 3 min 50 s)."
+    },
+    {
+      "timestamp": "2026-10-10T13:05:00+08:00",
+      "event_type": "app_notice",
+      "details": "The rider app showed the trip as 'cancelled by you' for about 2 minutes, then updated to 'cancelled by driver'."
+    }
+  ],
+  "cancellation_policy": {
+    "cancellation_fee_after_driver_assigned": {
+      "value": 6.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "fee_applies_to_driver_initiated_cancellations": {
+      "value": false,
+      "text": "Governs whether the rider's cancellation fee applies when the driver is the party who cancels the booking."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 6.0,
+    "recommended_action": "full_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The booking log shows the cancellation was made by the driver at 13:03:50 and records no cancel request from the rider. The chat shows the driver asking the rider to cancel at 13:02:20, the rider refusing at 13:02:50 and the driver cancelling at 13:03:40. This trip's policy says the cancellation fee does not apply to a driver-initiated cancellation, and the system wrongly treated it as rider-initiated after 3 min 50 s. The S$6.00 fee is refunded in full; the driver's curt tone and the temporary 'cancelled by you' label do not change that.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Will I be charged for cancelling a ride?",
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ]
+  }
+}

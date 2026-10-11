@@ -1,0 +1,234 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-06",
+    "trip_id": "RYDE-DS-006",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "My fare went from the S$9.60 quote to S$18.00. I asked for one quick stop at Alexandra but the driver never told me the price would go up, and then he drove all over the place. I was in a hurry. Please refund the S$8.40 of extra charges.",
+    "filed_at": "2026-10-05T15:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7106",
+    "name": "Kelvin Lau",
+    "account_age_days": 510,
+    "total_trips": 176,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8106",
+    "name": "Gopal Menon",
+    "account_age_days": 870,
+    "total_trips": 3900,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 0,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKT 7712 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-006",
+    "rider_id": "R-7106",
+    "driver_id": "D-8106",
+    "pickup_location": {
+      "name": "Orchard Ion",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "VivoCity",
+      "lat": 1.2644,
+      "lng": 103.8222
+    },
+    "scheduled_time": "2026-10-05T14:00:00+08:00",
+    "pickup_time": "2026-10-05T14:01:00+08:00",
+    "dropoff_time": "2026-10-05T14:40:00+08:00",
+    "estimated_distance_km": 5.5,
+    "actual_distance_km": 12.5,
+    "estimated_duration_min": 16,
+    "actual_duration_min": 39,
+    "route_deviation_percent": 127.3,
+    "estimated_fare": 9.6,
+    "total_fare": 18.0,
+    "fare_breakdown": {
+      "base_fare": 9.6,
+      "agreed_stop_extra_distance_km": 3.0,
+      "agreed_stop_extra_fare": 3.6,
+      "unrequested_detour_extra_distance_km": 4.0,
+      "unrequested_detour_extra_fare": 4.8,
+      "subtotal": 18.0,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 18.0
+    },
+    "driver_reported_reason": "Avoiding traffic ahead",
+    "service_type": "RydeX"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T14:01:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:09:00+08:00",
+      "lat": 1.295,
+      "lng": 103.815,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:16:00+08:00",
+      "lat": 1.287,
+      "lng": 103.801,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T14:19:00+08:00",
+      "lat": 1.287,
+      "lng": 103.801,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:27:00+08:00",
+      "lat": 1.276,
+      "lng": 103.788,
+      "speed_kmh": 18,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:34:00+08:00",
+      "lat": 1.26,
+      "lng": 103.802,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T14:40:00+08:00",
+      "lat": 1.2644,
+      "lng": 103.8222,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T13:56:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Can I stop at Alexandra Retail Centre for 2 minutes on the way? I will pay the extra distance."
+    },
+    {
+      "timestamp": "2026-10-05T13:56:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "OK. Extra distance is charged at $1.20 per km."
+    },
+    {
+      "timestamp": "2026-10-05T14:20:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we going this way?"
+    },
+    {
+      "timestamp": "2026-10-05T14:20:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Traffic ahead, taking another road."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T13:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7106 booked RydeX trip RYDE-DS-006. Upfront fare S$9.60 (5.5 km)."
+    },
+    {
+      "timestamp": "2026-10-05T13:56:50+08:00",
+      "event_type": "route_stop_added",
+      "details": "Stop at Alexandra Retail Centre added at rider request and acknowledged by driver before trip start. Planned route with stop: 8.5 km (+3.0 km)."
+    },
+    {
+      "timestamp": "2026-10-05T14:01:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-05T14:16:00+08:00",
+      "event_type": "stop_reached",
+      "details": "Stop at Alexandra Retail Centre; waiting 3 min."
+    },
+    {
+      "timestamp": "2026-10-05T14:20:10+08:00",
+      "event_type": "off_route_detected",
+      "details": "Vehicle left planned route after stop. No LTA road closure or traffic alert found for the area."
+    },
+    {
+      "timestamp": "2026-10-05T14:40:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 12.5 km (+4.0 km versus planned route with stop)."
+    },
+    {
+      "timestamp": "2026-10-05T14:40:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$18.00: base S$9.60 + agreed stop 3.0 km x S$1.20 S$3.60 + unrequested detour 4.0 km x S$1.20 S$4.80."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront for the pickup/drop-off pair; extra distance billed at the extra-distance rate",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "extra_distance_rate_per_km": {
+      "value": 1.2,
+      "text": "The rate in SGD per km applied to any extra distance that is billable on this trip."
+    },
+    "rider_route_requests_must_be_agreed_before_trip": {
+      "value": true,
+      "text": "Binds the rider. A route or stop that the rider asks for must be agreed with the driver before the trip starts. It does not govern route changes the driver makes."
+    },
+    "agreed_stop_extra_distance_billable": {
+      "value": true,
+      "text": "Governs extra distance for a stop the rider asked for and the driver agreed before the trip started."
+    },
+    "unrequested_detour_billable": {
+      "value": false,
+      "text": "Governs extra distance the driver adds without a rider request and without a verified road closure. A false value means that distance is not billable to the rider."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 4.8,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The stop at Alexandra Retail Centre was requested in chat at 13:56 and acknowledged with the S$1.20/km rate before the trip started (event 13:56:50, +3.0 km), so under this trip's policy that S$3.60 stands. The later 4.0 km detour had no rider request and the app found no road closure or traffic alert; the driver's own reason was 'avoiding traffic'. This trip's policy makes unrequested detour distance non-billable, so 4.0 km x S$1.20 = S$4.80 is refunded. The rider's hurry and the driver not repeating the price do not affect either part.",
+    "expected_dispute_type": "route_deviation",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}

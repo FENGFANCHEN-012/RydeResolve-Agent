@@ -1,0 +1,213 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-01",
+    "trip_id": "RYDE-DS-001",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The meter finished at $21.10 but the app estimated $17.50. The driver went a long way round and did not warn me before turning off. I was late for my appointment. I want the $3.60 difference refunded.",
+    "filed_at": "2026-10-02T11:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7101",
+    "name": "Nur Aisyah",
+    "account_age_days": 640,
+    "total_trips": 212,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8101",
+    "name": "Tan Kok Wee",
+    "account_age_days": 1320,
+    "total_trips": 6400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKB 4417 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-001",
+    "rider_id": "R-7101",
+    "driver_id": "D-8101",
+    "pickup_location": {
+      "name": "Tampines Hub",
+      "lat": 1.3535,
+      "lng": 103.9405
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3178,
+      "lng": 103.8928
+    },
+    "scheduled_time": "2026-10-02T10:30:00+08:00",
+    "pickup_time": "2026-10-02T10:31:00+08:00",
+    "dropoff_time": "2026-10-02T10:55:00+08:00",
+    "estimated_distance_km": 9.0,
+    "actual_distance_km": 11.0,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 24,
+    "route_deviation_percent": 22.2,
+    "estimated_fare": 17.5,
+    "total_fare": 21.1,
+    "fare_breakdown": {
+      "base_fare": 4.0,
+      "distance_fare": 9.9,
+      "time_fare": 7.2,
+      "subtotal": 21.1,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 21.1
+    },
+    "driver_reported_reason": "Road closed ahead on the planned route; went around it",
+    "service_type": "RydeTAXI"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-02T10:31:00+08:00",
+      "lat": 1.3535,
+      "lng": 103.9405,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-02T10:36:00+08:00",
+      "lat": 1.356,
+      "lng": 103.933,
+      "speed_kmh": 13,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-02T10:41:00+08:00",
+      "lat": 1.35,
+      "lng": 103.919,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-02T10:46:00+08:00",
+      "lat": 1.333,
+      "lng": 103.91,
+      "speed_kmh": 32,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-02T10:51:00+08:00",
+      "lat": 1.325,
+      "lng": 103.9,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-02T10:55:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8928,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-02T10:29:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the lobby, silver Prius."
+    },
+    {
+      "timestamp": "2026-10-02T10:37:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry boss, lane closed at Tampines Ave 10 flyover, I have to go around via the service road."
+    },
+    {
+      "timestamp": "2026-10-02T10:37:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why so long?? I have an appointment at 11. Just hurry."
+    },
+    {
+      "timestamp": "2026-10-02T10:55:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Fare is way above the estimate."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-02T10:24:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7101 booked a RydeTAXI (metered) trip RYDE-DS-001. Metered fare estimate S$17.50 (9.0 km, 18 min)."
+    },
+    {
+      "timestamp": "2026-10-02T10:24:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8101 (Tan Kok Wee, Toyota Prius SKB 4417 K) assigned."
+    },
+    {
+      "timestamp": "2026-10-02T10:31:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-02T10:36:40+08:00",
+      "event_type": "traffic_alert",
+      "details": "LTA road works alert active 10:00-14:00: Tampines Ave 10 flyover, eastbound lane closed. Planned route intersects the closure."
+    },
+    {
+      "timestamp": "2026-10-02T10:55:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 11.0 km, 24 min. Route consistent with a diversion around the closure."
+    },
+    {
+      "timestamp": "2026-10-02T10:55:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Metered fare S$21.10 (flag-down S$4.00 + 11.0 km x S$0.90 + 24 min x S$0.30) charged to credit card."
+    },
+    {
+      "timestamp": "2026-10-02T10:58:00+08:00",
+      "event_type": "app_notice",
+      "details": "Receipt screen showed 'payment pending' for about 3 minutes after drop-off, then updated to the final fare."
+    }
+  ],
+  "platform_policy": {
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    },
+    "fare_basis": {
+      "value": "metered: flag-down S$4.00 + S$0.90 per km + S$0.30 per minute",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "RydeTAXI is metered, so the S$17.50 figure is an estimate, not a fixed fare. The app log shows an active LTA alert for a lane closure at Tampines Ave 10 flyover at 10:36:40, the driver's chat at 10:37 names the same closure, and the GPS shows the diversion. Under this trip's policy a detour for a verified road closure is billable, and the extra S$3.60 is exactly 2.0 km x S$0.90 plus 6 min x S$0.30 on the meter rates. The driver not warning earlier, the rider's hurry and the short receipt glitch do not change that.",
+    "expected_dispute_type": "route_deviation",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > Can I suggest my preferred route to the driver?",
+      "Ryde Help Driver Ryde Experience > Am I required to follow the suggested route by the rider?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
+  }
+}

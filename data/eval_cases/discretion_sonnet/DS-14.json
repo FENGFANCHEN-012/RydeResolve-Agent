@@ -1,0 +1,162 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-14",
+    "trip_id": "RYDE-DS-014",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I cancelled because the driver was a bit late and got charged $10.00 in cancellation fees. That is double what the fee should be, and I was running late and upset. Please refund the whole $10.00.",
+    "filed_at": "2026-10-09T12:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7114",
+    "name": "Ben Tan",
+    "account_age_days": 620,
+    "total_trips": 205,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8114",
+    "name": "Kwan Soon Lee",
+    "account_age_days": 1450,
+    "total_trips": 6800,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SKH 3318 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-014",
+    "rider_id": "R-7114",
+    "driver_id": "D-8114",
+    "pickup_location": {
+      "name": "Bishan MRT",
+      "lat": 1.3509,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-09T12:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-09T12:09:20+08:00",
+    "cancellation_fee": 10.0,
+    "cancellation_reason": "rider_cancelled_after_assignment"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T12:01:00+08:00",
+      "lat": 1.33,
+      "lng": 103.83,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T12:05:00+08:00",
+      "lat": 1.335,
+      "lng": 103.84,
+      "speed_kmh": 23,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T12:09:20+08:00",
+      "lat": 1.34,
+      "lng": 103.845,
+      "speed_kmh": 14,
+      "status": "en_route"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T12:01:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "On the way, ETA 12:08."
+    },
+    {
+      "timestamp": "2026-10-09T12:08:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, traffic, 3 more minutes."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T12:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Rider R-7114 booked trip RYDE-DS-014; driver D-8114 assigned. Match time 12:00:00, shown arrival time 12:08:00."
+    },
+    {
+      "timestamp": "2026-10-09T12:09:20+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Rider cancelled 9 min 20 s after match; driver 1.2 km from pickup, 1 min 20 s past the shown arrival time."
+    },
+    {
+      "timestamp": "2026-10-09T12:09:21+08:00",
+      "event_type": "fee_applied",
+      "details": "Cancellation fee S$5.00 charged to rider."
+    },
+    {
+      "timestamp": "2026-10-09T12:09:48+08:00",
+      "event_type": "payment_retry",
+      "details": "Payment gateway timeout on the first charge; automatic retry posted a second cancellation fee S$5.00 for the same booking. Both charges settled; total S$10.00."
+    }
+  ],
+  "cancellation_policy": {
+    "cancellation_fee_after_driver_assigned": {
+      "value": 5.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "no_fee_if_driver_delayed_beyond_eta_min": {
+      "value": 10,
+      "text": "Governs a rider who cancels while the driver is late. It sets the minutes past the driver's shown arrival time after which the rider owes no cancellation fee."
+    },
+    "max_cancellation_fees_per_booking": {
+      "value": 1,
+      "text": "Governs how many cancellation fees one booking can carry in total."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "refund_duplicate_fee",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The rider cancelled 9 min 20 s after match, outside the 3-minute free window, and the driver was only 1 min 20 s past the shown arrival time, well short of this trip's 10-minute lateness threshold, so one S$5.00 fee is due. But the payment retry at 12:09:48 posted a second S$5.00 for the same booking, and this trip's policy allows at most one cancellation fee per booking. The duplicate S$5.00 is refunded and the other S$5.00 stands, so the rider receives S$5.00 of the S$10.00 requested.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Rider Fares And Charges > Will I be charged for cancelling a ride?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ]
+  }
+}
