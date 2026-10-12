@@ -1,0 +1,189 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-12",
+    "trip_id": "RYDE-FS-012",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was unwell in the car and I accept I made a mess, but S$180 is far too much for one wipe-down. The driver sent a receipt for much less than that. Please reduce it.",
+    "filed_at": "2026-10-08T10:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3190",
+    "name": "Karen Sim",
+    "account_age_days": 200,
+    "total_trips": 57,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2406",
+    "name": "Zulkifli Yusof",
+    "account_age_days": 1300,
+    "total_trips": 5400,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SKC 6021 W)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-012",
+    "rider_id": "R-3190",
+    "driver_id": "D-2406",
+    "pickup_location": {
+      "name": "Resorts World Sentosa",
+      "lat": 1.254,
+      "lng": 103.8208
+    },
+    "dropoff_location": {
+      "name": "Bukit Timah Plaza",
+      "lat": 1.3414,
+      "lng": 103.7761
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-06T22:41:00+08:00",
+    "driver_wait_start": "22:41:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 14.9,
+    "duration_min": 29,
+    "fare": 22.7,
+    "cleaning_claim": {
+      "amount_claimed": 180.0,
+      "charged_to_rider": true,
+      "photos_attached": 2,
+      "photo_timestamps": [
+        "2026-10-06T23:17:05+08:00",
+        "2026-10-06T23:17:40+08:00"
+      ],
+      "receipt_attached": true,
+      "receipt": {
+        "company": "BrightClean Pte Ltd",
+        "contact": "6555 0142",
+        "address": "8 Kaki Bukit Ave 1",
+        "date": "2026-10-07",
+        "amount": 95.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T22:41:00+08:00",
+      "lat": 1.254,
+      "lng": 103.8208,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T22:45:00+08:00",
+      "lat": 1.27,
+      "lng": 103.81,
+      "speed_kmh": 50,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-06T23:14:30+08:00",
+      "lat": 1.3414,
+      "lng": 103.7761,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T23:02:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm feeling sick, can you open the window? So sorry."
+    },
+    {
+      "timestamp": "2026-10-06T23:02:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok no problem, let me stop."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T22:45:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-06T23:14:30+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$22.70."
+    },
+    {
+      "timestamp": "2026-10-06T23:17:05+08:00",
+      "event_type": "cleaning_photo_uploaded",
+      "details": "Driver photo 1 uploaded, timestamp 23:17:05."
+    },
+    {
+      "timestamp": "2026-10-06T23:17:40+08:00",
+      "event_type": "cleaning_photo_uploaded",
+      "details": "Driver photo 2 uploaded, timestamp 23:17:40."
+    },
+    {
+      "timestamp": "2026-10-07T09:00:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Claim S$180 with receipt from BrightClean Pte Ltd dated 2026-10-07 for S$95.00."
+    },
+    {
+      "timestamp": "2026-10-07T09:00:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "S$180.00 charged to rider card."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "evidence_photo_window_after_dropoff_min": {
+      "value": 30,
+      "text": "Photos count as timestamped evidence if taken between boarding and this many minutes after drop-off."
+    },
+    "cleaning_fee_limited_to_documented_cost": {
+      "value": true,
+      "text": "A cleaning fee may not exceed the amount on the cleaning company receipt supplied with the claim."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 85.0,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Drop-off was 23:14:30 and the photos are timestamped 23:17:05 and 23:17:40, 2 min 35 s and 3 min 10 s after drop-off, inside this trip's 30-min photo window; the rider's own 23:02:00 message admits she was sick. The receipt (BrightClean Pte Ltd, name, contact, address, date 2026-10-07) is complete, so a cleaning fee is valid. But this trip's policy caps the fee at the receipt amount, S$95.00, and the driver charged S$180.00. Refund = 180.00 - 95.00 = S$85.00; the S$95.00 stands.",
+    "expected_dispute_type": "cleaning_fee",
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-10",
+    "trip_id": "RYDE-FS-010",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "I pressed I'm Here and waited more than 4 minutes for the passenger to come down with her luggage. The trip finished but no waiting fee was added. I want the waiting fee applied.",
+    "filed_at": "2026-10-04T17:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2731",
+    "name": "Amelia Wong",
+    "account_age_days": 60,
+    "total_trips": 9,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-1604",
+    "name": "Francis Tay",
+    "account_age_days": 2100,
+    "total_trips": 9600,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 0,
+      "rejected": 6
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SKD 3390 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-010",
+    "rider_id": "R-2731",
+    "driver_id": "D-1604",
+    "pickup_location": {
+      "name": "Block 88 Toa Payoh Lorong 2",
+      "lat": 1.3343,
+      "lng": 103.847
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3554,
+      "lng": 103.9863
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-04T16:05:00+08:00",
+    "driver_wait_start": "16:05:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "rider_boarded_time": "2026-10-04T16:09:30+08:00",
+    "distance_km": 21.5,
+    "duration_min": 27,
+    "fare": 33.0,
+    "waiting_fee_applied": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T16:05:00+08:00",
+      "lat": 1.3343,
+      "lng": 103.847,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-04T16:07:00+08:00",
+      "lat": 1.3343,
+      "lng": 103.847,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T16:09:30+08:00",
+      "lat": 1.3343,
+      "lng": 103.847,
+      "speed_kmh": 0,
+      "status": "boarded"
+    },
+    {
+      "timestamp": "2026-10-04T16:36:00+08:00",
+      "lat": 1.3554,
+      "lng": 103.9863,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-04T16:05:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm downstairs, white Corolla."
+    },
+    {
+      "timestamp": "2026-10-04T16:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry, carrying 3 big bags, coming!"
+    },
+    {
+      "timestamp": "2026-10-04T16:09:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks for waiting!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T16:01:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1604 matched."
+    },
+    {
+      "timestamp": "2026-10-04T16:05:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'; GPS within 12 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-04T16:09:30+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-04T16:36:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Waiting fee applied: S$0.00."
+    }
+  ],
+  "platform_policy": {
+    "waiting_time_fee": {
+      "value": 5.0,
+      "text": "The waiting-time fee in SGD that the rider owes when the driver waits longer than the threshold and the trip then goes ahead."
+    },
+    "waiting_fee_threshold_min": {
+      "value": 3,
+      "text": "Minutes, counted from the driver_arrived event to the rider_boarded event, that the driver must wait for a waiting-time fee to be due. The wait must be MORE than this; exactly 3 min 00 s does not qualify."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "apply_waiting_fee_to_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived is 16:05:00 and rider_boarded is 16:09:30, a wait of 4 min 30 s, which is more than this trip's 3-min threshold (the rider's own 16:08:00 message admits she was still coming down). The trip then completed, so the S$5.00 waiting-time fee is due, but the record shows waiting_fee_applied 0.0. The driver's claim is upheld and S$5.00 is to be charged to the rider and paid to the driver. The rider's thanks at 16:09:40 does not waive it.",
+    "expected_dispute_type": "driver_rights"
+  }
+}

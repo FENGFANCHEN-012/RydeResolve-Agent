@@ -1,0 +1,144 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-08",
+    "trip_id": "RYDE-FS-008",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "My driver was about 20 minutes late and I had a meeting, so I cancelled. I still got charged S$4.00. Your app is useless. Please give me the fee back.",
+    "filed_at": "2026-10-10T08:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7788",
+    "name": "Arthur Lee",
+    "account_age_days": 90,
+    "total_trips": 18,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5512",
+    "name": "Ng Kok Wai",
+    "account_age_days": 560,
+    "total_trips": 2790,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SKR 8821 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-008",
+    "rider_id": "R-7788",
+    "driver_id": "D-5512",
+    "pickup_location": {
+      "name": "Blk 12 Marine Terrace",
+      "lat": 1.305,
+      "lng": 103.915
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.284,
+      "lng": 103.8514
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-10T07:48:10+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T07:31:00+08:00",
+      "lat": 1.32,
+      "lng": 103.94,
+      "speed_kmh": 40,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T07:40:00+08:00",
+      "lat": 1.335,
+      "lng": 103.97,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T07:48:10+08:00",
+      "lat": 1.33,
+      "lng": 103.95,
+      "speed_kmh": 22,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T07:44:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "How far are you?? This is useless."
+    },
+    {
+      "timestamp": "2026-10-10T07:44:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Wrong turn on Tanjong Katong, 5 more min"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T07:30:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-5512 matched. Shown arrival time 07:36 (ETA 6 min)."
+    },
+    {
+      "timestamp": "2026-10-10T07:48:10+08:00",
+      "event_type": "rider_cancel_tapped",
+      "details": "Rider cancelled; driver GPS 2.6 km from pickup, 12 min 10 s after shown arrival time."
+    },
+    {
+      "timestamp": "2026-10-10T07:48:12+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$4.00 charged to rider card."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only. The limit counts: a cancellation at exactly 3 min 00 s is still free."
+    },
+    "cancellation_fee_after_driver_assigned": {
+      "value": 4.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "no_fee_if_driver_delayed_beyond_eta_min": {
+      "value": 10,
+      "text": "Governs a rider who cancels while the driver is late. The rider owes no fee only if the cancellation is made MORE than this many minutes after the arrival time shown at assignment; exactly 10 min 00 s does not qualify."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 4.0,
+    "recommended_action": "no_fee_payable",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The arrival time shown at assignment was 07:30:00 + 6 min = 07:36:00. The rider cancelled at 07:48:10, which is 12 min 10 s past it, more than the 10-min limit in this trip's policy, so no cancellation fee was payable and the S$4.00 charged at 07:48:12 is refunded in full. The rider's 'about 20 minutes late' overstates it (the real delay was 12 min 10 s), and her rude 07:44:00 message is irrelevant; the driver's own 07:44:40 message admits a wrong turn.",
+    "expected_dispute_type": "cancellation_refund"
+  }
+}

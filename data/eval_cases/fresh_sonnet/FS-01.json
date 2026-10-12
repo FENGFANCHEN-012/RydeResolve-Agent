@@ -1,0 +1,179 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-01",
+    "trip_id": "RYDE-FS-001",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I only got to Tampines Mall around 2:22pm and the driver left after maybe 4 minutes. He was rude too, told me to hurry up. I was charged $5.00 as a no-show, please refund it.",
+    "filed_at": "2026-10-02T14:45:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6120",
+    "name": "Nur Aisyah",
+    "account_age_days": 410,
+    "total_trips": 132,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3307",
+    "name": "Lim Boon Kiat",
+    "account_age_days": 960,
+    "total_trips": 4120,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 0,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SLA 4417 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-001",
+    "rider_id": "R-6120",
+    "driver_id": "D-3307",
+    "pickup_location": {
+      "name": "Tampines Mall (Exit B taxi bay)",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.963
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-02T14:20:00+08:00",
+    "driver_wait_start": "14:20:00",
+    "cancellation_time": "2026-10-02T14:27:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-02T14:13:00+08:00",
+      "lat": 1.359,
+      "lng": 103.938,
+      "speed_kmh": 32,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-02T14:18:00+08:00",
+      "lat": 1.3541,
+      "lng": 103.9433,
+      "speed_kmh": 18,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-02T14:20:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-02T14:24:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-02T14:27:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-02T14:20:15+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the Exit B taxi bay, white Prius."
+    },
+    {
+      "timestamp": "2026-10-02T14:25:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hurry up, I can't wait all day."
+    },
+    {
+      "timestamp": "2026-10-02T14:26:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Almost there!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-02T14:12:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3307 matched. ETA 8 min."
+    },
+    {
+      "timestamp": "2026-10-02T14:19:10+08:00",
+      "event_type": "rider_location_ping",
+      "details": "Rider app location 760 m from pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T14:20:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'; GPS within 15 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T14:27:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled; reason: rider did not board. Wait counted from driver_arrived: 7 min 00 s. No-show fee S$5.00 applied."
+    },
+    {
+      "timestamp": "2026-10-02T14:27:50+08:00",
+      "event_type": "rider_location_ping",
+      "details": "Rider app location within 25 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T14:27:55+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$5.00 charged to rider card."
+    }
+  ],
+  "cancellation_policy": {
+    "no_show_threshold_min": {
+      "value": 7,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show. The limit counts: a wait of exactly 7 min 00 s meets it."
+    },
+    "no_show_fee": {
+      "value": 5.0,
+      "text": "The fee in SGD charged to the rider when the rider counts as a no-show. It governs rider no-shows, not cancellations caused by the driver."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only. The limit counts: a cancellation at exactly 3 min 00 s is still free."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver_arrived event is 14:20:00 (GPS within 15 m) and the cancellation is 14:27:00, so the wait was exactly 7 min 00 s. This trip's policy sets the no-show threshold at 7 min counted from arrival and says exactly 7 min 00 s meets it, so the rider counts as a no-show. The rider's claim that she arrived at 14:22 and the driver left after about 4 minutes is contradicted by the platform records: her own app pings put her 760 m away at 14:19:10 and only within 25 m at 14:27:50, after the cancellation. The driver's curt 14:25:00 message does not change the rule. The S$5.00 fee stands.",
+    "expected_dispute_type": "no_show"
+  }
+}

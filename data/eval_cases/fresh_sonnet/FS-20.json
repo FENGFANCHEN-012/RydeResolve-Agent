@@ -1,0 +1,154 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-20",
+    "trip_id": "RYDE-FS-020",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "My rear passenger cracked the plastic seat-back tray and tore the seat cover when he forced his bag in. I want S$260 for repair charged to him. I have photos and a garage quote.",
+    "filed_at": "2026-10-11T22:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7766",
+    "name": "Kelvin Tan",
+    "account_age_days": 330,
+    "total_trips": 70,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8081",
+    "name": "Lawrence Ong",
+    "account_age_days": 900,
+    "total_trips": 3600,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mercedes V-Class (SMB 1010 Q)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-020",
+    "rider_id": "R-7766",
+    "driver_id": "D-8081",
+    "pickup_location": {
+      "name": "Changi City Point",
+      "lat": 1.334,
+      "lng": 103.963
+    },
+    "dropoff_location": {
+      "name": "Shaw Centre, Scotts Rd",
+      "lat": 1.3059,
+      "lng": 103.8321
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-11T20:15:00+08:00",
+    "driver_wait_start": "20:15:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 19.6,
+    "duration_min": 28,
+    "fare": 29.5,
+    "damage_claim": {
+      "amount_claimed": 260.0,
+      "photos_attached": 3,
+      "photo_timestamps": [
+        "2026-10-11T20:49:20+08:00",
+        "2026-10-11T20:49:55+08:00",
+        "2026-10-11T20:50:30+08:00"
+      ],
+      "garage_quote_attached": true,
+      "charged_to_rider": false
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T20:15:00+08:00",
+      "lat": 1.334,
+      "lng": 103.963,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-11T20:22:00+08:00",
+      "lat": 1.32,
+      "lng": 103.93,
+      "speed_kmh": 70,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-11T20:48:00+08:00",
+      "lat": 1.3059,
+      "lng": 103.8321,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T20:44:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Careful with the seat tray please."
+    },
+    {
+      "timestamp": "2026-10-11T20:44:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "It was already loose when I sat down."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T20:16:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-11T20:48:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$29.50."
+    },
+    {
+      "timestamp": "2026-10-11T22:30:00+08:00",
+      "event_type": "damage_claim_submitted",
+      "details": "Driver submitted vehicle damage claim S$260 with 3 photos and a garage quote."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "vehicle_damage_claims_decided_by_staff": {
+      "value": true,
+      "text": "Governs any claim by a driver for damage to the vehicle (as opposed to cleaning). A true value means the claim is decided only by a Ryde staff member after hearing both sides; it is never settled automatically."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims S$260 for vehicle damage (3 photos at 20:49:20, 20:49:55 and 20:50:30, after drop-off at 20:48:00, plus a garage quote) and the rider says at 20:44:30 that the tray was already loose. This trip's policy states that any vehicle damage claim is decided only by a Ryde staff member after hearing both sides and is never settled automatically. The dispute is therefore reserved for a person whatever the evidence looks like.",
+    "expected_dispute_type": "driver_rights"
+  }
+}

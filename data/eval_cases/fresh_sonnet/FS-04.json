@@ -1,0 +1,148 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-04",
+    "trip_id": "RYDE-FS-004",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "A passenger spilled bubble tea all over my back seat and I had to wipe it down. I want to charge S$90 cleaning to the rider. I didn't take photos because I was in a rush to the next job.",
+    "filed_at": "2026-10-06T23:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5502",
+    "name": "Priscilla Goh",
+    "account_age_days": 150,
+    "total_trips": 44,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7740",
+    "name": "Ahmad Fauzi",
+    "account_age_days": 700,
+    "total_trips": 3100,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMH 6633 U)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-004",
+    "rider_id": "R-5502",
+    "driver_id": "D-7740",
+    "pickup_location": {
+      "name": "Tiong Bahru Plaza",
+      "lat": 1.2863,
+      "lng": 103.827
+    },
+    "dropoff_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3243,
+      "lng": 103.9298
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-06T22:20:00+08:00",
+    "driver_wait_start": "22:20:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 13.2,
+    "duration_min": 24,
+    "fare": 19.6,
+    "cleaning_claim": {
+      "amount_claimed": 90.0,
+      "photos_attached": 0,
+      "receipt_attached": false,
+      "charged_to_rider": false
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T22:20:00+08:00",
+      "lat": 1.2863,
+      "lng": 103.827,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T22:25:00+08:00",
+      "lat": 1.29,
+      "lng": 103.86,
+      "speed_kmh": 58,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-06T22:46:00+08:00",
+      "lat": 1.3243,
+      "lng": 103.9298,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T22:41:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Oh no, my drink tipped a little bit, so sorry. Do you have tissue?"
+    },
+    {
+      "timestamp": "2026-10-06T22:41:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "It's fine, I will clean."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T22:21:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-06T22:46:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$19.60."
+    },
+    {
+      "timestamp": "2026-10-06T23:30:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$90. Attachments: none. Receipt: none."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only. A claim missing any listed item cannot be charged."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "This trip's policy requires both timestamped photos and a cleaning company receipt (name, contact, address, date) before a cleaning fee can be charged, and says a claim missing either cannot be charged. The 23:30:00 claim of S$90 has photos_attached 0 and receipt_attached false, and the driver confirms he took no photos. The rider's 22:41:00 'my drink tipped a little bit' does not replace the required evidence. Nothing was charged to the rider (charged_to_rider false), so the claim is rejected and S$0 is charged.",
+    "expected_dispute_type": "driver_rights"
+  }
+}
