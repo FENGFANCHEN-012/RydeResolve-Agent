@@ -58,13 +58,14 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 
 | Agent | Role |
 |-------|------|
-| **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles) produce facts, conflicts and data gaps, each with its source |
+| **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles) produce facts, conflicts and data gaps, each with its source; rule checks measure the trip's time rules and report MET / NOT MET |
 | **Classifier** | Dispute type and urgency (P0-P3); safety and unclear cases go straight to a person |
 | **Case Brief** | One shared dossier (no LLM): facts, conflicts, the trip's rules, timeline and retrieved policy clauses |
 | **Rider / Driver advocates** | Each builds its side's case from the brief and cites policy, then rebuts the other |
 | **Fraud** | Deterministic risk signals and evidence-grounded chat labels; threats route separately to safety review |
 | **Policy** | Compliance check of both cases against the retrieved official Ryde policy (RAG) |
-| **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; sees approved precedents |
+| **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; names the facts its ruling turns on and the refund arithmetic; sees approved precedents |
+| **Code Judge** | Code, not a model: every decisive fact must be verified on a record nothing contradicts, and a refund must be plain arithmetic on record figures; a failing draft goes back to the Judge once, then to a person |
 | **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person |
 | **Executor** | Simulated refund / penalty and a notice to each party with its own outcome (EN/ZH/MS/TA) |
 
@@ -79,9 +80,12 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
    actually returned from the official Ryde policy texts. Invalid citations are caught in code.
 4. **Safe by default.** Safety cases, missing data, contradicted payouts, discretionary refunds and
    high-severity fairness findings go to a person instead of being executed.
-5. **Learning with a human in the loop.** Reviewers approve or correct rulings, and only approved
+5. **Code checks the Judge.** The model does not check itself: code verifies the facts a ruling
+   turns on and the refund arithmetic, and measures time rules itself. Since this check was added, no
+   evaluated run has paid out on a wrong ruling; a miss is a hand-off to a person.
+6. **Learning with a human in the loop.** Reviewers approve or correct rulings, and only approved
    rulings become precedents the Judge can see. Risk flags count only after a person confirms them.
-6. **Full audit trail.** A live trace of every agent step and LLM call, rulings stored in a database,
+7. **Full audit trail.** A live trace of every agent step and LLM call, rulings stored in a database,
    and an append-only, hash-chained audit log (`GET /api/audit/verify`).
 
 ## Tech Stack
@@ -227,7 +231,7 @@ RydeResolve-Agent/
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect (D1–D22) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D40) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 
 ## License

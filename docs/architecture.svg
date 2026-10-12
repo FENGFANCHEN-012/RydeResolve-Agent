@@ -50,9 +50,9 @@
   <text x="441" y="178" class="s">hybrid search: bge-base embeddings + BM25, Qdrant</text>
   <text x="441" y="200" class="k">sections tagged by dispute type and audience</text>
 
-  <!-- Fraud agent (planned) -->
-  <rect x="975" y="110" width="390" height="104" rx="8" class="plan"/>
-  <text x="991" y="136" class="t" fill="#64748b">Fraud and bad-faith agent (planned)</text>
+  <!-- Fraud agent -->
+  <rect x="975" y="110" width="390" height="104" rx="8" class="llm"/>
+  <text x="991" y="136" class="t">Fraud and bad-faith agent</text>
   <text x="991" y="158" class="s">runs beside the debate: code scores priors,</text>
   <text x="991" y="178" class="s">LLM reads chat; risk signals to Judge + Fairness</text>
 
@@ -61,10 +61,10 @@
   <text x="39" y="318" class="t">1  Collector</text>
   <text x="39" y="344" class="s">Tools over GPS, fare,</text>
   <text x="39" y="362" class="s">chat, app events,</text>
-  <text x="39" y="380" class="s">profiles</text>
+  <text x="39" y="380" class="s">profiles, trip time rules</text>
   <text x="39" y="406" class="s">→ facts, conflicts,</text>
-  <text x="39" y="424" class="s">data gaps, each with</text>
-  <text x="39" y="442" class="s">its source</text>
+  <text x="39" y="424" class="s">data gaps, rule MET /</text>
+  <text x="39" y="442" class="s">NOT MET, with sources</text>
 
   <rect x="225" y="290" width="160" height="200" rx="8" class="llm"/>
   <text x="239" y="318" class="t">2  Classifier</text>
@@ -101,19 +101,19 @@
   <text x="989" y="318" class="t">5  Judge</text>
   <text x="989" y="344" class="s">Splits the filing</text>
   <text x="989" y="362" class="s">into asks, rules on</text>
-  <text x="989" y="380" class="s">each; every amount</text>
-  <text x="989" y="398" class="s">from a specific rule</text>
-  <text x="989" y="424" class="s">→ verdict, refund,</text>
-  <text x="989" y="442" class="s">confidence, reasons</text>
+  <text x="989" y="380" class="s">each; names the</text>
+  <text x="989" y="398" class="s">decisive facts and</text>
+  <text x="989" y="424" class="s">the refund arithmetic</text>
+  <text x="989" y="442" class="s">→ verdict, confidence</text>
 
   <rect x="1185" y="290" width="180" height="200" rx="8" class="code"/>
-  <text x="1199" y="318" class="t">6  Fairness audit</text>
-  <text x="1199" y="344" class="s">Checks in code:</text>
-  <text x="1199" y="362" class="s">citations are real,</text>
-  <text x="1199" y="380" class="s">GPS gaps, fee basis,</text>
-  <text x="1199" y="398" class="s">refund has a rule</text>
-  <text x="1199" y="420" class="s">+ LLM review of</text>
-  <text x="1199" y="438" class="s">grounding and bias</text>
+  <text x="1199" y="318" class="t">6  Code Judge + audit</text>
+  <text x="1199" y="344" class="s">Code: decisive facts</text>
+  <text x="1199" y="362" class="s">verified, refund =</text>
+  <text x="1199" y="380" class="s">record figures; fail</text>
+  <text x="1199" y="398" class="s">→ 1 remand → person</text>
+  <text x="1199" y="420" class="s">+ Fairness checks and</text>
+  <text x="1199" y="438" class="s">LLM review of bias</text>
 
   <rect x="1405" y="290" width="170" height="200" rx="8" class="code"/>
   <text x="1419" y="318" class="t">7  Executor</text>
@@ -145,7 +145,7 @@
   <rect x="225" y="620" width="710" height="110" rx="8" class="hum"/>
   <text x="241" y="648" class="t">Human review queue</text>
   <text x="241" y="672" class="s">Gets every case the system should not decide alone: safety (P0), unclear type, a node error,</text>
-  <text x="241" y="692" class="s">a deciding fact nobody can verify (GPS gap), a fee or refund the platform data contradicts,</text>
+  <text x="241" y="692" class="s">a deciding fact nobody can verify, a draft that fails the code Judge twice, a contradicted fee,</text>
   <text x="241" y="712" class="s">and refunds that only Ryde's discretion could set. The reviewer sees the full case and audit trail.</text>
 
   <rect x="975" y="620" width="390" height="110" rx="8" class="code"/>
@@ -187,5 +187,5 @@
 
   <text x="25" y="838" class="s">Orchestration: LangGraph (every node fails safe to human review) · LLM: gpt-oss-120b (Cerebras or Groq) · Backend: FastAPI · Vector store: Qdrant</text>
   <text x="25" y="860" class="s">Observable: every agent's input, output and LLM call is streamed live to the dashboard as an inter-agent trace.</text>
-  <text x="25" y="882" class="s">Evaluated offline: 33 answer-keyed cases (dev + held-out variants: paraphrase, counterfactual, prompt injection) + a sealed set written by another model.</text>
+  <text x="25" y="882" class="s">Evaluated offline: 38 answer-keyed cases 33/38 with 0 wrong payouts; a fresh blind set written by another model 16/20, 0 wrong payouts; a sealed set run once.</text>
 </svg>
