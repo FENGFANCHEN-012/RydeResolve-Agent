@@ -187,5 +187,5 @@
 
   <text x="25" y="838" class="s">Orchestration: LangGraph (every node fails safe to human review) · LLM: gpt-oss-120b (Cerebras or Groq) · Backend: FastAPI · Vector store: Qdrant</text>
   <text x="25" y="860" class="s">Observable: every agent's input, output and LLM call is streamed live to the dashboard as an inter-agent trace.</text>
-  <text x="25" y="882" class="s">Evaluated offline: 38 answer-keyed cases 33/38 with 0 wrong payouts; a fresh blind set written by another model 16/20, 0 wrong payouts; a sealed set run once.</text>
+  <text x="25" y="882" class="s">Evaluated offline: 38 answer-keyed cases 33/38 with 0 wrong payouts; a fresh blind set 16/20, 0 wrong payouts; a sealed set run once 16/23, 1 wrong payout.</text>
 </svg>
