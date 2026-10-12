@@ -9,7 +9,7 @@ function page(extra = {}) {
     const elements = new Map();
     const element = id => {
         if (!elements.has(id)) elements.set(id, {
-            innerHTML: '', textContent: '', hidden: false,
+            innerHTML: '', textContent: '', hidden: false, dataset: {},
             querySelector: () => null,
             addEventListener() {}, scrollIntoView() {},
         });
