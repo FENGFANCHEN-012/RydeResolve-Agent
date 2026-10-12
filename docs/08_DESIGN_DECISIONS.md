@@ -1195,3 +1195,17 @@ the Judge twice returned no decisive facts (and the Fairness audit failed it). C
 the 10-case A/B and went to a person here, with no code problem: the Judge asked for review itself.
 These three are Judge variance on single runs. DS-09, the target, is not in the 38-case set (see
 the A/B above). No run so far with the code Judge has executed a wrong payout.
+
+**Absence rule in the Judge prompt (2026-10-12).** DR-002 x3 on the rule-engine branch (run
+20261012-141208): 1/3 correct, the other two went to a person because the Judge marked "no
+itemised breakdown of the S$300" unverifiable. The prompt now says: an absence from a platform
+record (a null trip field, no such app event, nothing attached to the claim) is verified on that
+record; an absence in the chat is not, since people also talk outside the app. Worst-case replay
+first (126 saved drafts, every "unverifiable" absence fact flipped to verified): DS-20 and FD-003
+stay blocked by their data-gap findings, but SQ-002's "rider did not refuse the detour"
+(chat_log[0]) would have executed a wrong amount; hence the chat exclusion. Live (runs
+20261012-143014-absence-dr002 / -143539-absence-guards): DR-002 2/3 correct (the miss: the Judge
+still marked the absence unverifiable, with no source); DS-20 to a person (correct); SQ-002 correct
+with refund S$4.20 (to a person in every earlier run); NS-001 to a person, because the Judge named
+"fee charged with reason rider_no_show" (the questioned label) as a decisive fact, the same
+pattern as NS-001-P1 in run 105053, unrelated to this rule. No wrong payout.
