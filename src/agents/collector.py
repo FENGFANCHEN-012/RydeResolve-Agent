@@ -23,7 +23,7 @@ from pydantic import BaseModel
 from enum import Enum
 
 from src.agents.collector_tools import QUERY_TOOLS, STANDARD_TOOLS, Finding
-from src.core.case_policy import case_policy_block, split_policy
+from src.core.case_policy import case_policy_block, policy_checks, split_policy
 from src.core.trace import record_tool_call
 from src.integrations.ryde_api import (
     RydeAPIClient,
@@ -76,6 +76,8 @@ class DisputeContext(BaseModel):
     platform_policy: Optional[dict] = None
     # Scope text per policy key (key -> text), when the case states it (src/core/case_policy.py)
     platform_policy_text: dict = {}
+    # Machine-readable condition per time rule, when the case gives one (D39, rule_checks tool)
+    platform_policy_checks: dict = {}
     # Trips and disputes between this exact rider and driver (demo data only); read by the
     # Fraud agent alone, never shown to the advocates
     pair_history: Optional[dict] = None
@@ -269,6 +271,7 @@ class CollectorAgent:
         rider = data.get("rider_profile")
         order_id = dataset_order_id(data) or "UNKNOWN"
         policy, policy_text = split_policy(case_policy_block(data))
+        policy_check = policy_checks(case_policy_block(data))
 
         context = DisputeContext(
             dispute_id=ticket.get("dispute_id") or f"DRP-{order_id}",
@@ -285,6 +288,7 @@ class CollectorAgent:
             app_events=data.get("app_events") or None,
             platform_policy=policy,
             platform_policy_text=policy_text,
+            platform_policy_checks=policy_check,
             pair_history=data.get("pair_history") or None,
             language=language,
             submitted_at=ticket.get("filed_at"),

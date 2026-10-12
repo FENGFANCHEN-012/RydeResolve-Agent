@@ -1089,3 +1089,46 @@ comparison needs to be evaluated by code.
 - (3) DS-09: the Judge measured the interval correctly (8.8 min before the scheduled time) and read
   the rule's direction backwards. Code can only evaluate the rule if the rule says, in a form code
   can read, what is measured and which side is free. That is the planned rule-engine step.
+
+## D39. Rule checks: code evaluates the trip's time rules (2026-10-12, branch feature/rule-engine)
+
+**Why.** DS-09: the Judge measured the interval correctly (cancelled 8.8 min before the scheduled
+pickup) and read the rule's direction backwards (free only when cancelled at least 15 min before).
+CR-001 and NS-002-B1 are the same class: a lateness waiver and a no-show threshold misapplied by a
+minute or by direction. A measurement and a comparison are what code does exactly, so code now does
+them and the Judge gets the result.
+
+**What.** A new Collector tool `rule_checks` (no LLM). For each numeric time rule of the trip:
+- the moments it compares come from the records: booked, matched, scheduled, eta_shown (the clock
+  time or "ETA n min" in the assignment event), arrived, wait_start (falls back to arrival),
+  cancelled, trip_end, arrived_or_cancelled. A trip field wins over an event of the same meaning;
+- its condition comes from `data/policies/case_rule_checks.json` (by rule name: five rules cover
+  the 38-case set) or from a `check` inside the case's rule (`{"from", "to", "op", "condition"}`;
+  the case generator now asks for it);
+- the finding states the rule, its condition, the measured minutes, the two records, and MET / NOT
+  MET. Exactly at the limit, a boundary rule (`*_inclusive`) decides; without one the finding says
+  the rules do not say whether the limit counts.
+
+**Guards (all general):**
+- A trip rule that sets how time is counted (`*_basis`, `wait_clock_starts`, `*_count_from`, ...)
+  stops the conclusion: the finding gives the measure and says to use the moment that rule names
+  (DS-04 counts from the device tap time, not the server's cancellation time).
+- A moment with no record (no arrival, so no wait) gives "not evaluated", with no source, so the
+  code Judge never reads it as a gap on the rule.
+- A check timed from a disputed arrival (an arrival conflict) is listed as computed from a
+  disputed record; the wait start is disputed with the arrival.
+- The brief says a check only states whether the condition holds; whether the rule governs this
+  event (who cancelled, which party it binds) is set by its scope text (CR-004: the no-show
+  threshold is NOT MET for a rider's own cancellation, which that rule does not govern).
+
+**Dry run on all case files** (no LLM): every concluded check agrees with the expected outcome's
+reasoning (CR-001 late 12.5 min > 10: MET; NS-002-B1 7 < 8: NOT MET; DS-09 8.8 < 15: NOT MET;
+CR-002 4 > 3 and CR-002-C2 2 <= 3 on the free window; NS-002 family exactly 8: flagged at the limit).
+DS-04 is not concluded (time-basis rule).
+
+**Not done:** the code Judge does not yet compare the ruling with the checks; the checks only
+inform. **Tests:** 499 passed (13 new in tests/test_rule_checks.py).
+
+**Next:** after the full code-Judge regression finishes (one eval process at a time), A/B on
+DS-09, CR-001, NS-002-B1, NS-002-C1, NS-002, CR-002-C2, DS-04, CR-004 (targets and the cases a
+wrong check could break), then fold into the full run.

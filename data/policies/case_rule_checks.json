@@ -1,0 +1,45 @@
+{
+  "_about": "Machine-readable conditions for numeric time rules (D39). measure = minutes from the 'from' moment to the 'to' moment, read from the records by src/agents/collector_tools.rule_checks. The condition is what the rule's own scope text says; it holds when 'measure op value'. Keyed by rule name; a case may override with a 'check' inside the rule. inclusive_keys: case rules that say whether exactly the limit counts; without one, a measure exactly at the limit is reported as such.",
+  "free_cancellation_within_min_of_match": {
+    "from": "matched",
+    "to": "cancelled",
+    "op": "<=",
+    "condition": "the rider cancelled within {value} min of the driver being matched",
+    "inclusive_keys": [
+      "free_window_inclusive",
+      "threshold_inclusive"
+    ]
+  },
+  "free_wait_time_min": {
+    "from": "wait_start",
+    "to": "cancelled",
+    "op": ">=",
+    "condition": "the driver had waited at least {value} min at the pickup, counted from arrival, when the booking was cancelled",
+    "inclusive_keys": [
+      "waiting_fee_threshold_inclusive",
+      "threshold_inclusive"
+    ]
+  },
+  "no_show_threshold_min": {
+    "from": "wait_start",
+    "to": "cancelled",
+    "op": ">=",
+    "condition": "the driver had waited at least {value} min at the pickup, counted from arrival, when the booking was cancelled",
+    "inclusive_keys": [
+      "no_show_threshold_inclusive",
+      "threshold_inclusive"
+    ]
+  },
+  "no_fee_if_driver_delayed_beyond_eta_min": {
+    "from": "eta_shown",
+    "to": "arrived_or_cancelled",
+    "op": ">",
+    "condition": "the driver was more than {value} min past the arrival time shown at assignment (arrival, or cancellation if the driver never arrived)"
+  },
+  "advanced_trip_free_cancellation_min_before_scheduled": {
+    "from": "cancelled",
+    "to": "scheduled",
+    "op": ">=",
+    "condition": "the rider cancelled at least {value} min before the scheduled pickup time"
+  }
+}
