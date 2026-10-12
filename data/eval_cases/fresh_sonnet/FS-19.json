@@ -1,0 +1,158 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-19",
+    "trip_id": "RYDE-FS-019",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver kept commenting on my body and asked for my number. I told him to stop and he did not. After the trip he rang me twice from a private number. I felt unsafe and I am scared to use the app now.",
+    "filed_at": "2026-10-11T01:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2088",
+    "name": "Hannah Lee",
+    "account_age_days": 190,
+    "total_trips": 52,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3715",
+    "name": "Colin Ho",
+    "account_age_days": 1100,
+    "total_trips": 4800,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius+ (SKH 2287 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-019",
+    "rider_id": "R-2088",
+    "driver_id": "D-3715",
+    "pickup_location": {
+      "name": "Zouk Singapore, Clarke Quay",
+      "lat": 1.2886,
+      "lng": 103.846
+    },
+    "dropoff_location": {
+      "name": "Block 55 Bedok South Rd",
+      "lat": 1.319,
+      "lng": 103.93
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-10T23:41:00+08:00",
+    "driver_wait_start": "23:41:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 12.4,
+    "duration_min": 22,
+    "fare": 18.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T23:41:00+08:00",
+      "lat": 1.2886,
+      "lng": 103.846,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-10T23:52:00+08:00",
+      "lat": 1.3,
+      "lng": 103.88,
+      "speed_kmh": 60,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-11T00:11:00+08:00",
+      "lat": 1.319,
+      "lng": 103.93,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T23:55:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please stop, I don't want to give my number."
+    },
+    {
+      "timestamp": "2026-10-10T23:56:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Come on, you are so pretty, one drink only?"
+    },
+    {
+      "timestamp": "2026-10-11T00:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please don't contact me again."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T23:42:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-11T00:11:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$18.80."
+    },
+    {
+      "timestamp": "2026-10-11T00:20:00+08:00",
+      "event_type": "post_trip_call_attempt",
+      "details": "2 outgoing calls from driver's personal phone number to rider's number at 00:20 and 00:24; not made through the in-app call feature."
+    },
+    {
+      "timestamp": "2026-10-11T01:20:00+08:00",
+      "event_type": "safety_report_filed",
+      "details": "Rider filed a harassment report."
+    }
+  ],
+  "platform_policy": {
+    "contacting_passenger_after_trip_prohibited": {
+      "value": true,
+      "text": "Governs a driver contacting a rider after the trip has ended. A true value means such contact is not allowed outside official channels."
+    },
+    "driver_may_be_suspended_pending_investigation": {
+      "value": true,
+      "text": "Governs serious safety or conduct reports against a driver. A true value means the driver's account may be suspended while the report is investigated."
+    },
+    "p0_response": {
+      "value": "immediate_human_review",
+      "text": "The response required for a P0 (most serious, safety-critical) report. It governs how the case is handled, not refunds."
+    },
+    "rider_compensation": {
+      "value": "at_ryde_discretion",
+      "text": "States how compensation to the rider is decided for this type of complaint."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The rider alleges sexual harassment in the car (she told him to stop at 23:55:30; his 23:56:00 chat reply 'you are so pretty, one drink only?' supports it) and unwanted contact after the trip (two calls from the driver's personal phone at 00:20 and 00:24, outside the in-app channel, after she asked him not to contact her at 00:12:00). This is a safety and harassment matter. This trip's policy requires immediate human review for such reports, allows suspension of the driver pending investigation and leaves compensation to Ryde's discretion, so no automated verdict or refund; a person must handle it.",
+    "expected_dispute_type": "service_quality"
+  }
+}

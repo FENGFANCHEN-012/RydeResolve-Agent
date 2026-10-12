@@ -1,0 +1,159 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-16",
+    "trip_id": "RYDE-FS-016",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "I pressed I'm Here at 11:02 and waited 9 minutes at the lobby but the passenger never came, so I cancelled. The no-show fee was not paid out to me. Please apply it.",
+    "filed_at": "2026-10-07T11:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9302",
+    "name": "Natalie Pang",
+    "account_age_days": 440,
+    "total_trips": 111,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5920",
+    "name": "Gan Teck Hock",
+    "account_age_days": 1500,
+    "total_trips": 7100,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 2,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Harrier (SKV 4408 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-016",
+    "rider_id": "R-9302",
+    "driver_id": "D-5920",
+    "pickup_location": {
+      "name": "Suntec City Tower 3 lobby",
+      "lat": 1.295,
+      "lng": 103.859
+    },
+    "dropoff_location": {
+      "name": "Tanjong Pagar Centre",
+      "lat": 1.2766,
+      "lng": 103.846
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-07T11:02:00+08:00",
+    "driver_wait_start": "11:02:00",
+    "cancellation_time": "2026-10-07T11:11:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T10:57:00+08:00",
+      "lat": 1.315,
+      "lng": 103.88,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T11:02:00+08:00",
+      "lat": 1.314,
+      "lng": 103.878,
+      "speed_kmh": 22,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T11:06:00+08:00",
+      "lat": 1.31,
+      "lng": 103.873,
+      "speed_kmh": 28,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T11:09:30+08:00",
+      "lat": 1.3,
+      "lng": 103.865,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T11:11:00+08:00",
+      "lat": 1.298,
+      "lng": 103.864,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T11:05:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Where are you? I'm at Tower 3 lobby."
+    },
+    {
+      "timestamp": "2026-10-07T11:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Still waiting at the lobby, I see no white Harrier."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T10:56:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-5920 matched. ETA 6 min."
+    },
+    {
+      "timestamp": "2026-10-07T11:02:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here' (no GPS position check recorded)."
+    },
+    {
+      "timestamp": "2026-10-07T11:11:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled; reason: rider did not board. Wait counted from driver_arrived: 9 min 00 s."
+    },
+    {
+      "timestamp": "2026-10-07T11:11:30+08:00",
+      "event_type": "rider_location_ping",
+      "details": "Rider app location within 30 m of pickup point."
+    }
+  ],
+  "cancellation_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show. The limit counts: exactly 8 min 00 s meets it."
+    },
+    "no_show_fee": {
+      "value": 5.0,
+      "text": "The fee in SGD charged to the rider when the rider counts as a no-show. It governs rider no-shows, not cancellations caused by the driver."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The decisive fact is whether the driver was at the pickup point. The driver_arrived event at 11:02:00 and the 9 min 00 s wait (11:02:00 to 11:11:00) would exceed the 8-min threshold, but the driver GPS places the vehicle moving en_route at 11:02:00, 11:06:00 and 11:09:30 and about 3 km from Suntec City at 11:02:00 and still about 0.9 km away at 11:09:30 (it only stops at 11:11:00, about 0.6 km from the lobby), and the rider's messages at 11:05:00 and 11:08:00 say she was in the lobby and saw no car, while her app ping at 11:11:30 is within 30 m of pickup. The arrival event (no GPS check recorded) and the GPS contradict each other, so neither a no-show nor a driver failure can be ruled on from these records. A person must decide.",
+    "expected_dispute_type": "no_show"
+  }
+}

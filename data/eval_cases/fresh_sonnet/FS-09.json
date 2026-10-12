@@ -1,0 +1,144 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-09",
+    "trip_id": "RYDE-FS-009",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My card was charged S$14.50 twice for one short trip. I only took one ride. The receipt email also took ages to arrive. Please refund the second charge.",
+    "filed_at": "2026-10-10T22:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4620",
+    "name": "Hui Min Chen",
+    "account_age_days": 350,
+    "total_trips": 96,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3081",
+    "name": "Abdul Rashid",
+    "account_age_days": 820,
+    "total_trips": 3560,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SJZ 1204 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-009",
+    "rider_id": "R-4620",
+    "driver_id": "D-3081",
+    "pickup_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.318,
+      "lng": 103.8927
+    },
+    "dropoff_location": {
+      "name": "Katong I12",
+      "lat": 1.3057,
+      "lng": 103.9051
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-10T21:14:00+08:00",
+    "driver_wait_start": "21:14:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 5.1,
+    "duration_min": 13,
+    "fare": 14.5,
+    "quoted_fare": 14.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T21:14:00+08:00",
+      "lat": 1.318,
+      "lng": 103.8927,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-10T21:20:00+08:00",
+      "lat": 1.312,
+      "lng": 103.899,
+      "speed_kmh": 35,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:41:00+08:00",
+      "lat": 1.3057,
+      "lng": 103.9051,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T21:15:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I'm at Gate B."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T21:09:00+08:00",
+      "event_type": "rider_confirmed_booking",
+      "details": "Fixed fare S$14.50 confirmed."
+    },
+    {
+      "timestamp": "2026-10-10T21:41:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-10T21:41:10+08:00",
+      "event_type": "payment_captured",
+      "details": "S$14.50 captured on card ending 4471 for trip RYDE-FS-009."
+    },
+    {
+      "timestamp": "2026-10-10T21:41:12+08:00",
+      "event_type": "payment_captured",
+      "details": "S$14.50 captured on card ending 4471 for trip RYDE-FS-009 (gateway retry after timeout). No reversal recorded."
+    },
+    {
+      "timestamp": "2026-10-10T21:55:00+08:00",
+      "event_type": "app_notice",
+      "details": "Receipt email delivered 14 min late."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "one_charge_per_trip": {
+      "value": true,
+      "text": "Governs payment. A trip is charged once, at its fixed fare. Any second capture for the same trip is not owed and is refundable in full."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 14.5,
+    "recommended_action": "refund_duplicate_fee",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The fixed fare was S$14.50. The records show two captures for the same trip: S$14.50 at 21:41:10 and a gateway-retry S$14.50 at 21:41:12 with no reversal, so the rider paid S$29.00. This trip's policy says a trip is charged once and a second capture is refundable in full, so S$14.50 is refunded. The late receipt email is only a notification delay and does not matter.",
+    "expected_dispute_type": "fare_dispute"
+  }
+}
