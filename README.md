@@ -21,11 +21,15 @@ rules on every ask, with a confidence score and reasons. Code checks and a Fairn
 whether the ruling is executed automatically or sent to a person. Every step is traced and
 visible live.
 
-**Status (2026-10-07):** the pipeline includes Fraud and the D21/D22 chat safeguards.
-The latest full evaluation (D20, Cerebras `gpt-oss-120b`) matched **35/37 verdicts (94.6%)**
-and 27/29 refund amounts. It resumed 14 cases after a daily-quota reset. Both incorrect
-no-show rulings went to human review; this is evaluation accuracy, not an automatic resolution
-rate. D21/D22 checks were targeted, and the latest code still needs a new full live evaluation.
+**Status (2026-10-12):** submission candidate with the code Judge (D38), rule checks (D39) and
+the D40 fixes. Evaluated on Cerebras `gpt-oss-120b`, one run per case:
+
+- 38 labelled dev and held-out cases: **33/38**, 0 wrong payouts (every miss went to a person).
+- 20 fresh cases written blind by another model: **16/20**, 0 wrong payouts.
+- Sealed set, run once and never used for a fix: **16/23**, with one wrong payout (S$8.00).
+
+This is evaluation accuracy, not an automatic resolution rate: a case sent to a person counts as a
+miss whenever the answer key says the system could have decided it.
 
 ## Background
 
@@ -81,8 +85,8 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 4. **Safe by default.** Safety cases, missing data, contradicted payouts, discretionary refunds and
    high-severity fairness findings go to a person instead of being executed.
 5. **Code checks the Judge.** The model does not check itself: code verifies the facts a ruling
-   turns on and the refund arithmetic, and measures time rules itself. Since this check was added, no
-   evaluated run has paid out on a wrong ruling; a miss is a hand-off to a person.
+   turns on and the refund arithmetic, and measures time rules itself. On the 38-case and fresh sets
+   no run paid out on a wrong ruling after this check; the sealed set found one (D41).
 6. **Learning with a human in the loop.** Reviewers approve or correct rulings, and only approved
    rulings become precedents the Judge can see. Risk flags count only after a person confirms them.
 7. **Full audit trail.** A live trace of every agent step and LLM call, rulings stored in a database,
@@ -182,21 +186,18 @@ python -m pytest -q                                         # offline unit tests
 ```
 
 Each run writes `data/eval/<timestamp>/report.html`, `results.csv` and one trace per case. Evals
-never use fallback providers, so a run never mixes models. Latest full run (20261005-171730, D20):
+never use fallback providers, so a run never mixes models. Latest results (D38-D41):
 
-| Metric | Result |
-|--------|--------|
-| Verdict accuracy | 35/37 (94.6%); two wrong no-show proposals routed to human review |
-| Refund amount accuracy | 27/29 |
-| Classification accuracy | 31/31 |
-| Refund cap respected / citation validity | 100% |
-| Retrieval Hit@3 | 36/37 |
-| Failed runs | 0 after resuming 14 cases when daily quota reset |
-| Cost | US$0.42 total; 983k tokens |
+| Set | Cases | Correct | Wrong payouts | Run |
+|-----|-------|---------|---------------|-----|
+| Dev + held-out (answer keys written before the fixes) | 38 | 33 | 0 | 20261012-115556 |
+| Fresh set written blind by a Claude Sonnet subagent | 20 | 16 | 0 | 20261012-155745-fresh |
+| Sealed set (Gemini + qwen cases, run once, never used for a fix) | 23 | 16 | 1 (S$8.00) | 20261012-174317-sealed |
 
-A sealed case set (`data/eval_cases/sealed`) is run once, just before submission. It checks that
-the prompt changes made on these labelled cases generalise. The evaluation design, every change and its
-measured effect are in `docs/06_EVAL_PLAN.md` and `docs/08_DESIGN_DECISIONS.md`.
+On the sealed set two runs hit provider errors (HTTP 429) and were re-run once; the raw first pass
+was 14/23. The misses, including the wrong payout and why it got through, are in
+`docs/08_DESIGN_DECISIONS.md` (D41). Every change, its measured effect and the rejected
+alternatives are in `docs/06_EVAL_PLAN.md` and `docs/08_DESIGN_DECISIONS.md`.
 
 ## Project Structure
 
