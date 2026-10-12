@@ -1240,3 +1240,30 @@ P0, so no other case changes. Test: `test_p0_harassment_in_plain_words_with_a_gi
 run 20261012-163730-p0: FS-19 and SI-001 both to a person, correct. Not done: forcing a person
 whenever a case's policy has `p0_response = immediate_human_review`; that rule only says what to
 do once a case is P0, it does not make a case P0.
+
+**Change: this trip's own rules come first** (Judge system prompt, `src/agents/arbitrator.py`).
+What: a retrieved help-centre clause applies only where this trip's rules say nothing on the
+point; it cannot change a number in a rule this trip has, or add a step a party had to take.
+Why: FS-10 was dismissed against the driver because a help clause (switch on the waiting fee at
+drop-off) was added to the trip's own waiting-fee rule. Risk: a ruling that was right only
+because of a help clause could now pay out. Check before the live run: every saved draft in runs
+115556 and 155745-fresh that denied or cut a refund while citing a help clause was listed
+(CR-002-P3, CR-004, DISP-002, FS-02, FS-06, FS-13) and used as a guard, with RD-002 and SQ-002
+(past wrong-payout risks).
+
+Live, runs 20261012-164401-fs10 (FS-10 x3) and 20261012-164858-guards (one run each):
+
+| Case | Before | After |
+|---|---|---|
+| FS-10 x3 | dismissed (1 run) | upheld S$5.00 once; to a person once; dismissed once (the Judge still applied the help clause) |
+| CR-002-P3, CR-004, DISP-002, FS-02, FS-06, RD-002 | correct | correct |
+| SQ-002 | correct S$4.20 | correct S$4.20 |
+| FS-13 | correct S$2.50 | to a person |
+
+No wrong payout, so the line stays; the FS-10 gain is small (1/3). FS-13 and FS-10 run 2 went to a
+person for the same reason, not caused by this line: the Judge listed the disputed charge record
+itself ("trip_completed reports ERP S$5.00", "waiting fee applied S$0.00") as a decisive fact with
+status "contradicted", the record its own ruling finds wrong, and the code Judge blocks a ruling
+that rests on a contradicted fact. NS-001's misses (D39) are the same pattern with the questioned
+no-show label. Open: tell the Judge to list as decisive the records that show a charge is wrong,
+not the wrong charge record itself; the code check would stay as strict.
