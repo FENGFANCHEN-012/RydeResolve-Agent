@@ -1,0 +1,174 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-14",
+    "trip_id": "RYDE-F2-014",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "The rider was slow to come out and I was at the pickup from about 10:58 and waited over 3 minutes. I am claiming the $5.00 waiting fee.",
+    "filed_at": "2026-10-10T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7114",
+    "name": "Farah Aziz",
+    "account_age_days": 120,
+    "total_trips": 40,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8214",
+    "name": "Lau Soon Heng",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Corolla Altis (SJH 6007 N)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-014",
+    "rider_id": "R-7114",
+    "driver_id": "D-8214",
+    "pickup_location": {
+      "name": "Holland Village MRT",
+      "lat": 1.3081,
+      "lng": 103.796
+    },
+    "dropoff_location": {
+      "name": "Dover MRT",
+      "lat": 1.3114,
+      "lng": 103.7786
+    },
+    "scheduled_time": "2026-10-10T11:00:00+08:00",
+    "pickup_time": "2026-10-10T11:02:40+08:00",
+    "dropoff_time": "2026-10-10T11:12:00+08:00",
+    "estimated_distance_km": 2.4,
+    "actual_distance_km": 2.5,
+    "estimated_duration_min": 10,
+    "actual_duration_min": 9,
+    "estimated_fare": 9.8,
+    "total_fare": 9.8,
+    "waiting_fee_charged": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T10:58:40+08:00",
+      "lat": 1.3081,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-10T11:00:00+08:00",
+      "lat": 1.3081,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-10T11:02:40+08:00",
+      "lat": 1.3081,
+      "lng": 103.796,
+      "speed_kmh": 3,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T11:12:00+08:00",
+      "lat": 1.3114,
+      "lng": 103.7786,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T10:59:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm near the MRT, which exit are you at?"
+    },
+    {
+      "timestamp": "2026-10-10T11:00:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Exit A, walking over now."
+    },
+    {
+      "timestamp": "2026-10-10T11:02:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the car."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T10:56:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7114 booked trip RYDE-F2-014 from Holland Village MRT to Dover MRT."
+    },
+    {
+      "timestamp": "2026-10-10T10:58:40+08:00",
+      "event_type": "pickup_geofence_entered",
+      "details": "Driver vehicle entered the 100 m pickup geofence."
+    },
+    {
+      "timestamp": "2026-10-10T11:00:00+08:00",
+      "event_type": "i_am_here_pressed",
+      "details": "Driver pressed I'm Here."
+    },
+    {
+      "timestamp": "2026-10-10T11:02:40+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-10T11:12:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$9.80. No waiting fee applied."
+    }
+  ],
+  "platform_policy": {
+    "waiting_fee_after_min": {
+      "value": 3,
+      "text": "Minutes the driver waits for the rider to board, counted from the i_am_here_pressed event to the trip_started event. A waiting fee may be charged to the rider only if the wait is more than this many minutes; a wait of exactly this many minutes does not count."
+    },
+    "waiting_fee_amount": {
+      "value": 5.0,
+      "text": "The waiting fee in SGD chargeable to the rider when the waiting rule is met. It governs the amount only, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may grant a fee outside the rules above. False means no. It governs discretion only."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_charge",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "This trip's waiting rule counts from the i_am_here_pressed event (11:00:00) to trip_started (11:02:40): 2 minutes 40 seconds, which is not more than 3 minutes, so no waiting fee is due. The earlier pickup_geofence_entered event at 10:58:40 and the GPS fix at the pickup disagree with the press time, but the rule does not measure from geofence entry, so the difference does not matter. No S$5.00 charge to the rider.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "dismissed"
+    ]
+  }
+}

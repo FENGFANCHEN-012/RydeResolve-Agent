@@ -1,0 +1,144 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-04",
+    "trip_id": "RYDE-F2-004",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I cancelled my 6pm booking before the driver got anywhere near me and the MRT line had broken down, yet I was charged $6.00. Please refund it.",
+    "filed_at": "2026-10-06T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7104",
+    "name": "Kevin Lau",
+    "account_age_days": 700,
+    "total_trips": 350,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8204",
+    "name": "Teo Chee Seng",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Prius (SKB 1188 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-004",
+    "rider_id": "R-7104",
+    "driver_id": "D-8204",
+    "pickup_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "scheduled_time": "2026-10-06T18:00:00+08:00",
+    "matched_time": "2026-10-05T20:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-06T17:46:00+08:00",
+    "cancellation_fee": 6.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T17:40:00+08:00",
+      "lat": 1.315,
+      "lng": 103.88,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T17:46:00+08:00",
+      "lat": 1.311,
+      "lng": 103.87,
+      "speed_kmh": 28,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T17:46:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider. Advance booking cancellation fee of $6.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T20:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7104 booked advance trip RYDE-F2-004 from Raffles Place MRT to Changi Business Park. Pickup 2026-10-06 18:00."
+    },
+    {
+      "timestamp": "2026-10-05T20:00:10+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8204 (Teo Chee Seng, Toyota Prius SKB 1188 H) assigned for the 18:00 pickup."
+    },
+    {
+      "timestamp": "2026-10-06T17:46:00+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled the advance booking."
+    },
+    {
+      "timestamp": "2026-10-06T17:46:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$6.00 advance-booking cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "advance_cancel_free_min_before": {
+      "value": 15,
+      "text": "Minutes before the scheduled pickup time. A rider cancellation of an advance booking made at least this many minutes before the scheduled pickup time (scheduled time minus cancellation time) is free; a cancellation made fewer minutes before is charged. Exactly this many minutes counts as free."
+    },
+    "advance_cancellation_fee": {
+      "value": 6.0,
+      "text": "The fee in SGD charged to the rider when an advance booking is cancelled inside the free window. It governs rider-side cancellations only."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": "only_if_ryde_at_fault",
+      "text": "Ryde may refund a fee that is otherwise due only when a fault on Ryde's side (app, matching or driver conduct) contributed to the cancellation."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The booking was for 18:00:00 and the rider cancelled at 17:46:00 (rider_cancelled event), 14 minutes before pickup. This trip's policy makes the cancellation free only at 15 minutes or more before the scheduled time, so the S$6.00 fee is due. The driver's position (about 5 km away, still en route) and the MRT disruption are not Ryde-side faults, and the discretion rule requires one. The fee stands.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "dismissed"
+    ]
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-05",
+    "trip_id": "RYDE-F2-005",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "The app said my driver would arrive in 6 minutes. After almost 20 minutes he was still not there so I cancelled and was charged $5.00. I should not pay for this.",
+    "filed_at": "2026-10-07T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7105",
+    "name": "Aisha Rahman",
+    "account_age_days": 150,
+    "total_trips": 33,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8205",
+    "name": "Ong Hock Seng",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Nissan Serena (SKD 9034 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-005",
+    "rider_id": "R-7105",
+    "driver_id": "D-8205",
+    "pickup_location": {
+      "name": "Bishan MRT (Exit B)",
+      "lat": 1.3508,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Raffles Place",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-07T08:00:00+08:00",
+    "matched_time": "2026-10-07T08:00:05+08:00",
+    "eta_shown_min_at_assignment": 6,
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-07T08:19:30+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T08:00:00+08:00",
+      "lat": 1.375,
+      "lng": 103.86,
+      "speed_kmh": 20,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T08:10:00+08:00",
+      "lat": 1.372,
+      "lng": 103.849,
+      "speed_kmh": 6,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T08:19:00+08:00",
+      "lat": 1.369,
+      "lng": 103.848,
+      "speed_kmh": 8,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-07T08:19:30+08:00",
+      "lat": 1.369,
+      "lng": 103.848,
+      "speed_kmh": 8,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T08:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Where are you? App said 6 minutes."
+    },
+    {
+      "timestamp": "2026-10-07T08:13:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Heavy traffic on Braddell Road, sorry."
+    },
+    {
+      "timestamp": "2026-10-07T08:19:30+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider. Cancellation fee of $5.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T08:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7105 requested trip RYDE-F2-005 from Bishan MRT to Raffles Place."
+    },
+    {
+      "timestamp": "2026-10-07T08:00:05+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8205 (Ong Hock Seng, Nissan Serena SKD 9034 P) assigned. ETA 6 min shown to rider."
+    },
+    {
+      "timestamp": "2026-10-07T08:19:30+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled. Driver had not arrived (about 2 km from pickup)."
+    },
+    {
+      "timestamp": "2026-10-07T08:19:35+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$5.00 cancellation fee charged to rider payment method (credit card)."
+    },
+    {
+      "timestamp": "2026-10-07T08:21:40+08:00",
+      "event_type": "gps_telemetry_dropout",
+      "details": "Driver app lost GPS signal from 08:21:40 to 08:23:00 (80 s) after the trip had already been cancelled."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 5.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. A wait of exactly this many minutes counts as a no-show (the limit is inclusive)."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "driver_late_refund_min": {
+      "value": 10,
+      "text": "Minutes by which the driver is late past the ETA shown to the rider at assignment. The expected arrival is the assignment time plus the ETA shown; if the rider cancels more than this many minutes after the expected arrival and the driver has not arrived, the cancellation fee is not chargeable. Exactly this many minutes does not count as late enough."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "recommended_action": "full_refund",
+    "refund_amount": 5.0,
+    "requires_human_review": false,
+    "reason": "The driver was assigned at 08:00:05 with an ETA of 6 minutes shown, so the expected arrival was about 08:06. The rider cancelled at 08:19:30, about 13.5 minutes after the expected arrival, with the driver still about 2 km away (GPS fix 08:19, no driver_arrived event). That is more than this trip's 10-minute late limit, so the S$5.00 fee is not chargeable. The GPS dropout at 08:21:40 happened after the cancellation and has no bearing. The fee is refunded in full.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}

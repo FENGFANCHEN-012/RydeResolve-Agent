@@ -1,0 +1,152 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-13",
+    "trip_id": "RYDE-F2-013",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged a $120.00 cleaning fee but I spilled nothing. I only had a closed coffee cup. I want the charge reversed.",
+    "filed_at": "2026-10-09T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7113",
+    "name": "Adrian Chew",
+    "account_age_days": 580,
+    "total_trips": 240,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8213",
+    "name": "Rajesh Nair",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Estima (SKT 2290 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-013",
+    "rider_id": "R-7113",
+    "driver_id": "D-8213",
+    "pickup_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.318,
+      "lng": 103.8925
+    },
+    "dropoff_location": {
+      "name": "HarbourFront Centre",
+      "lat": 1.2653,
+      "lng": 103.822
+    },
+    "scheduled_time": "2026-10-09T08:29:00+08:00",
+    "pickup_time": "2026-10-09T08:31:00+08:00",
+    "dropoff_time": "2026-10-09T08:58:00+08:00",
+    "estimated_distance_km": 12.8,
+    "actual_distance_km": 13.0,
+    "estimated_duration_min": 26,
+    "actual_duration_min": 27,
+    "estimated_fare": 19.2,
+    "total_fare": 19.2,
+    "cleaning_fee_charged": 120.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T08:31:00+08:00",
+      "lat": 1.318,
+      "lng": 103.8925,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T08:45:00+08:00",
+      "lat": 1.29,
+      "lng": 103.86,
+      "speed_kmh": 50,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T08:58:00+08:00",
+      "lat": 1.2653,
+      "lng": 103.822,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T08:40:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Just a closed coffee cup, ok?"
+    },
+    {
+      "timestamp": "2026-10-09T08:58:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Nothing spilled, I checked the seat before I left."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T08:29:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7113 booked trip RYDE-F2-013 from Paya Lebar Quarter to HarbourFront Centre."
+    },
+    {
+      "timestamp": "2026-10-09T09:10:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted claim with 3 photos of a brown stain on the rear seat. Photo metadata timestamps: 2026-10-09 08:05, 08:07, 08:09."
+    },
+    {
+      "timestamp": "2026-10-09T09:15:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "S$120.00 cleaning fee charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 150.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photos taken within 30 minutes after drop-off and a receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "typical_cleaning_range": {
+      "value": "S$80-S$150 for a seat stain",
+      "text": "The usual cost range in SGD for the kind of mess claimed. It governs whether a cleaning fee claimed against a rider is reasonable."
+    },
+    "refund_at_ryde_discretion": {
+      "value": "true",
+      "text": "Whether Ryde may refund or waive a charge outside the rules above. It governs discretion only, not whether the rules above are met."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "recommended_action": "full_refund",
+    "refund_amount": 120.0,
+    "requires_human_review": false,
+    "reason": "The pickup was at 08:31 (trip_data) and the claim photos are stamped 08:05-08:09, 22 to 26 minutes before the rider boarded. The evidence rule requires photos taken within 30 minutes after drop-off (08:58), so the photos show a stain that was already in the car and cannot support a charge. The rider's chat says nothing was spilled. The S$120.00 is refunded in full; the discretion rule is not needed. The coffee cup is a side issue.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}
