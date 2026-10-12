@@ -1178,3 +1178,20 @@ the code Judge run 20261012-092517 (no rule checks) and, for the DS cases, runs 
 8/10 correct, 0 wrong payouts (before on the same cases: 5/10, 1 wrong payout). Tokens on the 8
 cases both runs share: 35.7k vs 33.9k per case (+5%). One run each, so a single case can still
 flip; the DS-09 and CR-001 fixes come from a computed comparison, not chance.
+
+**Full regression, run 20261012-115556 (rule checks + code Judge ON, all 38 cases, one run each):**
+
+| Metric | D36 | Code Judge (092517) | Rule checks + code Judge |
+|---|---|---|---|
+| Correct | 34/38 | 33/38 | 33/38 |
+| Wrong automated rulings | 1 (RD-002) | 0 | 0 |
+| Sent to a person | 9 | 11 | 11 |
+| Tokens per case | 26.9k | 28.7k | 29.1k |
+
+Against the code Judge run: NS-001 and NS-001-P1 now correct (questioned-sources fix); DR-002 and
+NS-004 now go to a person. Neither loss comes from a rule check: on DR-002 the Judge marked "no
+itemised breakdown of the S$300" as unverifiable (an absence the records do show), and on NS-004
+the Judge twice returned no decisive facts (and the Fairness audit failed it). CR-001 was correct in
+the 10-case A/B and went to a person here, with no code problem: the Judge asked for review itself.
+These three are Judge variance on single runs. DS-09, the target, is not in the 38-case set (see
+the A/B above). No run so far with the code Judge has executed a wrong payout.
