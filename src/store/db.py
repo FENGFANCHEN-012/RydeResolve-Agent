@@ -72,6 +72,30 @@ class Review(Base):
     created_at: Mapped[str] = mapped_column(String(32), default=_now)
 
 
+class Escalation(Base):
+    """What a human reviewer needs about an escalated ruling, captured when the pipeline routes it
+    to a person: the rulings row alone has no escalation reason, findings or platform records."""
+    __tablename__ = "escalations"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ruling_id: Mapped[int] = mapped_column(ForeignKey("rulings.id"), unique=True, index=True)
+    reason: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(String(40))  # classifier / fairness / failed ...
+    snapshot: Mapped[dict] = mapped_column(JSON, default=dict)  # case records + pipeline output
+    created_at: Mapped[str] = mapped_column(String(32), default=_now)
+
+
+class ReviewDetail(Base):
+    """Extra fields of a human decision; kept beside `reviews` so that table never changes shape."""
+    __tablename__ = "review_details"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    review_id: Mapped[int] = mapped_column(ForeignKey("reviews.id"), unique=True, index=True)
+    reviewer_name: Mapped[str | None] = mapped_column(String(64))  # display only; identity is `reviews.reviewer`
+    driver_penalty: Mapped[str | None] = mapped_column(String(200))
+    internal_note: Mapped[str | None] = mapped_column(Text)
+    ai_consultations: Mapped[list] = mapped_column(JSON, default=list)  # ADP questions asked while reviewing
+    created_at: Mapped[str] = mapped_column(String(32), default=_now)
+
+
 class Precedent(Base):
     __tablename__ = "precedents"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -184,7 +208,8 @@ class Store:
             return ruling
 
     def submit_review(self, ruling_id: int, reviewer: str, action: str, reason: str,
-                      final_verdict: str | None = None, final_refund: float | None = None) -> tuple[Review, Precedent | None]:
+                      final_verdict: str | None = None, final_refund: float | None = None,
+                      detail: dict | None = None) -> tuple[Review, Precedent | None]:
         """A reviewer confirms or overrides a ruling. An override, or any human decision on an
         escalated case, becomes a pending precedent: something the AI did not get right alone."""
         if action not in ("confirm", "override"):
@@ -202,6 +227,9 @@ class Store:
                             final_verdict=final_verdict, final_refund=final_refund)
             s.add(review)
             s.flush()
+            if detail:
+                # Same transaction as the review: a decision is never saved without its details
+                s.add(ReviewDetail(review_id=review.id, **detail))
             self._audit(s, reviewer, f"review_{action}", "review", review.id,
                         {"ruling_id": ruling_id, "ai_verdict": ruling.verdict, "final_verdict": final_verdict,
                          "final_refund": final_refund})
@@ -217,6 +245,38 @@ class Store:
                             {"dispute_id": ruling.dispute_id, "verdict": final_verdict})
             s.commit()
             return review, precedent
+
+    # -- human review queue ----------------------------------------------
+
+    def record_escalation(self, ruling_id: int, reason: str | None, source: str | None, snapshot: dict) -> None:
+        with self.session() as s:
+            s.add(Escalation(ruling_id=ruling_id, reason=reason, source=source, snapshot=snapshot))
+            s.commit()
+
+    def review_queue(self, include_reviewed: bool = False) -> list[dict]:
+        """Rulings a person must decide (escalated or failed), newest first, with their latest review."""
+        with self.session() as s:
+            rulings = s.scalars(select(Ruling).where(Ruling.status != "resolved").order_by(Ruling.id.desc()))
+            out = []
+            for r in rulings:
+                review = s.scalars(select(Review).where(Review.ruling_id == r.id)
+                                   .order_by(Review.id.desc()).limit(1)).first()
+                if review and not include_reviewed:
+                    continue
+                esc = s.scalars(select(Escalation).where(Escalation.ruling_id == r.id)).first()
+                out.append({"ruling": r, "review": review, "escalation": esc})
+            return out
+
+    def review_case(self, ruling_id: int) -> dict:
+        with self.session() as s:
+            r = s.get(Ruling, ruling_id)
+            if r is None:
+                raise KeyError(f"no ruling {ruling_id}")
+            reviews = list(s.scalars(select(Review).where(Review.ruling_id == ruling_id).order_by(Review.id)))
+            details = {d.review_id: d for d in s.scalars(
+                select(ReviewDetail).where(ReviewDetail.review_id.in_([v.id for v in reviews])))} if reviews else {}
+            esc = s.scalars(select(Escalation).where(Escalation.ruling_id == ruling_id)).first()
+            return {"ruling": r, "reviews": [(v, details.get(v.id)) for v in reviews], "escalation": esc}
 
     # -- precedent lifecycle ---------------------------------------------
 
