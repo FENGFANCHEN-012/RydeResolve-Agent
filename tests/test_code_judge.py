@@ -70,6 +70,14 @@ def test_facts_must_be_verified(status, sources, ok):
     assert (check_facts(d, CTX) == []) is ok
 
 
+def test_ruling_on_a_data_failure_is_not_verified():
+    # Kept strict on purpose (D38): loosening it for facts that only state the failure let DS-20's
+    # first draft ("attachments failed to upload" -> refund S$180) execute without a remand
+    d = dec(facts=[{"fact": "Telemetry gap from 07:53 to 08:03", "sources": ["app_events[0]"],
+                    "status": "verified"}])
+    assert check_facts(d, CTX)
+
+
 def test_review_combines_both():
     d = dec(1.55, "3.10 / 2", [{"fact": "closure", "sources": ["app_events[1]"], "status": "unverifiable"}])
     assert len(review(d, CTX)) == 2

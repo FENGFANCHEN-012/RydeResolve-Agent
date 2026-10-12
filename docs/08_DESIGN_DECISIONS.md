@@ -1073,3 +1073,19 @@ single case, but the three escalations come from the mechanism (remand, then the
 that the gap exists; the check now treats it as unverified too (over-strict). (2) The Judge marked
 chat messages "verified"; the prompt forbids it, code does not yet. (3) DS-09: the rule's own
 comparison needs to be evaluated by code.
+
+**Follow-up (2026-10-12): (1) and (2) are not changed; the evidence says they are not loopholes.**
+- (1) Tried: let a fact that only states the data problem ("telemetry gap 07:53-08:03") count as
+  verified on the problem log. Replay of the first drafts of run 20261011-232103: DS-14 loses an
+  unneeded remand, but DS-20's first draft ("claim attachments failed to upload", refund S$180)
+  passes with no remand and the wrong payout executes again. A ruling that turns on the platform's
+  own data failure rests on what that data would have shown, so a person decides. The cost of the
+  strict rule is one extra remand on cases like DS-14; reverted, and a test pins it.
+- (2) Every chat-only fact marked "verified" in that run (6 facts: DS-11, DS-20, RD-001, RD-002,
+  SQ-002) states what a party said ("rider consented", "driver admitted missing the exit", "driver
+  used rude language"). The chat log does verify that. A code rule that bans chat-only verified facts
+  would remand correct consent and conduct rulings, and code cannot tell "X said Y" from "Y is true".
+  Left to the prompt.
+- (3) DS-09: the Judge measured the interval correctly (8.8 min before the scheduled time) and read
+  the rule's direction backwards. Code can only evaluate the rule if the rule says, in a form code
+  can read, what is measured and which side is free. That is the planned rule-engine step.
