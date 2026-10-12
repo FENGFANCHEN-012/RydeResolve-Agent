@@ -78,6 +78,30 @@ def test_ruling_on_a_data_failure_is_not_verified():
     assert check_facts(d, CTX)
 
 
+def test_conflict_questions_only_its_questioned_sources():
+    # NS-001: trip record and app log agree there was no arrival; only the no-show label is in
+    # question, so "driver never arrived" on those records stays verified
+    ctx = {"findings": [{"id": "consistency.no_show_without_arrival", "kind": "conflict",
+                         "statement": "no-show without arrival",
+                         "sources": ["trip.cancellation_reason", "trip.driver_arrival_time", "app_events"],
+                         "questioned": ["trip.cancellation_reason"]}]}
+    never_arrived = [{"fact": "driver never arrived", "sources": ["trip.driver_arrival_time"],
+                      "status": "verified"}]
+    no_show = [{"fact": "rider was a no-show", "sources": ["trip.cancellation_reason"], "status": "verified"}]
+    assert check_facts(dec(facts=never_arrived), ctx) == []
+    assert check_facts(dec(facts=no_show), ctx)
+
+
+def test_collector_marks_no_show_label_as_questioned():
+    from types import SimpleNamespace as NS
+    from src.agents.collector_tools import consistency_check
+    ctx = NS(trip={"cancellation_reason": "rider_no_show", "driver_arrival_time": None},
+             app_events=[{"event_type": "trip_cancelled", "timestamp": "2026-10-09T09:00:00+08:00"}],
+             gps_trace=[], platform_policy={})
+    f = {x.id: x for x in consistency_check(ctx)}["consistency.no_show_without_arrival"]
+    assert f.questioned == ["trip.cancellation_reason"]
+
+
 def test_review_combines_both():
     d = dec(1.55, "3.10 / 2", [{"fact": "closure", "sources": ["app_events[1]"], "status": "unverifiable"}])
     assert len(review(d, CTX)) == 2

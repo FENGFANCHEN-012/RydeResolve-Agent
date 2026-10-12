@@ -49,6 +49,9 @@ class Finding(BaseModel):
     statement: str                              # one plain sentence
     value: dict[str, Any] = {}                  # the numbers behind the sentence
     sources: list[str] = []                     # e.g. ["gps_trace[3]", "trip.pickup_location"]
+    # Conflict only: the sources the conflict calls into question, when the others agree with each
+    # other (empty = all sources are in question)
+    questioned: list[str] = []
 
 
 # ---------------------------------------------------------------------- #
@@ -376,6 +379,9 @@ def consistency_check(ctx) -> list[Finding]:
                       "(no driver_arrival_time and no driver_arrived event).",
             value={"cancellation_reason": "rider_no_show"},
             sources=["trip.cancellation_reason", "trip.driver_arrival_time", "app_events"],
+            # The trip record and the app log agree that no arrival happened; the no-show label is
+            # what they contradict
+            questioned=["trip.cancellation_reason"],
         ))
 
     # 3. Arrival event vs where the GPS actually was at that moment
