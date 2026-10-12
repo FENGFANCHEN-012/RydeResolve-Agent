@@ -13,7 +13,8 @@ The Judge (an LLM) decides WHAT the ruling rests on; code checks what can be che
    the chat, where a party can type anything). A goodwill amount has no such calculation.
 
 The checks never change a ruling. A failed check sends the draft back to the Judge once with the
-problems; if the second draft still fails, the case goes to a person (human_review_needed).
+problems; if the second draft still fails, the case goes to a person (human_review_needed). A second
+draft that pays the same but just stops listing the questioned record also fails (D42).
 Switched by CODE_JUDGE (on by default on this branch; CODE_JUDGE=0 for A/B runs).
 """
 from __future__ import annotations
@@ -97,16 +98,59 @@ def _eval_arith(expr: str) -> tuple[float | None, list[float]]:
         return None, []
 
 
-def check_facts(decision, context: dict) -> list[str]:
-    facts = [f for f in (getattr(decision, "decisive_facts", None) or []) if isinstance(f, dict)]
-    if not facts:
-        return ["The ruling lists no decisive facts: name the facts it turns on, their records and "
-                "whether each is verified."]
+def _flagged(context: dict) -> dict[str, str]:
+    """Records a conflict or gap finding calls into question -> the finding."""
     flagged: dict[str, str] = {}
     for f in _findings(context):
         if f.get("kind") in ("conflict", "gap"):
             for src in f.get("questioned") or f.get("sources") or []:
                 flagged.setdefault(str(src), f"{f.get('kind')}: {f.get('statement')}")
+    return flagged
+
+
+def _verified_sources(decision) -> set[str]:
+    return {str(src) for f in (getattr(decision, "decisive_facts", None) or [])
+            if isinstance(f, dict) and str(f.get("status") or "").lower() == "verified"
+            for src in f.get("sources") or []}
+
+
+def _all_sources(decision) -> set[str]:
+    return {str(src) for f in (getattr(decision, "decisive_facts", None) or [])
+            if isinstance(f, dict) for src in f.get("sources") or []}
+
+
+def _verdict(decision):
+    v = getattr(decision, "verdict", None)
+    return getattr(v, "value", v)
+
+
+def check_remand(first, revised, context: dict) -> list[str]:
+    """D42: the first draft was blocked because a decisive fact rested on a questioned record; a
+    revised draft that pays the same verdict and amount but simply no longer lists that record still
+    rests on it (SA-08: the Judge deleted app_events[8] and copied the rest). A changed ruling, or a
+    record kept and marked as not verified, is left to the other checks."""
+    try:
+        refund = float(getattr(revised, "refund_amount", None) or 0)
+        first_refund = float(getattr(first, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        return []
+    if refund <= 0 or abs(refund - first_refund) > 0.01 or _verdict(revised) != _verdict(first):
+        return []
+    blocked = _verified_sources(first) & set(_flagged(context))
+    dropped = sorted(blocked - _all_sources(revised))
+    if not dropped:
+        return []
+    return ["The revised ruling pays the same as the draft the code check blocked, but no longer lists "
+            "the questioned record(s) " + ", ".join(dropped) + " it rested on; dropping a record does "
+            "not remove what it was used for. A person decides."]
+
+
+def check_facts(decision, context: dict) -> list[str]:
+    facts = [f for f in (getattr(decision, "decisive_facts", None) or []) if isinstance(f, dict)]
+    if not facts:
+        return ["The ruling lists no decisive facts: name the facts it turns on, their records and "
+                "whether each is verified."]
+    flagged = _flagged(context)
     problems = []
     for f in facts:
         status = str(f.get("status") or "").lower()

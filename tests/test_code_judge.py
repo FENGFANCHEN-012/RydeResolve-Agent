@@ -107,6 +107,31 @@ def test_review_combines_both():
     assert len(review(d, CTX)) == 2
 
 
+# ---- remand: dropping the blocked record does not pass (D42, SA-08)
+def pay(refund, sources, status="verified", verdict="upheld"):
+    return SimpleNamespace(verdict=verdict, refund_amount=refund, refund_calculation=str(refund),
+                           decisive_facts=[{"fact": "driver never arrived", "sources": sources, "status": status}])
+
+
+@pytest.mark.parametrize("revised,ok", [
+    (pay(8.0, ["gps_trace[8]"]), False),                          # SA-08: same payout, blocked record dropped
+    (pay(0, ["gps_trace[8]"], verdict="dismissed"), True),        # ruling changed: no money rests on it
+    (pay(5.0, ["gps_trace[8]"]), True),                           # amount changed: left to check_amount
+    (pay(8.0, ["gps_trace[8]", "app_events[0]"], "unverifiable"), True),  # kept and marked: check_facts sends it on
+])
+def test_remand_cannot_just_drop_the_blocked_record(revised, ok):
+    first = pay(8.0, ["gps_trace[8]", "app_events[0]"])          # app_events[0] is named by a gap finding
+    assert check_facts(first, CTX)
+    assert (code_judge.check_remand(first, revised, CTX) == []) is ok
+
+
+def test_remand_rule_ignores_drafts_blocked_for_other_reasons():
+    # NS-001 / DR-002 replays: first draft blocked for a status, not a questioned record; a revised
+    # draft with the same payout is the Judge correcting itself and passes this rule
+    first = pay(8.0, ["trip"], "unverifiable")
+    assert code_judge.check_remand(first, pay(8.0, ["trip"]), CTX) == []
+
+
 # ---- workflow: a failed check goes back to the Judge once, then to a person
 class SeqArbitrator:
     """Returns the given decisions in turn and records whether each call carried a code review."""

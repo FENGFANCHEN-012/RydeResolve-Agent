@@ -323,7 +323,8 @@ def build_dispute_graph(
                 **judge_inputs, code_review=code_judge.render_code_review(draft, problems))
             s["output"] = revised
         async with step("CodeJudge", "Code checks the revised ruling", {}) as s:
-            remaining = code_judge.review(revised, context)
+            remaining = (code_judge.review(revised, context)
+                         + code_judge.check_remand(decision, revised, context))
             s["output"] = {"problems": remaining}
         if remaining:
             revised.human_review_needed = True
