@@ -1267,3 +1267,16 @@ status "contradicted", the record its own ruling finds wrong, and the code Judge
 that rests on a contradicted fact. NS-001's misses (D39) are the same pattern with the questioned
 no-show label. Open: tell the Judge to list as decisive the records that show a charge is wrong,
 not the wrong charge record itself; the code check would stay as strict.
+
+**Tried and rejected: "the record you correct is not a decisive fact"** (Judge prompt, not kept).
+What was tried: one sentence in the decisive_facts instruction saying that when the ruling finds a
+record wrong (a disallowed charge, a contradicted label), that record is what the ruling corrects,
+so list the records that show it is wrong; any record the ruling needs to be true must still be
+listed with its real status. Why: the pattern above (FS-13, FS-10 run 2, NS-001). Live, run
+20261012-170817-corr-targets (x2 each): FS-10 1/2, FS-13 1/2, NS-001 0/2, NS-001-P1 0/2; every miss
+went to a person because the Judge still listed the corrected record (the no-show label as
+"verified", the S$0.00 waiting fee or the S$5.00 ERP total as "contradicted"). Worse than before
+on NS-001, so removed. Guards (run 20261012-172239-corr-guards): CR-004, DR-002, DS-11, DS-20 and
+FD-003 correct; FS-16..FS-20 not run (KEY_3 daily quota hit, run stopped once the targets showed
+the line does not work). The Judge does not follow a general instruction here; a fix, if any,
+belongs in the remand message, which names the exact fact.
