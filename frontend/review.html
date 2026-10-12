@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RydeResolve — Human Review Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="review.css">
+</head>
+<body>
+    <header class="hv-top">
+        <div class="hv-logo">RydeResolve<span>.</span></div>
+        <div class="hv-sub">Human Review Desk · cases the AI handed to a person</div>
+        <a class="hv-link" href="index.html">Agent dashboard →</a>
+    </header>
+
+    <div class="hv">
+        <aside class="hv-queue" aria-label="Escalated cases">
+            <div class="hv-queue-head">
+                <h3>To review <span class="hv-count" id="hvCount">0</span></h3>
+                <label class="hv-toggle"><input type="checkbox" id="hvShowDone"> show reviewed</label>
+            </div>
+            <div class="hv-queue-list" id="hvQueue"><div class="hv-empty">Loading…</div></div>
+        </aside>
+
+        <main class="hv-case" id="hvCase">
+            <div class="hv-empty big">Pick a case on the left.</div>
+        </main>
+
+        <aside class="hv-ai" aria-label="Tencent ADP policy assistant">
+            <div class="hv-ai-head">
+                <h3>Policy assistant</h3>
+                <span class="hv-badge">Tencent ADP · Hunyuan</span>
+            </div>
+            <div class="hv-modes" role="tablist">
+                <button class="hv-mode active" data-mode="case" role="tab" aria-selected="true">Ask about this case</button>
+                <button class="hv-mode" data-mode="policy" role="tab" aria-selected="false">Policy lookup</button>
+            </div>
+            <div class="hv-suggest" id="hvSuggest"></div>
+            <div class="hv-chat" id="hvChat" aria-live="polite"></div>
+            <form class="hv-ask" id="hvAskForm">
+                <textarea id="hvQuestion" rows="3" placeholder="Ask how Ryde policy applies…" maxlength="2000"></textarea>
+                <button type="submit" class="hv-btn primary" id="hvAskBtn">Ask</button>
+            </form>
+            <div class="hv-hint">Answers come from Ryde's official policy files in ADP. They are advice; the decision is yours.</div>
+        </aside>
+    </div>
+
+    <div class="hv-toast" id="hvToast" role="status"></div>
+    <script src="review.js"></script>
+</body>
+</html>
