@@ -27,6 +27,9 @@ the D40 fixes. Evaluated on Cerebras `gpt-oss-120b`, one run per case:
 - 38 labelled dev and held-out cases: **33/38**, 0 wrong payouts (every miss went to a person).
 - 20 fresh cases written blind by another model: **16/20**, 0 wrong payouts.
 - Sealed set, run once and never used for a fix: **16/23**, with one wrong payout (S$8.00).
+  The remand loophole behind it was then closed (D42).
+- 20 more fresh cases written blind after that fix: **13/20**, with one wrong payout (S$8.00,
+  a rule's wording misread; D42). The fix itself stopped one payout live (F2-17).
 
 This is evaluation accuracy, not an automatic resolution rate: a case sent to a person counts as a
 miss whenever the answer key says the system could have decided it.
@@ -186,17 +189,20 @@ python -m pytest -q                                         # offline unit tests
 ```
 
 Each run writes `data/eval/<timestamp>/report.html`, `results.csv` and one trace per case. Evals
-never use fallback providers, so a run never mixes models. Latest results (D38-D41):
+never use fallback providers, so a run never mixes models. Latest results (D38-D42):
 
 | Set | Cases | Correct | Wrong payouts | Run |
 |-----|-------|---------|---------------|-----|
 | Dev + held-out (answer keys written before the fixes) | 38 | 33 | 0 | 20261012-115556 |
 | Fresh set written blind by a Claude Sonnet subagent | 20 | 16 | 0 | 20261012-155745-fresh |
 | Sealed set (Gemini + qwen cases, run once, never used for a fix) | 23 | 16 | 1 (S$8.00) | 20261012-174317-sealed |
+| Fresh set 2, written blind after the D42 fix | 20 | 13 | 1 (S$8.00) | 20261012-213702-fresh2 |
 
 On the sealed set two runs hit provider errors (HTTP 429) and were re-run once; the raw first pass
 was 14/23. The misses, including the wrong payout and why it got through, are in
-`docs/08_DESIGN_DECISIONS.md` (D41). Every change, its measured effect and the rejected
+`docs/08_DESIGN_DECISIONS.md` (D41, D42). All results are without precedents: the precedent
+store was empty in every evaluated run; when precedents should reach the Judge is designed in D43.
+Every change, its measured effect and the rejected
 alternatives are in `docs/06_EVAL_PLAN.md` and `docs/08_DESIGN_DECISIONS.md`.
 
 ## Project Structure
@@ -232,7 +238,7 @@ RydeResolve-Agent/
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D40) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D43) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 
 ## License

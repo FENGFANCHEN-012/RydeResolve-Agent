@@ -1339,6 +1339,57 @@ same. Unit tests: `test_remand_cannot_just_drop_the_blocked_record`,
 New-case check: per the rule that every change is tested on cases written for it, a new blind set
 F2-01..F2-20 (`data/eval_cases/fresh2_sonnet/`, brief `data/eval_cases/focus_fresh2.txt`) was
 written by a Claude Sonnet subagent without access to the code, with about 8 cases on imperfect
-platform records (half where the doubtful record is decisive, half where it is not). Result: pending.
+platform records (half where the doubtful record is decisive, half where it is not).
+
+**Run 20261012-213702-fresh2 (commit a992efd), one run each: 13/20, one wrong payout (S$8.00).**
+Five runs failed on the daily quota of the first key and were re-run with the next key (traces of
+the failed runs kept in `_failed_quota`).
+
+The new rule fired live once and stopped a payout: F2-17 (expected: a person; the ETA record is
+missing and the two parties contradict each other). The first draft refunded S$5.00 on a fact
+resting on the questioned `app_events[1]`; the remand dropped that record and kept S$5.00; D42 sent
+it to a person.
+
+| Case | Result | Expected | What went wrong |
+|---|---|---|---|
+| F2-01 | resolved, upheld, refund S$8.00 | dismissed | **Wrong payout.** Facts all correct (arrival 10:02, 8.5-min wait, threshold 8 min met). The Judge read the fee rule's text "not cancellations caused by the driver" as "not cancellations the driver pressed" and refunded a no-show fee because the driver taps cancel on a no-show. The code Judge checks facts and arithmetic, not how a rule's words are read, so it passed. The GPS dropout (the theme of the case) played no part. |
+| F2-11 | resolved, partially_upheld, no refund | partially_upheld S$6.00 | Under-refund: the label was right but no amount was set. No money moved wrongly. |
+| F2-10 | resolved, upheld S$4.50 | partially_upheld S$4.50 | Label only: the refund is the right figure. Counted as a miss. |
+| F2-02, F2-05, F2-14, F2-15 | a person | decided | Safe misses: F2-02 (exact 8:00 boundary) and F2-05 marked human review; F2-14 listed no decisive facts twice; F2-15 rested on a questioned fee record. |
+
+Imperfect-records theme: the 3 cases where the doubtful record is decisive all went to a person
+(F2-16, F2-17, F2-19). Of the 5 where it is beside the point, 1 was decided correctly (F2-09), 2
+went to a person (F2-05, F2-14), 1 was under-refunded (F2-11), and 1 was the wrong payout for an
+unrelated reason (F2-01).
+
+Summary: 13/20 (65%) against 16/20 on the first fresh set; one wrong payout of a kind the code
+Judge cannot see (reading a rule's words). No code or prompt was changed for or after this run;
+the set is now used and is not "new" for the next change.
 
 Not done: SL-14 (wrong rule applied) is a sealed-set miss and is not fixed from that case.
+
+## D43. When the Judge sees precedents: design only, not built (2026-10-12)
+
+What exists: human-reviewed precedents (pending -> staged -> evaluation gate -> active, D-feedback
+loop in `src/store/feedback.py`) are found by fact similarity (`src/rag/precedents.py`, top 3) and
+appended to the Judge's prompt as guidance. In every evaluated run so far the Judge received none:
+140 Judge calls in the 2026-10-12 runs, 0 with precedents. All reported results are without them.
+
+Proposal considered: let the Judge ask for precedents itself when its confidence is low.
+Rejected, for two reasons:
+1. The Judge's confidence is its own number, not a measured probability. Wrong rulings in our
+   traces carry 0.85-0.9 as often as right ones (SA-08, F2-01). Letting the model decide when it
+   needs help is the self-checking that the code Judge (D38) was built to avoid.
+2. Low-confidence cases are the ones the code Judge and Fairness now send to a person. A precedent
+   added there would raise the Judge's confidence and turn some of them into automatic rulings; a
+   precedent that only looks similar would then become a wrong payout.
+
+Planned instead (after submission):
+- Code decides when precedents are given: Triage grades the case high-complexity, the case's rules
+  are silent or discretionary, or the first draft was remanded by the code Judge.
+- A similarity threshold replaces the fixed top 3.
+- A ruling that follows a precedent still passes the code Judge: its facts verified, its amount
+  from record figures.
+- First version: precedents are shown to the human reviewer on the review desk, not to the
+  automatic ruling; a case that would go to a person still goes to a person. Precedents reach the
+  automatic Judge only after an evaluation shows rulings that follow them are right.
