@@ -711,6 +711,134 @@ async def review_ruling(ruling_id: int, request: ReviewRequest, http_request: Re
     return {"review_id": review.id, "precedent": _precedent_json(precedent) if precedent else None}
 
 
+# ---------------------------------------------------------------- human review desk
+# frontend/review.html: escalated cases, policy questions to Tencent ADP, the human decision.
+# Decisions go through Store.submit_review, so they land in `reviews` + the audit log and
+# become pending precedents like any other review.
+
+VERDICTS = ("upheld", "partially_upheld", "dismissed")
+
+
+def _ruling_json(r) -> dict:
+    return {k: getattr(r, k) for k in ("id", "dispute_id", "order_id", "dispute_type", "status", "verdict",
+                                      "refund_amount", "confidence", "rationale", "policy_refs", "created_at")}
+
+
+def _review_json(review, detail=None) -> dict:
+    out = {k: getattr(review, k) for k in ("id", "reviewer", "action", "final_verdict", "final_refund",
+                                           "reason", "created_at")}
+    if detail is not None:
+        out.update({k: getattr(detail, k) for k in ("reviewer_name", "driver_penalty", "internal_note",
+                                                    "ai_consultations")})
+    return out
+
+
+@app.get("/api/review/queue")
+async def review_queue(include_reviewed: bool = False):
+    from src.store.db import get_store
+    rows = await asyncio.to_thread(get_store().review_queue, include_reviewed)
+    return {"cases": [{**_ruling_json(r["ruling"]),
+                       "escalation_reason": r["escalation"].reason if r["escalation"] else None,
+                       "escalated_by": r["escalation"].source if r["escalation"] else None,
+                       "description": ((r["escalation"].snapshot or {}).get("context") or {}).get("description")
+                       if r["escalation"] else None,
+                       "review": _review_json(r["review"]) if r["review"] else None} for r in rows]}
+
+
+@app.get("/api/review/cases/{ruling_id}")
+async def review_case(ruling_id: int):
+    """Everything about one escalated case. Rulings recorded before escalation snapshots existed
+    fall back to the platform's records for the order."""
+    from src.store.db import get_store
+    try:
+        data = await asyncio.to_thread(get_store().review_case, ruling_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    esc = data["escalation"]
+    snapshot = (esc.snapshot if esc else None) or {}
+    platform = None
+    if not snapshot.get("context") and data["ruling"].order_id:
+        from src.integrations.ryde_api import RydeAPIClient
+        platform = await RydeAPIClient().get_order_dataset(data["ruling"].order_id)
+    return {"ruling": _ruling_json(data["ruling"]),
+            "escalation": {"reason": esc.reason, "source": esc.source, "created_at": esc.created_at} if esc else None,
+            "context": snapshot.get("context"), "response": snapshot.get("response"), "platform": platform,
+            "reviews": [_review_json(v, d) for v, d in data["reviews"]]}
+
+
+class ReviewAskRequest(BaseModel):
+    question: str
+    ruling_id: int | None = None    # given: the case summary goes in front of the question
+    session_id: str | None = None   # ADP conversation to continue
+
+
+@app.post("/api/review/ask")
+async def review_ask(request: ReviewAskRequest):
+    from src.integrations import adp_client
+    question = request.question.strip()
+    if not question or len(question) > 2000:
+        raise HTTPException(status_code=400, detail="Ask a question of 1-2000 characters.")
+    prompt = question
+    if request.ruling_id is not None:
+        from src.store.db import get_store
+        try:
+            data = await asyncio.to_thread(get_store().review_case, request.ruling_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+        snap = (data["escalation"].snapshot if data["escalation"] else None) or {}
+        case = adp_client.case_context(snap, {**_ruling_json(data["ruling"]),
+                                              "reason": data["escalation"].reason if data["escalation"] else None})
+        prompt = (f"I am a human reviewer at Ryde deciding this escalated dispute.\n{case}\n\n"
+                  f"Based only on Ryde's policies: {question}")
+    try:
+        return await adp_client.ask(prompt, request.session_id)
+    except adp_client.ADPError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+class ReviewDecision(BaseModel):
+    action: str                       # "confirm" the AI's proposal or "override" it
+    reason: str                       # becomes the precedent's principle
+    final_verdict: str | None = None
+    final_refund: float | None = None
+    driver_penalty: str | None = None
+    internal_note: str | None = None
+    reviewer_name: str | None = None
+    ai_consultations: list[dict] = []
+
+
+@app.post("/api/review/cases/{ruling_id}/decision")
+async def review_decide(ruling_id: int, request: ReviewDecision, http_request: Request):
+    from src.store.db import get_store
+    if request.final_verdict is not None and request.final_verdict not in VERDICTS:
+        raise HTTPException(status_code=400, detail=f"final_verdict must be one of {', '.join(VERDICTS)}")
+    if request.final_refund is not None and request.final_refund < 0:
+        raise HTTPException(status_code=400, detail="final_refund cannot be negative")
+    if request.action == "override" and request.final_verdict is None:
+        raise HTTPException(status_code=400, detail="an override needs a final verdict")
+    store = get_store()
+    try:
+        current = await asyncio.to_thread(store.review_case, ruling_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    if request.action == "confirm" and not current["ruling"].verdict:
+        raise HTTPException(status_code=400, detail="the AI made no proposal to confirm; choose a verdict instead")
+    consultations = [{"q": str(c.get("q", ""))[:2000], "a": str(c.get("a", ""))[:4000],
+                      "references": [str(r)[:200] for r in (c.get("references") or [])][:10]}
+                     for c in request.ai_consultations[:20] if isinstance(c, dict)]
+    detail = {"reviewer_name": (request.reviewer_name or "").strip()[:64] or None,
+              "driver_penalty": (request.driver_penalty or "").strip()[:200] or None,
+              "internal_note": (request.internal_note or "").strip() or None,
+              "ai_consultations": consultations}
+    try:
+        review, precedent = await asyncio.to_thread(
+            store.submit_review, ruling_id, http_request.state.actor, request.action, request.reason,
+            request.final_verdict, request.final_refund, detail)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"review_id": review.id, "precedent": _precedent_json(precedent) if precedent else None}
+
+
 @app.get("/api/precedents")
 async def list_precedents(status: str | None = None):
     from src.store.db import get_store

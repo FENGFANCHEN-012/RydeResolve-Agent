@@ -15,6 +15,7 @@ Legacy behaviour preserved:
   additive ``"fairness"`` key for the audit trail
 """
 import asyncio
+import json
 import logging
 import os
 
@@ -211,6 +212,22 @@ class Orchestrator:
         return None
 
 
+def _record_escalation(store, ruling_id: int, state: DisputeWorkflowState, response: dict, context) -> None:
+    """Keep everything the human reviewer needs: the platform records the agents saw, the
+    collector's findings (the points in dispute) and the pipeline's output. Its own try block:
+    a failed snapshot must not cost the ruling its id."""
+    try:
+        ctx = context.model_dump(mode="json", exclude={"evidence"}) if context is not None else {}
+        brief = ctx.get("case_brief") or {}
+        brief.pop("clause_texts", None)  # full policy text; the reviewer queries policy through ADP
+        source = ("failed" if response.get("status") == STATUS_FAILED
+                  else "fairness" if state.get("fairness") else "classifier")
+        snapshot = json.loads(json.dumps({"context": ctx, "response": response}, default=str))
+        store.record_escalation(ruling_id, response.get("reason"), source, snapshot)
+    except Exception as exc:
+        logger.warning("Could not record escalation snapshot for ruling %s: %s", ruling_id, exc)
+
+
 def _record_ruling(state: DisputeWorkflowState, response: dict) -> int | None:
     """Store the result for human review and the learning feedback loop. Best effort:
     a storage problem must never change or block a ruling. RECORD_RULINGS=0 turns it off
@@ -250,6 +267,8 @@ def _record_ruling(state: DisputeWorkflowState, response: dict) -> int | None:
             case_summary=summarize_case(context) if context is not None else None,
             pipeline_version=os.getenv("PIPELINE_VERSION"),
         )
+        if ruling.status != "resolved":
+            _record_escalation(store, ruling.id, state, response, context)
         return ruling.id
     except Exception as exc:
         logger.warning("Could not record ruling: %s", exc)
