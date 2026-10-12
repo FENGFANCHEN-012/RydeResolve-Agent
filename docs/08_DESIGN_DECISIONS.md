@@ -1280,3 +1280,34 @@ on NS-001, so removed. Guards (run 20261012-172239-corr-guards): CR-004, DR-002,
 FD-003 correct; FS-16..FS-20 not run (KEY_3 daily quota hit, run stopped once the targets showed
 the line does not work). The Judge does not follow a general instruction here; a fix, if any,
 belongs in the remand message, which names the exact fact.
+
+## D41. Sealed set, run once (2026-10-12, feature/rule-engine c5cbc20 + docs)
+
+What: the sealed cases, never used for a fix, run once on the submission candidate (D38 code
+Judge, D39 rule checks, D40). 23 cases: SL-01..SL-15 without SL-06 (written by Gemini, D16) and
+SA-01..SA-10 without SA-04 (written by qwen, blind-audited; SA-04 dropped earlier as a bad key).
+Why: every other set has been looked at while fixing; this is the generalisation number.
+
+**Run 20261012-174317-sealed: 14/23 correct.** Cerebras returned "queue exceeded" (429) on two
+runs: SA-02 (the Judge call) and SL-04 (the passenger advocate). Both were re-run once, run
+20261012-182201-sealed-retry: SA-02 correct (partially_upheld S$5.00), SL-04 correct (to a person).
+**With the two provider-hit runs replaced: 16/23.** No code or prompt was changed for or after
+this run.
+
+| Case | Result | Expected | What went wrong |
+|---|---|---|---|
+| SA-08 | resolved, upheld, refund S$8.00 | a person | **Wrong payout.** The decisive arrival record is contradicted by a GPS gap. The first draft was blocked by the code Judge (it cited the questioned app event); on remand the Judge dropped that record from its decisive facts and the draft passed. This is the risk named in D38/D40: a remand lets the Judge remove the record that blocked it. |
+| SL-14 | resolved, dismissed | upheld S$4.50 | Wrong rule: the Judge applied the 3-min free waiting time instead of the 8-min no-show threshold (exactly 8:00 by the timestamps; the app event says 7:55). |
+| SL-02, SL-09 | resolved, dismissed | upheld S$6.61 | The rider cancelled after the free window; the answer key refunds because the driver was not moving towards the pickup ("spirit" of the waiver clause). The system applied the written window. Arguable keys, counted as wrong. |
+| SA-01 | a person | dismissed | Safe miss: "continuous presence in the radius" marked unverifiable. |
+| SL-10 | a person | upheld S$2.00 | Safe miss: refund arithmetic used 0.5, not the record figure 50 (%). |
+| SL-15 | a person | partially_upheld S$200.00 | Safe miss: Fairness flagged a penalty with a dismissal. |
+
+Summary: 16/23 (70%) against 33/38 on the dev/held-out set and 16/20 on the fresh set; one wrong
+payout (SA-08, S$8.00), three wrong dismissals, three cases sent to a person that could have been
+decided. The claim "no wrong payout since the code Judge" holds on the 38-case and fresh sets,
+not on the sealed set.
+
+Open, not fixed (fixing on the sealed set would void it): a remanded draft must not pass by
+dropping the record the first check named; a conflict or gap finding on the topic of the ruling
+should still count after a remand.
