@@ -45,9 +45,10 @@ def _disputed_sources(conflicts: list[dict], app_events: list) -> set[str]:
     and driver_arrived event), so an arrival conflict disputes both."""
     disputed = {src for c in conflicts for src in c.get("sources") or []} - _NEUTRAL_SOURCES
     if any("arrival" in (c.get("id") or "") for c in conflicts):
-        disputed.add("trip.driver_arrival_time")
+        # The wait timer starts at the arrival, so it is disputed with it (D39 rule checks time from it)
+        disputed.update({"trip.driver_arrival_time", "trip.driver_wait_start"})
         disputed.update(f"app_events[{i}]" for i, e in enumerate(app_events or [])
-                        if isinstance(e, dict) and e.get("event_type") == "driver_arrived")
+                        if isinstance(e, dict) and e.get("event_type") in ("driver_arrived", "wait_timer_started"))
     return disputed
 
 
@@ -122,13 +123,18 @@ class CaseBriefAgent:
 
         def pick(kind):
             return [{"id": f.get("id"), "statement": f.get("statement"), "sources": f.get("sources") or []}
-                    for f in findings if f.get("kind") == kind][:_MAX_FINDINGS_PER_KIND]
+                    for f in findings if f.get("kind") == kind and f.get("tool") != "rule_checks"
+                    ][:_MAX_FINDINGS_PER_KIND]
 
         conflicts = pick("conflict")
         # A fact computed from a contradicted record (e.g. a wait timed from a disputed
         # arrival, eval case NS-002-C1) must not read as verified
         disputed = _disputed_sources(conflicts, ctx.get("app_events"))
         facts = [{**f, "disputed": bool(disputed & set(f["sources"]))} for f in pick("fact")]
+        # This trip's time rules evaluated on the records (D39), shown as their own section
+        rule_checks = [{"id": f.get("id"), "statement": f.get("statement"), "sources": f.get("sources") or [],
+                        "disputed": bool(disputed & set(f.get("sources") or []))}
+                       for f in findings if f.get("tool") == "rule_checks"]
 
         urgency = cls.get("urgency")
         return {
@@ -137,6 +143,7 @@ class CaseBriefAgent:
             "facts": facts,
             "conflicts": conflicts,
             "gaps": pick("gap"),
+            "rule_checks": rule_checks,
             "case_rules": {f"platform_policy.{k}": v for k, v in (ctx.get("platform_policy") or {}).items()
                            if isinstance(k, str) and not k.startswith("_")},
             # What each rule covers (D36); shown next to its value, never computed with
@@ -201,6 +208,14 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
         texts = brief.get("case_rule_texts") or {}
         lines.extend(f"- {k} = {v}" + (f"\n    scope: {texts[k]}" if texts.get(k) else "")
                      for k, v in rules.items())
+    checks = brief.get("rule_checks") or []
+    section("Rule checks (code measured each time rule of this trip on the records and compared the "
+            "measure with the rule's condition. The measure and the comparison are exact; do not "
+            "re-derive them. A check only says whether the condition holds: whether the rule governs "
+            "this event at all (who cancelled, which party it binds) is set by its scope text):",
+            [c for c in checks if not c.get("disputed")])
+    section("Rule checks computed FROM A DISPUTED RECORD (only as reliable as that record; see CONFLICTS):",
+            [c for c in checks if c.get("disputed")])
     if brief.get("timeline"):
         lines.append("App event timeline:")
         # Numbered as app_events[i] (the timeline keeps the events' order), so a ruling can cite them
@@ -274,7 +289,8 @@ async def add_requested_clauses(context, requests: dict[str, list[str]], retriev
 # Raw context fields whose content the brief already carries (as computed facts, the event
 # timeline and the case rules). With a brief they are left out of prompts: the same data was
 # sent twice per prompt, and the raw GPS points made each agent re-derive distances (D15).
-SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy", "platform_policy_text")
+SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy", "platform_policy_text",
+                     "platform_policy_checks")
 
 
 def _finding_values(context, finding_id: str) -> dict | None:

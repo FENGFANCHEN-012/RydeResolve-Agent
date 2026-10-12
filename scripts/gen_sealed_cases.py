@@ -72,7 +72,12 @@ and the applicable policy block: cancellation_policy for no-show / cancellation,
 otherwise), plus expected_outcome. Every key in the policy block is an object
 {{"value": <the rule's value>, "text": "<one or two sentences>"}}. The text states only the rule's
 SCOPE: which party it binds, which event it governs, and the unit of the value. It must never say
-how this case should be decided or mention this case's facts. Use the dispute_id and trip_id pairs given
+how this case should be decided or mention this case's facts. A rule whose value is a number of
+minutes between two moments of the trip also carries "check": {{"from": M, "to": M, "op": "<=" | "<" |
+">=" | ">", "condition": "<the rule's condition, with {{value}} for the number>"}}, where M is one of
+booked, matched, scheduled, eta_shown, arrived, wait_start, cancelled, trip_end, arrived_or_cancelled;
+the condition holds when (minutes from "from" to "to") op value. It restates the rule, never the case.
+Use the dispute_id and trip_id pairs given
 below. Amounts in SGD.
 
 expected_outcome keys:

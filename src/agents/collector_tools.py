@@ -7,8 +7,10 @@ conflict or gap and names exactly where it came from, e.g.
 "gps_trace[3]" or "trip.cancellation_time", so the other agents can check it.
 
 Rules:
-- Tools only compute and compare. They never judge who is right or apply a
-  policy threshold; that is the Policy / Arbitrator agents' job.
+- Tools only compute and compare. They never judge who is right; that is the
+  Policy / Arbitrator agents' job. The one exception to "no thresholds" is
+  rule_checks (D39): it compares a measured time with this trip's own numeric
+  rule and says whether the rule's condition holds, never what follows from it.
 - Raw data is never changed.
 - A tool with nothing to say returns [] (e.g. no fare data on a no-show case).
 
@@ -18,8 +20,12 @@ Two kinds of tools:
   CollectorAgent.query(...), e.g. "where was the driver at 09:08?".
 """
 
+import json
 import math
+import re
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Callable, Literal
 
 from pydantic import BaseModel
@@ -427,6 +433,145 @@ def data_gaps(ctx) -> list[Finding]:
     return out
 
 
+# ---------------------------------------------------------------------- #
+# Rule checks (D39): evaluate this trip's numeric time rules on the records
+# ---------------------------------------------------------------------- #
+
+_RULE_CHECKS_FILE = Path(__file__).resolve().parents[2] / "data" / "policies" / "case_rule_checks.json"
+_OPS = {"<=": lambda a, b: a <= b, "<": lambda a, b: a < b, ">=": lambda a, b: a >= b, ">": lambda a, b: a > b}
+_CLOCK_RE = re.compile(r"\((\d{1,2}):(\d{2})(?::(\d{2}))?\)")
+_ETA_MIN_RE = re.compile(r"\bETA\s+(\d+(?:\.\d+)?)\s*min", re.IGNORECASE)
+# A non-numeric case rule that sets how a time is counted ("cancellation_time_basis = device_tap_time",
+# "wait_clock_starts = ..."): the records' default moments may not be the ones that rule names
+_TIME_BASIS_KEY_RE = re.compile(r"basis|clock_start|count_from|timer_start|wait_start|start_event")
+
+
+@lru_cache(maxsize=1)
+def _rule_check_specs() -> dict:
+    try:
+        return {k: v for k, v in json.loads(_RULE_CHECKS_FILE.read_text(encoding="utf-8")).items()
+                if not k.startswith("_") and isinstance(v, dict)}
+    except (OSError, ValueError):
+        return {}
+
+
+def _first_event_time(ctx, *types: str) -> tuple[datetime, str] | None:
+    for i, e in _events(ctx, *types):
+        t = _ts(e.get("timestamp"))
+        if t:
+            return t, f"app_events[{i}]"
+    return None
+
+
+def _moments(ctx) -> dict[str, tuple[datetime, str]]:
+    """Named moments of the trip, each with the record it comes from. A trip field wins over an
+    event of the same meaning. Missing moments are simply absent."""
+    trip = ctx.trip or {}
+    m: dict[str, tuple[datetime, str]] = {}
+
+    def field(name, key):
+        t = _ts(trip.get(key))
+        if t:
+            m[name] = (t, f"trip.{key}")
+
+    def event(name, *types):
+        if name not in m:
+            hit = _first_event_time(ctx, *types)
+            if hit:
+                m[name] = hit
+
+    event("booked", "booking_confirmed")
+    event("matched", "driver_assigned", "driver_matched")
+    field("scheduled", "scheduled_time")
+    field("arrived", "driver_arrival_time")
+    event("arrived", "driver_arrived")
+    field("wait_start", "driver_wait_start")
+    event("wait_start", "wait_timer_started")
+    if "wait_start" not in m and "arrived" in m:
+        m["wait_start"] = m["arrived"]
+    field("cancelled", "cancellation_time")
+    event("cancelled", "rider_cancelled", "trip_cancelled", "driver_cancelled")
+    field("trip_end", "dropoff_time")
+    event("trip_end", "trip_completed")
+    # Arrival time shown at assignment: a clock time in the assignment event "(07:55:30)", else
+    # "ETA n min" counted from the assignment
+    assigned = _events(ctx, "driver_assigned", "driver_matched")
+    if assigned:
+        i, e = assigned[0]
+        at, detail = _ts(e.get("timestamp")), str(e.get("details") or "")
+        clock, mins = _CLOCK_RE.search(detail), _ETA_MIN_RE.search(detail)
+        if at and clock:
+            h, mi, s = int(clock.group(1)), int(clock.group(2)), int(clock.group(3) or 0)
+            eta = at.astimezone(_SGT).replace(hour=h, minute=mi, second=s, microsecond=0)
+            m["eta_shown"] = (eta if eta >= at - timedelta(hours=1) else eta + timedelta(days=1), f"app_events[{i}]")
+        elif at and mins:
+            m["eta_shown"] = (at + timedelta(minutes=float(mins.group(1))), f"app_events[{i}]")
+    if "arrived" in m or "cancelled" in m:
+        m["arrived_or_cancelled"] = m.get("arrived") or m["cancelled"]
+    return m
+
+
+def rule_checks(ctx) -> list[Finding]:
+    """Each numeric time rule of this trip evaluated on the records: the measured minutes, the
+    rule's condition and whether it holds. Code measures and compares; what follows from the
+    rule is still the Judge's reading of the rule."""
+    policy = ctx.platform_policy or {}
+    specs = {**_rule_check_specs(), **(getattr(ctx, "platform_policy_checks", None) or {})}
+    moments = _moments(ctx) if policy else {}
+    basis = {k: v for k, v in policy.items()
+             if isinstance(k, str) and _TIME_BASIS_KEY_RE.search(k) and isinstance(v, str)}
+    out = []
+    for key, spec in specs.items():
+        limit = policy.get(key)
+        if isinstance(limit, bool) or not isinstance(limit, (int, float)) or spec.get("op") not in _OPS:
+            continue
+        a, b = moments.get(spec.get("from")), moments.get(spec.get("to"))
+        condition = str(spec.get("condition") or f"{spec.get('from')} -> {spec.get('to')} {spec['op']} {{value}}"
+                        ).replace("{value}", f"{limit:g}")
+        rule = f"platform_policy.{key}"
+        if not (a and b):
+            # Usually the event never happened (no arrival, so no wait): not a data gap, and the
+            # rule's key is not called into question
+            missing = [n for n, x in ((spec.get("from"), a), (spec.get("to"), b)) if not x]
+            out.append(Finding(
+                id=f"rule_check.{key}", tool="rule_checks", kind="fact",
+                statement=f"Rule {rule} = {limit:g} was not evaluated: no record gives the "
+                          f"{' or '.join(map(str, missing))} time.",
+                value={"rule": rule, "limit": limit, "missing": missing}))
+            continue
+        measured = _minutes(a[0], b[0])
+        if basis:
+            # Measure, but do not conclude: the trip's own rules may count from another moment (DS-04)
+            out.append(Finding(
+                id=f"rule_check.{key}", tool="rule_checks", kind="fact",
+                statement=f"Rule {rule} = {limit:g}: condition \"{condition}\". Measured {measured:g} min "
+                          f"from {a[1]} ({_hhmm(a[0])}) to {b[1]} ({_hhmm(b[0])}). Not concluded: this trip's "
+                          "rules set how the time is counted ("
+                          + ", ".join(f"platform_policy.{k} = {v}" for k, v in basis.items())
+                          + "); use the moment those rules name.",
+                value={"rule": rule, "limit": limit, "measured_min": measured, "op": spec["op"], "met": None},
+                sources=[a[1], b[1], rule]))
+            continue
+        met, at_limit = _OPS[spec["op"]](measured, limit), abs(measured - limit) < 0.05
+        boundary = ""
+        if at_limit:
+            flag = next((policy[k] for k in spec.get("inclusive_keys") or [] if isinstance(policy.get(k), bool)), None)
+            if flag is None:
+                boundary = " The measure is exactly at the limit; the rules do not say whether the limit itself counts."
+            else:
+                met = flag if spec["op"] in ("<=", ">=") else not flag
+                boundary = f" Exactly at the limit; this trip's rules say the limit {'counts' if flag else 'does not count'}."
+        out.append(Finding(
+            id=f"rule_check.{key}", tool="rule_checks", kind="fact",
+            statement=f"Rule {rule} = {limit:g}: condition \"{condition}\". Measured {measured:g} min "
+                      f"from {a[1]} ({_hhmm(a[0])}) to {b[1]} ({_hhmm(b[0])}). "
+                      f"The condition is {'MET' if met else 'NOT MET'}.{boundary}",
+            value={"rule": rule, "limit": limit, "measured_min": measured, "op": spec["op"], "met": met,
+                   "at_limit": at_limit},
+            sources=[a[1], b[1], rule]))
+    return out
+
+
 _DATA_PROBLEM_RE = __import__("re").compile(
     r"\b(gap|outage|offline|unavailable|fail(ed|ure)?|error|retry|timeout|timed out|corrupt\w*|lost)\b"
     r"|telemetry_gap|_gap_|_fail|_error|_retry|_outage")
@@ -496,6 +641,7 @@ STANDARD_TOOLS: dict[str, Callable] = {
     "fee_check": fee_check,
     "consistency_check": consistency_check,
     "data_gaps": data_gaps,
+    "rule_checks": rule_checks,
 }
 
 QUERY_TOOLS: dict[str, Callable] = {

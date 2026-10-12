@@ -9,6 +9,9 @@ driver chose, and no agent could check the reading against any text.
     old: {"no_show_threshold_min": 5}
     new: {"no_show_threshold_min": {"value": 5, "text": "Applies when ..."}}
 
+Since D39 a numeric time rule may also carry a "check" (what code measures and how it compares,
+see data/policies/case_rule_checks.json); code evaluates it, agents see the result.
+
 Both formats are accepted everywhere. Code that computes with a rule (fee checks, the eval
 charge cap) reads only the values; agents are shown value and text together.
 """
@@ -16,7 +19,7 @@ from __future__ import annotations
 
 
 def _is_wrapped(v) -> bool:
-    return isinstance(v, dict) and "value" in v and set(v) <= {"value", "text"}
+    return isinstance(v, dict) and "value" in v and set(v) <= {"value", "text", "check"}
 
 
 def split_policy(block) -> tuple[dict | None, dict]:
@@ -33,6 +36,13 @@ def split_policy(block) -> tuple[dict | None, dict]:
         else:
             values[k] = v
     return values, texts
+
+
+def policy_checks(block) -> dict:
+    """key -> check spec, for wrapped keys that carry one."""
+    if not isinstance(block, dict):
+        return {}
+    return {k: v["check"] for k, v in block.items() if _is_wrapped(v) and isinstance(v.get("check"), dict)}
 
 
 def policy_values(block):
