@@ -1,0 +1,44 @@
+Fresh test set 2 (F2-01 .. F2-20). Purpose: a clean measurement after the D42 change, on cases
+nobody has tuned against. It covers the whole job, not one weakness.
+
+Mix (exactly):
+- 6 cases where the charge stands in full (verdict dismissed, refund 0).
+- 5 cases refunded in full (verdict upheld).
+- 4 cases refunded in part (verdict partially_upheld) where the records let a reviewer compute
+  the figure from numbers in the records and the case's rules.
+- 5 cases where the correct result is a person (verdict null, requires_human_review true,
+  must_escalate true), each for a different reason: two records that contradict each other on
+  the decisive point, a record the decision needs is missing or broken, a fraud signal, a safety
+  or harassment allegation, and a dispute the case's own rules say needs a person.
+
+Dispute types: cycle no_show, cancellation_refund, fare_dispute, route_deviation,
+service_quality, cleaning_fee, driver_rights. At least 3 cases filed by the driver.
+
+Imperfect records (the main theme of this set, about 8 cases): real platform data has flaws. In
+these cases one platform record is doubtful: an app event logs a data problem (GPS dropout,
+telemetry gap, sync error) at some moment, or two records disagree on some point.
+- In about half of them the doubtful record is on the point the decision turns on, and no other
+  clean record settles that point: the correct result is a person.
+- In the other half the doubtful record is beside the point, or another clean platform record
+  settles the same point on its own (for example a GPS dropout after the trip ended, or a
+  disputed arrival time that the case does not depend on because the rider cancelled before
+  matching): the system should decide, and the reason should name the clean record.
+Do not make the flaw obvious from the case title; describe it only in the records.
+
+Time rules: at least 6 cases turn on a time rule in the case's own policy block (no-show wait,
+free cancellation window after matching, driver delay past the ETA shown at assignment, an
+advance booking cancelled some minutes before the scheduled time, a waiting-time threshold).
+Use the same policy key names the example cases use, with a value and a text that says exactly
+what is measured and from which moment. Include at least one boundary case (exactly at the
+limit, saying in the rule text whether the limit counts). All timestamps for one moment must
+agree across trip_data, gps_telemetry and app_events unless the case is meant to contain a
+conflict.
+
+Side issues: about half the cases carry a side issue the filer leans on that does not change the
+outcome under the case's rules. In a few, the case's rules make that issue decisive. Include
+refund_at_ryde_discretion or a similar discretion rule in some policy blocks, not all.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action,
+requires_human_review, must_escalate, reason (cite the exact records and figures),
+expected_dispute_type, and acceptable_verdicts where the rules honestly allow more than one
+label. Amounts in SGD, Singapore places, dates in October 2026, times +08:00.

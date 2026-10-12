@@ -1311,3 +1311,34 @@ not on the sealed set.
 Open, not fixed (fixing on the sealed set would void it): a remanded draft must not pass by
 dropping the record the first check named; a conflict or gap finding on the topic of the ruling
 should still count after a remand.
+
+## D42. A remand cannot pass by dropping the blocked record (2026-10-12, feature/rule-engine)
+
+What: in the code Judge (`src/agents/code_judge.py`, `check_remand`; called from
+`src/core/workflow.py` `_code_judge`), a revised draft also fails when the first draft was blocked
+because a verified decisive fact rested on a record a conflict or gap finding questions, and the
+revised draft pays the same verdict and the same refund but no longer lists that record. Such a
+draft goes to a person. A revised draft that changes the ruling or the amount, or keeps the record
+and marks the fact as not verified, is left to the existing checks.
+
+Why: the SA-08 wrong payout (D41). The trace shows the second draft is the first draft word for word
+with `app_events[8]` deleted from one fact's sources: same fact, same verdict upheld, same S$8.00.
+Deleting a record does not remove what the ruling used it for.
+
+This fix was found on the sealed set, so the sealed result (D41, 16/23) stays the number for the
+code before this change; it is not re-scored.
+
+How checked (no LLM calls): replay over all 135 saved traces on this branch. 13 runs had a draft
+blocked and then passed after the remand; the new rule sends only SA-08 to a person (12 still pass).
+A broader rule was considered and rejected: "any decisive-fact problem on the first draft and the
+same payout after the remand goes to a person" would also have sent 4 correct runs to a person
+(NS-001 x2, DR-002 x2), where the Judge really corrected a fact's status and the ruling stayed the
+same. Unit tests: `test_remand_cannot_just_drop_the_blocked_record`,
+`test_remand_rule_ignores_drafts_blocked_for_other_reasons`; 507 tests pass.
+
+New-case check: per the rule that every change is tested on cases written for it, a new blind set
+F2-01..F2-20 (`data/eval_cases/fresh2_sonnet/`, brief `data/eval_cases/focus_fresh2.txt`) was
+written by a Claude Sonnet subagent without access to the code, with about 8 cases on imperfect
+platform records (half where the doubtful record is decisive, half where it is not). Result: pending.
+
+Not done: SL-14 (wrong rule applied) is a sealed-set miss and is not fixed from that case.
