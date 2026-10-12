@@ -1089,3 +1089,23 @@ comparison needs to be evaluated by code.
 - (3) DS-09: the Judge measured the interval correctly (8.8 min before the scheduled time) and read
   the rule's direction backwards. Code can only evaluate the rule if the rule says, in a form code
   can read, what is measured and which side is free. That is the planned rule-engine step.
+
+**Full regression, run 20261012-092517 (code Judge ON, all 38 cases, one run each), against D36
+run 20261011-181308 (code Judge off):**
+
+| Metric | D36 (off) | Code Judge on |
+|---|---|---|
+| Correct | 34/38 | 33/38 |
+| Wrong automated rulings | 1 (RD-002, paid S$1.55) | 0 |
+| Sent to a person | 9 | 11 |
+| Tokens per case | 26.9k | 28.7k (+7%) |
+| Remands | - | 6/38 (FD-003, NS-001, NS-001-P1, NS-002-C1, NS-003, SQ-002) |
+
+Only three cases changed. RD-002 is now correctly dismissed. NS-001 and NS-001-P1 (correct S$8
+refund in D36) now go to a person: the decisive fact "driver never arrived" rests on
+trip.driver_arrival_time, and the data-conflict check flags that same record ("cancelled as a rider
+no-show, but no driver arrival is recorded"). The strict rule from follow-up (1) sends it to a
+person, even though the conflict is the rider's own evidence. Every miss in this run is a hand-off
+to a person (CR-001, NS-001, NS-001-P1, NS-002-C1, SQ-002), and no wrong payout executes. That
+is the trade the project wants (escalate over misjudge). A narrower exception for "the conflict
+note itself states the fact" is possible, but it must pass the DS-20 replay before it ships.
