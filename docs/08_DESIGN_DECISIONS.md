@@ -1161,3 +1161,20 @@ inform. **Tests:** 499 passed (13 new in tests/test_rule_checks.py).
 **Next:** after the full code-Judge regression finishes (one eval process at a time), A/B on
 DS-09, CR-001, NS-002-B1, NS-002-C1, NS-002, CR-002-C2, DS-04, CR-004 (targets and the cases a
 wrong check could break), then fold into the full run.
+
+**First A/B, run 20261012-105053 (rule checks + code Judge ON, 10 cases, one run each),** against
+the code Judge run 20261012-092517 (no rule checks) and, for the DS cases, runs 20261011-232103 /
+-221641:
+
+| Case | Before | Rule checks on |
+|---|---|---|
+| DS-09 | WRONG, paid S$5 | correct, dismissed (the target: 8.8 < 15 NOT MET) |
+| CR-001 | to a person | correct, refund S$4 (late 12.5 > 10 MET) |
+| NS-001 | to a person | correct, refund S$8 (the D38 questioned-sources fix, live) |
+| NS-002-B1, NS-002, CR-002-C2, CR-004, DS-04 | correct | correct (no check broke them) |
+| NS-001-P1 | to a person | to a person: the Judge itself named the no-show label as a decisive fact, and that label is the questioned record |
+| NS-002-C1 | to a person | to a person (disputed arrival: GPS 0.96 km away; every run so far) |
+
+8/10 correct, 0 wrong payouts (before on the same cases: 5/10, 1 wrong payout). Tokens on the 8
+cases both runs share: 35.7k vs 33.9k per case (+5%). One run each, so a single case can still
+flip; the DS-09 and CR-001 fixes come from a computed comparison, not chance.
