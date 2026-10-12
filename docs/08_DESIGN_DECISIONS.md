@@ -1109,3 +1109,11 @@ person, even though the conflict is the rider's own evidence. Every miss in this
 to a person (CR-001, NS-001, NS-001-P1, NS-002-C1, SQ-002), and no wrong payout executes. That
 is the trade the project wants (escalate over misjudge). A narrower exception for "the conflict
 note itself states the fact" is possible, but it must pass the DS-20 replay before it ships.
+
+**Fix (2026-10-12): a conflict names the sources it questions.** A conflict finding may carry
+`questioned`, the sources it calls into question when its other sources agree with each other; the
+code Judge distrusts only those (all sources when the field is empty). Set on one conflict:
+`consistency.no_show_without_arrival` questions only `trip.cancellation_reason`, since the trip
+record and the app log agree that no arrival happened. Offline replay of all 61 saved drafts of runs
+20261011-232103 and 20261012-092517: only NS-001 and NS-001-P1 change (now pass); DS-20, DS-11 and
+every other draft get the same result as before. Gap findings (the DS-20 data failure) are untouched.
