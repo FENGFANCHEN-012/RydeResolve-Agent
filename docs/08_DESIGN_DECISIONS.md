@@ -1209,3 +1209,34 @@ still marked the absence unverifiable, with no source); DS-20 to a person (corre
 with refund S$4.20 (to a person in every earlier run); NS-001 to a person, because the Judge named
 "fee charged with reason rider_no_show" (the questioned label) as a decisive fact, the same
 pattern as NS-001-P1 in run 105053, unrelated to this rule. No wrong payout.
+
+## D40. Fresh blind test set; harassment in plain words is P0 (2026-10-12, branch feature/rule-engine)
+
+**Fresh set.** 20 cases (FS-01..FS-20, `data/eval_cases/fresh_sonnet/`) written by a Claude Sonnet
+subagent that read only the brief (`data/eval_cases/focus_fresh.txt`), the labelling conventions,
+two format examples and the official policy text; not the code, tests or earlier eval data. Mix: 6
+charge stands, 5 full refund, 4 partial refund, 5 for a person; 8+ turn on a time rule, with
+boundary cases. Why: every earlier set (dev, heldout, DS) has been looked at while fixing, so a
+score on them overstates what the system does on new cases.
+
+**First run, 20261012-155745-fresh (D38 code Judge + D39 rule checks + absence rule, one run
+each): 16/20 correct, no wrong payout.** The four misses:
+
+| Case | Result | Expected | Cause |
+|---|---|---|---|
+| FS-19 | resolved, partially_upheld, no refund | a person | Harassment report not recognised as P0: the filer wrote "felt unsafe", "commenting on my body"; no P0 keyword matched, and a given ticket type (service_quality) skips the LLM classifier. Fixed below. |
+| FS-10 | resolved, dismissed | upheld S$5.00 (driver's waiting fee) | The Judge applied a retrieved official clause (the driver must switch on the waiting fee at drop-off) that the case's own policy block does not contain. Wrong ruling against the driver; no money paid out. Open. |
+| FS-09 | a person | upheld S$14.50 (double charge) | The data-gap tool reads "gateway retry after timeout" in the second payment_captured event as a platform data failure, so the decisive fact is unverifiable. Safe miss; narrowing the tool would loosen a check, so left as is. |
+| FS-12 | resolved, upheld S$85.00 | partially_upheld S$85.00 | Refund correct; label only (fee reduced to the receipt amount). |
+
+**Change: more P0 safety keywords** (`src/agents/classifier.py`): harass, harassed, harassing,
+unsafe, stalk, stalked, stalking, sexual, groped, molested, touched me, inappropriately.
+What: a filer describing harassment or feeling unsafe without the word "harassment" now goes to
+a person at once (P0), whatever ticket type was given. Why: FS-19, a sexual-harassment report,
+was closed by the system; a safety matter must always reach a person. This only adds escalations,
+so it cannot cause a wrong payout. Before the change, the new words were scanned over every case
+description in `data/` (except sealed): they match only FS-19 and SI-001, and SI-001 was already
+P0, so no other case changes. Test: `test_p0_harassment_in_plain_words_with_a_given_type`. Live
+run 20261012-163730-p0: FS-19 and SI-001 both to a person, correct. Not done: forcing a person
+whenever a case's policy has `p0_response = immediate_human_review`; that rule only says what to
+do once a case is P0, it does not make a case P0.

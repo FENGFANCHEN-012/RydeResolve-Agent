@@ -55,6 +55,10 @@ _P0_KEYWORDS: list[str] = [
     "harassment", "sexually", "police", "lawsuit", "sue",
     "legal action", "attacked", "physically", "danger",
     "harm", "hurt", "wounded", "stab", "struck",
+    # Harassment and personal safety in the filer's own words (D40; FS-19 said "felt unsafe",
+    # "harassing" and "commenting on my body" and none of the words above matched)
+    "harass", "harassed", "harassing", "unsafe", "stalk", "stalked", "stalking",
+    "sexual", "groped", "molested", "touched me", "inappropriately",
 ]
 
 
