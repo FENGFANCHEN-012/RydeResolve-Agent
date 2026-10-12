@@ -105,7 +105,7 @@ def check_facts(decision, context: dict) -> list[str]:
     flagged: dict[str, str] = {}
     for f in _findings(context):
         if f.get("kind") in ("conflict", "gap"):
-            for src in f.get("sources") or []:
+            for src in f.get("questioned") or f.get("sources") or []:
                 flagged.setdefault(str(src), f"{f.get('kind')}: {f.get('statement')}")
     problems = []
     for f in facts:
