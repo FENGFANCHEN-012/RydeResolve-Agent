@@ -1,0 +1,178 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-02",
+    "trip_id": "RYDE-F2-002",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "The driver cancelled before 8 minutes were up and charged me $8.00. The app said I still had time. I want the fee refunded.",
+    "filed_at": "2026-10-05T15:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7102",
+    "name": "Daniel Ong",
+    "account_age_days": 220,
+    "total_trips": 61,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8202",
+    "name": "Abdul Rahim",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Honda Vezel (SMB 5502 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-002",
+    "rider_id": "R-7102",
+    "driver_id": "D-8202",
+    "pickup_location": {
+      "name": "ION Orchard (Taxi Stand)",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Novena Square",
+      "lat": 1.3203,
+      "lng": 103.8438
+    },
+    "scheduled_time": "2026-10-05T14:00:00+08:00",
+    "driver_arrival_time": "2026-10-05T14:00:00+08:00",
+    "driver_wait_start": "2026-10-05T14:00:00+08:00",
+    "cancellation_time": "2026-10-05T14:08:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T13:56:00+08:00",
+      "lat": 1.307,
+      "lng": 103.834,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T14:00:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-05T14:04:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T14:08:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T14:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the taxi stand, black Vezel."
+    },
+    {
+      "timestamp": "2026-10-05T14:06:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "5 more minutes please, stuck in the lift."
+    },
+    {
+      "timestamp": "2026-10-05T14:08:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $8.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T13:46:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7102 booked trip RYDE-F2-002 from ION Orchard to Novena Square. Pickup 14:00."
+    },
+    {
+      "timestamp": "2026-10-05T13:46:30+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8202 (Abdul Rahim, Honda Vezel SMB 5502 L) assigned. ETA 12 min."
+    },
+    {
+      "timestamp": "2026-10-05T14:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here at pickup point. Geofence check passed."
+    },
+    {
+      "timestamp": "2026-10-05T14:08:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-05T14:08:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$8.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. A wait of exactly this many minutes counts as a no-show (the limit is inclusive)."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "driver_arrived and the 14:00:00 GPS fix at the pickup show the driver waiting from 14:00:00; the driver cancelled at 14:08:00, a wait of exactly 8 minutes. This trip's policy says the 8-minute no-show threshold is inclusive, so exactly 8 minutes meets it. The rider's chat at 14:06 asks for more time and does not dispute the arrival. The S$8.00 fee stands.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "dismissed"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-15",
+    "trip_id": "RYDE-F2-015",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "The rider cancelled 7 minutes after I accepted. I had already driven 6.5 km to the pickup. I am claiming $15.00 compensation, not just the usual fee.",
+    "filed_at": "2026-10-06T17:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7115",
+    "name": "Joel Tay",
+    "account_age_days": 90,
+    "total_trips": 14,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8215",
+    "name": "Ismail Hassan",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Vios (SKH 4402 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-015",
+    "rider_id": "R-7115",
+    "driver_id": "D-8215",
+    "pickup_location": {
+      "name": "Toa Payoh HDB Hub",
+      "lat": 1.3326,
+      "lng": 103.847
+    },
+    "dropoff_location": {
+      "name": "Suntec City",
+      "lat": 1.295,
+      "lng": 103.858
+    },
+    "scheduled_time": "2026-10-06T16:00:00+08:00",
+    "matched_time": "2026-10-06T16:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-06T16:07:00+08:00",
+    "cancellation_fee": 0.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T16:00:00+08:00",
+      "lat": 1.37,
+      "lng": 103.849,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T16:04:00+08:00",
+      "lat": 1.355,
+      "lng": 103.848,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T16:07:00+08:00",
+      "lat": 1.3345,
+      "lng": 103.8472,
+      "speed_kmh": 20,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T16:07:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider 7 minutes after match."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T16:00:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8215 (Ismail Hassan, Toyota Vios SKH 4402 R) assigned to Rider R-7115. ETA 11 min."
+    },
+    {
+      "timestamp": "2026-10-06T16:07:00+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled 7 min after match. No cancellation fee charged yet."
+    },
+    {
+      "timestamp": "2026-10-06T16:07:05+08:00",
+      "event_type": "pickup_leg_summary",
+      "details": "Driver drove 6.5 km toward the pickup before the cancellation (GPS odometer)."
+    },
+    {
+      "timestamp": "2026-10-06T16:20:00+08:00",
+      "event_type": "driver_claim_submitted",
+      "details": "Driver claimed S$15.00 compensation for the cancelled trip."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 6.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. A wait of exactly this many minutes counts as a no-show (the limit is inclusive)."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "long_pickup_compensation_per_km": {
+      "value": 0.8,
+      "text": "Extra compensation in SGD per km of the driver's pickup-leg distance beyond the first 3 km, paid to the driver on top of the cancellation fee when the rider cancels after the free cancellation window. Distance is taken from the pickup_leg_summary event. It does not replace the cancellation fee."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "charge_rider_fee_and_credit_driver",
+    "refund_amount": 8.8,
+    "requires_human_review": false,
+    "reason": "The rider cancelled at 16:07, 7 minutes after the 16:00 match, outside the 3-minute free window, so the S$6.00 cancellation fee applies. The pickup_leg_summary event gives 6.5 km driven; this trip's rule adds S$0.80 per km beyond the first 3 km: (6.5 - 3) x 0.80 = S$2.80. Total S$6.00 + S$2.80 = S$8.80, less than the S$15.00 claimed, so the claim succeeds in part.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}
