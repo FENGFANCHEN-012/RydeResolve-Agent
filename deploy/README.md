@@ -40,6 +40,21 @@ git archive --format=tar HEAD | ssh ryde 'tar -x -C ~/ryderesolve'
 ssh ryde 'sudo systemctl restart ryderesolve'
 ```
 
+If `requirements.txt` changed, install it before the restart:
+`ssh ryde 'cd ~/ryderesolve && .venv/bin/pip install -q -r requirements.txt'`.
+
+## Checks after each update
+
+Faults found on 2026-10-13 that the laptop tests did not show (docs/08 D44):
+
+```bash
+ssh ryde 'cd ~/ryderesolve && curl -s 127.0.0.1:8000/api/health && echo'          # service up
+ssh ryde 'cd ~/ryderesolve && .venv/bin/python -c "from src.core.workflow import build_dispute_graph; build_dispute_graph(); print(\"graph ok\")"'
+```
+
+Then run one case from the dashboard. If every LLM step fails with HTTP 402, the server's
+`CEREBRAS_API_KEY` has no credit left: put another key in `~/ryderesolve/.env` and restart.
+
 ## Undo
 
 ```bash

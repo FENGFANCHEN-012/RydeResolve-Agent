@@ -1393,3 +1393,30 @@ Planned instead (after submission):
 - First version: precedents are shown to the human reviewer on the review desk, not to the
   automatic ruling; a case that would go to a person still goes to a person. Precedents reach the
   automatic Judge only after an evaluation shows rulings that follow them are right.
+
+## D44. Deployment faults the laptop did not show (2026-10-13)
+
+What: three faults found when the site went live on the Tencent server, and their fixes.
+1. Access code cleared by a late 401 (`frontend/index.html`, `apiFetch`). Several requests start at
+   page load without a code; one answered 401 after the visitor entered a correct code, and the page
+   cleared the code, so every later request failed (899 consecutive 401s in the server log). Now the
+   code is cleared only when the server refused that code; a request sent before the code was entered
+   is retried with it. Test: `frontend_chat.test.cjs`, "a late 401 ... keeps the code" (24 frontend
+   tests pass).
+2. Old dependency pins. The server installed `requirements.txt`, pinned to versions far older than
+   the ones the tests run on (LangGraph 0.3.0 vs 0.6.11, openai 1.50 vs 2.52, ...). LangGraph 0.3.0
+   rejects a node named like a state key ("'safety' is already being used as a state key"), so every
+   live run failed. The pins now match the tested versions; numpy is 1.26.4 because the server runs
+   Python 3.12 (langchain-community needs >=1.26.2 there). Resolution checked on the server with
+   `pip install --dry-run` before installing.
+3. Provider key without credit. The server's `CEREBRAS_API_KEY` returned HTTP 402 (payment
+   required) on every call; it was replaced by a working key (not in git).
+
+Also seen, not changed: once, a driver rebuttal came back empty (the model spent its 1500-token
+budget on reasoning); the debate records it as needing review and the ruling still ran its checks.
+It did not occur in the 172 evaluation runs of 2026-10-12. A retry on empty output would be a change
+to the pipeline and would need its own new-set test, so it is left for after submission.
+
+Why: none of these appear in the unit tests or evaluation runs, which use the laptop's packages,
+keys and a single browser request at a time. `deploy/README.md` now lists checks to run after each
+update.
