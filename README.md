@@ -32,7 +32,12 @@ the D40 fixes. Evaluated on Cerebras `gpt-oss-120b`, one run per case:
   a rule's wording misread; D42). The fix itself stopped one payout live (F2-17).
 
 This is evaluation accuracy, not an automatic resolution rate: a case sent to a person counts as a
-miss whenever the answer key says the system could have decided it.
+miss whenever the answer key says the system could have decided it. Across the four sets, 67 of 82
+standard disputes (82%) were closed with no human, in about 98 seconds each.
+
+**Live demo (2026-10-13):** http://43.134.17.192 on a Tencent Lighthouse server in Singapore. An
+access code is required (given to judges); three recorded runs can be replayed under "Saved runs".
+Walkthrough: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Deployment: [deploy/README.md](deploy/README.md).
 
 ## Background
 
@@ -240,6 +245,8 @@ RydeResolve-Agent/
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
 | [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D43) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
+| [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 7-minute demo walkthrough with three recorded runs |
+| [deploy/README.md](deploy/README.md) | Running the service on a Linux server (systemd + Caddy) |
 
 ## License
 
