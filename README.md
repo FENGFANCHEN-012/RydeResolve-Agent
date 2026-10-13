@@ -243,7 +243,7 @@ RydeResolve-Agent/
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D43) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D44) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 7-minute demo walkthrough with three recorded runs |
 | [deploy/README.md](deploy/README.md) | Running the service on a Linux server (systemd + Caddy) |
