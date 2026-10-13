@@ -1,0 +1,178 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-01",
+    "trip_id": "RYDE-PT-001",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was only a couple of minutes late coming down from my office. The driver cancelled and I was charged $8.00 as a no-show. That is not fair, I was literally at the lift lobby. Please refund the fee.",
+    "filed_at": "2026-10-06T08:55:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7101",
+    "name": "Nurul Aini",
+    "account_age_days": 410,
+    "total_trips": 132,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6101",
+    "name": "Gary Lim",
+    "account_age_days": 890,
+    "total_trips": 2410,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKB 4471 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-001",
+    "rider_id": "R-7101",
+    "driver_id": "D-6101",
+    "pickup_location": {
+      "name": "Tampines Mall (Tampines Central 5 entrance)",
+      "lat": 1.3525,
+      "lng": 103.9448
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.3341,
+      "lng": 103.9632
+    },
+    "scheduled_time": "2026-10-06T08:30:00+08:00",
+    "driver_arrival_time": "2026-10-06T08:30:00+08:00",
+    "driver_wait_start": "2026-10-06T08:30:00+08:00",
+    "cancellation_time": "2026-10-06T08:38:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T08:24:00+08:00",
+      "lat": 1.356,
+      "lng": 103.94,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T08:30:00+08:00",
+      "lat": 1.3526,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T08:34:00+08:00",
+      "lat": 1.3526,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-06T08:38:00+08:00",
+      "lat": 1.3526,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T08:31:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at Tampines Mall main entrance, grey Prius."
+    },
+    {
+      "timestamp": "2026-10-06T08:34:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "coming down from the office, 3 more mins"
+    },
+    {
+      "timestamp": "2026-10-06T08:36:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "almost at the lift lobby, sorry"
+    },
+    {
+      "timestamp": "2026-10-06T08:38:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $8.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T08:05:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7101 booked trip RYDE-PT-001 from Tampines Mall to Changi Business Park. Pickup 08:30."
+    },
+    {
+      "timestamp": "2026-10-06T08:05:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-6101 assigned."
+    },
+    {
+      "timestamp": "2026-10-06T08:30:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here; GPS 20 m from pickup pin."
+    },
+    {
+      "timestamp": "2026-10-06T08:38:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show. No rider_boarded event recorded."
+    },
+    {
+      "timestamp": "2026-10-06T08:38:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$8.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time to cancellation_time, before the rider counts as a no-show. The limit is inclusive: a wait of exactly this many minutes already meets it."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrival_time is 08:30:00 and cancellation_time is 08:38:00, a wait of exactly 8 minutes. This trip's no_show_threshold_min is 8 and the policy text says the limit is inclusive, so the rider counts as a no-show. GPS shows the driver stationary at the pin from 08:30 to 08:38 and the rider's own chat (08:34 'coming down... 3 more mins', 08:36 'almost at the lift lobby') confirms she had not boarded. S$8.00 fee stands.",
+    "expected_dispute_type": "no_show",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": []
+  }
+}

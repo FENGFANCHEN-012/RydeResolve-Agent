@@ -1,0 +1,154 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-05",
+  "_role": "same_principle",
+  "dispute_ticket": {
+    "dispute_id": "PX-05",
+    "trip_id": "RYDE-PX-005",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "My passenger spilled curry gravy on the rear seat and floor mat. I paid S$60.00 for professional cleaning. Please charge the passenger.",
+    "filed_at": "2026-10-12T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8105",
+    "name": "Darren Pang",
+    "account_age_days": 90,
+    "total_trips": 12,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7105",
+    "name": "Salleh Omar",
+    "account_age_days": 2100,
+    "total_trips": 8800,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SKA 5518 F)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-005",
+    "rider_id": "R-8105",
+    "driver_id": "D-7105",
+    "pickup_location": {
+      "name": "Newton Food Centre",
+      "lat": 1.3125,
+      "lng": 103.8395
+    },
+    "dropoff_location": {
+      "name": "Blk 321 Ang Mo Kio Ave 1",
+      "lat": 1.364,
+      "lng": 103.845
+    },
+    "scheduled_time": "2026-10-11T21:10:00+08:00",
+    "pickup_time": "2026-10-11T21:12:00+08:00",
+    "dropoff_time": "2026-10-11T21:36:00+08:00",
+    "estimated_distance_km": 9.0,
+    "actual_distance_km": 9.1,
+    "estimated_duration_min": 23,
+    "actual_duration_min": 24,
+    "estimated_fare": 13.0,
+    "total_fare": 13.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T21:12:00+08:00",
+      "lat": 1.3125,
+      "lng": 103.8395,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T21:25:00+08:00",
+      "lat": 1.34,
+      "lng": 103.842,
+      "speed_kmh": 55,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T21:36:00+08:00",
+      "lat": 1.364,
+      "lng": 103.845,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T21:26:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "oh no the curry gravy leaked from the takeaway bag onto your mat, sorry"
+    },
+    {
+      "timestamp": "2026-10-11T21:37:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Gravy is on the seat and the floor mat, I need to get this cleaned."
+    },
+    {
+      "timestamp": "2026-10-11T21:38:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "ok I'll cover the cleaning, sorry about that"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T21:10:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8105 booked RYDE-PX-005 from Newton to Ang Mo Kio."
+    },
+    {
+      "timestamp": "2026-10-11T21:50:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver uploaded 4 photos. Metadata: 21:41, 21:42, 21:43 (curry on rear seat and mat, plate SKA 5518 F visible) and one photo with metadata 2020-01-01 00:00 (camera clock reset). Drop-off was 21:36."
+    },
+    {
+      "timestamp": "2026-10-12T10:30:00+08:00",
+      "event_type": "cleaning_receipt_submitted",
+      "details": "Driver submitted receipt from a professional cleaner for S$60.00, dated 2026-10-12 09:45, plate SKA 5518 F, with company stamp."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 120.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photos taken within 30 minutes after drop-off and a receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. Photos whose metadata shows a clearly wrong date are not counted; the remaining photos are assessed."
+    },
+    "typical_spill_cleaning_range": {
+      "value": "S$30-S$80 for food or drink spillage",
+      "text": "The usual cost range in SGD for cleaning a food or drink spill. It governs whether the claimed amount is reasonable."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+    "refund_amount": 60.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Three photos with metadata 21:41-21:43, within 7 minutes of the 21:36 drop-off, show the curry and the plate. The rider admits it at 21:26 and 21:38 and agrees to cover cleaning. The S$60.00 receipt is inside the S$30-S$80 range and under the S$120 cap. The fourth photo's 2020-01-01 camera-clock metadata is discounted and does not matter because the other three and the admission prove the mess.",
+    "expected_dispute_type": "cleaning_fee",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

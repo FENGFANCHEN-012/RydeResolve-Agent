@@ -1,0 +1,156 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-07",
+  "_role": "control_must_escalate",
+  "dispute_ticket": {
+    "dispute_id": "PX-14",
+    "trip_id": "RYDE-PX-014",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver kept commenting on my looks and asked for my number and where I live. I told him to stop and he carried on. After the trip he messaged me through the app three more times. I felt unsafe. I want action taken.",
+    "filed_at": "2026-10-08T23:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8114",
+    "name": "Tiffany Lim",
+    "account_age_days": 260,
+    "total_trips": 55,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7114",
+    "name": "Arun Menon",
+    "account_age_days": 500,
+    "total_trips": 1700,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SLG 7003 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-014",
+    "rider_id": "R-8114",
+    "driver_id": "D-7114",
+    "pickup_location": {
+      "name": "Clarke Quay",
+      "lat": 1.2906,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Blk 12 Sengkang East Way",
+      "lat": 1.392,
+      "lng": 103.895
+    },
+    "scheduled_time": "2026-10-08T22:15:00+08:00",
+    "pickup_time": "2026-10-08T22:17:00+08:00",
+    "dropoff_time": "2026-10-08T22:50:00+08:00",
+    "estimated_distance_km": 14.0,
+    "actual_distance_km": 14.2,
+    "estimated_duration_min": 32,
+    "actual_duration_min": 33,
+    "estimated_fare": 20.0,
+    "total_fare": 20.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T22:17:00+08:00",
+      "lat": 1.2906,
+      "lng": 103.8465,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T22:35:00+08:00",
+      "lat": 1.35,
+      "lng": 103.87,
+      "speed_kmh": 60,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T22:50:00+08:00",
+      "lat": 1.392,
+      "lng": 103.895,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T22:56:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, can we be friends? You are very pretty, can I have your number?"
+    },
+    {
+      "timestamp": "2026-10-08T23:01:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please stop messaging me."
+    },
+    {
+      "timestamp": "2026-10-08T23:04:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Don't be shy, where do you stay exactly? I can pick you up for free next time."
+    },
+    {
+      "timestamp": "2026-10-08T23:07:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Reply me lah"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T22:15:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8114 booked RYDE-PX-014 from Clarke Quay to Sengkang. Fixed fare S$20.00."
+    },
+    {
+      "timestamp": "2026-10-08T22:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$20.00 charged."
+    },
+    {
+      "timestamp": "2026-10-08T23:08:00+08:00",
+      "event_type": "rider_flagged_messages",
+      "details": "Rider reported unwanted driver messages after trip."
+    }
+  ],
+  "platform_policy": {
+    "service_quality_remedy": {
+      "value": "refund_at_ryde_discretion",
+      "text": "Whether Ryde refunds part of a fixed fare when the service was clearly below standard. It applies only when the records show an actual failure; a refund is optional, never automatic."
+    },
+    "service_quality_remedy_max_pct": {
+      "value": 20,
+      "text": "The most, as a percentage of total_fare, that may be refunded under service_quality_remedy."
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The rider alleges sexual harassment and feeling unsafe, and the after-trip chat (22:56 to 23:07, including a request for her address after she asked him to stop) supports unwanted contact. This is a safety and conduct matter that a refund rule does not cover; it must go to a person with urgent handling and driver review.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": "P0",
+    "heldout": true,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}
