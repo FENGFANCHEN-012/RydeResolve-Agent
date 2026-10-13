@@ -1,0 +1,183 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-06",
+  "_role": "control_must_escalate",
+  "dispute_ticket": {
+    "dispute_id": "PX-16",
+    "trip_id": "RYDE-PX-016",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "I arrived at the pickup point at 11.00 and waited 9 minutes. I called the rider at 11.04 and she did not answer. I cancelled as no-show but the S$8.00 fee was held because she disputes it. Please release the fee.",
+    "filed_at": "2026-10-06T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8116",
+    "name": "Hui Min Chong",
+    "account_age_days": 600,
+    "total_trips": 144,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7116",
+    "name": "Sunil Das",
+    "account_age_days": 1400,
+    "total_trips": 4900,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKL 8104 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-016",
+    "rider_id": "R-8116",
+    "driver_id": "D-7116",
+    "pickup_location": {
+      "name": "Tan Tock Seng Hospital (Main lobby)",
+      "lat": 1.3213,
+      "lng": 103.8455
+    },
+    "dropoff_location": {
+      "name": "Novena MRT",
+      "lat": 1.3204,
+      "lng": 103.8438
+    },
+    "scheduled_time": "2026-10-06T11:00:00+08:00",
+    "driver_arrival_time": "2026-10-06T11:00:00+08:00",
+    "driver_wait_start": "2026-10-06T11:00:00+08:00",
+    "cancellation_time": "2026-10-06T11:09:00+08:00",
+    "cancellation_fee": 0.0,
+    "fee_status": "held_pending_review",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T10:54:00+08:00",
+      "lat": 1.324,
+      "lng": 103.847,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T11:00:00+08:00",
+      "lat": 1.3213,
+      "lng": 103.8455,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T11:05:00+08:00",
+      "lat": 1.3213,
+      "lng": 103.8455,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-06T11:09:00+08:00",
+      "lat": 1.3213,
+      "lng": 103.8455,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T11:01:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the main lobby, white Prius."
+    },
+    {
+      "timestamp": "2026-10-06T11:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the main lobby too and I can't see any white Prius!"
+    },
+    {
+      "timestamp": "2026-10-06T11:05:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hello?? I've been standing at the pickup pin since 10:55"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T10:40:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8116 booked RYDE-PX-016 to Novena MRT. Pickup 11:00."
+    },
+    {
+      "timestamp": "2026-10-06T10:55:00+08:00",
+      "event_type": "rider_at_pickup",
+      "details": "Rider device location 6 m from pickup pin (GPS accuracy 5 m)."
+    },
+    {
+      "timestamp": "2026-10-06T11:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here; GPS 5 m from pickup pin (accuracy 4 m)."
+    },
+    {
+      "timestamp": "2026-10-06T11:04:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver in-app call, rang 30s, no answer logged on the driver side."
+    },
+    {
+      "timestamp": "2026-10-06T11:04:10+08:00",
+      "event_type": "rider_call_log",
+      "details": "Rider app recorded no incoming call during 11:00 to 11:09."
+    },
+    {
+      "timestamp": "2026-10-06T11:09:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show. No rider_boarded event."
+    },
+    {
+      "timestamp": "2026-10-06T11:09:05+08:00",
+      "event_type": "cancellation_fee_held",
+      "details": "S$8.00 fee not credited: rider contested via RydeHELP."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time to cancellation_time, before the rider counts as a no-show. The limit is inclusive: a wait of exactly this many minutes already meets it."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The decisive fact is whether both parties were at the pickup point. The driver's records (driver_arrived 11:00 with GPS 5 m from the pin, stationary GPS to 11:09) and the rider's records (rider_at_pickup 10:55 at 6 m from the pin, chat at 11:03 and 11:05) are each precise and consistent, but they contradict each other: both say they stood at the same pin and neither saw the other, and the driver's 11:04 call is logged as made but never received. No other record settles it. A person must decide, as a 9-minute wait would only count if the driver truly waited at the pickup.",
+    "expected_dispute_type": "no_show",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}
