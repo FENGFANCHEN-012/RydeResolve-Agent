@@ -105,9 +105,20 @@ not money."
 
 ## 6:45-7:30 Reflection and CodeBuddy
 
+CodeBuddy tips, each backed by a screenshot in `proof of usage of codebuddy/` (show one or two on
+screen while speaking; edit the wording to your own):
+- "Ask for a diagnosis before a change. Before giving the advocates their own evidence lookups, we
+  had CodeBuddy explain how they get evidence today and write a change plan (screenshots 05-08)."
+- "Ask about cost and risk, not just how to build it. When we asked about fully autonomous agent
+  loops, CodeBuddy laid out the token, latency and testing cost, and we chose constrained autonomy:
+  zero-token queries plus one LLM decision (09-12)."
+- "Let it write the hard tests, then fix what they break. CodeBuddy wrote five complex end-to-end
+  disputes; they exposed query-planner bugs, which we fixed until all tests passed (15-17)."
+- "Commit a baseline before an experiment. Before a token-saving change we made a rollback commit,
+  ran an A/B test, found that truncating policy clauses hurt accuracy, and kept only the safe
+  savings (19-21)."
+
 Say (pick two or three):
-- "We built with CodeBuddy throughout: <your concrete tip, e.g. asking it to replay saved runs
-  before changing a check>."
 - "Lesson: put deterministic checks where the model is weakest: time arithmetic, amounts, and
   whether a record can be trusted."
 - "Every change is logged with what, why and the measured effect (docs/08), and tested on cases
