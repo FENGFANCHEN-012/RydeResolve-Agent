@@ -897,11 +897,18 @@ let apiToken = '';
 let accessPrompt = null;
 let accessPrompted = false;
 async function apiFetch(url, options = {}) {
-    const send = () => fetch(url, { ...options, headers: {
-        ...options.headers, ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
-    }});
+    let sentWith = '';
+    const send = () => {
+        sentWith = apiToken;
+        return fetch(url, { ...options, headers: {
+            ...options.headers, ...(sentWith ? { Authorization: `Bearer ${sentWith}` } : {}),
+        }});
+    };
     let response = await send();
-    if (response.status === 401 && !apiToken && (accessPrompt || !accessPrompted)) {
+    if (response.status === 401 && !sentWith && apiToken) {
+        // Sent before the code was entered (several requests start at page load): retry with it
+        response = await send();
+    } else if (response.status === 401 && !apiToken && (accessPrompt || !accessPrompted)) {
         if (!accessPrompt) {
             accessPrompted = true;
             accessPrompt = Promise.resolve().then(() =>
@@ -911,7 +918,9 @@ async function apiFetch(url, options = {}) {
         accessPrompt = null;
         if (token) { apiToken = token.trim(); response = await send(); }
     }
-    if (response.status === 401) apiToken = '';
+    // Forget the code only when the server refused that code; a late 401 from a request sent
+    // without it must not wipe a code that works
+    if (response.status === 401 && sentWith && sentWith === apiToken) apiToken = '';
     return response;
 }
 const chatContainer = document.getElementById('chatContainer');
