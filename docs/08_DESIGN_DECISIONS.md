@@ -1521,3 +1521,28 @@ or service-quality disputes, which caused IM-01's escalation.
 
 Not done: a cleaning-fee dispute type; a rule that a ruling turning on a doubted photo goes to a
 person whichever side it favours; testing on real driver photos (the library is stock photos).
+
+## D47. A doubted photo goes to a person whichever side the ruling favours (2026-10-14)
+
+What: new code Judge check `check_photos` (`src/agents/code_judge.py`). If any conflict finding
+questions a photo (`evidence[i]`: taken before the trip, edited, reused, far from the trip, or the
+vision model says it does not show what is claimed) and the draft ruling is not already marked
+`human_review_needed`, the draft fails the code check. As with the other checks it goes back to the
+Judge once with the problem, and if the revised draft still does not send it to a person, code does.
+A gap (no capture time) or a photo that checks out does not trigger it.
+
+Why: IM-08 (D46). `check_facts` only blocks a ruling that RESTS on a doubted record. In IM-08 the
+driver's photo predated the trip and the Judge refunded the rider S$100 on that fact, so the ruling
+rested on the doubt itself, which is a code finding and therefore counted as verified. A photo in
+doubt is a possible fake, and deciding that is a person's call either way (escalate over misjudge).
+
+How checked:
+- Tests: 7 new in `tests/test_code_judge.py` (conflict with and without a `questioned` list, already
+  sent to a person, gap, fact, conflicts on other records only, problem names the photo).
+  538 Python tests pass.
+- Free replay on run 20261014-113148-images: the check fires on IM-06..12 only (every case with a
+  photo conflict). All seven have must_escalate=true; six were already escalated, IM-08 now would be.
+  IM-01..05 (facts or a gap only) are unchanged. Expected 9/12 on that set. Sets without photos
+  have no `evidence[i]` findings and are unaffected.
+
+Not done: a new blind set for this change (run once, ~US$0.2); cleaning-fee dispute type.

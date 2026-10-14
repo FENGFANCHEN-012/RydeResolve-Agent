@@ -196,9 +196,29 @@ def check_amount(decision, context: dict) -> list[str]:
     return problems
 
 
+def check_photos(decision, context: dict) -> list[str]:
+    """D47: a photo in doubt (a conflict on evidence[i]: taken before the trip, edited, reused, not
+    what it claims) is a possible fake, and that is a person's call whichever side the ruling favours.
+    check_facts only catches a ruling that rests on the photo; IM-08 refunded the rider because the
+    driver's photo predated the trip, which also settles the doubt about the driver by itself."""
+    if getattr(decision, "human_review_needed", False):
+        return []
+    doubted = {}
+    for f in _findings(context):
+        if f.get("kind") == "conflict":
+            for src in f.get("questioned") or f.get("sources") or []:
+                if str(src).startswith("evidence["):
+                    doubted.setdefault(str(src), str(f.get("statement") or "")[:200])
+    if not doubted:
+        return []
+    return ["The case has a photo in doubt (" + "; ".join(f"{k}: {v}" for k, v in sorted(doubted.items()))
+            + "). Whichever side the ruling favours, a doubted photo is a person's decision: set "
+            "human_review_needed to true."]
+
+
 def review(decision, context: dict) -> list[str]:
     """All problems with a draft ruling; empty when it may proceed to the Fairness audit."""
-    return check_facts(decision, context) + check_amount(decision, context)
+    return check_facts(decision, context) + check_amount(decision, context) + check_photos(decision, context)
 
 
 def render_code_review(draft: dict, problems: list[str]) -> str:
