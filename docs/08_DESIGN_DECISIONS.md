@@ -1420,3 +1420,57 @@ to the pipeline and would need its own new-set test, so it is left for after sub
 Why: none of these appear in the unit tests or evaluation runs, which use the laptop's packages,
 keys and a single browser request at a time. `deploy/README.md` now lists checks to run after each
 update.
+
+## D45. First test of the learning loop with precedents: no gain, not released (2026-10-13/14)
+
+What: the first end-to-end run of the feedback loop (D-feedback, D43) on new blind cases.
+- A Claude Sonnet subagent, blind to the code, wrote a training set PT-01..10 (grey-area cases a
+  careful reviewer can decide) and a test set PX-01..16: 7 siblings where the training case's
+  principle applies, 3 where one fact makes it not apply, 6 controls that must go to a person
+  (`data/eval_cases/focus_precedent.txt`, `precedent_train/`, `precedent_test/`).
+- The pipeline ran PT-01..10 (run 20261013-222203-ptrain): 6 right, 3 escalated (PT-05/06/07),
+  1 wrong without payout (PT-08 dismissed, S$2.00 due).
+- A second Sonnet subagent acted as the human reviewer: it saw each case without its answer key
+  plus the system's result. Its 10 decisions all matched the blind answer keys. The reviewer is
+  simulated, not a person; the reviewer field on every review says so.
+- `scripts/ingest_reviews.py` (new) replays the saved traces as rulings and submits the reviews
+  through `Store.submit_review`. 6 confirms of resolved rulings made no precedent; the 4 decisions
+  on cases the system did not get right made precedents #1-#4, approved to staged.
+- PX-01..16 ran once without precedents (20261013-223932-pxbase; stopped by the laptop at 11/16
+  for low memory and resumed) and once with the staged ones (20261014-094713-pxcand). Cost of all
+  42 runs: US$0.54.
+
+Result: 11/16 in both runs; every hard metric equal (P0 recall 1.0, refund cap 1.0, failures 0).
+| case | role | without | with precedents |
+|---|---|---|---|
+| PX-01 | sibling of PT-01 (no precedent) | right | escalated: the Judge drafted a refund |
+| PX-04 | sibling of PT-04 (no precedent) | escalated (code Judge) | right |
+| PX-05 | sibling of PT-05 (precedent #1) | escalated (Fairness), Judge right | same |
+| PX-06 | sibling of PT-06 (precedent #2) | escalated, Judge misread the fee rule | same misreading |
+| PX-07 | rule does not apply | escalated (code Judge: refund figures) | same |
+| PX-13 | fraud control | dismissed, not escalated (no payout) | same |
+Other 10 cases: same outcome both runs.
+
+What the traces show:
+1. The Judge never followed or named a precedent, although the sibling's precedent was ranked first
+   for PX-05 and PX-06. PX-06 and PX-01 repeat exactly the misreading precedent #2 corrects ("the
+   fee applies only to rider-side cancellations, so a driver-initiated no-show cancellation has no
+   fee"); this is also how F2-01 went wrong (D42). A precedent in the prompt does not fix a rule the
+   model keeps misreading.
+2. The PX-01 and PX-04 changes are run-to-run variation, not precedent effects: PX-01's precedents
+   were unrelated to its failure, and PX-04's code-Judge finding came and went without them.
+3. Every case gets three precedents. The returned scores are fused ranks (the top hit always 1.0),
+   so the planned similarity threshold (D43) cannot be set on them.
+4. A precedent's verdict label depends on who filed: "upheld" on a driver's claim (PT-06, fee
+   stands) means the opposite of "upheld" on a rider's claim. The precedent text does not state the
+   outcome in plain terms.
+5. The gate (`feedback.gate`) passes this candidate, because accuracy did not drop. Passing a change
+   that did nothing, while a correct case flipped, shows the gate is too weak to be the only check.
+
+Decision: precedents #1-#4 stay staged (live rulings do not see them); `release` was not run. The
+live server shares the precedent index, so releasing would have put them into every live ruling.
+
+Next, if pursued: state each precedent's outcome in plain terms (who pays whom, how much); filter by
+dispute type and filer role and by a real similarity score; make the gate also fail when any case
+that was right becomes wrong; and catch the recurring fee-scope misreading with a code rule check,
+tested on a new blind set. Not done before submission.
