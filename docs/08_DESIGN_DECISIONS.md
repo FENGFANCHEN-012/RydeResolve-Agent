@@ -1607,3 +1607,36 @@ CS-07), on other points.
 
 Not done: a held fee in a driver's dispute (CS-04); a party's admission in the chat against their own
 interest (CS-07; same family as IM-05); which wait a driver-pressed no-show needs (CS-02).
+
+## D49. Case editor: build or copy a case in the dashboard (2026-10-14)
+
+What: "+ New case" (blank form) and "Copy & edit" (the open case) open an editor
+(`frontend/case_editor.js`) with the complaint, trip, rider and driver profiles, in-app chat, app
+events, GPS points, this trip's rules (known keys fill in their scope text from
+`case_rule_texts.json`) and photos. Save posts the dataset and photos to `POST /api/custom-cases`
+(`src/api/custom_cases.py`); the case is written to `data/custom_cases/<CU-xxxxxx>.json`, listed with
+the other cases at once (the case index rescans that folder) and selected, ready to run. Fields the
+form does not show are kept as they were in the copied case. Demo and admin access codes can both
+save (user choice 10-14).
+
+Photos: every photo is written again on the server (re-encoded JPEG) with one of four settings
+chosen per photo: a capture time, GPS and optional software tag set in the form; the photo's own
+tags; no tags; or (kept photos only) a byte-for-byte copy, which the reuse check then flags. So a
+case can show a genuine photo or a doubtful one. The EXIF writer moved from
+`scripts/stamp_case_photos.py` to `src/agents/photo_stamp.py` (the script's output is byte-identical).
+
+Limits: the server assigns the ids; only known sections are kept (an answer key or anything else is
+dropped, so a built case has no expected outcome); dataset JSON at most 256 KB, lists at most 200
+items, strings at most 4000 characters; JPG/PNG/WebP, 10 MB each, 5 new photos per save, 8 in all; a
+kept photo must be a case photo under data/evidence*; at most 300 built cases. A failed save leaves
+no files. `data/custom_cases/` is git-ignored, and the deploy (tar over the folder) does not delete it.
+
+How checked: `tests/test_custom_cases.py` (21: ids, dropped sections, listing, the four photo modes
+read back with the photo checks, 17 refused inputs leaving nothing behind, case limit, access code).
+559 Python and 24 frontend tests pass. In Chrome on a local server: copied CR-001, added a chat line,
+uploaded a photo with a set time and place, saved; the new case was listed and selected, its rules
+and profiles equal the original's, and the Collector's photo check read the photo's place. A blank
+case with a rule and an event also saved. Both test cases were then deleted.
+
+Not done: no agent run on a built case (it uses the same loader as every case file); no way to edit
+or delete a built case in place (copy it instead).

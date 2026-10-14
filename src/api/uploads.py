@@ -20,9 +20,12 @@ class UploadLimitMiddleware:
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http" or scope.get("path") not in {
-                "/api/rag/upload", "/api/rag/upload-multiple", "/api/disputes/resolve-with-files"}:
+                "/api/rag/upload", "/api/rag/upload-multiple", "/api/disputes/resolve-with-files",
+                "/api/custom-cases"}:
             return await self.app(scope, receive, send)
-        limit = MAX_FILE_BYTES * MAX_FILES + 64 * 1024
+        # The case editor also sends the case JSON (up to 256 KB) and the photo list
+        form = 512 * 1024 if scope.get("path") == "/api/custom-cases" else 64 * 1024
+        limit = MAX_FILE_BYTES * MAX_FILES + form
         headers = dict(scope.get("headers", []))
         try:
             too_large = int(headers.get(b"content-length", b"0")) > limit

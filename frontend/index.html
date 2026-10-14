@@ -628,7 +628,7 @@
             .msg { max-width: 90%; }
         }
     </style>
-    <link rel="stylesheet" href="dispute.css?v=20261014">
+    <link rel="stylesheet" href="dispute.css?v=20261014c">
 </head>
 <body>
 
@@ -728,6 +728,7 @@
                     <div class="rr-lib-head">
                         <h3>Mock cases <span class="rr-count" id="rrCaseCount">0</span></h3>
                         <input id="rrFilter" class="rr-input" type="search" placeholder="Filter by id, type or text…" aria-label="Filter cases">
+                        <button class="rr-btn ghost ce-new" type="button" onclick="ceOpen(false)">+ New case</button>
                     </div>
                     <div class="rr-case-list" id="rrCaseList"><div class="rr-empty">Loading cases…</div></div>
                     <div class="rr-lib-foot">
@@ -755,6 +756,7 @@
                                     <div class="rr-hint">Trip, GPS, chat, app events and profiles always come from the case file. A live run makes ~12 LLM calls.</div>
                                 </div>
                             </details>
+                            <button class="rr-btn ghost" type="button" onclick="ceOpen(true)" title="Open this case in the editor and save your changes as a new case">Copy &amp; edit</button>
                             <button class="rr-btn primary" id="rrRunBtn" onclick="rrRun()" disabled>Run agents</button>
                         </div>
                     </header>
@@ -791,6 +793,17 @@
                 </section>
             </div>
         </div>
+
+        <!-- Case editor (frontend/case_editor.js) -->
+        <dialog id="ceDialog" class="ce-dialog" aria-labelledby="ceTitle">
+            <form method="dialog" class="ce-head">
+                <h2 id="ceTitle">New case</h2>
+                <span class="rr-hint">Saved as a new case; the original is never changed.</span>
+                <button class="rr-btn ghost" value="cancel" formnovalidate>Cancel</button>
+                <button class="rr-btn primary" id="ceSaveBtn" type="button" onclick="ceSave()">Save case</button>
+            </form>
+            <div class="ce-body" id="ceBody"></div>
+        </dialog>
 
         <!-- Chat Tab -->
         <div class="tab-content" id="tab-chat">
@@ -1452,6 +1465,7 @@ checkServerStatus();
 refreshStats();
 setInterval(checkServerStatus, 30000);
 </script>
-<script src="dispute.js?v=20261014"></script>
+<script src="dispute.js?v=20261014c"></script>
+<script src="case_editor.js?v=20261014c"></script>
 </body>
 </html>
