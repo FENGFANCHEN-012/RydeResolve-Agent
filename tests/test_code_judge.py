@@ -107,6 +107,33 @@ def test_review_combines_both():
     assert len(review(d, CTX)) == 2
 
 
+# ---- a doubted photo is a person's call whichever side the ruling favours (D47, IM-08)
+def photo_ctx(kind, statement="photo taken 38 min before pickup", **extra):
+    f = {"id": "photo_checks.before_trip[0]", "kind": kind, "statement": statement,
+         "sources": ["evidence[0]", "trip.pickup_time"], **extra}
+    return {**CTX, "findings": [f]}
+
+
+@pytest.mark.parametrize("ctx,human,ok", [
+    (photo_ctx("conflict", questioned=["evidence[0]"]), False, False),  # IM-08: refund on a doubted photo
+    (photo_ctx("conflict"), False, False),                             # no questioned list: sources count
+    (photo_ctx("conflict", questioned=["evidence[0]"]), True, True),   # already sent to a person
+    (photo_ctx("gap", "photo has no capture time"), False, True),      # no time is missing data, not doubt
+    (photo_ctx("fact", "photo GPS at the drop-off"), False, True),     # a photo that checks out
+    (CTX, False, True),                                                # conflicts on other records only
+])
+def test_doubted_photo_needs_a_person(ctx, human, ok):
+    d = SimpleNamespace(**vars(dec(100.0, "100", [{"fact": "photo predates trip", "sources": ["trip"],
+                                                    "status": "verified"}])), human_review_needed=human)
+    assert (code_judge.check_photos(d, ctx) == []) is ok
+
+
+def test_doubted_photo_problem_names_the_photo():
+    d = dec(100.0, "100")
+    [problem] = code_judge.check_photos(d, photo_ctx("conflict", questioned=["evidence[0]"]))
+    assert "evidence[0]" in problem and "human_review_needed" in problem
+
+
 # ---- remand: dropping the blocked record does not pass (D42, SA-08)
 def pay(refund, sources, status="verified", verdict="upheld"):
     return SimpleNamespace(verdict=verdict, refund_amount=refund, refund_calculation=str(refund),
