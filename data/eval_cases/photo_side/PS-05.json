@@ -191,14 +191,11 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "uphold_cleaning_fee",
-    "refund_amount": 0.0,
-    "requires_human_review": false,
-    "must_escalate": false,
-    "acceptable_verdicts": [
-      "dismissed"
-    ],
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "The photo carries no capture time or GPS, so its timing cannot be checked from the file. But the mess is independently established: at 13:55, 3 min after the 13:52 drop-off, the rider wrote in the in-app chat that clay from the trail was all over the mat and offered to pay, and a receipt for S$70 (dated 2026-10-09, Hougang Auto Valet) matches the S$70 fee, which is within the S$120 stain tier and the S$200 cap. The photo shows mud on the mat, consistent with the admission. The rider's later dispute only says the fee is high. The fee stands; refund S$0.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
@@ -206,6 +203,23 @@
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "uphold_cleaning_fee",
+        "acceptable_verdicts": [
+          "dismissed"
+        ]
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

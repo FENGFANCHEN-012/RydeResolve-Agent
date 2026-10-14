@@ -160,12 +160,26 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "upheld",
-    "refund_amount": 120.0,
-    "recommended_action": "waive_cleaning_fee_full_refund",
-    "requires_human_review": false,
-    "must_escalate": false,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "The rider boarded and the trip started at 09:27:10 and ended at 09:36:00. The driver's two photos are timestamped 08:52:14 and 08:52:40, about 35 minutes before the trip began, so they fail this trip's rule that photos be taken during the trip and fall under the rider's 'wrong timestamp' dispute ground. The claim also has receipt_attached false although a cleaning company receipt is required. With both required items missing or invalid, the S$120.00 fee charged at 12:11:00 is refunded in full. The app crash at 13:02:00 is irrelevant.",
-    "expected_dispute_type": "cleaning_fee"
+    "expected_dispute_type": "cleaning_fee",
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 120.0,
+        "recommended_action": "waive_cleaning_fee_full_refund"
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

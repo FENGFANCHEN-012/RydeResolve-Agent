@@ -190,16 +190,29 @@
     }
   },
   "expected_outcome": {
-    "verdict": "upheld",
-    "refund_amount": 70.0,
-    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
-    "requires_human_review": false,
-    "must_escalate": false,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "Photo1 was taken at 20:52, 21 minutes after drop-off at 20:31, under 100 m from the drop-off point (Pasir Ris Park), and shows a visibly dirty car carpet. The rider argued in chat at 20:33 that it was only sand, but the photo shows sand, debris and stains. The ShineCar Valet receipt for S$70.00 dated 2026-10-07 09:20 matches the claim and S$70.00 is within this trip's S$100 cap. Upheld: S$70.00 credited to the driver.",
-    "acceptable_verdicts": [
-      "upheld"
-    ],
     "heldout": true,
-    "expected_dispute_type": "cleaning_fee"
+    "expected_dispute_type": "cleaning_fee",
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 70.0,
+        "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+        "acceptable_verdicts": [
+          "upheld"
+        ]
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

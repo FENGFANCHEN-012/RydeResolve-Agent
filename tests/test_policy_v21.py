@@ -160,3 +160,13 @@ def test_p0_urgency_is_a_safety_case():
 
 def test_a_driver_claim_above_50_goes_to_a_person():
     assert any("s6.1" in r for r in policy_gates.check(dec(), gctx(reporter="driver", trip={"cleaning_fee_claimed": 80})))
+
+
+@pytest.mark.parametrize("desc,prop", [
+    ("The driver sent me messages and cancelled", False),   # "message" is not "mess"
+    ("He left a mess on the seat", True),
+    ("Charged a cleaning fee for a spill", True),
+    ("I have a clean record and was on time", False),
+])
+def test_property_case_words(desc, prop):
+    assert governing_policy.is_property_case({"trip": {}, "description": desc}) is prop

@@ -133,15 +133,28 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "upheld",
-    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
-    "refund_amount": 60.0,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "Drop-off was 22:31; the three claim photos are stamped 22:34-22:38, within 30 minutes of drop-off as the evidence rule requires. The rider admits the spill in chat at 22:33 and offers to pay. The receipt is S$60.00, inside the S$40-S$80 typical range and under the S$100 cap. The full S$60.00 is charged to the rider and credited to the driver.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
     "expected_policy_sections": [],
-    "must_escalate": false,
-    "expected_official_sections": []
+    "must_escalate": true,
+    "expected_official_sections": [],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 60.0,
+        "recommended_action": "charge_rider_cleaning_fee_and_credit_driver"
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

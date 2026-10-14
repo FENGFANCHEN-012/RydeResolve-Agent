@@ -184,16 +184,29 @@
     }
   },
   "expected_outcome": {
-    "verdict": "upheld",
-    "refund_amount": 60.0,
-    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
-    "requires_human_review": false,
-    "must_escalate": false,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "Photo1 was taken at 17:31, 12 minutes after drop-off at 17:19, under 100 m from the drop-off point (Bishan Junction 8), and shows muddy sneakers and mud on the floor mat. That is inside the 60-minute window and no record contradicts it. The SparkValet receipt for S$60.00 dated 2026-10-03 19:15 matches the claimed S$60.00, which is within this trip's S$150 cap. Upheld: S$60.00 is credited to the driver.",
-    "acceptable_verdicts": [
-      "upheld"
-    ],
     "heldout": true,
-    "expected_dispute_type": "cleaning_fee"
+    "expected_dispute_type": "cleaning_fee",
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 60.0,
+        "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+        "acceptable_verdicts": [
+          "upheld"
+        ]
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

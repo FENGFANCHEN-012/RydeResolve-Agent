@@ -138,15 +138,29 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "upheld",
-    "recommended_action": "full_refund",
-    "refund_amount": 120.0,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "The pickup was at 08:31 (trip_data) and the claim photos are stamped 08:05-08:09, 22 to 26 minutes before the rider boarded. The evidence rule requires photos taken within 30 minutes after drop-off (08:58), so the photos show a stain that was already in the car and cannot support a charge. The rider's chat says nothing was spilled. The S$120.00 is refunded in full; the discretion rule is not needed. The coffee cup is a side issue.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
     "expected_policy_sections": [],
-    "must_escalate": false,
-    "expected_official_sections": []
+    "must_escalate": true,
+    "expected_official_sections": [],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 120.0,
+        "recommended_action": "full_refund"
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

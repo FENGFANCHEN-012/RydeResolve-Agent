@@ -148,10 +148,10 @@
     }
   },
   "expected_outcome": {
-    "verdict": "upheld",
-    "recommended_action": "waive_cleaning_fee_full_refund",
-    "refund_amount": 150.0,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "Both photos were taken at 11:02-11:03, more than four hours before this trip started, so the stain was pre-existing. No cleaning receipt was provided. The claim fails the evidence requirements and the S$150 fee should be refunded.",
     "driver_penalty": "review_driver_for_invalid_claim",
     "expected_dispute_type": null,
@@ -160,10 +160,24 @@
       "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
       "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
     ],
-    "must_escalate": false,
+    "must_escalate": true,
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 150.0,
+        "recommended_action": "waive_cleaning_fee_full_refund"
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

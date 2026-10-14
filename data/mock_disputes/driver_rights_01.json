@@ -182,10 +182,10 @@
     }
   },
   "expected_outcome": {
-    "verdict": "upheld",
-    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver_120",
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
     "refund_amount": null,
-    "requires_human_review": false,
+    "requires_human_review": true,
     "reason": "Timestamped photos taken right after the trip, a detailing receipt with the required company details, the mid-trip stop and the rider's own messages all support the claim. S$120 is within the S$50-150 vomit range and under the S$200 cap, so the driver should be compensated and the rider charged.",
     "charge_amount": 120.0,
     "expected_dispute_type": "driver_rights",
@@ -194,10 +194,23 @@
       "Dispute Resolution Guide > Scenario 6: Property Damage (Rider Damaged Vehicle)",
       "Driver Guidelines > 6. Vehicle Damage by Rider / Cleaning Claims"
     ],
-    "must_escalate": false,
+    "must_escalate": true,
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": null,
+        "recommended_action": "charge_rider_cleaning_fee_and_credit_driver_120"
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

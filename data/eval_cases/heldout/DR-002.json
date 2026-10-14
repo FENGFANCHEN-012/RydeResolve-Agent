@@ -81,18 +81,31 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "partially_upheld",
-    "recommended_action": "charge_rider_cleaning_fee_capped_200_and_credit_driver",
-    "refund_amount": 200.0,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "The mess is genuine and well evidenced: photos taken within 6 minutes of drop-off show the vomit, the rider admits it in chat, and a receipt documents S$300 of detailing. But this trip's policy caps the cleaning fee chargeable to a rider at S$200, and amounts above the cap are not chargeable. The driver is credited S$200 from the rider; the remaining S$100 is not the rider's to pay under this policy. The claim succeeds only in part, hence partially upheld.",
     "expected_dispute_type": null,
     "expected_urgency": null,
     "expected_policy_sections": [],
-    "must_escalate": false,
+    "must_escalate": true,
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "partially_upheld",
+        "refund_amount": 200.0,
+        "recommended_action": "charge_rider_cleaning_fee_capped_200_and_credit_driver"
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

@@ -194,14 +194,11 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "uphold_cleaning_fee",
-    "refund_amount": 0.0,
-    "requires_human_review": false,
-    "must_escalate": false,
-    "acceptable_verdicts": [
-      "dismissed"
-    ],
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "The photo was taken at 11:36, 38 min after the 10:58 drop-off (inside the 60-minute window) at GPS about 170 m from the drop-off at Clementi Ave 4, and shows mud on the floor mat. The driver raised it in chat at 11:03, and the rider's reply ('just a little mud') concedes there was mud. No receipt is attached, but S$60 is a standard amount within the S$120 stain tier and the S$200 cap, and the policy asks for a receipt only where available. The rider's ground (rain) is not a ground the policy accepts. The fee stands; refund S$0.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
@@ -209,6 +206,23 @@
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "uphold_cleaning_fee",
+        "acceptable_verdicts": [
+          "dismissed"
+        ]
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

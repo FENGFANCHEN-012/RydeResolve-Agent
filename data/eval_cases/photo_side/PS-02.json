@@ -200,14 +200,11 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "uphold_cleaning_fee",
-    "refund_amount": 0.0,
-    "requires_human_review": false,
-    "must_escalate": false,
-    "acceptable_verdicts": [
-      "dismissed"
-    ],
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "The driver's photo was taken at 17:12, 14 min after the 16:58 drop-off (inside the 60-minute window), at GPS (1.3019, 103.8460), about 120 m from the drop-off at Orchard Central, and shows mud on the floor mat. The driver reported the mud in chat at 17:00 and a receipt for S$80 (dated 2026-10-05) is attached; S$80 is within the S$120 stain tier and the S$200 cap. The rider's own words ('a bit of dust') admit dirt and give no ground such as pre-existing damage. The fee stands; refund S$0.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
@@ -215,6 +212,23 @@
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "uphold_cleaning_fee",
+        "acceptable_verdicts": [
+          "dismissed"
+        ]
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

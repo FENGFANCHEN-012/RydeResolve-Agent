@@ -175,15 +175,29 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "partially_upheld",
-    "refund_amount": 85.0,
-    "recommended_action": "partial_refund",
-    "requires_human_review": false,
-    "must_escalate": false,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "Drop-off was 23:14:30 and the photos are timestamped 23:17:05 and 23:17:40, 2 min 35 s and 3 min 10 s after drop-off, inside this trip's 30-min photo window; the rider's own 23:02:00 message admits she was sick. The receipt (BrightClean Pte Ltd, name, contact, address, date 2026-10-07) is complete, so a cleaning fee is valid. But this trip's policy caps the fee at the receipt amount, S$95.00, and the driver charged S$180.00. Refund = 180.00 - 95.00 = S$85.00; the S$95.00 stands.",
     "expected_dispute_type": "cleaning_fee",
-    "acceptable_verdicts": [
-      "partially_upheld"
-    ]
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "partially_upheld",
+        "refund_amount": 85.0,
+        "recommended_action": "partial_refund",
+        "acceptable_verdicts": [
+          "partially_upheld"
+        ]
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

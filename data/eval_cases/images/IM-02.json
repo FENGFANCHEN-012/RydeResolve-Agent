@@ -195,16 +195,30 @@
     }
   },
   "expected_outcome": {
-    "verdict": "dismissed",
-    "refund_amount": 0.0,
-    "recommended_action": "dismiss_rider_dispute_keep_cleaning_fee_for_driver",
-    "requires_human_review": false,
-    "must_escalate": false,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "Photo1 (uploaded by the driver) was taken at 16:41, 13 minutes after drop-off at 16:28, within 100 m of Clementi Mall, and shows heavily muddied boots and mud on the floor mat. The rider's own chat at 16:35 concedes stepping in a puddle. The QuickShine receipt for S$80.00 dated 2026-10-05 18:30 equals the S$80.00 charged, within this trip's S$150 cap. The rider's dispute is dismissed and the S$80.00 fee stands for the driver; no refund.",
-    "acceptable_verdicts": [
-      "dismissed"
-    ],
     "heldout": true,
-    "expected_dispute_type": "cleaning_fee"
+    "expected_dispute_type": "cleaning_fee",
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "dismiss_rider_dispute_keep_cleaning_fee_for_driver",
+        "acceptable_verdicts": [
+          "dismissed"
+        ]
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

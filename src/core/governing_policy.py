@@ -18,7 +18,9 @@ POLICY_FILE = Path(__file__).resolve().parents[2] / "data" / "policies" / "gover
     "ryde_dispute_resolution_policy_v2_1.md"
 
 _SECTION_RE = re.compile(r"^### (?:Precedent )?(\d+\.\d+)[:\s]+(.*)$")
-_CLEANING_WORDS = re.compile(r"\b(clean\w*|vomit\w*|stain\w*|spill\w*|soil\w*|mess\w*|damage\w*|repair\w*)\b", re.I)
+# Whole words only: "mess" must not match "message", nor "clean" a "clean record"
+_CLEANING_WORDS = re.compile(r"\b(cleaning|clean-up|cleanup|vomit\w*|stain\w*|spill\w*|soiled|mess|messy|"
+                             r"damaged?|damages|repair\w*)\b", re.I)
 _SAFETY_WORDS = re.compile(r"\b(unsafe|harass\w*|assault\w*|threat\w*|reckless|dangerous|accident|touch\w*)\b", re.I)
 
 BY_TYPE = {

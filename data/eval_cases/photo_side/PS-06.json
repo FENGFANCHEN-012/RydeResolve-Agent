@@ -193,14 +193,11 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "upheld",
-    "recommended_action": "award_driver_cleaning_claim",
-    "refund_amount": 65.0,
-    "requires_human_review": false,
-    "must_escalate": false,
-    "acceptable_verdicts": [
-      "upheld"
-    ],
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
     "reason": "The driver's photo was taken at 20:13, 25 min after the 19:48 drop-off (inside the 60-minute window), at GPS (1.3338, 103.8488), about 96 m from the drop-off at Toa Payoh Lorong 2, and shows a visibly dirty floor carpet. The driver told the rider in chat at 19:50 and the rider acknowledged the dirt at 19:52. A receipt for S$65 (ProShine Car Grooming, 2026-10-11) matches the claim, and S$65 is within the S$120 stain tier and the S$200 cap. The claim is upheld and S$65 is awarded to the driver.",
     "expected_dispute_type": "cleaning_fee",
     "expected_urgency": null,
@@ -208,6 +205,22 @@
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "upheld",
+        "refund_amount": 65.0,
+        "recommended_action": "award_driver_cleaning_claim",
+        "acceptable_verdicts": [
+          "upheld"
+        ]
+      },
+      "sections": [
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

@@ -79,18 +79,32 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "cleaning_fee_upheld_no_refund",
-    "refund_amount": 0.0,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "The driver's claim meets this trip's evidence policy on every point: photos taken 7 minutes after drop-off show the spill, a receipt matches the S$85 charged, and the fee is far below the S$200 cap. The rider's own chat during the trip ('sorry about the drink') contradicts the claim that nothing happened. The fee stands.",
     "expected_dispute_type": null,
     "expected_urgency": null,
     "expected_policy_sections": [],
-    "must_escalate": false,
+    "must_escalate": true,
     "expected_official_sections": [
       "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
       "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "cleaning_fee_upheld_no_refund"
+      },
+      "sections": [
+        "s4.4",
+        "s6.1"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review); s6.1: the dispute value is above S$50 (always human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }
