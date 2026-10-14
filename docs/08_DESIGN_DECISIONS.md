@@ -1545,4 +1545,23 @@ How checked:
   IM-01..05 (facts or a gap only) are unchanged. Expected 9/12 on that set. Sets without photos
   have no `evidence[i]` findings and are unaffected.
 
-Not done: a new blind set for this change (run once, ~US$0.2); cleaning-fee dispute type.
+New blind set PS-01..10 (`data/eval_cases/photo_side`, brief `focus_photo_side.txt`, written by a
+Sonnet subagent that read no code or results): mostly rider disputes of a fee charged on the
+driver's photo. Free dry run first: code photo checks matched the brief on 8/10; PS-04 (AI image)
+and PS-08 (clean seat) need the vision model.
+
+Run 20261014-132901-photo-side (one run, US$0.16): verdict 9/10, escalation 9/10.
+| case | photo | result |
+|---|---|---|
+| PS-01, PS-03 | 3 km from drop-off; taken 94 min before the trip | the Judge's first draft refunded the rider S$90 / S$150 (the IM-08 mistake); the code check sent both to a person. PS-03 was caught by check_photos only |
+| PS-07 | Photoshop | first draft kept the fee; blocked (check_facts and check_photos). The redraft hit the Cerebras daily token limit (429), so the person route came partly from that failure |
+| PS-04, 08, 09 | AI image, clean seat, reused photo | the Judge sent them to a person itself |
+| PS-02, PS-10 | genuine | fee stands, decided |
+| PS-06 | genuine, driver claim | upheld and executed, but refund_amount empty (the S$65 award to the driver was not filled): refund miss |
+| PS-05 | no capture time, rider admits in chat, receipt | sent to a person: the Judge again rested the ruling on the missing time, not the chat (same as IM-05). Miss, not caused by this change |
+
+No fee was confirmed or removed automatically on a doubted photo. Classification 0/10 (no
+cleaning-fee type, as in D46).
+
+Not done: an awarded amount for a driver's upheld cleaning claim (PS-06); a ruling settled by the
+chat when the photo only lacks a time (PS-05, IM-05); cleaning-fee dispute type.

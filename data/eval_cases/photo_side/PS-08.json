@@ -1,0 +1,214 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "(d) photo shows clean seat while fee was for vomit; no receipt",
+  "dispute_ticket": {
+    "dispute_id": "PS-08",
+    "trip_id": "RYDE-PS-008",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "There was no vomit. I felt fine and nothing happened in the car. S$160 is not right, please refund it.",
+    "filed_at": "2026-10-13T08:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5937",
+    "name": "Haziq Ramli",
+    "account_age_days": 90,
+    "total_trips": 14,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6944",
+    "name": "Wong Ah Seng",
+    "account_age_days": 2100,
+    "total_trips": 8800,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 7,
+      "upheld_against": 2,
+      "rejected": 5
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Mazda 5 (SKD 7741 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PS-008",
+    "rider_id": "R-5937",
+    "driver_id": "D-6944",
+    "pickup_location": {
+      "name": "Clarke Quay",
+      "lat": 1.2906,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Blk 640 Jurong West St 61",
+      "lat": 1.3425,
+      "lng": 103.7131
+    },
+    "scheduled_time": "2026-10-12T23:09:00+08:00",
+    "pickup_time": "2026-10-12T23:10:00+08:00",
+    "dropoff_time": "2026-10-12T23:50:00+08:00",
+    "estimated_distance_km": 21.9,
+    "actual_distance_km": 22.1,
+    "estimated_duration_min": 39,
+    "actual_duration_min": 40,
+    "estimated_fare": 31.6,
+    "total_fare": 31.6,
+    "cleaning_fee": 160.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T23:10:00+08:00",
+      "lat": 1.2906,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T23:30:00+08:00",
+      "lat": 1.3165,
+      "lng": 103.7798,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T23:50:00+08:00",
+      "lat": 1.3425,
+      "lng": 103.7131,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T23:08:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm by the river at Clarke Quay, white Mazda."
+    },
+    {
+      "timestamp": "2026-10-12T23:30:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Please tell me if you need to stop."
+    },
+    {
+      "timestamp": "2026-10-12T23:52:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Boss, you were not well in the car, I need to report."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T23:02:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5937 booked trip RYDE-PS-008 from Clarke Quay to Blk 640 Jurong West St 61."
+    },
+    {
+      "timestamp": "2026-10-12T23:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-12T23:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-13T00:25:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$160.00 for vomit with 1 photo."
+    },
+    {
+      "timestamp": "2026-10-13T00:25:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    },
+    {
+      "timestamp": "2026-10-13T07:00:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$160.00 cleaning fee charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_tiers": {
+      "value": "food or drink spill up to S$40; stains (mud, dirt) and bodily fluids up to S$120; vomit up to S$200",
+      "text": "Usual fee by type of mess; a fee above the tier for the mess type needs a receipt."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photo of the mess and a cleaning receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "text": "If a photo's authenticity, timing, place or content is in doubt, a case officer decides; the fee is neither confirmed nor removed automatically."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider",
+        "no mess caused"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/PS-08/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-13T00:25:00+08:00",
+      "description": "Rear seat after the passenger got off, vomit cleaned off by me already."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "seat_clean_white_leather",
+      "taken_at": "2026-10-13T00:12:00+08:00",
+      "gps": [
+        1.343,
+        103.714
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_case_officer",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "acceptable_verdicts": [
+      null
+    ],
+    "reason": "The fee of S$160 was charged for vomit, but the only photo (stamped 00:12, 22 min after the 23:50 drop-off, about 114 m from the drop-off) shows clean white leather rear seats with no mess, so the content does not show the claimed mess. The caption says the driver had already cleaned it, which cannot be checked. There is no receipt, and the rider denies any vomit; the driver's chat at 23:52 only says the rider 'was not well'. The content of the photo is in doubt, so under this trip's photo-doubt rule a case officer decides; the fee is neither confirmed nor removed automatically (no automatic refund despite the missing receipt).",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

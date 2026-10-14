@@ -1,0 +1,208 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "(b) photo taken >2 km from drop-off",
+  "dispute_ticket": {
+    "dispute_id": "PS-01",
+    "trip_id": "RYDE-PS-001",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$90 for a muddy-floor cleaning. I got in with clean shoes after shopping, and nothing got spilled or dirtied in the car. Please remove the charge.",
+    "filed_at": "2026-10-04T09:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5101",
+    "name": "Rachel Lim",
+    "account_age_days": 740,
+    "total_trips": 212,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6203",
+    "name": "Tan Boon Keat",
+    "account_age_days": 1180,
+    "total_trips": 5400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Prius (SMB 4472 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PS-001",
+    "rider_id": "R-5101",
+    "driver_id": "D-6203",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Square",
+      "lat": 1.3178,
+      "lng": 103.8929
+    },
+    "scheduled_time": "2026-10-03T17:04:00+08:00",
+    "pickup_time": "2026-10-03T17:05:00+08:00",
+    "dropoff_time": "2026-10-03T17:27:00+08:00",
+    "estimated_distance_km": 9.8,
+    "actual_distance_km": 10.0,
+    "estimated_duration_min": 21,
+    "actual_duration_min": 22,
+    "estimated_fare": 17.4,
+    "total_fare": 17.4,
+    "cleaning_fee": 90.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T17:05:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T17:16:00+08:00",
+      "lat": 1.3352,
+      "lng": 103.9188,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T17:27:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8929,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-03T17:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the Tampines Mall pickup bay, silver Prius."
+    },
+    {
+      "timestamp": "2026-10-03T17:28:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks for the ride!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T16:57:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5101 booked trip RYDE-PS-001 from Tampines Mall to Paya Lebar Square."
+    },
+    {
+      "timestamp": "2026-10-03T17:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-03T17:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-03T18:02:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$90.00 with 1 photo."
+    },
+    {
+      "timestamp": "2026-10-03T18:02:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    },
+    {
+      "timestamp": "2026-10-03T20:30:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$90.00 cleaning fee charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_tiers": {
+      "value": "food or drink spill up to S$40; stains (mud, dirt) and bodily fluids up to S$120; vomit up to S$200",
+      "text": "Usual fee by type of mess; a fee above the tier for the mess type needs a receipt."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photo of the mess and a cleaning receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "text": "If a photo's authenticity, timing, place or content is in doubt, a case officer decides; the fee is neither confirmed nor removed automatically."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider",
+        "no mess caused"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/PS-01/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-03T18:02:00+08:00",
+      "description": "Mud all over the rear floor mat after drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car",
+      "taken_at": "2026-10-03T17:45:00+08:00",
+      "gps": [
+        1.3448,
+        103.8929
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_case_officer",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "acceptable_verdicts": [
+      null
+    ],
+    "reason": "The photo was taken at 17:45, 18 min after the 17:27 drop-off (inside the 60-minute window), but its GPS stamp (1.3448, 103.8929) is about 3.0 km from the drop-off point at Paya Lebar Square (1.3178, 103.8929), so it was not taken at or near the drop-off. The rider denies any mess and there is no receipt for the S$90. Under this trip's photo-doubt rule the place of the photo is in doubt, so a case officer decides; the fee is neither confirmed nor removed automatically.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}
