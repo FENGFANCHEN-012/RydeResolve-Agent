@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 from uuid import uuid4
 from datetime import datetime
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -569,6 +569,23 @@ async def evidence_file(url: str):
     if path is None or path.suffix.lower() not in IMAGE_EXTS or not any(a in path.parents for a in allowed):
         raise HTTPException(status_code=404, detail="Evidence file not found")
     return FileResponse(path)
+
+
+@app.post("/api/custom-cases")
+async def create_custom_case(request: Request, case: str = Form(...), photos: str = Form("[]"),
+                             files: list[UploadFile] = File(default=[])):
+    """A case built in the dashboard's case editor: the dataset (same format as the case files)
+    and its photos, each with the capture time and place to write into it. Saved under
+    data/custom_cases and listed with the other cases at once (src/api/custom_cases.py)."""
+    from src.api.custom_cases import save_case
+    return await save_case(case, photos, files, getattr(request.state, "actor", "unknown"))
+
+
+@app.get("/api/case-rule-texts")
+async def case_rule_texts():
+    """What each case rule key means, for the case editor's rule rows."""
+    from src.api.custom_cases import rule_texts
+    return {"texts": rule_texts()}
 
 
 @app.get("/api/disputes/traces")

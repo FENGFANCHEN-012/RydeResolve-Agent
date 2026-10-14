@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_DATA_DIRS = [
     Path(DATA_DIR) / "mock_disputes",
     Path(DATA_DIR) / "Dispute_format",
+    Path(DATA_DIR) / "custom_cases",      # built in the dashboard's case editor
     # Extra folders the evaluation adds (e.g. held-out cases), kept out of the demo by default
     *[Path(DATA_DIR).parent / d for d in os.getenv("EXTRA_DISPUTE_DIRS", "").split(os.pathsep) if d],
 ]

@@ -10,41 +10,14 @@ id order so a copy_of target already exists.
 import json
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
 
-from PIL import Image
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from src.agents.photo_stamp import stamp  # noqa: E402
+
 LIBRARY = ROOT / "data" / "evidence_samples" / "library"
 CASES = ROOT / "data" / "evidence_samples" / "cases"
-
-
-def _dms(x: float):
-    x = abs(x)
-    d = int(x); m = int((x - d) * 60); s = round(((x - d) * 60 - m) * 60, 2)
-    return (d, m, s)
-
-
-def stamp(src: Path, dst: Path, taken_at: str | None, gps, software: str | None) -> None:
-    img = Image.open(src).convert("RGB")
-    exif = Image.Exif()
-    exif[0x0110] = "Phone camera"  # Model
-    if software:
-        exif[305] = software
-    if taken_at:
-        t = datetime.fromisoformat(taken_at)
-        sub = exif.get_ifd(0x8769)
-        sub[36867] = t.strftime("%Y:%m:%d %H:%M:%S")
-        if t.utcoffset() is not None:
-            off = int(t.utcoffset().total_seconds() // 60)
-            sub[36881] = f"{'+' if off >= 0 else '-'}{abs(off) // 60:02d}:{abs(off) % 60:02d}"
-    if gps:
-        g = exif.get_ifd(0x8825)
-        g[1], g[2] = ("N" if gps[0] >= 0 else "S"), _dms(gps[0])
-        g[3], g[4] = ("E" if gps[1] >= 0 else "W"), _dms(gps[1])
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    img.save(dst, "JPEG", quality=88, exif=exif)
 
 
 def main(folder: str) -> None:
