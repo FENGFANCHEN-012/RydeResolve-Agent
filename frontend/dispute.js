@@ -351,9 +351,11 @@ function rrRenderBrief() {
                 ${row('GPS points', (d.gps_telemetry || []).length || '0 — no GPS', (d.gps_telemetry || []).length ? '' : 'rr-flag')}
                 ${row('Chat messages', (d.chat_logs || []).length)}
                 ${row('App events', (d.app_events || []).length)}
+                ${row('Photos', (d.evidence || []).length || null)}
                 ${row('Trip policy', pol ? `${Object.keys(pol).length} rules` : 'none', pol ? '' : 'rr-flag')}
                 ${row('Answer key', 'hidden from agents')}</div>
         </div>
+        ${rrPhotos(d.evidence || [], true)}
         <details class="rr-more"><summary>Evidence timeline — chat + app events (${tl.length})</summary>
             <ul class="rr-tl">${tl.map(e => `<li><span class="time">${rrEsc(rrTime(e.ts))}</span>
                 <span class="kind ${rrEsc(e.kind)}">${rrEsc(e.label)}</span><span class="txt">${rrEsc(e.text)}</span></li>`).join('')}</ul></details>
@@ -843,12 +845,15 @@ function rrToolResult(value) {
 
 // Uploaded photos as thumbnails. The file is fetched with the access code (an <img src> cannot
 // send it), then shown from a blob URL; see rrHydratePhotos.
-function rrPhotos(evidence) {
-    const photos = evidence.map((e, i) => ({ ...e, i })).filter(e => /\.(jpe?g|png|webp)$/i.test(e.file_url || ''));
+function rrPhotos(evidence, large = false) {
+    const photos = evidence.map((e, i) => ({ ...e, i })).filter(e => /\.(jpe?g|png|webp)$/i.test(e.file_url || e.file || ''));
     if (!photos.length) return '';
-    return `<div class="rr-label" style="margin-top:10px">Uploaded photos</div><div class="rr-photos">${photos.map(e =>
-        `<figure><img alt="evidence[${e.i}]" data-ev="${rrEsc(e.file_url)}"><figcaption>evidence[${e.i}] · ${
-            rrEsc(e.uploaded_by)}${e.uploaded_at ? ' · uploaded ' + rrEsc(rrTime(e.uploaded_at)) : ''}</figcaption></figure>`).join('')}</div>`;
+    return `<div class="rr-label" style="margin-top:10px">Uploaded photos${large ? ' (click to enlarge)' : ''}</div>
+        <div class="rr-photos${large ? ' large' : ''}">${photos.map(e =>
+        `<figure><img alt="evidence[${e.i}]" title="Open full size" data-ev="${rrEsc(e.file_url || e.file)}"
+            onclick="this.src && window.open(this.src, '_blank')"><figcaption>evidence[${e.i}] · ${rrEsc(e.uploaded_by)}${
+            e.uploaded_at ? ' · uploaded ' + rrEsc(rrTime(e.uploaded_at)) : ''}${
+            e.description ? `<br>“${rrEsc(e.description)}”` : ''}</figcaption></figure>`).join('')}</div>`;
 }
 const rrPhotoCache = {};
 async function rrHydratePhotos(root) {
