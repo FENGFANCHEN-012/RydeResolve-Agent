@@ -1,0 +1,196 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "edited",
+  "dispute_ticket": {
+    "dispute_id": "IM-09",
+    "trip_id": "RYDE-IM-009",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider's muddy boots left mud on the floor mat. I need S$80 to have it cleaned professionally.",
+    "filed_at": "2026-10-11T19:54:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7209",
+    "name": "Jason Wee",
+    "account_age_days": 476,
+    "total_trips": 88,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5109",
+    "name": "Lee Sing Hock",
+    "account_age_days": 1590,
+    "total_trips": 3570,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Jazz (SMR 8801 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-009",
+    "rider_id": "R-7209",
+    "driver_id": "D-5109",
+    "pickup_location": {
+      "name": "Sengkang Compass One",
+      "lat": 1.3919,
+      "lng": 103.8951
+    },
+    "dropoff_location": {
+      "name": "Waterway Point Punggol",
+      "lat": 1.4054,
+      "lng": 103.9023
+    },
+    "scheduled_time": "2026-10-11T19:10:00+08:00",
+    "pickup_time": "2026-10-11T19:10:00+08:00",
+    "dropoff_time": "2026-10-11T19:24:00+08:00",
+    "estimated_distance_km": 2.2,
+    "actual_distance_km": 2.2,
+    "estimated_duration_min": 14,
+    "actual_duration_min": 14,
+    "estimated_fare": 5.5,
+    "total_fare": 5.5,
+    "cleaning_fee": 80.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T19:10:00+08:00",
+      "lat": 1.3919,
+      "lng": 103.8951,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T19:17:00+08:00",
+      "lat": 1.3986,
+      "lng": 103.8987,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T19:24:00+08:00",
+      "lat": 1.4054,
+      "lng": 103.9023,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T19:07:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At Compass One taxi stand, red Jazz."
+    },
+    {
+      "timestamp": "2026-10-11T19:26:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You've left mud on my floor mat, I'll have to pay for cleaning."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T19:02:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7209 booked trip RYDE-IM-009 from Sengkang Compass One to Waterway Point Punggol."
+    },
+    {
+      "timestamp": "2026-10-11T19:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-11T19:24:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-11T19:52:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$80.00 with 1 photo (photo1.jpg). Driver claims S$80 for muddy boots."
+    },
+    {
+      "timestamp": "2026-10-11T19:52:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-09/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-11T19:50:00+08:00",
+      "description": "Mud on the floor mat from the rider's boots."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car",
+      "taken_at": "2026-10-11T19:38:00+08:00",
+      "gps": [
+        1.4056,
+        103.9025
+      ],
+      "software": "Adobe Photoshop 25.1 (Windows)",
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims mud on the floor mat (S$80.00, no receipt). Photo1 was taken at 19:38, 14 minutes after drop-off at 19:24, near Waterway Point Punggol, and shows muddy boots and a muddy mat, but its metadata names the software 'Adobe Photoshop 25.1 (Windows)', so the image has been through an editing program. The rider denies any mess and no other record settles it. Because the photo's authenticity is in doubt, a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

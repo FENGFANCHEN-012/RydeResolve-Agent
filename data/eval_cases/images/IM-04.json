@@ -1,0 +1,203 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "genuine",
+  "dispute_ticket": {
+    "dispute_id": "IM-04",
+    "trip_id": "RYDE-IM-004",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider's boots left a lot of mud on the floor mat. I do not have a receipt as I cleaned it myself, so I am claiming the standard muddy-shoe amount.",
+    "filed_at": "2026-10-08T12:55:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7204",
+    "name": "Daniel Koh",
+    "account_age_days": 720,
+    "total_trips": 210,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5104",
+    "name": "Ahmad Zulkifli",
+    "account_age_days": 1320,
+    "total_trips": 2760,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Avante (SMK 9013 X)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-004",
+    "rider_id": "R-7204",
+    "driver_id": "D-5104",
+    "pickup_location": {
+      "name": "Sembawang Park",
+      "lat": 1.4655,
+      "lng": 103.828
+    },
+    "dropoff_location": {
+      "name": "Yishun Northpoint City",
+      "lat": 1.4294,
+      "lng": 103.8355
+    },
+    "scheduled_time": "2026-10-08T12:20:00+08:00",
+    "pickup_time": "2026-10-08T12:20:00+08:00",
+    "dropoff_time": "2026-10-08T12:41:00+08:00",
+    "estimated_distance_km": 5.3,
+    "actual_distance_km": 5.3,
+    "estimated_duration_min": 21,
+    "actual_duration_min": 21,
+    "estimated_fare": 8.8,
+    "total_fare": 8.8,
+    "cleaning_fee": 40.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T12:20:00+08:00",
+      "lat": 1.4655,
+      "lng": 103.828,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T12:30:30+08:00",
+      "lat": 1.4474,
+      "lng": 103.8317,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T12:41:00+08:00",
+      "lat": 1.4294,
+      "lng": 103.8355,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T12:17:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the Sembawang Park carpark, black Avante."
+    },
+    {
+      "timestamp": "2026-10-08T12:42:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Please note there is mud on the floor mat from your boots."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T12:12:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7204 booked trip RYDE-IM-004 from Sembawang Park to Yishun Northpoint City."
+    },
+    {
+      "timestamp": "2026-10-08T12:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-08T12:41:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-08T12:54:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$40.00 with 1 photo (photo1.jpg). No receipt; driver claims the standard muddy cleaning amount."
+    },
+    {
+      "timestamp": "2026-10-08T12:54:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 120,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    },
+    "standard_muddy_cleaning_fee": {
+      "value": 40,
+      "text": "The fixed cleaning amount in SGD for muddy shoes on the floor mat when the driver has no receipt. It may not exceed the cleaning fee maximum."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-04/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-08T12:52:00+08:00",
+      "description": "Mud on the floor mat from the rider's boots."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car",
+      "taken_at": "2026-10-08T12:46:00+08:00",
+      "gps": [
+        1.4292,
+        103.8357
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 40.0,
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Photo1 was taken at 12:46, 5 minutes after drop-off at 12:41, under 100 m from Yishun Northpoint City, and shows muddy boots and mud on the floor mat, inside the 60-minute window. There is no receipt, but the claim is S$40.00, equal to this trip's standard muddy cleaning fee and within the S$120 cap. Upheld: S$40.00 credited to the driver.",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

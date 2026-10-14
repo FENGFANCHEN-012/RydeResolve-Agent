@@ -1,0 +1,43 @@
+Image-evidence test set IM-01 .. IM-12 (2026-10-14). Purpose: test photo evidence in cleaning-fee
+disputes. Photos come from the library in data/evidence_samples/library/ (README.md there says what
+each photo shows; use only those files and trust that description).
+
+Every case is a cleaning_fee dispute after a completed trip (Singapore, October 2026, +08:00). Mix:
+driver claims a cleaning fee against the rider (at least 7), and riders disputing a cleaning fee
+already charged (at least 3). Each case's own policy block must include, with a value and text:
+- cleaning_fee_max (an amount), and the fee goes to the driver;
+- photo_window_after_dropoff_min: 60, text: "A cleaning claim needs at least one photo of the mess
+  taken within 60 minutes after drop-off, at or near the drop-off point.";
+- photo_doubt_rule: text: "If a photo's authenticity, timing, place or content is in doubt and no
+  other record settles the claim, a case officer decides."
+Trip records must have pickup_time, dropoff_time and dropoff_location with lat/lng.
+
+Mix (exactly):
+- 4 genuine claims that should be decided (upheld, the fee stands / is paid): a real mess photo
+  (muddy shoes, dirty carpet) taken 5-40 min after drop-off near the drop-off point, amount within the
+  cap and supported by a receipt or the policy amount. At least one has a rider who argues back.
+- 1 claim where the photo carries no capture time at all, but the rider admits the mess in the chat
+  and a receipt matches: the chat settles it (upheld).
+- 7 cases where a person must decide (verdict null, requires_human_review true, must_escalate true),
+  each for a different photo problem: (a) the photo shows a clean seat or mat while the claim
+  describes a mess, (b) the photo is not a car (a spill on a table/steps/floor), (c) the photo was
+  taken before the trip started, (d) the photo names an editing program (software "Adobe Photoshop"),
+  (e) the photo is the same file as a photo used in another case of this set (copy_of), (f) the photo
+  was taken more than 2 km from the drop-off point, (g) the photo is the AI-generated image. In these
+  the rider denies the mess and no other record settles it.
+Do not make the problem obvious from the title or the description; it lives in the photo and its data.
+
+Each case lists its photos in an "evidence" array:
+  {"evidence_type": "photo", "file_url": "data/evidence_samples/cases/IM-xx/photo1.jpg",
+   "uploaded_by": "driver" | "rider", "uploaded_at": ISO time, "description": the uploader's caption}
+and how each photo is to be stamped in "_photo_stamps":
+  {"photo1.jpg": {"library": "<library file name without .jpg>", "taken_at": ISO time or null,
+                  "gps": [lat, lng] or null, "software": null or a string, "copy_of": null or
+                  "IM-yy/photo1.jpg"}}
+(copy_of means a byte-for-byte copy of that other case's stamped photo; library/taken_at/gps/software
+are then ignored). uploaded_at must be after taken_at unless the case is meant to show otherwise.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action, requires_human_review,
+must_escalate, reason (cite the exact records, photo times and figures), expected_dispute_type
+"cleaning_fee", acceptable_verdicts where honest, heldout: true. Dispute ids IM-01..IM-12, trip ids
+RYDE-IM-001.. . For a driver's claim upheld, refund_amount is the amount awarded to the driver.
