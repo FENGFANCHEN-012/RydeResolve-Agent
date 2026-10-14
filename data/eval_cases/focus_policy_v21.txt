@@ -1,0 +1,46 @@
+Policy v2.1 test set V2-01 .. V2-12 (2026-10-14). Purpose: test rulings under Ryde Dispute Resolution
+Policy v2.1 (data/policies/governing/ryde_dispute_resolution_policy_v2_1.md, read it in full) on cases
+written in the organisers' sample format (data/Dispute_format/, the three DISP files).
+
+Format: follow the DISP files exactly: dispute_ticket, rider_profile, driver_profile, trip_data,
+gps_telemetry, chat_logs (message_id, sender, timestamp, message; type "call" for calls), and the
+record sections the case needs: fare_breakdown, surge_pricing_log, optimal_route (route_name,
+estimated_distance_km, estimated_duration_min, waypoints), traffic_conditions (incident_id, road,
+direction, stretch, incident_type, severity, timestamp, clear_time, description), app_events and
+cancellation_policy where the DISP-002 style uses them. Do NOT include analysis sections
+(case_metadata, recommended_ruling, evidence_summary, traffic_analysis, chat_log_analysis) and no
+"notes" inside fare_breakdown or optimal_route. Put the answer only in "expected_outcome".
+Singapore, October 2026, +08:00, realistic places, SGD. Amounts must be consistent (a fare breakdown
+adds up; an excess distance fare = excess km x the per-km rate stated in fare_breakdown as
+"distance_rate_per_km").
+
+Mix (exactly), shuffled across ids:
+- 3 route deviation: (a) rerouted for a real incident on the recommended route active during the
+  trip, rider NOT informed, deviation > 1 km, total in dispute under S$10 -> partial refund of the
+  excess distance fare; (b) rerouted with no incident on the recommended route (traffic_conditions
+  show it clear), deviation > 1 km, under S$10 -> full refund of the excess distance fare; (c)
+  deviation 0.8 km, rider not informed -> no refund (within tolerance).
+- 2 surge: (a) surge rose between quote and pickup, rider_notified false, difference all surge,
+  under S$10 -> refund the surge differential; (b) surge rose, rider notified in-app with the option
+  to cancel and proceeded -> no refund.
+- 3 no-show: (a) driver arrived, waited past the free wait, sent messages AND called, rider no-show
+  -> fee stands; (b) same but the driver sent a message and made NO call -> fee voided, refund S$5.00;
+  (c) a rider with fraud_flags 1 disputes a no-show fee the driver earned (messages and a call) ->
+  fee stands (s6.2: no-show AI ruling is final).
+- 2 thresholds: (a) a fare dispute where the amount in dispute is above S$50 -> a person decides
+  (verdict null, requires_human_review true, must_escalate true); (b) a driver's cleaning claim of
+  S$40 with an in-app timestamped photo taken within 24 h, rider does not contest -> upheld, S$40
+  (describe the photo in an "evidence" array entry with evidence_type "photo", uploaded_by
+  "driver", uploaded_at, description; use file_url "" since no image file exists).
+- 1 contested cleaning: a rider disputes a S$30 cleaning fee -> a person decides (s4.4).
+- 1 safety: a fare complaint where the chat shows the driver threatening the rider -> a person
+  decides (s5.2), no ruling on the money.
+Do not make the answer obvious from the title or the description.
+
+Every case: expected_outcome with verdict (upheld / partially_upheld / dismissed, or null when a
+person must decide), refund_amount (null when a person decides), recommended_action,
+requires_human_review, must_escalate, reason (cite the exact records, figures and the v2.1 section),
+expected_dispute_type (route_deviation, fare_dispute, no_show, driver_rights, service_quality),
+expected_urgency (null, or "P0" for the safety case), expected_policy_sections (list of
+"Ryde Dispute Resolution Policy v2.1 > <section>"), acceptable_verdicts where honest, heldout: true.
+Dispute ids V2-01..V2-12, trip ids TRIP-2026-2xxxx unique per case.

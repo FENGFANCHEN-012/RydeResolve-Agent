@@ -1,0 +1,221 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation (a): real incident, not informed, >1 km",
+  "dispute_ticket": {
+    "dispute_id": "V2-02",
+    "trip_id": "TRIP-2026-20102",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "I went from ION Orchard to JEM at the evening peak. The route shown when I booked was the expressway, but the car ended up going along Holland Road and Clementi Road instead and the fare came to $30.40. The driver never said anything about changing roads. I am disputing the extra distance charge for the longer route (about 1.6 km more than the recommended distance).",
+    "filed_at": "2026-10-06T19:19:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2041",
+    "name": "Nur Aisyah Binte Rahman",
+    "account_age_days": 312,
+    "total_trips": 96,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5518",
+    "name": "Gopalakrishnan Muthu",
+    "account_age_days": 640,
+    "total_trips": 2788,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SMB 3317 D)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20102",
+    "rider_id": "R-2041",
+    "driver_id": "D-5518",
+    "pickup_location": {
+      "name": "ION Orchard",
+      "address": "2 Orchard Turn, Singapore 238801",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "JEM, Jurong East",
+      "address": "50 Jurong Gateway Rd, Singapore 608549",
+      "lat": 1.3331,
+      "lng": 103.7436
+    },
+    "start_time": "2026-10-06T18:05:00+08:00",
+    "end_time": "2026-10-06T18:39:00+08:00",
+    "estimated_duration_min": 34,
+    "actual_duration_min": 34,
+    "estimated_distance_km": 16.4,
+    "actual_distance_km": 18.0,
+    "upfront_quote": 28.96,
+    "actual_fare": 30.4,
+    "fare_difference": 1.44
+  },
+  "fare_breakdown": {
+    "distance_rate_per_km": 0.9,
+    "time_rate_per_min": 0.3,
+    "base_fare": 3.5,
+    "distance_fare": 16.2,
+    "time_fare": 10.2,
+    "booking_fee": 0.5,
+    "surge_multiplier": 1.0,
+    "total": 30.4,
+    "recommended_distance_km": 16.4,
+    "actual_distance_km": 18.0,
+    "excess_distance_km": 1.6,
+    "excess_distance_fare": 1.44
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T18:05:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "location_desc": "ION Orchard (pickup)"
+    },
+    {
+      "timestamp": "2026-10-06T18:10:00+08:00",
+      "lat": 1.31,
+      "lng": 103.811,
+      "speed_kmh": 22,
+      "location_desc": "Holland Rd towards Holland Village"
+    },
+    {
+      "timestamp": "2026-10-06T18:16:00+08:00",
+      "lat": 1.311,
+      "lng": 103.79,
+      "speed_kmh": 30,
+      "location_desc": "Clementi Rd near Singapore Polytechnic"
+    },
+    {
+      "timestamp": "2026-10-06T18:23:00+08:00",
+      "lat": 1.318,
+      "lng": 103.77,
+      "speed_kmh": 35,
+      "location_desc": "West Coast Hwy / Clementi Ave 6"
+    },
+    {
+      "timestamp": "2026-10-06T18:31:00+08:00",
+      "lat": 1.329,
+      "lng": 103.756,
+      "speed_kmh": 28,
+      "location_desc": "Jurong Town Hall Rd"
+    },
+    {
+      "timestamp": "2026-10-06T18:39:00+08:00",
+      "lat": 1.3331,
+      "lng": 103.7436,
+      "speed_kmh": 0,
+      "location_desc": "JEM Jurong East (dropoff)"
+    }
+  ],
+  "optimal_route": {
+    "route_name": "PIE westbound via Bukit Timah and Clementi exits",
+    "estimated_distance_km": 16.4,
+    "estimated_duration_min": 34,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.304,
+        "lng": 103.8318,
+        "location_desc": "ION Orchard (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.318,
+        "lng": 103.823,
+        "location_desc": "Newton Circus to PIE slip road"
+      },
+      {
+        "point": 3,
+        "lat": 1.3265,
+        "lng": 103.796,
+        "location_desc": "PIE westbound, Bukit Timah exit"
+      },
+      {
+        "point": 4,
+        "lat": 1.3315,
+        "lng": 103.766,
+        "location_desc": "PIE westbound, Clementi exit"
+      },
+      {
+        "point": 5,
+        "lat": 1.3331,
+        "lng": 103.7436,
+        "location_desc": "JEM Jurong East (dropoff)"
+      }
+    ]
+  },
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-06T18:01:00+08:00",
+      "message": "Hi, I'm at the ION main entrance by the taxi stand, black backpack."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-06T18:03:00+08:00",
+      "message": "Arrived at Orchard Turn, white Corolla, SMB 3317 D."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-06T18:04:00+08:00",
+      "message": "Got it, walking over now."
+    }
+  ],
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "PIE (Pan-Island Expressway)",
+      "direction": "westbound",
+      "stretch": "Bukit Timah exit to Clementi exit",
+      "incident_type": "accident",
+      "severity": "high",
+      "timestamp": "2026-10-06T17:52:00+08:00",
+      "clear_time": "2026-10-06T18:41:00+08:00",
+      "description": "Multi-vehicle accident on PIE westbound, two lanes blocked, queue extending back towards Adam Road."
+    },
+    {
+      "incident_id": "TC-002",
+      "road": "Clementi Road",
+      "direction": "westbound",
+      "stretch": "Holland Road junction to Clementi Ave 6",
+      "incident_type": "traffic_flow",
+      "severity": "low",
+      "timestamp": "2026-10-06T18:00:00+08:00",
+      "clear_time": null,
+      "description": "Moderate flow, no incidents."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "refund_amount": 1.44,
+    "recommended_action": "Refund S$1.44 (the excess distance fare) to the rider.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual distance 18.0 km vs recommended 16.4 km = 1.6 km deviation (> 1 km). fare_breakdown: 1.6 km x S$0.90/km = S$1.44 excess distance fare. traffic_conditions TC-001 (accident on PIE westbound, 17:52-18:41) was active for the whole trip (18:05-18:39) on the recommended route, so the reroute was justified; but chat_logs contain no message from the driver about the deviation and there is no call record, so the rider was not informed (s1.2). s1.3: reroute for traffic + rider not informed + deviation > 1 km = partial refund of the excess distance fare only. Dispute S$1.44 < S$10 and deviation <= 2 km, so the AI ruling is final (s6.1, s6.2).",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1: Route Deviation Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

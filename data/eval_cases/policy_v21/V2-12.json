@@ -1,0 +1,141 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "contested S$30 cleaning fee",
+  "dispute_ticket": {
+    "dispute_id": "V2-12",
+    "trip_id": "TRIP-2026-20112",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee_dispute",
+    "description": "I was charged a S$30.00 cleaning fee after my ride from Great World to Tanjong Pagar. I did not spill anything. When I got into the car the seat already had a mark on it and I told the driver I would not be responsible. I want the fee removed.",
+    "filed_at": "2026-10-13T09:20:00+08:00",
+    "status": "open",
+    "disputed_amount": 30.0
+  },
+  "rider_profile": {
+    "rider_id": "R-7811",
+    "name": "Hui Min Goh",
+    "account_age_days": 520,
+    "total_trips": 88,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4620",
+    "name": "Raymond Sim",
+    "account_age_days": 410,
+    "total_trips": 1650,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SLK 6120 L)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20112",
+    "rider_id": "R-7811",
+    "driver_id": "D-4620",
+    "pickup_location": {
+      "name": "Great World",
+      "lat": 1.2937,
+      "lng": 103.8319
+    },
+    "dropoff_location": {
+      "name": "Tanjong Pagar Centre",
+      "lat": 1.276,
+      "lng": 103.846
+    },
+    "start_time": "2026-10-13T08:12:00+08:00",
+    "end_time": "2026-10-13T08:30:00+08:00",
+    "estimated_duration_min": 18,
+    "actual_duration_min": 18,
+    "upfront_quote": 11.4,
+    "actual_fare": 11.4,
+    "fare_difference": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-13T08:12:00+08:00",
+      "lat": 1.2937,
+      "lng": 103.8319,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-13T08:17:00+08:00",
+      "lat": 1.288,
+      "lng": 103.835,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-13T08:23:00+08:00",
+      "lat": 1.282,
+      "lng": 103.841,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-13T08:30:00+08:00",
+      "lat": 1.276,
+      "lng": 103.846,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-13T08:10:00+08:00",
+      "message": "Good morning, I'm at Great World main entrance, grey Camry."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "rider",
+      "timestamp": "2026-10-13T08:12:00+08:00",
+      "message": "Hi! Just so you know, there is already a stain on the back seat, I haven't sat on it."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-13T08:14:00+08:00",
+      "message": "Is okay, may have been from previous passenger, will check later."
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "driver",
+      "timestamp": "2026-10-13T08:36:00+08:00",
+      "message": "There is coffee on the back seat, I will claim cleaning from you."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-001",
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-13T08:41:00+08:00",
+      "description": "Photo taken through the Ryde driver app's built-in camera, automatic timestamp 2026-10-13T08:38:10+08:00, geotag near the Tanjong Pagar Centre drop-off. Shows a dark liquid stain about 20 cm wide on the rear left seat.",
+      "file_url": ""
+    }
+  ],
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "Route to a human reviewer (the rider disputes the cleaning claim); the AI prepares the case file with the driver's photo and the rider's account.",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The rider disputes the S$30.00 cleaning fee. s4.4: if the rider disputes a damage claim, the dispute is routed to human review, where the driver's photo (EV-001, in-app, timestamped 08:38) and the rider's account (chat 08:12: stain already present; driver at 08:14 allows it may be from a previous passenger) are both reviewed. s6.2 (cleaning <= S$50, AI ruling if photo verifiable) does not apply once the claim is contested. The AI must not rule.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4: Property Damage Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

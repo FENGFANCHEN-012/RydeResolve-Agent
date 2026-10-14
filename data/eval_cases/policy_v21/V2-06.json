@@ -1,0 +1,197 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation (c): 0.8 km, within tolerance",
+  "dispute_ticket": {
+    "dispute_id": "V2-06",
+    "trip_id": "TRIP-2026-20106",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "From Bishan to Gardens by the Bay, the driver left the usual expressway and went via Thomson Road and Bugis, with no explanation. I think the route was longer than it should be and the fare of $21.90 seems too high. Please refund the extra distance.",
+    "filed_at": "2026-10-12T16:46:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4810",
+    "name": "Priya Nair",
+    "account_age_days": 730,
+    "total_trips": 212,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7733",
+    "name": "Wong Kah Seng",
+    "account_age_days": 420,
+    "total_trips": 1904,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMA 6612 U)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20106",
+    "rider_id": "R-4810",
+    "driver_id": "D-7733",
+    "pickup_location": {
+      "name": "Junction 8, Bishan",
+      "address": "9 Bishan Place, Singapore 579837",
+      "lat": 1.3505,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Gardens by the Bay",
+      "address": "18 Marina Gardens Dr, Singapore 018953",
+      "lat": 1.2816,
+      "lng": 103.8636
+    },
+    "start_time": "2026-10-12T15:40:00+08:00",
+    "end_time": "2026-10-12T16:06:00+08:00",
+    "estimated_duration_min": 24,
+    "actual_duration_min": 26,
+    "estimated_distance_km": 11.2,
+    "actual_distance_km": 12.0,
+    "upfront_quote": 20.62,
+    "actual_fare": 21.9,
+    "fare_difference": 1.28
+  },
+  "fare_breakdown": {
+    "distance_rate_per_km": 0.85,
+    "time_rate_per_min": 0.3,
+    "base_fare": 3.4,
+    "distance_fare": 10.2,
+    "time_fare": 7.8,
+    "booking_fee": 0.5,
+    "surge_multiplier": 1.0,
+    "total": 21.9,
+    "recommended_distance_km": 11.2,
+    "actual_distance_km": 12.0,
+    "excess_distance_km": 0.8,
+    "excess_distance_fare": 0.68
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T15:40:00+08:00",
+      "lat": 1.3505,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "location_desc": "Junction 8 (pickup)"
+    },
+    {
+      "timestamp": "2026-10-12T15:46:00+08:00",
+      "lat": 1.338,
+      "lng": 103.849,
+      "speed_kmh": 40,
+      "location_desc": "Thomson Rd"
+    },
+    {
+      "timestamp": "2026-10-12T15:53:00+08:00",
+      "lat": 1.315,
+      "lng": 103.842,
+      "speed_kmh": 32,
+      "location_desc": "Bukit Timah Rd near Newton"
+    },
+    {
+      "timestamp": "2026-10-12T16:00:00+08:00",
+      "lat": 1.296,
+      "lng": 103.852,
+      "speed_kmh": 30,
+      "location_desc": "Rochor Rd / Bugis"
+    },
+    {
+      "timestamp": "2026-10-12T16:06:00+08:00",
+      "lat": 1.2816,
+      "lng": 103.8636,
+      "speed_kmh": 0,
+      "location_desc": "Gardens by the Bay (dropoff)"
+    }
+  ],
+  "optimal_route": {
+    "route_name": "CTE southbound to Marina Coastal Expressway",
+    "estimated_distance_km": 11.2,
+    "estimated_duration_min": 24,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.3505,
+        "lng": 103.8485,
+        "location_desc": "Junction 8 (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.333,
+        "lng": 103.852,
+        "location_desc": "CTE southbound near Braddell"
+      },
+      {
+        "point": 3,
+        "lat": 1.305,
+        "lng": 103.851,
+        "location_desc": "CTE near Fort Canning"
+      },
+      {
+        "point": 4,
+        "lat": 1.29,
+        "lng": 103.856,
+        "location_desc": "Marina Coastal Expressway"
+      },
+      {
+        "point": 5,
+        "lat": 1.2816,
+        "lng": 103.8636,
+        "location_desc": "Gardens by the Bay (dropoff)"
+      }
+    ]
+  },
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-12T15:36:00+08:00",
+      "message": "Hello, I'm outside Junction 8 near Starbucks."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-12T15:38:00+08:00",
+      "message": "Arriving, blue Ioniq."
+    }
+  ],
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "CTE (Central Expressway)",
+      "direction": "southbound",
+      "stretch": "Braddell to Fort Canning tunnel",
+      "incident_type": "heavy_congestion",
+      "severity": "moderate",
+      "timestamp": "2026-10-12T15:20:00+08:00",
+      "clear_time": "2026-10-12T16:15:00+08:00",
+      "description": "Heavy congestion southbound approaching the Fort Canning tunnel."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "No refund; the deviation is within the 1 km tolerance.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual 12.0 km vs recommended 11.2 km = 0.8 km deviation, which is <= 1 km. s1.3: reroute, rider not informed (no deviation message in chat_logs), deviation <= 1 km = no refund (within tolerance), whether or not TC-001 (moderate CTE congestion, 15:20-16:15) justified it. The 0.8 km x S$0.85/km = S$0.68 excess distance fare is not refundable. AI ruling final, under S$10 (s6.1).",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1: Route Deviation Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

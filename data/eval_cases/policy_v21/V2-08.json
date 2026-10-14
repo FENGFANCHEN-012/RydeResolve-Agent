@@ -1,0 +1,165 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "surge (a): rose after quote, not notified",
+  "dispute_ticket": {
+    "dispute_id": "V2-08",
+    "trip_id": "TRIP-2026-20108",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I booked at Tampines Mall and was quoted $10.00. When I checked my receipt the fare was $13.40. Nothing popped up on my phone about the price going up before the car arrived. I want the difference back.",
+    "filed_at": "2026-10-09T19:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5120",
+    "name": "Marcus Lee",
+    "account_age_days": 95,
+    "total_trips": 18,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3902",
+    "name": "Chua Boon Keat",
+    "account_age_days": 880,
+    "total_trips": 3377,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKB 2285 G)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20108",
+    "rider_id": "R-5120",
+    "driver_id": "D-3902",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "address": "4 Tampines Central 5, Singapore 529510",
+      "lat": 1.3525,
+      "lng": 103.9449
+    },
+    "dropoff_location": {
+      "name": "Singapore Expo",
+      "address": "1 Expo Dr, Singapore 486150",
+      "lat": 1.335,
+      "lng": 103.961
+    },
+    "start_time": "2026-10-09T19:12:00+08:00",
+    "end_time": "2026-10-09T19:28:00+08:00",
+    "estimated_duration_min": 16,
+    "actual_duration_min": 16,
+    "upfront_quote": 10.0,
+    "actual_fare": 13.4,
+    "fare_difference": 3.4
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "booking_fee": 1.5,
+      "total": 10.0,
+      "surgeable_subtotal": 8.5
+    },
+    "actual_fare": {
+      "surge_multiplier": 1.4,
+      "surge_amount": 3.4,
+      "booking_fee": 1.5,
+      "total": 13.4,
+      "surgeable_subtotal": 8.5
+    },
+    "comparison": {
+      "surge_multiplier_changed": "1.0x → 1.4x",
+      "surge_amount_difference": 3.4,
+      "total_difference": 3.4,
+      "booking_fee_surge_exempt": true
+    }
+  },
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-09T19:09:00+08:00",
+      "message": "On my way to the pickup, 3 mins."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "rider",
+      "timestamp": "2026-10-09T19:11:00+08:00",
+      "message": "Okay I'm at the Tampines Mall entrance."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-09T19:12:00+08:00",
+      "message": "Arrived, silver Prius."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time": "2026-10-09T19:03:00+08:00",
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 1.4,
+    "surge_activated_at": "2026-10-09T19:08:00+08:00",
+    "pickup_time": "2026-10-09T19:11:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "demand_spike_after_booking"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T19:12:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9449,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-09T19:16:00+08:00",
+      "lat": 1.349,
+      "lng": 103.952,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-09T19:20:00+08:00",
+      "lat": 1.344,
+      "lng": 103.957,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-09T19:24:00+08:00",
+      "lat": 1.339,
+      "lng": 103.96,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-09T19:28:00+08:00",
+      "lat": 1.335,
+      "lng": 103.961,
+      "speed_kmh": 0
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 3.4,
+    "recommended_action": "Refund the surge differential of S$3.40 to the rider.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "fare_breakdown: upfront quote S$10.00 (surgeable S$8.50 at 1.0x + booking fee S$1.50) vs actual S$13.40 (S$8.50 x 1.4 = S$11.90 + S$1.50); difference S$3.40 = S$8.50 x 0.4, all surge, booking fee is surge-exempt (s3.5). surge_pricing_log: surge rose 1.0x -> 1.4x at 19:08, after the 19:03 quote and before the 19:11 pickup, and rider_notified is false with no notification record (s3.2). s3.3/s3.4: not notified = full refund of the surge differential, S$3.40. Under S$10, AI ruling final (s6.1, s6.2).",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 3: Fare & Surge Pricing Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

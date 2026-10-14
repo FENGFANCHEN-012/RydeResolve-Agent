@@ -1,0 +1,227 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation (b): no incident on recommended route",
+  "dispute_ticket": {
+    "dispute_id": "V2-10",
+    "trip_id": "TRIP-2026-20110",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "Trip from Waterway Point in Punggol to Raffles Place. I normally go KPE then CTE and it takes less time. This driver went down Upper Serangoon Road for most of the trip, and I only noticed because the map showed a long detour. The fare was $29.78, more than I expected. I would like the extra distance refunded.",
+    "filed_at": "2026-10-08T11:38:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3377",
+    "name": "Daniel Koh Jun Wei",
+    "account_age_days": 158,
+    "total_trips": 41,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-6204",
+    "name": "Ismail Bin Hamdan",
+    "account_age_days": 1010,
+    "total_trips": 4150,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLB 5029 E)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20110",
+    "rider_id": "R-3377",
+    "driver_id": "D-6204",
+    "pickup_location": {
+      "name": "Waterway Point, Punggol",
+      "address": "83 Punggol Central, Singapore 828761",
+      "lat": 1.4066,
+      "lng": 103.9022
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "address": "5 Raffles Place, Singapore 048618",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "start_time": "2026-10-08T10:20:00+08:00",
+    "end_time": "2026-10-08T10:58:00+08:00",
+    "estimated_duration_min": 35,
+    "actual_duration_min": 38,
+    "estimated_distance_km": 17.6,
+    "actual_distance_km": 19.3,
+    "upfront_quote": 27.58,
+    "actual_fare": 29.78,
+    "fare_difference": 2.2
+  },
+  "fare_breakdown": {
+    "distance_rate_per_km": 0.8,
+    "time_rate_per_min": 0.28,
+    "base_fare": 3.2,
+    "distance_fare": 15.44,
+    "time_fare": 10.64,
+    "booking_fee": 0.5,
+    "surge_multiplier": 1.0,
+    "total": 29.78,
+    "recommended_distance_km": 17.6,
+    "actual_distance_km": 19.3,
+    "excess_distance_km": 1.7,
+    "excess_distance_fare": 1.36
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T10:20:00+08:00",
+      "lat": 1.4066,
+      "lng": 103.9022,
+      "speed_kmh": 0,
+      "location_desc": "Waterway Point (pickup)"
+    },
+    {
+      "timestamp": "2026-10-08T10:27:00+08:00",
+      "lat": 1.387,
+      "lng": 103.906,
+      "speed_kmh": 45,
+      "location_desc": "Sengkang West Ave / Punggol Rd"
+    },
+    {
+      "timestamp": "2026-10-08T10:35:00+08:00",
+      "lat": 1.365,
+      "lng": 103.9,
+      "speed_kmh": 40,
+      "location_desc": "Upper Serangoon Rd, Hougang"
+    },
+    {
+      "timestamp": "2026-10-08T10:44:00+08:00",
+      "lat": 1.342,
+      "lng": 103.88,
+      "speed_kmh": 35,
+      "location_desc": "Upper Serangoon Rd near Kovan"
+    },
+    {
+      "timestamp": "2026-10-08T10:52:00+08:00",
+      "lat": 1.318,
+      "lng": 103.858,
+      "speed_kmh": 30,
+      "location_desc": "Balestier Rd"
+    },
+    {
+      "timestamp": "2026-10-08T10:58:00+08:00",
+      "lat": 1.284,
+      "lng": 103.8515,
+      "speed_kmh": 0,
+      "location_desc": "Raffles Place (dropoff)"
+    }
+  ],
+  "optimal_route": {
+    "route_name": "KPE to CTE southbound to Raffles Place",
+    "estimated_distance_km": 17.6,
+    "estimated_duration_min": 35,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.4066,
+        "lng": 103.9022,
+        "location_desc": "Waterway Point (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.388,
+        "lng": 103.894,
+        "location_desc": "KPE southbound, Punggol Rd"
+      },
+      {
+        "point": 3,
+        "lat": 1.36,
+        "lng": 103.88,
+        "location_desc": "KPE / TPE interchange"
+      },
+      {
+        "point": 4,
+        "lat": 1.33,
+        "lng": 103.856,
+        "location_desc": "CTE southbound near Braddell"
+      },
+      {
+        "point": 5,
+        "lat": 1.299,
+        "lng": 103.852,
+        "location_desc": "CTE / Fort Canning tunnel approach"
+      },
+      {
+        "point": 6,
+        "lat": 1.284,
+        "lng": 103.8515,
+        "location_desc": "Raffles Place (dropoff)"
+      }
+    ]
+  },
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-08T10:16:00+08:00",
+      "message": "Hi, I'm at the Waterway Point drop-off bay, level 1."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-08T10:17:00+08:00",
+      "message": "OK, 2 minutes."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-08T10:18:00+08:00",
+      "message": "I see you, grey Vezel."
+    }
+  ],
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "CTE (Central Expressway)",
+      "direction": "southbound",
+      "stretch": "Ang Mo Kio Ave 3 to Braddell",
+      "incident_type": "vehicle_breakdown",
+      "severity": "moderate",
+      "timestamp": "2026-10-08T08:50:00+08:00",
+      "clear_time": "2026-10-08T09:35:00+08:00",
+      "description": "Stalled vehicle in lane 2, cleared by 09:35."
+    },
+    {
+      "incident_id": "TC-002",
+      "road": "KPE / CTE southbound corridor",
+      "direction": "southbound",
+      "stretch": "Punggol to Raffles Place via KPE and CTE",
+      "incident_type": "traffic_flow",
+      "severity": "low",
+      "timestamp": "2026-10-08T10:15:00+08:00",
+      "clear_time": null,
+      "description": "Light traffic, free flow, no incidents reported."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 1.36,
+    "recommended_action": "Refund S$1.36 (the full excess distance fare) to the rider.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual 19.3 km vs recommended 17.6 km = 1.7 km deviation (> 1 km, <= 2 km). fare_breakdown: 1.7 km x S$0.80/km = S$1.36. traffic_conditions: the only incident (TC-001, CTE stalled vehicle) cleared at 09:35, 45 minutes before the trip started at 10:20, and TC-002 shows free flow on the recommended KPE/CTE corridor during the trip, so there is no traffic justification (s1.3, s1.4); whether the rider was informed does not change the outcome. Full refund of the excess distance fare. Dispute S$1.36 < S$10 and deviation <= 2 km: AI ruling final (s6.1, s6.2).",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1: Route Deviation Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

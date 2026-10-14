@@ -1,0 +1,167 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "no-show (c): flagged rider, driver earned fee",
+  "dispute_ticket": {
+    "dispute_id": "V2-05",
+    "trip_id": "TRIP-2026-20105",
+    "filed_by": "rider",
+    "dispute_type": "no_show_charge",
+    "description": "I was waiting at the other entrance of Clarke Quay Central the whole time and the driver cancelled on me. I was charged a $5.00 no-show fee that I should not pay. I am asking for it to be reversed.",
+    "filed_at": "2026-10-11T23:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6931",
+    "name": "Kelvin Pang",
+    "account_age_days": 150,
+    "total_trips": 22,
+    "avg_rating": 3.8,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 1,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8120",
+    "name": "Abdul Rahim Bin Osman",
+    "account_age_days": 760,
+    "total_trips": 2987,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SMH 4408 J)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20105",
+    "rider_id": "R-6931",
+    "driver_id": "D-8120",
+    "pickup_location": {
+      "name": "Clarke Quay Central",
+      "lat": 1.2889,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Kovan MRT",
+      "lat": 1.36,
+      "lng": 103.885
+    },
+    "scheduled_time": "2026-10-11T22:40:00+08:00",
+    "driver_arrival_time": "2026-10-11T22:38:00+08:00",
+    "driver_wait_start": "2026-10-11T22:38:00+08:00",
+    "cancellation_time": "2026-10-11T22:47:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T22:30:00+08:00",
+      "lat": 1.295,
+      "lng": 103.85,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-11T22:36:00+08:00",
+      "lat": 1.29,
+      "lng": 103.847,
+      "speed_kmh": 12,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-11T22:38:00+08:00",
+      "lat": 1.2889,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-11T22:44:00+08:00",
+      "lat": 1.2889,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-11T22:47:00+08:00",
+      "lat": 1.2889,
+      "lng": 103.8465,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-11T22:41:00+08:00",
+      "message": "Hello, I'm at the drop-off point outside Clarke Quay Central, white Vezel."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-11T22:44:00+08:00",
+      "message": "Outgoing in-app call to rider - not answered (rang 30s).",
+      "type": "call"
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-11T22:46:00+08:00",
+      "message": "Last message, I will have to cancel the trip if I do not hear from you."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T22:38:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10 m of pickup pin."
+    },
+    {
+      "timestamp": "2026-10-11T22:38:00+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-11T22:44:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "In-app call initiated by driver, rang 30s, no answer."
+    },
+    {
+      "timestamp": "2026-10-11T22:45:00+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free wait (5 min from scheduled pickup 22:40) expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-11T22:47:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "Driver cancelled: rider_no_show. S$5.00 fee charged."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "Cancellation fee of S$5.00 stands; no refund.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "trip_data: scheduled 22:40, driver at the pickup pin 22:38-22:47, cancelled 22:47 (7 min after scheduled, wait timer expired 22:45) (s2.1). chat_logs: 2 messages (22:41, 22:46) and 1 in-app call (22:44) before the cancellation, so s2.3 is met and the S$5.00 fee is earned (s2.2). The rider has fraud_flags 1, which would raise the confidence bar to 95% under s6.3, but s6.2 states that a no-show / cancellation AI ruling is final (fee fixed at S$5.00), so there is no escalation; the fee stands.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 2: No-Show & Cancellation Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  }
+}

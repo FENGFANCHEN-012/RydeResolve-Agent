@@ -1,0 +1,166 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "threshold (b): S$40 cleaning claim, photo, uncontested",
+  "dispute_ticket": {
+    "dispute_id": "V2-07",
+    "trip_id": "TRIP-2026-20107",
+    "filed_by": "driver",
+    "dispute_type": "damage_claim",
+    "description": "Rider spilled a large bubble tea and dropped food on the rear floor carpet during the trip. I had to stop for cleaning and take the car off the road for the rest of the night. I am claiming S$40.00 for carpet cleaning. The rider apologised in chat after the drop-off and has not contested the claim.",
+    "filed_at": "2026-10-11T23:30:00+08:00",
+    "status": "open",
+    "claimed_amount": 40.0
+  },
+  "rider_profile": {
+    "rider_id": "R-7550",
+    "name": "Ethan Chia",
+    "account_age_days": 75,
+    "total_trips": 12,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3318",
+    "name": "Ong Siew Hock",
+    "account_age_days": 1100,
+    "total_trips": 5702,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Nissan Serena (SMF 3071 B)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-20107",
+    "rider_id": "R-7550",
+    "driver_id": "D-3318",
+    "pickup_location": {
+      "name": "Orchard Gateway",
+      "lat": 1.3005,
+      "lng": 103.8396
+    },
+    "dropoff_location": {
+      "name": "Bedok Reservoir MRT",
+      "lat": 1.3365,
+      "lng": 103.933
+    },
+    "start_time": "2026-10-11T22:35:00+08:00",
+    "end_time": "2026-10-11T23:12:00+08:00",
+    "estimated_duration_min": 37,
+    "actual_duration_min": 37,
+    "upfront_quote": 19.8,
+    "actual_fare": 19.8,
+    "fare_difference": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T22:35:00+08:00",
+      "lat": 1.3005,
+      "lng": 103.8396,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-11T22:46:00+08:00",
+      "lat": 1.31,
+      "lng": 103.875,
+      "speed_kmh": 45
+    },
+    {
+      "timestamp": "2026-10-11T22:58:00+08:00",
+      "lat": 1.325,
+      "lng": 103.905,
+      "speed_kmh": 60
+    },
+    {
+      "timestamp": "2026-10-11T23:08:00+08:00",
+      "lat": 1.334,
+      "lng": 103.925,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-11T23:12:00+08:00",
+      "lat": 1.3365,
+      "lng": 103.933,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-11T23:19:00+08:00",
+      "lat": 1.3366,
+      "lng": 103.9331,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-11T22:33:00+08:00",
+      "message": "Hi, I'm at Orchard Gateway pick-up bay, dark blue Serena."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "rider",
+      "timestamp": "2026-10-11T23:00:00+08:00",
+      "message": "Oh no, my drink just tipped over. I am so sorry."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-11T23:13:00+08:00",
+      "message": "Sorry again about the mess on the floor. Please send the cleaning charge through the app."
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "driver",
+      "timestamp": "2026-10-11T23:14:00+08:00",
+      "message": "Noted. I will take photos and submit."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-001",
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-11T23:24:00+08:00",
+      "description": "Photo taken through the Ryde driver app's built-in camera right after the drop-off at Bedok Reservoir MRT. Shows the rear floor carpet stained and dirty with debris.",
+      "file_url": "data/evidence_samples/cases/V2-07/photo1.jpg"
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 40.0,
+    "recommended_action": "Uphold the claim: charge the rider the S$40.00 cleaning fee and pay it to the driver.",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "evidence EV-001 is an in-app camera photo with an automatic timestamp (23:19, uploaded 23:24, 12 minutes after trip end 23:12, well inside 24 h) and a geotag matching the trip drop-off, so it is verifiable and linked to the trip by GPS telemetry and timestamp (s4.2). Claim S$40.00 <= S$50 cleaning cap, no external quote needed (s4.3). The rider's chat messages at 23:00 and 23:13 acknowledge the spill and ask for the charge; the rider does not contest, so s4.4 (human review when the rider disputes) is not triggered. s6.2: cleaning <= S$50 with verifiable photo = AI ruling; in the S$10-50 band this needs 80%+ confidence (s6.1), which the clean evidence supports.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4: Property Damage Policy",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6: Ruling Thresholds"
+    ],
+    "heldout": true
+  },
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "carpet_dirt_vacuum",
+      "taken_at": "2026-10-11T23:19:42+08:00",
+      "gps": [
+        1.3367,
+        103.9332
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "_operator_note": "Edited after writing (D50): the brief gave no image file, so a library photo was stamped with the time and place the case states, and the claim text was changed from a seat stain to the floor carpet the photo shows. Expected ruling unchanged."
+}
