@@ -1638,5 +1638,9 @@ uploaded a photo with a set time and place, saved; the new case was listed and s
 and profiles equal the original's, and the Collector's photo check read the photo's place. A blank
 case with a rule and an event also saved. Both test cases were then deleted.
 
-Not done: no agent run on a built case (it uses the same loader as every case file); no way to edit
-or delete a built case in place (copy it instead).
+Follow-up (same day): a photo's pixel count is now checked from its header before it is decoded (cap
+60 MP), so a small file with huge dimensions cannot use the server's memory; test added (560 pass).
+Live checks after deploy: a built case (CU-45DA39) ran end to end twice on the server (resolved); a
+photo saved through the live API carried the time and GPS set for it (test case then deleted).
+
+Not done: no way to edit or delete a built case in place (copy it instead).
