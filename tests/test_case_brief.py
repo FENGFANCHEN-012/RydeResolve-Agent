@@ -5,6 +5,13 @@ from src.agents.case_brief import CaseBriefAgent, case_rule_refs, render_case_br
 from src.agents.collector import DisputeContext
 from src.agents.passenger import PassengerAgent
 
+GOV = "ryde_dispute_policy_v2.1#"
+
+
+def retrieved(items):
+    """The help-centre clauses only: the governing policy's sections come first in every brief (D50)."""
+    return [c for c in items if not str(c.get("reference") or f"{c.get('source')}#").startswith(GOV)]
+
 
 class FakeRetriever:
     """Complaint search returns `clauses`; a topic search returns `topic_hits` (any topic)."""
@@ -59,14 +66,14 @@ async def test_brief_sorts_findings_rules_timeline_and_clauses():
     assert brief["case_rules"] == {"platform_policy.no_show_threshold_min": 8,
                                    "platform_policy.free_wait_time_min": 5}
     assert brief["timeline"][0]["event"] == "driver_arrived"
-    assert brief["clauses"] == [{"reference": "Ryde Help Rider Booking A Ryde#3", "section": "Grace period",
+    assert retrieved(brief["clauses"]) == [{"reference": "Ryde Help Rider Booking A Ryde#3", "section": "Grace period",
                                  "found_by": ["complaint"]}]
 
 
 @pytest.mark.asyncio
 async def test_retrieval_failure_still_gives_a_brief():
     brief = await CaseBriefAgent(retriever=FakeRetriever(fail=True)).build(_context())
-    assert brief["clauses"] == [] and brief["conflicts"]
+    assert retrieved(brief["clauses"]) == [] and brief["conflicts"]
 
 
 @pytest.mark.asyncio
@@ -127,7 +134,7 @@ async def test_agents_use_the_brief_clauses_instead_of_searching():
             raise AssertionError("agent searched although the brief has clauses")
 
     got = await PassengerAgent(retriever=MustNotSearch())._retrieve_policies(ctx)
-    assert got == [{**clause, "found_by": ["complaint"]}]
+    assert retrieved(got) == [{**clause, "found_by": ["complaint"]}]
 
 
 def test_tag_ranking_moves_matching_sections_up_but_removes_nothing():
@@ -158,10 +165,10 @@ async def test_topic_clauses_join_the_complaint_hits_without_duplicates():
     grace = {"source": "Ryde Help Rider Booking A Ryde", "chunk_index": 3, "section": "Grace period", "clause": "g"}
     waiver = {"source": "Ryde Help Rider Fares And Charges", "chunk_index": 2, "section": "Waiver", "clause": "w"}
     brief = await CaseBriefAgent(retriever=FakeRetriever([grace], topic_hits=[waiver, grace])).build(_context())
-    refs = [c["reference"] for c in brief["clauses"]]
+    refs = [c["reference"] for c in retrieved(brief["clauses"])]
     assert refs == ["Ryde Help Rider Booking A Ryde#3", "Ryde Help Rider Fares And Charges#2"]
     # the grace clause was found by the complaint AND by topics; the reasons are kept
-    assert brief["clauses"][0]["found_by"][0] == "complaint" and len(brief["clauses"][0]["found_by"]) > 1
+    assert retrieved(brief["clauses"])[0]["found_by"][0] == "complaint" and len(retrieved(brief["clauses"])[0]["found_by"]) > 1
     assert "no_show" in brief["topics"]          # core topic of the type
     assert "found by:" in render_case_brief(ctx := _context().model_copy(update={"case_brief": brief}))
 
@@ -176,7 +183,7 @@ async def test_base_clauses_are_capped():
             return [next(many) for _ in range(top_k)]   # new clauses for every topic
 
     brief = await CaseBriefAgent(retriever=Plenty([next(many) for _ in range(5)])).build(_context())
-    assert len(brief["clauses"]) == MAX_BASE_CLAUSES
+    assert len(retrieved(brief["clauses"])) == MAX_BASE_CLAUSES
 
 
 def test_platform_data_triggers_topics_but_the_complaint_does_not():

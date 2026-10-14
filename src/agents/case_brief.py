@@ -117,7 +117,11 @@ class CaseBriefAgent:
         cls = _dump(classification) if classification is not None else {}
         dispute_type = getattr(ctx.get("type"), "value", ctx.get("type")) or "unknown"
         topics = topics_for_case(ctx, dispute_type)
-        clauses = await self._clauses(dispute_type, ctx.get("description") or "", topics)
+        urgency = cls.get("urgency")
+        urgency = getattr(urgency, "value", urgency)
+        # D50: the governing policy's sections for this case first, in full; help-centre text after
+        from src.core.governing_policy import clauses_for
+        clauses = clauses_for(ctx, dispute_type, urgency) +             await self._clauses(dispute_type, ctx.get("description") or "", topics)
 
         findings = [_dump(f) for f in ctx.get("findings") or []]
 
@@ -136,10 +140,9 @@ class CaseBriefAgent:
                         "disputed": bool(disputed & set(f.get("sources") or []))}
                        for f in findings if f.get("tool") == "rule_checks"]
 
-        urgency = cls.get("urgency")
         return {
             "dispute_type": dispute_type,
-            "urgency": getattr(urgency, "value", urgency),
+            "urgency": urgency,
             "facts": facts,
             "conflicts": conflicts,
             "gaps": pick("gap"),
@@ -168,7 +171,8 @@ def render_clauses(clauses: list[dict]) -> str:
     blocks = []
     for i, c in enumerate(clauses):
         ref = c.get("reference") or f"{c.get('source', 'unknown')}#{c.get('chunk_index', i)}"
-        text = " ".join(str(c.get("clause", "")).split())[:500]
+        # Governing policy sections keep their full text (tables included); help-centre clauses are cut
+        text = str(c.get("clause", "")).strip() if c.get("governing") else " ".join(str(c.get("clause", "")).split())[:500]
         blocks.append(f"[{ref}] {c.get('section', '')}\n{text}")
     return "\n\n".join(blocks)
 
@@ -221,8 +225,13 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
         # Numbered as app_events[i] (the timeline keeps the events' order), so a ruling can cite them
         lines.extend(f"- [app_events[{i}]] {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
                      for i, e in enumerate(brief["timeline"]))
+    if any(str(c.get("reference", "")).startswith("ryde_dispute_policy_v2.1#") for c in brief.get("clauses") or []):
+        lines.append("Governing policy: clauses cited as ryde_dispute_policy_v2.1#<section> are Ryde Dispute "
+                     "Resolution Policy v2.1, the policy RydeResolve rulings apply. Where it speaks it takes "
+                     "precedence over help-centre text; this trip's own platform rules above still set the "
+                     "trip's figures. Cite the v2.1 section a ruling applies.")
     if brief.get("clauses") and with_clause_list:
-        lines.append("Official policy clauses found for this case (full text is given separately):")
+        lines.append("Policy clauses for this case (full text is given separately):")
         lines.extend(f"- {c['reference']} ({c['section']})"
                      + (f" - found by: {'; '.join(c['found_by'])}" if c.get("found_by") else "")
                      for c in brief["clauses"])

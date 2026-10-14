@@ -54,6 +54,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     draft_decision: Decision            # arbitrator node: the draft, when an objection made the Judge reconsider
     code_judge_draft: Decision          # arbitrator node: the draft the code check sent back (D38)
     code_judge: dict                    # arbitrator node: problems found, first draft and after revision (D38)
+    policy_gate: list[str]              # arbitrator node: Policy v2.1 sections that send the case to a person (D50)
     fairness: FairnessAssessment        # fairness node
     execution: dict                     # executor node
 

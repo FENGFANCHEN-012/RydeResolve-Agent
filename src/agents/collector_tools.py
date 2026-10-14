@@ -634,6 +634,153 @@ def events_between(ctx, start: str, end: str) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------- #
+# Records of the organisers' sample format, read against Ryde Dispute
+# Resolution Policy v2.1 (D50). Facts only: the Judge applies the policy.
+# ---------------------------------------------------------------------- #
+
+def surge_check(ctx) -> list[Finding]:
+    """Surge at quote vs at trip start, whether the rider was notified, and whether the fare
+    difference is all surge (v2.1 s3.2-3.4)."""
+    trip = ctx.trip or {}
+    log = trip.get("surge_pricing_log") if isinstance(trip.get("surge_pricing_log"), dict) else {}
+    fb = trip.get("fare_breakdown") if isinstance(trip.get("fare_breakdown"), dict) else {}
+    fq = fb.get("upfront_quote") if isinstance(fb.get("upfront_quote"), dict) else {}
+    fa = fb.get("actual_fare") if isinstance(fb.get("actual_fare"), dict) else {}
+    q = log.get("quote_time_surge", fq.get("surge_multiplier"))
+    s = log.get("trip_start_surge", fa.get("surge_multiplier"))
+    if not (isinstance(q, (int, float)) and isinstance(s, (int, float))):
+        return []
+    notified = log.get("rider_notified")
+    said = {True: "yes", False: "no"}.get(notified, "not recorded")
+    at = _ts(log.get("surge_activated_at"))
+    est, total = trip.get("estimated_fare"), trip.get("total_fare")
+    diff = round(total - est, 2) if isinstance(est, (int, float)) and isinstance(total, (int, float)) else None
+    sub_q, sub_a = fq.get("surgeable_subtotal"), fa.get("surgeable_subtotal")
+    from_surge = solely = None
+    if isinstance(sub_q, (int, float)) and isinstance(sub_a, (int, float)) and abs(sub_q - sub_a) < 0.005:
+        from_surge = round(sub_a * s - sub_q * q, 2)
+        solely = diff is not None and abs(from_surge - diff) <= 0.01
+    text = (f"Surge x{q} at the quote, x{s} at trip start"
+            + (f" (surge activated {_hhmm(at)})" if at else "")
+            + f"; rider notified of the change: {said}.")
+    if diff is not None:
+        text += f" Charged {_money(total)} vs quoted {_money(est)}: difference {_money(diff)}."
+    if from_surge is not None:
+        text += (f" Surgeable subtotal {_money(sub_a)} unchanged, so the surge change alone accounts for "
+                 f"{_money(from_surge)}" + (" - all of the difference." if solely else
+                                             " - not all of the difference."))
+    if s > q:
+        met = notified is False
+        text += (" Policy v2.1 s3.3 condition (surge increased between quote and trip start, rider not "
+                 f"notified): {'MET' if met else 'NOT MET' if notified is True else 'UNKNOWN'}.")
+    return [Finding(
+        id="surge_check.quote_vs_start", tool="surge_check", kind="fact", statement=text,
+        value={"quote_surge": q, "start_surge": s, "rider_notified": notified, "fare_difference": diff,
+               "from_surge": from_surge, "solely_surge": solely},
+        sources=["trip.surge_pricing_log", "trip.fare_breakdown", "trip.estimated_fare", "trip.total_fare"],
+    )]
+
+
+ROUTE_TOLERANCE_KM = 1.0   # Policy v2.1 s1.3: a deviation of 1 km or less is within tolerance
+
+
+def route_vs_recommended(ctx) -> list[Finding]:
+    """Actual distance against the platform's recommended route (v2.1 s1.3-1.4)."""
+    trip = ctx.trip or {}
+    rec = trip.get("recommended_route") if isinstance(trip.get("recommended_route"), dict) else {}
+    rec_km, act = rec.get("estimated_distance_km"), trip.get("actual_distance_km")
+    if not (isinstance(rec_km, (int, float)) and isinstance(act, (int, float))):
+        return []
+    excess = round(act - rec_km, 2)
+    beyond = excess > ROUTE_TOLERANCE_KM
+    fb = trip.get("fare_breakdown") if isinstance(trip.get("fare_breakdown"), dict) else {}
+    edf = fb.get("excess_distance_fare")
+    name = rec.get("route_name")
+    text = (f"Actual distance {act} km vs the recommended route{f' ({name})' if name else ''} {rec_km} km: "
+            f"{'+' if excess >= 0 else ''}{excess} km, {'beyond' if beyond else 'within'} the "
+            f"{ROUTE_TOLERANCE_KM:g} km tolerance of Policy v2.1 s1.3.")
+    sources = ["trip.actual_distance_km", "trip.recommended_route.estimated_distance_km"]
+    if isinstance(edf, (int, float)):
+        text += f" The fare breakdown records an excess distance fare of {_money(edf)}."
+        sources.append("trip.fare_breakdown.excess_distance_fare")
+    return [Finding(
+        id="route_vs_recommended.distance", tool="route_vs_recommended", kind="fact", statement=text,
+        value={"recommended_km": rec_km, "actual_km": act, "excess_km": excess, "beyond_tolerance": beyond,
+               "excess_distance_fare": edf},
+        sources=sources,
+    )]
+
+
+def traffic_check(ctx) -> list[Finding]:
+    """Each traffic record: active during the trip? on the recommended route? (v2.1 s1.4)"""
+    trip = ctx.trip or {}
+    incidents = trip.get("traffic_incidents")
+    if not isinstance(incidents, list) or not incidents:
+        return []
+    start, end = _ts(trip.get("pickup_time")), _ts(trip.get("dropoff_time"))
+    rec = trip.get("recommended_route") if isinstance(trip.get("recommended_route"), dict) else {}
+    rec_text = " ".join([str(rec.get("route_name") or "")]
+                        + [str(w.get("location_desc") or "") for w in rec.get("waypoints") or []
+                           if isinstance(w, dict)]).lower()
+    out = []
+    for i, inc in enumerate(incidents):
+        if not isinstance(inc, dict):
+            continue
+        at, clear = _ts(inc.get("timestamp")), _ts(inc.get("clear_time"))
+        active = bool(at) and (end is None or at <= end) and (clear is None or start is None or clear >= start)
+        road = str(inc.get("road") or "unknown road")
+        key = re.split(r"[\s(—-]", road.strip(), maxsplit=1)[0].lower()
+        on_route = bool(rec_text) and bool(key) and re.search(rf"\b{re.escape(key)}\b", rec_text) is not None
+        kind, sev = inc.get("incident_type"), inc.get("severity")
+        window = f"{_hhmm(at) if at else '?'} to {_hhmm(clear) if clear else 'not cleared'}"
+        trip_window = f"{_hhmm(start) if start else '?'}-{_hhmm(end) if end else '?'}"
+        out.append(Finding(
+            id=f"traffic_check.incident[{i}]", tool="traffic_check", kind="fact",
+            statement=(f"Traffic record {inc.get('incident_id') or i}: {road}"
+                       + (f" {inc['direction']}" if inc.get("direction") else "")
+                       + (f", {inc['stretch']}" if inc.get("stretch") else "")
+                       + f": {kind} ({sev}), {window}; "
+                       + f"{'active' if active else 'not active'} during the trip ({trip_window}); "
+                       + (f"{'on' if on_route else 'not on'} the recommended route." if rec_text else
+                          "no recommended route to compare.")),
+            value={"incident_type": kind, "severity": sev, "active_during_trip": active,
+                   "on_recommended_route": on_route if rec_text else None},
+            sources=[f"trip.traffic_incidents[{i}]"] + (["trip.recommended_route"] if rec_text else []),
+        ))
+    return out
+
+
+def contact_obligation(ctx) -> list[Finding]:
+    """Before a no-show cancellation the driver must send at least one in-app message AND make at
+    least one call (v2.1 s2.3); counted from the chat and the call events before the cancel."""
+    trip = ctx.trip or {}
+    cancel = _ts(trip.get("cancellation_time"))
+    if not cancel or "no_show" not in str(trip.get("cancellation_reason") or "").lower():
+        return []
+    msgs, calls = [], []
+    for i, m in enumerate(ctx.chat_log or []):
+        t = _ts(m.get("timestamp"))
+        if m.get("sender") != "driver" or not t or t > cancel:
+            continue
+        (calls if m.get("message_type") == "call" else msgs).append(f"chat_log[{i}]")
+    for i, e in _events(ctx, "driver_called_rider"):
+        t = _ts(e.get("timestamp"))
+        if t and t <= cancel:
+            calls.append(f"app_events[{i}]")
+    # A call shown both in the chat and as an app event is one call
+    n_calls = max(sum(1 for s in calls if s.startswith("chat_log")), sum(1 for s in calls if s.startswith("app_events")))
+    met = bool(msgs) and n_calls >= 1
+    return [Finding(
+        id="contact_obligation.before_cancel", tool="contact_obligation", kind="fact",
+        statement=(f"Before cancelling at {_hhmm(cancel)} the driver sent {len(msgs)} in-app message(s) and "
+                   f"made {n_calls} call(s): Policy v2.1 s2.3 (at least 1 message AND 1 call) "
+                   f"{'MET' if met else 'NOT MET'}."),
+        value={"messages": len(msgs), "calls": n_calls, "met": met},
+        sources=msgs + calls + ["trip.cancellation_time"],
+    )]
+
+
+# ---------------------------------------------------------------------- #
 # Registry
 # ---------------------------------------------------------------------- #
 
@@ -648,6 +795,10 @@ STANDARD_TOOLS: dict[str, Callable] = {
     "consistency_check": consistency_check,
     "data_gaps": data_gaps,
     "rule_checks": rule_checks,
+    "surge_check": surge_check,
+    "route_vs_recommended": route_vs_recommended,
+    "traffic_check": traffic_check,
+    "contact_obligation": contact_obligation,
 }
 
 QUERY_TOOLS: dict[str, Callable] = {

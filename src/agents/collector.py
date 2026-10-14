@@ -273,7 +273,7 @@ class CollectorAgent:
     def _context_from_dataset(self, data: dict, language: str) -> DisputeContext:
         """Single mapping from the dataset format to DisputeContext."""
         ticket = data.get("dispute_ticket") or {}
-        trip = data.get("trip_data")
+        trip = _official_trip(data)
         rider = data.get("rider_profile")
         order_id = dataset_order_id(data) or "UNKNOWN"
         policy, policy_text = split_policy(case_policy_block(data))
@@ -349,6 +349,31 @@ def _evidence_item(e: dict) -> EvidenceItem:
 def _map_reporter(filed_by: str | None) -> str:
     # The pipeline uses "passenger"/"driver"; datasets say "rider"
     return "driver" if (filed_by or "").lower() == "driver" else "passenger"
+
+
+# The organisers' sample format (DISP-001..003) names some trip fields differently and keeps some
+# platform records beside trip_data. Field -> the name the tools read; the original stays too.
+_TRIP_ALIASES = {"start_time": "pickup_time", "end_time": "dropoff_time",
+                 "actual_fare": "total_fare", "upfront_quote": "estimated_fare"}
+# Record sections kept beside trip_data -> where they go in the trip
+_TRIP_RECORDS = {"fare_breakdown": "fare_breakdown", "surge_pricing_log": "surge_pricing_log",
+                 "optimal_route": "recommended_route", "traffic_conditions": "traffic_incidents"}
+
+
+def _official_trip(data: dict) -> dict | None:
+    """trip_data with the sample format's aliases and side records folded in. Analysis
+    sections are already gone (ryde_api.strip_answer_keys); a trip's own value always wins."""
+    trip = data.get("trip_data")
+    extra = {dst: data[src] for src, dst in _TRIP_RECORDS.items() if data.get(src) is not None}
+    if not isinstance(trip, dict):
+        return trip if not extra else extra
+    out = dict(trip)
+    for src, dst in _TRIP_ALIASES.items():
+        if out.get(dst) is None and out.get(src) is not None:
+            out[dst] = out[src]
+    for dst, value in extra.items():
+        out.setdefault(dst, value)
+    return out
 
 
 def _normalize_chat(msg: dict) -> dict:

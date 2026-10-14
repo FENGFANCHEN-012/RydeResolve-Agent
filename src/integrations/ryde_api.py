@@ -52,12 +52,38 @@ def load_dispute_dataset(path: str | Path) -> dict:
     return json.loads(text)
 
 
+# The organisers' sample format (DISP-001, DISP-003) also carries someone's analysis next to the
+# records: a recommended ruling, which side each item supports, "reroute justified". Those are
+# conclusions, not evidence: the agents must reach them from the records, so they are removed
+# with the answer keys. The records themselves (fare breakdown, surge log, recommended route,
+# traffic incidents) are kept and mapped into the trip by the Collector.
+ANALYSIS_SECTIONS = {"case_metadata", "recommended_ruling", "evidence_summary", "traffic_analysis",
+                     "chat_log_analysis"}
+# Free-text reasoning inside record sections: (section, key)
+ANALYSIS_FIELDS = {("fare_breakdown", "notes"), ("fare_breakdown", "comparison"), ("optimal_route", "notes")}
+
+
 def strip_answer_keys(obj):
-    """Recursively drop answer-key fields so no agent can see the expected result."""
+    """Recursively drop answer-key fields so no agent can see the expected result; at the top
+    level also drop the analysis sections and fields above."""
+    if isinstance(obj, dict) and ("dispute_ticket" in obj or "trip_data" in obj):
+        obj = {k: v for k, v in obj.items() if k not in ANALYSIS_SECTIONS}
+        for section, key in ANALYSIS_FIELDS:
+            if isinstance(obj.get(section), dict) and key in obj[section]:
+                obj[section] = {k: v for k, v in obj[section].items() if k != key}
+        # An incident feed's structured fields are records; its free-text description can carry
+        # a judgment ("the driver's reroute ... was a reasonable alternative")
+        if isinstance(obj.get("traffic_conditions"), list):
+            obj["traffic_conditions"] = [{k: v for k, v in t.items() if k != "description"}
+                                         if isinstance(t, dict) else t for t in obj["traffic_conditions"]]
+    return _strip_keys(obj)
+
+
+def _strip_keys(obj):
     if isinstance(obj, dict):
-        return {k: strip_answer_keys(v) for k, v in obj.items() if k not in ANSWER_KEYS}
+        return {k: _strip_keys(v) for k, v in obj.items() if k not in ANSWER_KEYS}
     if isinstance(obj, list):
-        return [strip_answer_keys(v) for v in obj]
+        return [_strip_keys(v) for v in obj]
     return obj
 
 

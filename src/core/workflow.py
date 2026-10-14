@@ -69,7 +69,7 @@ from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.agents.safety import SafetyAgent
 from src.agents.objection import ObjectionAgent, objecting_sides
-from src.agents import code_judge, image_analyst
+from src.agents import code_judge, image_analyst, policy_gates
 from src.config import OBJECTION_ROUND, OBJECTION_SIDES
 from src.core.debate import DebateEngine
 from src.core.trace import step
@@ -309,6 +309,23 @@ def build_dispute_graph(
         update, judge_inputs = await _rule(state)
         if code_judge.CODE_JUDGE:
             update = await _code_judge(update, judge_inputs)
+        return await _policy_gate(state, update, judge_inputs)
+
+    async def _policy_gate(state, update: dict, judge_inputs: dict) -> dict:
+        """D50: Policy v2.1's routing rules (safety, dispute value, fraud flags, contested damage),
+        checked in code; a case they cover goes to a person with the section as the reason."""
+        decision = update.get("decision")
+        cls = state.get("classification")
+        urgency = getattr(getattr(cls, "urgency", None), "value", getattr(cls, "urgency", None))
+        async with step("PolicyGate", "Check the ruling against Policy v2.1's routing rules", {
+            "checks": ["s5.2 safety", "s6.1 dispute value", "s6.3 fraud flag confidence", "s4.4 contested damage"],
+        }) as s:
+            reasons = policy_gates.check(decision, judge_inputs["context"], urgency)
+            s["output"] = {"to_person": bool(reasons), "reasons": reasons}
+        if reasons:
+            decision.human_review_needed = True
+            decision.rationale = (decision.rationale or "") + " [Policy v2.1: " + " ".join(reasons) + "]"
+            update = {**update, "decision": decision, "policy_gate": reasons}
         return update
 
     async def _code_judge(update: dict, judge_inputs: dict) -> dict:

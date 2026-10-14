@@ -106,7 +106,7 @@ def test_summary_targets():
 def test_answer_keys_have_eval_fields():
     cases = ev.load_cases()
     dev = [c for c in cases if not c["expected"].get("heldout")]
-    assert len(dev) == 14  # 13 mock disputes + the organiser's DISP-002 sample
+    assert len(dev) == 16  # 13 mock disputes + the organisers' samples DISP-001, DISP-002, DISP-003
     # Held-out variants appear only if eval.py set EXTRA_DISPUTE_DIRS before ryde_api was
     # first imported, so their count depends on test order and is not asserted here
     for c in cases:
