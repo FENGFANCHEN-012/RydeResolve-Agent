@@ -203,6 +203,13 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
     # not the model's (user decision 2026-10-04; SQ-001 auto-refunded a whole S$27.40 fare).
     # Cleaning fees and driver claims are not covered here: their amounts come from fee and cap rules.
     dispute_type = getattr(context.get("type"), "value", context.get("type"))
+    # A driver's own recorded claim (cleaning / damage fee) sets the amount: paying up to it is not
+    # discretion (V2-07, run 20261014-194633: a S$40 claim on record was held as discretionary)
+    trip = context.get("trip") or {}
+    claimed = max([float(trip[k]) for k in ("cleaning_fee_claimed", "cleaning_fee", "damage_fee", "repair_fee")
+                   if isinstance(trip.get(k), (int, float))] or [0.0])
+    if str(context.get("reporter") or "").lower() == "driver" and claimed and refunded <= claimed + 0.01:
+        return []
     if dispute_type == "service_quality" and refunded > 0 and not disputed:
         return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
                 "sets an amount, so a person decides it." % refunded]

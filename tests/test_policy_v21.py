@@ -170,3 +170,15 @@ def test_a_driver_claim_above_50_goes_to_a_person():
 ])
 def test_property_case_words(desc, prop):
     assert governing_policy.is_property_case({"trip": {}, "description": desc}) is prop
+
+
+@pytest.mark.parametrize("reporter,claimed,refund,flagged", [
+    ("driver", 40.0, 40.0, False),     # V2-07: paying the recorded claim is not discretion
+    ("driver", 40.0, 60.0, True),      # more than the claim: still a person's call
+    ("passenger", 0, 25.0, True),      # a rider's service complaint with no amount on record
+])
+def test_driver_claim_on_record_is_not_discretion(reporter, claimed, refund, flagged):
+    from src.agents.fairness import _refund_basis_problems
+    context = {"type": "service_quality", "reporter": reporter, "findings": [],
+               "trip": {"cleaning_fee_claimed": claimed} if claimed else {}}
+    assert bool(_refund_basis_problems(context, refund)) is flagged
