@@ -125,3 +125,13 @@ def test_needs_an_access_code_and_serves_rule_texts():
     assert TestClient(main.app).post("/api/custom-cases", data={"case": case()}).status_code == 401
     texts = demo().get("/api/case-rule-texts").json()["texts"]
     assert "driver presses" in texts["cancellation_fee_after_wait"]
+
+
+def test_oversized_photo_is_refused_before_decoding(tmp_dirs, monkeypatch):
+    monkeypatch.setattr(custom_cases, "MAX_PIXELS", 1000)   # the 64x48 test image is 3072 px
+    loaded = []
+    from PIL import ImageFile
+    monkeypatch.setattr(ImageFile.ImageFile, "load", lambda self: loaded.append(1))   # the pixel decoder
+    r = post(demo(), case(), [{"source": "upload:0", "time_mode": "set"}], [("a.jpg", jpeg())])
+    assert r.status_code == 400 and "too large" in r.json()["detail"]
+    assert loaded == []
