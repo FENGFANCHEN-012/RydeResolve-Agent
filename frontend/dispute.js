@@ -510,7 +510,8 @@ function rrRiskFact(res) {
 function rrNodeOf(step) {
     if (/^Round /.test(step.title)) return 'debate';
     return { Collector: 'collector', Classifier: 'classifier', CaseBrief: 'casebrief', Passenger: 'passenger', Driver: 'driver',
-             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud' }[step.agent] || 'debate';
+             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud',
+             ImageAnalyst: 'collector' }[step.agent] || 'debate';
 }
 function rrStepsOf(node) { return rr.order.map(id => rr.steps[id]).filter(s => rrNodeOf(s) === node); }
 // A failed run is also routed to human review by the workflow
@@ -840,6 +841,33 @@ function rrToolResult(value) {
     return `<pre class="rr-json">${rrJson(value)}</pre>`;
 }
 
+// Uploaded photos as thumbnails. The file is fetched with the access code (an <img src> cannot
+// send it), then shown from a blob URL; see rrHydratePhotos.
+function rrPhotos(evidence) {
+    const photos = evidence.map((e, i) => ({ ...e, i })).filter(e => /\.(jpe?g|png|webp)$/i.test(e.file_url || ''));
+    if (!photos.length) return '';
+    return `<div class="rr-label" style="margin-top:10px">Uploaded photos</div><div class="rr-photos">${photos.map(e =>
+        `<figure><img alt="evidence[${e.i}]" data-ev="${rrEsc(e.file_url)}"><figcaption>evidence[${e.i}] · ${
+            rrEsc(e.uploaded_by)}${e.uploaded_at ? ' · uploaded ' + rrEsc(rrTime(e.uploaded_at)) : ''}</figcaption></figure>`).join('')}</div>`;
+}
+const rrPhotoCache = {};
+async function rrHydratePhotos(root) {
+    for (const img of root.querySelectorAll('img[data-ev]:not([src])')) {
+        const url = img.dataset.ev;
+        try {
+            if (!rrPhotoCache[url]) {
+                const resp = await apiFetch(`${API_BASE}/api/evidence-file?url=${encodeURIComponent(url)}`);
+                if (!resp.ok) throw new Error(resp.status);
+                rrPhotoCache[url] = URL.createObjectURL(await resp.blob());
+            }
+            img.src = rrPhotoCache[url];
+        } catch { img.replaceWith(Object.assign(document.createElement('span'), { className: 'rr-hint', textContent: 'photo not available' })); }
+    }
+}
+if (typeof MutationObserver !== 'undefined') {
+    new MutationObserver(() => rrHydratePhotos(document)).observe(document.body, { childList: true, subtree: true });
+}
+
 // Collector findings: conflicts and gaps first, each with the data it came from
 function rrFindings(findings) {
     if (!findings.length) return '';
@@ -864,6 +892,19 @@ function rrReasoning(agent, out) {
             <div class="k">Source</div><div>${rrEsc(dc.source || 'not found on platform')}</div>
             <div class="k">Data found</div><div>${fields.map(f =>
                 `<span class="rr-chip ${out[f] != null ? 'ok' : 'miss'}">${f}${count(out[f])}</span>`).join('')}</div></div>`
+            + rrPhotos(out.evidence || [])
+            + rrFindings(out.findings || []);
+    }
+    if (agent === 'ImageAnalyst') {
+        const reports = out.reports || [];
+        return `<div class="rr-hint">A vision model describes each photo. Its view is not a verified fact: it can only
+            raise doubts, which send the case to a person; it never approves a charge or refund.</div>
+            ${reports.map(r => `<div class="rr-kv" style="margin-top:8px">
+                <div class="k">${rrEsc(r.evidence)}</div><div>${rrEsc(r.description || '')}</div>
+                <div class="k">Seen</div><div>${rrEsc(r.scene)} · mess ${r.mess_visible ? 'yes' : 'no'} · ${rrEsc(r.severity)}
+                    · matches claim: ${rrEsc(r.matches_claim)}</div>
+                ${(r.generation_or_editing_signs || []).length ? `<div class="k">Edit signs</div><div>${
+                    r.generation_or_editing_signs.map(rrEsc).join('; ')}</div>` : ''}</div>`).join('')}`
             + rrFindings(out.findings || []);
     }
     if (agent === 'Executor') {

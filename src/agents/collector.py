@@ -23,6 +23,7 @@ from pydantic import BaseModel
 from enum import Enum
 
 from src.agents.collector_tools import QUERY_TOOLS, STANDARD_TOOLS, Finding
+from src.agents.photo_checks import photo_checks
 from src.core.case_policy import case_policy_block, policy_checks, split_policy
 from src.core.trace import record_tool_call
 from src.integrations.ryde_api import (
@@ -52,6 +53,7 @@ class EvidenceItem(BaseModel):
     description: str
     file_url: str
     uploaded_by: str  # rider, driver
+    uploaded_at: Optional[str] = None  # when it reached the platform (ISO), if known
 
 
 # get the dispute context from ryde app as proof to support judgement
@@ -88,6 +90,8 @@ class DisputeContext(BaseModel):
     data_completeness: dict = {}
     # Facts / conflicts / gaps computed by the Collector's tools
     findings: list[Finding] = []
+    # What a vision model sees in each uploaded photo (src/agents/image_analyst.py); never verified
+    image_reports: list[dict] = []
     # Shared dossier built after classification (src/agents/case_brief.py)
     case_brief: Optional[dict] = None
     # Additional metadata
@@ -243,6 +247,8 @@ class CollectorAgent:
         findings: list[Finding] = []
         for name, tool in STANDARD_TOOLS.items():
             findings.extend(self._run(name, tool, context, {}))
+        if context.evidence:
+            findings.extend(self._run("photo_checks", photo_checks, context, {}))
         return findings
 
     def query(self, context: DisputeContext, tool: str, **args) -> list[Finding]:
@@ -290,6 +296,7 @@ class CollectorAgent:
             platform_policy_text=policy_text,
             platform_policy_checks=policy_check,
             pair_history=data.get("pair_history") or None,
+            evidence=[_evidence_item(e) for e in data.get("evidence") or [] if isinstance(e, dict)],
             language=language,
             submitted_at=ticket.get("filed_at"),
         )
@@ -330,6 +337,13 @@ _DATASET_TYPE_MAP: dict[str, DisputeType] = {
 def _map_dispute_type(raw: str | None) -> DisputeType | None:
     # Unknown types return None so the Classifier decides instead
     return _DATASET_TYPE_MAP.get((raw or "").strip().lower())
+
+
+def _evidence_item(e: dict) -> EvidenceItem:
+    """A file the dataset says was uploaded with the dispute (photos, receipts)."""
+    return EvidenceItem(evidence_type=e.get("evidence_type") or "photo", description=e.get("description") or "",
+                        file_url=e.get("file_url") or e.get("file") or "",
+                        uploaded_by=e.get("uploaded_by") or "rider", uploaded_at=e.get("uploaded_at"))
 
 
 def _map_reporter(filed_by: str | None) -> str:

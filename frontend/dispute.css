@@ -478,3 +478,7 @@
 .rr-notice.driver .rr-notice-to { color: var(--agent-driver); }
 .rr-notice-subj { font-weight: 600; margin-bottom: 6px; overflow-wrap: anywhere; }
 .rr-notice .rr-prose { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.rr-photos { display: flex; flex-wrap: wrap; gap: var(--s-md); margin-top: 6px; }
+.rr-photos figure { margin: 0; width: 160px; }
+.rr-photos img { width: 160px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border, #ddd); display: block; }
+.rr-photos figcaption { font-size: 11px; line-height: 1.4; margin-top: 4px; opacity: .8; }
