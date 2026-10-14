@@ -1,4 +1,4 @@
-# Demo narration (teleprompter, about 7 minutes)
+# Demo narration (teleprompter, about 7 min 45 s)
 
 Read-aloud text for the video. Screen cues are in [brackets]; the full walkthrough with setup is in
 `docs/DEMO_SCRIPT.md`. About 130 words a minute.
@@ -13,8 +13,8 @@ every one. That takes 24 to 72 hours, and two agents can rule differently on the
 
 RydeResolve is a team of AI agents that settles these disputes in about a minute and a half. A rider
 advocate and a driver advocate each build their side's case from the platform records and Ryde's
-policy. A judge weighs both and rules, with a confidence score and its reasons. And then code, not the
-model, checks the ruling before any money moves.
+policy. A judge weighs both and rules, with a confidence score and its reasons. Photos are checked too. And
+then code, not the model, checks the ruling before any money moves.
 
 Our rule is simple: if the system cannot prove its ruling from the records, a person decides.
 
@@ -67,6 +67,27 @@ The reviewer gets the whole case: the evidence, both arguments, the draft and th
 stopped. A reviewer's decision can become a precedent, but only after an evaluation shows it does no
 harm.
 
+**[Saved runs: demo-4-IM-04]**
+
+Cleaning fees come with photos, so we check photos twice. Here a driver claims forty dollars for muddy
+shoes. Code reads the photo's own data: taken five minutes after drop-off, thirty metres from the
+drop-off point, no editing tag, and the same file appears in no other case. A vision model looks at
+it: muddy sneakers on the floor mat, matching the claim. The fee stands.
+
+**[Saved runs: demo-5-IM-12]**
+
+This driver claims seventy dollars for a seat stain. The time and place look right. But the vision
+model sees a clean seat, and the watermark of an AI image generator. The case goes to a person. The
+vision model can only raise doubts; it never approves money. And a doubted photo always goes to a
+person, whichever side it would favour.
+
+**[Copy & edit on IM-04]**
+
+You can try this yourself. I copy the genuine case, move the photo's time to half an hour before the
+pickup, and save it as a new case. Run it: the collector flags a photo taken before the trip began,
+and instead of charging the rider, the case goes to a person. Anyone can build a case here, with the
+trip, both profiles, both sides' chat, the rules and the photos, and watch every agent work on it.
+
 **[Saved runs: demo-3-SI-001]**
 
 Last: "The driver kept commenting on my body and said he knows where I stay. I feel unsafe." The
@@ -76,17 +97,18 @@ automatic refund. Safety is never automated.
 **[README results table]**
 
 How do we know it works? We test on cases with known answers, including sets written by another model
-that never saw our code, and a sealed set we ran once and never tuned on. 78 of 101 rulings were
-correct; most misses were cases handed to a person, which costs time, not money. There were two wrong
-payouts, of eight dollars each, and we publish both.
+that never saw our code, and a sealed set we ran once and never tuned on. 102 of 133 rulings were
+correct. Most misses were cases handed to a person, which costs time, not money. There were five
+wrong payouts, and one ruling that left out the amount. The largest was a hundred-dollar refund on a
+doubtful photo; that is why every doubted photo now goes to a person, and on a new photo set after
+the fix, none slipped through. We publish every miss; the two newest are still open.
 
 **[A CodeBuddy screenshot]**
 
 We built RydeResolve with CodeBuddy. Two habits made the difference. First, ask for a diagnosis and
-the cost before building: when we asked about fully autonomous agent loops, CodeBuddy laid out the
-token, latency and testing cost, and we chose constrained autonomy instead. Second, commit a baseline
-before every experiment and measure it: a token-saving change looked good until the A/B test showed
-it hurt accuracy, so we kept only the safe part.
+the cost before building: for fully autonomous agent loops, CodeBuddy laid out the token, latency and
+testing cost, and we chose constrained autonomy. Second, commit a baseline before every experiment:
+a token-saving change looked good until the A/B test showed it hurt accuracy.
 
 **[Cover image]**
 

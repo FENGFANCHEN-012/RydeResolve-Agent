@@ -1,109 +1,116 @@
 # RydeResolve demo script (5-8 min)
 
 Follows the handbook's video outline: project overview, core agent features and how they are
-used, a short reflection on the build and CodeBuddy tips. Target length about 7 minutes.
+used, a short reflection on the build and CodeBuddy tips. Target length about 7 min 45 s.
 
 ## Before recording
 
 - Site: http://43.134.17.192 (enter the demo access code). Dashboard tab "Dispute Resolution".
-- The three moments below are replayed from the runs that produced them, so the demo never depends
-  on provider quota or on a rerun ruling differently. On the server, once:
+- The recorded moments are replayed from the runs that produced them, so the demo never depends
+  on provider quota or on a rerun ruling differently. They are already on the server under
+  "Replay a saved run": demo-1-RD-001, demo-2-F2-17, demo-3-SI-001, demo-4-IM-04 (genuine photo),
+  demo-5-IM-12 (AI-generated photo). To add more, copy the eval trace to the same path on the
+  server (`data/eval/` is not in git) and run `scripts/import_demo_traces.py <trace>` there, then
+  restart the service.
+- The case editor segment (5:00) is a live run, about 90 s of agent time: record it once and cut
+  the waiting in editing. It needs the access code and spends about US$0.015 of LLM quota.
 
-  ```bash
-  cd ~/ryderesolve
-  echo 'EXTRA_DISPUTE_DIRS=data/eval_cases/fresh2_sonnet' >> .env   # makes case F2-17 loadable
-  .venv/bin/python scripts/import_demo_traces.py \
-      data/eval/20261012-115556/traces/RD-001_r1.json \
-      data/eval/20261012-213702-fresh2/traces/F2-17_r1.json \
-      data/eval/20261012-115556/traces/SI-001_r1.json
-  sudo systemctl restart ryderesolve
-  ```
-
-  The eval traces are not in git (`data/eval/` is local); copy the three files to the same paths
-  on the server first (`scp`).
-- They appear under "Saved runs" as demo-1-RD-001, demo-2-F2-17, demo-3-SI-001.
-- Optional live run: press "Run agents" on RYDE-DEMO-001 to show it really runs (about 90 s). Have
-  the replay ready in case the provider is slow.
-
-## 0:00-1:00 Problem and idea
+## 0:00-0:50 Problem and idea
 
 Say:
 - "Ride-hailing platforms handle thousands of disputes a day. Today a person reads GPS, chat logs,
-  receipts and policy for each one: 24 to 72 hours, and two agents can rule differently on the
-  same facts."
+  receipts, photos and policy for each one: 24 to 72 hours, and two agents can rule differently on
+  the same facts."
 - "RydeResolve resolves standard disputes in about two minutes with a team of agents: a rider
-  advocate, a driver advocate and a judge, plus evidence, fraud and fairness agents."
-- "Our rule: when the system cannot prove its ruling from the records, a person decides. It
-  would rather hand a case over than pay out on a wrong ruling."
+  advocate, a driver advocate and a judge, plus evidence, photo, fraud and fairness checks."
+- "Our rule: when the system cannot prove its ruling from the records, a person decides."
 
 Show: the architecture figure (`docs/architecture.png`), 15 seconds, pointing at the flow from
-evidence to advocates to judge to code checks.
+evidence and photos to advocates to judge to code checks.
 
-## 1:00-3:00 Case 1: route deviation, resolved automatically (demo-1-RD-001)
+## 0:50-2:20 Case 1: route deviation, resolved automatically (demo-1-RD-001)
 
 Complaint: "My driver missed the exit on the AYE... charged $18.20 instead of the $14.50 quoted.
 I want the extra $3.70 refunded."
 
 Replay and narrate each step as it lights up:
-1. Collector: code tools read GPS, fare, app events and chat. Each finding names its record. It
-   finds the route-deviation alert, 10.4 km against 8.2 km planned, fare S$18.20 against S$14.50.
-2. Classifier: route deviation, priority P1, no safety issue.
-3. Rider advocate and driver advocate: each builds its side's case and cites policy. Open the
-   debate panel: the driver's side admits the missed exit in the chat.
-4. Judge: upheld, refund S$3.70, confidence 0.92, with the reasons and the facts it rests on.
-5. Code Judge: checks that every decisive fact is verified on a clean record and that S$3.70 is
-   arithmetic on record figures (18.20 - 14.50). Passes.
-6. Fairness audit passes; the executor sends the outcome to both rider and driver.
+1. Collector: code tools read GPS, fare, app events and chat; each finding names its record. Route
+   alert, 10.4 km against 8.2 km planned, fare S$18.20 against S$14.50.
+2. Advocates argue; open the debate panel: the driver admitted the missed exit in the chat.
+3. Judge: upheld, refund S$3.70, confidence 0.92, with the facts it rests on.
+4. Code Judge: every decisive fact verified on a clean record; S$3.70 = 18.20 - 14.50. Passes.
+5. Fairness audit passes; the executor tells both rider and driver.
 
-Say: "This is the majority path: in our blind tests about 82% of standard disputes close like
-this, in about two minutes."
+Say: "This is the majority path: most standard disputes close like this, in about two minutes."
 
-## 3:00-4:45 Case 2: the code Judge stops a wrong refund (demo-2-F2-17)
+## 2:20-3:50 Case 2: the code Judge stops a wrong refund (demo-2-F2-17)
 
 Complaint: "The app told me the driver was 8 minutes away. He was still not here 23 minutes later
-so I cancelled and was charged $5.00."
-
-The catch: the record of when the driver was assigned has a logged data problem, and the ETA shown
-at assignment is missing. The answer key says a person must decide.
+so I cancelled and was charged $5.00." The record of the driver assignment has a logged data
+problem, and the ETA shown at assignment is missing.
 
 Narrate:
 1. Collector flags a gap on `app_events[1]` (driver assignment).
-2. Judge, first draft: refund S$5.00, confidence 0.62. It rests on "cancelled 22.9 minutes after
-   matching", which comes from the questioned record.
+2. Judge, first draft: refund S$5.00, confidence 0.62, resting on that questioned record.
 3. Code Judge blocks it and sends it back with the problems listed.
-4. Judge, second draft: still S$5.00, confidence now 0.85. It has simply deleted the questioned
-   record from its list of facts.
-5. Code Judge: "pays the same as the draft the check blocked, but no longer lists the questioned
-   record" -> human review.
+4. Judge, second draft: still S$5.00, confidence now 0.85; it simply deleted the questioned record.
+5. Code Judge: "pays the same as the draft the check blocked" -> human review.
 
-Say: "The model raised its own confidence from 0.62 to 0.85 without any new evidence. That is why
-we never let the model check itself: code does. We found this loophole on our sealed test set,
-closed it, and it stopped this refund on a fresh set nobody had seen."
+Say: "The model raised its own confidence with no new evidence. That is why code checks the model,
+never the model itself."
 
-Show: the review desk (`/review.html`): an escalated case with the full agent chain, the reason it
-was escalated, and the reviewer's buttons. A reviewer's decision can become a precedent after an
-evaluation gate.
+Show briefly: the review desk (`/review.html`) with this case, the reason it was stopped, and the
+reviewer's buttons. A reviewer's decision can become a precedent after an evaluation gate.
 
-## 4:45-5:45 Case 3: a safety report goes straight to a person (demo-3-SI-001)
+## 3:50-5:00 Case 3: photo evidence (demo-4-IM-04, then demo-5-IM-12)
+
+demo-4-IM-04: a driver claims a S$40 cleaning fee for muddy shoes, with a photo.
+- Show the photo in the case brief, then the Collector panel: code reads the photo's own data:
+  taken 5 minutes after drop-off, 30 m from the drop-off point; no editing tag, and the same file is
+  in no other case. The ImageAnalyst (vision model) sees muddy sneakers on the floor mat, matching
+  the claim.
+- The fee stands, automatically.
+
+demo-5-IM-12: a driver claims S$70 for a seat stain.
+- The photo's time and place look right (8 minutes after drop-off, 20 m away), but the vision model
+  sees a clean seat and an AI generator's watermark.
+- The case goes to a person.
+
+Say: "Photos are checked twice: code checks when and where it was taken and whether it was edited
+or reused; a vision model checks what it shows. The vision model can only raise doubts, never
+approve money. And a doubted photo always goes to a person, whichever side it would favour."
+
+## 5:00-6:00 Try it yourself: the case editor (live)
+
+1. Open demo case IM-04 (the genuine photo) and press "Copy & edit".
+2. In Photos, change the photo's "Taken at" to 30 minutes before pickup. Save: a new case CU-xxxxxx
+   appears and is selected.
+3. Run agents (cut the waiting). The Collector flags "photo taken before the trip began"; the case
+   goes to a person instead of charging the rider.
+
+Say: "Judges can build their own cases here: trip, profiles, both sides' chat, rules and photos,
+and watch every agent work on them."
+
+## 6:00-6:20 Case 4: a safety report goes straight to a person (demo-3-SI-001)
 
 Complaint: "The driver kept commenting on my body... said he knows where I stay. I feel unsafe."
+The safety scan marks it P0 in under a second; it goes to a person now. "Safety is never automated."
 
-Narrate: the classifier's safety scan marks it P0 in under a second; the Safety agent sends it to a
-person now. No advocate debates it, no automatic refund. "Safety is never automated."
-
-## 5:45-6:45 How we know it works
+## 6:20-7:00 How we know it works
 
 Show the results table from the README:
 - 38 dev and held-out cases: 33 correct, 0 wrong payouts.
-- Fresh blind set (20, written by another model without seeing the code): 16 correct, 0 wrong payouts.
-- Sealed set (23, run once, never used for a fix): 16 correct, 1 wrong payout, which led to the
-  fix shown in case 2.
-- A second fresh set after that fix: 13 correct, 1 wrong payout (a rule's wording misread; open).
+- Blind sets written by another model that never saw the code: 16/20 and 13/20; a sealed set run
+  once: 16/23. Each wrong payout led to a logged fix and a new blind set written for it.
+- Blind photo sets: 8/12, where one S$100 fee was refunded on a doubted photo; after the fix that
+  sends every doubted photo to a person, 9/10 with no fee confirmed or removed on a doubted photo.
+- A misread fee rule (the cancellation fee covers a no-show the driver cancels) was fixed; the three
+  cases it got wrong are now right, and the new set for it scored 7/10, with two wrong payouts on
+  other points that we publish.
 
-Say: "We publish the misses as well. Most misses are cases handed to a person, which costs time,
-not money."
+Say: "Most misses are cases handed to a person, which costs time, not money. We publish the rest."
 
-## 6:45-7:30 Reflection and CodeBuddy
+## 7:00-7:45 Reflection and CodeBuddy
 
 CodeBuddy tips, each backed by a screenshot in `proof of usage of codebuddy/` (show one or two on
 screen while speaking; edit the wording to your own):
@@ -112,15 +119,13 @@ screen while speaking; edit the wording to your own):
 - "Ask about cost and risk, not just how to build it. When we asked about fully autonomous agent
   loops, CodeBuddy laid out the token, latency and testing cost, and we chose constrained autonomy:
   zero-token queries plus one LLM decision (09-12)."
-- "Let it write the hard tests, then fix what they break. CodeBuddy wrote five complex end-to-end
-  disputes; they exposed query-planner bugs, which we fixed until all tests passed (15-17)."
 - "Commit a baseline before an experiment. Before a token-saving change we made a rollback commit,
   ran an A/B test, found that truncating policy clauses hurt accuracy, and kept only the safe
   savings (19-21)."
 
-Say (pick two or three):
-- "Lesson: put deterministic checks where the model is weakest: time arithmetic, amounts, and
-  whether a record can be trusted."
+Say (pick one or two):
+- "Lesson: put deterministic checks where the model is weakest: time arithmetic, amounts, photo
+  data, and whether a record can be trusted."
 - "Every change is logged with what, why and the measured effect (docs/08), and tested on cases
   written after the change."
 
