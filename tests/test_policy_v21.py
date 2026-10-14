@@ -182,3 +182,20 @@ def test_driver_claim_on_record_is_not_discretion(reporter, claimed, refund, fla
     context = {"type": "service_quality", "reporter": reporter, "findings": [],
                "trip": {"cleaning_fee_claimed": claimed} if claimed else {}}
     assert bool(_refund_basis_problems(context, refund)) is flagged
+
+
+@pytest.mark.parametrize("dtype,refund,ok", [
+    ("route_deviation", 6.50, False),   # DISP-001 run 20261014-201340: tolls and time refunded too
+    ("route_deviation", 3.44, True),
+    ("fare_dispute", 6.50, True),       # not a route ruling: other checks apply
+])
+def test_route_refund_is_capped_at_the_excess_distance_fare(dtype, refund, ok):
+    from src.agents.code_judge import check_route_refund
+    ctx = {"type": dtype, "trip": {"fare_breakdown": {"excess_distance_fare": 3.44}}}
+    assert (check_route_refund(SimpleNamespace(refund_amount=refund), ctx) == []) is ok
+
+
+def test_section_6_2_carries_the_route_note():
+    [c] = [c for c in governing_policy.clauses_for({"trip": {}, "description": ""}, "route_deviation")
+           if c["chunk_index"] == "6.2"]
+    assert "RydeResolve note" in c["clause"] and "DISP-001" in c["clause"]

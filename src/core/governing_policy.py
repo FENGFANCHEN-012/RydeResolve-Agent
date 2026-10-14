@@ -88,5 +88,13 @@ def clauses_for(ctx: dict, dispute_type: str, urgency: str | None = None) -> lis
     """The governing sections as clauses in the retriever's shape (citable by reference)."""
     have = sections()
     return [{"source": SOURCE, "chunk_index": s, "section": f"s{s} {have[s]['title']}",
-             "clause": have[s]["text"], "governing": True, "found_by": ["governing policy v2.1"]}
+             "clause": have[s]["text"] + NOTES.get(s, ""), "governing": True, "found_by": ["governing policy v2.1"]}
             for s in applicable(ctx, dispute_type, urgency)]
+
+
+# Shown under a section's text, marked as RydeResolve's note so the policy text itself is unchanged
+NOTES = {
+    "6.2": ("\n[RydeResolve note: the route-deviation row's \"deviation <= 2km, else escalate\" is not applied: "
+            "the organisers' own sample DISP-001 rules a 4.3 km deviation automatically. All routing in this "
+            "section is applied by code after the ruling; do not set human_review_needed to apply it.]"),
+}

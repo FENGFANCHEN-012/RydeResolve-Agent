@@ -216,9 +216,29 @@ def check_photos(decision, context: dict) -> list[str]:
             "human_review_needed to true."]
 
 
+def check_route_refund(decision, context: dict) -> list[str]:
+    """D50: Policy v2.1 s1.3 refunds a route deviation's excess DISTANCE fare, never tolls, time or
+    surge. When the fare breakdown records that fare, a route refund above it is wrong (DISP-001,
+    run 20261014-201340: S$6.50, the whole excess, instead of the recorded S$3.44)."""
+    trip = (context or {}).get("trip") or {}
+    fb = trip.get("fare_breakdown") if isinstance(trip.get("fare_breakdown"), dict) else {}
+    edf = fb.get("excess_distance_fare")
+    dtype = getattr((context or {}).get("type"), "value", (context or {}).get("type"))
+    try:
+        refund = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        return []
+    if dtype != "route_deviation" or not isinstance(edf, (int, float)) or refund <= edf + 0.01:
+        return []
+    return [f"The refund S${refund:.2f} is more than the excess distance fare S${edf:.2f} "
+            "(trip.fare_breakdown.excess_distance_fare). Policy v2.1 s1.3 refunds the excess distance "
+            "fare only; tolls, time and surge are not part of it."]
+
+
 def review(decision, context: dict) -> list[str]:
     """All problems with a draft ruling; empty when it may proceed to the Fairness audit."""
-    return check_facts(decision, context) + check_amount(decision, context) + check_photos(decision, context)
+    return (check_facts(decision, context) + check_amount(decision, context) + check_photos(decision, context)
+            + check_route_refund(decision, context))
 
 
 def render_code_review(draft: dict, problems: list[str]) -> str:
