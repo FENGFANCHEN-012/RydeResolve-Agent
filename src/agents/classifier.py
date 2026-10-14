@@ -49,7 +49,10 @@ class ClassificationResult(BaseModel):
 # ------------------------------------------------------------------ #
 _P0_KEYWORDS: list[str] = [
     "accident", "injury", "injured", "assault", "assaulted",
-    "crash", "collision", "hospital", "ambulance",
+    # A hospital is often just a pickup or drop-off ("I was in the hospital lobby", OF-15); only
+    # being taken there for an injury is a safety word
+    "crash", "collision", "taken to hospital", "sent to hospital", "admitted to hospital",
+    "hospitalised", "hospitalized", "ambulance",
     "bleeding", "unconscious", "concussion", "fracture",
     "trauma", "weapon", "knife", "gun", "threatened",
     "harassment", "sexually", "police", "lawsuit", "sue",

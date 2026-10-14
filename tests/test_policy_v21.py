@@ -205,3 +205,18 @@ def test_a_repair_claim_above_50_goes_to_a_person():
     # OF-27: the claim is recorded as repair_fee_claimed
     reasons = policy_gates.check(dec(), gctx(reporter="driver", trip={"repair_fee_claimed": 245.0}))
     assert any("s6.1" in r for r in reasons)
+
+
+@pytest.mark.parametrize("text,p0", [
+    ("I was in the hospital lobby with my phone on silent and missed the driver.", False),   # OF-15
+    ("I was dropped at Mount Elizabeth Hospital and charged twice.", False),
+    ("The crash left me hurt and I was taken to hospital.", True),
+    ("My son was hospitalised after the driver braked hard.", True),
+])
+def test_hospital_as_a_place_is_not_a_safety_word(text, p0):
+    from src.agents.classifier import _has_p0_keywords
+    from src.agents.safety import _IMMINENT_PATTERNS
+    import re
+    assert _has_p0_keywords(text)[0] is p0
+    if not p0:
+        assert not any(re.search(p, text.lower()) for p in _IMMINENT_PATTERNS)

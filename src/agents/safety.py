@@ -30,7 +30,8 @@ TIERS = (IMMINENT, VERBAL_ABUSE, MINOR)
 
 # Decided in code: any of these means a person now, whatever the LLM would say
 _IMMINENT_PATTERNS = [
-    r"\b(accident|injur(y|ed)|assault(ed)?|crash|collision|hospital|ambulance|bleeding|unconscious|"
+    r"\b(accident|injur(y|ed)|assault(ed)?|crash|collision|(taken|sent|admitted) to (the )?hospital|"
+    r"hospitali[sz]ed|ambulance|bleeding|unconscious|"
     r"concussion|fracture|trauma|weapon|knife|gun|attacked|physically|wounded|stab(bed)?|struck|"
     r"punch(ed)?|hit me|grab(bed)?)\b",
     r"\b(sexual(ly)?|grope(d)?|touch(ed)? me|my body|kiss(ed)?)\b",
