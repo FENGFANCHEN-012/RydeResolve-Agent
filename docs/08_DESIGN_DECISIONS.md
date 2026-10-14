@@ -1644,3 +1644,71 @@ Live checks after deploy: a built case (CU-45DA39) ran end to end twice on the s
 photo saved through the live API carried the time and GPS set for it (test case then deleted).
 
 Not done: no way to edit or delete a built case in place (copy it instead).
+
+## D50. The organisers' sample format and Ryde Dispute Resolution Policy v2.1 (2026-10-14)
+
+What arrived: the organisers' Ryde Dispute Resolution Policy v2.1 ("Internal - Agent Training
+Reference", written for RydeResolve's agents) and three sample datasets: DISP-001 (route deviation,
+expected partial refund S$3.44), DISP-002 (no-show, fee upheld; already in data/Dispute_format) and
+DISP-003 (surge fare, no answer given). Our policy base was Ryde's public Help Centre (verbatim);
+v2.1 is a different document with different figures (a S$5.00 no-show fee and a 5-minute free wait vs
+the Help Centre's S$6.61 and 3 minutes) and internal routing rules the Help Centre never publishes.
+User decision: follow the organisers' documents; where they disagree, the sample's expected answer
+wins (DISP-001's 4.3 km deviation is ruled automatically although v2.1 s6.2 says over 2 km escalates).
+
+What changed:
+1. Sample format. Records the samples keep beside trip_data (fare_breakdown, surge_pricing_log,
+   optimal_route -> recommended_route, traffic_conditions -> traffic_incidents) are folded into the
+   trip, and start_time / end_time / actual_fare / upfront_quote alias pickup_time / dropoff_time /
+   total_fare / estimated_fare (collector._official_trip). Before, those sections were dropped, so
+   the surge log and the traffic incidents never reached an agent. The samples' analysis sections
+   (case_metadata, recommended_ruling, evidence_summary, traffic_analysis, chat_log_analysis) and
+   free-text reasoning (fare_breakdown.notes / comparison, optimal_route.notes, incident descriptions)
+   are removed with the answer keys (ryde_api.strip_answer_keys): they are someone's conclusions.
+2. Code tools computing those conclusions from the records: surge_check (s3.3: surge at quote vs
+   start, rider notified, whether the difference is all surge), route_vs_recommended (s1.3: excess
+   over the recommended route, 1 km tolerance, recorded excess distance fare), traffic_check (s1.4:
+   each incident active during the trip, on the recommended route), contact_obligation (s2.3: a
+   message AND a call before a no-show cancel).
+3. v2.1 in every Case Brief (src/core/governing_policy.py): the sections that apply to the case
+   (by type and records; section 6 always), in full text, ahead of the help-centre clauses, citable
+   as ryde_dispute_policy_v2.1#<section>. Not put in Qdrant: the live server shares that index.
+4. v2.1 routing in code (src/agents/policy_gates.py, a PolicyGate step after the Judge): s5.2 a
+   safety incident (urgency P0, a threat in the chat, a Safety tier) is never ruled by AI; s6.1 a
+   dispute value above S$50 always goes to a person, S$10-50 needs confidence 0.80; s6.3 a fraud flag
+   needs 0.95 (no-show / cancellation exempt: s6.2 makes that AI ruling final); s4.4 a rider
+   contesting a cleaning or damage claim goes to a person. The brief tells the Judge these are
+   applied by code, so it rules on the merits only (it had escalated DISP-001 itself on s6.2's 2 km).
+5. The Judge's chat-absence rule gets an exception: where v2.1 accepts an act only by in-app chat or
+   a recorded call (s1.2 route notice, s2.3 contact), its absence from those records is verified.
+6. Fairness: paying a driver up to their recorded claim (cleaning_fee_claimed etc.) is not a
+   discretionary service-quality refund.
+7. Answer keys re-checked against v2.1 (free audit: Collector + gates on every keyed case). 17 keys
+   that expected an automatic ruling now expect a person: 16 by s6.1 (driver cleaning claims of
+   S$60-200 and rider disputes over S$50; 9 also s4.4) and ST-003-T by s5.2 (a threat in the chat). The
+   old ruling is kept under expected_outcome.v21_change.was. DISP-001 and DISP-003 added to
+   eval_answer_keys.json (DISP-003's answer derived from s3.3-3.4: refund S$4.50).
+8. A false match fixed on the way: the property-case word "mess" matched "message".
+
+How checked:
+- 597 Python tests pass (37 new in tests/test_policy_v21.py); no answer or analysis text reaches
+  the agents on any sample (tested).
+- Official samples, run 20261014-192008-official-v21 (US$0.05): DISP-002 and DISP-003 right
+  (S$4.50 refunded automatically); DISP-001 ruled S$3.44 correctly but the Judge set human review
+  itself (s6.2's 2 km). Replay 20261014-194633 after the brief note: DISP-001 blocked by the code
+  Judge (old chat-absence rule, item 5). Replay 20261014-195239 after items 5-6: DISP-001 S$3.44 and
+  V2-07 S$40.00, both executed. All three samples now right.
+- New blind set V2-01..12 (data/eval_cases/policy_v21, brief focus_policy_v21.txt, Sonnet subagent
+  that read only the brief, v2.1 and the three samples). Run 20261014-192730-policy-v21 (one run,
+  US$0.16): verdict 10/12, every refund amount right, no wrong payout. V2-02: refund S$1.44 right but
+  labelled upheld, key partially_upheld. V2-07: escalated because the S$40 claim was only in the
+  driver's text (the code Judge refused it as not a record figure; the brief had not asked for a claim
+  record). V2-07 was then given trip_data.cleaning_fee_claimed (noted in the file) and passed in the
+  replay above; it stays a miss in the scored run. V2-07's photo is a stamped library photo with the
+  claim text changed to match it (the brief gave no image file).
+- Total spend US$0.27.
+
+Not done: the old sets were not re-run on this code (about 104 cases, about US$2); their published
+scores are pre-v2.1. Items 5 and 6 were tested only on the two replayed cases. s6.2's 2 km route
+rule is deliberately not enforced (DISP-001). The DISP-001 Judge outcome varied between runs (self
+escalation, unverifiable fact, correct), so one correct run is not proof of stability.
