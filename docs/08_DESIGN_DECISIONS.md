@@ -1474,3 +1474,50 @@ Next, if pursued: state each precedent's outcome in plain terms (who pays whom, 
 dispute type and filer role and by a real similarity score; make the gate also fail when any case
 that was right becomes wrong; and catch the recurring fee-scope misreading with a code rule check,
 tested on a new blind set. Not done before submission.
+
+## D46. Photo evidence: code checks the file, a vision model describes it (2026-10-14)
+
+What (the multi-modal stretch goal, cleaning-fee disputes):
+- `src/agents/photo_checks.py`, a Collector tool, no LLM. Per uploaded photo, findings citing
+  `evidence[i]`: capture time (EXIF) against the trip (before pickup, or past the case's
+  `photo_window_after_dropoff_min`, default 60, is a conflict; no capture time is a gap); capture
+  place (EXIF GPS) more than 1 km from drop-off is a conflict; uploaded before taken is a conflict;
+  an editing or generation program in EXIF Software is a conflict; the same file twice in a case, or
+  a file another case already held before this one was stored, is a conflict (only the later copy is
+  doubted: the first fix of this check flagged the original too).
+- `src/agents/image_analyst.py`: a vision model (Groq `qwen/qwen3.8-27b`, free tier; Gemini was
+  out of credit, other providers had no vision model on our keys) describes each photo: scene, mess,
+  severity, match with the claim, signs of editing or generation. Its report is shown to the advocates
+  and the Judge as unverified. It becomes a finding only as a doubt (not a car, no mess, does not
+  match, looks generated), a conflict on that photo; the code Judge then refuses a ruling resting on
+  it. The model can send a case to a person; it cannot approve a charge or refund. No key or a failed
+  call makes the photo a gap.
+- Dataset cases can list `evidence` files; the dashboard shows the photos (fetched with the access
+  code through `/api/evidence-file`, limited to `data/evidence*`) and an ImageAnalyst panel.
+- Tests: `tests/test_photo_evidence.py` (24). 531 Python and 24 frontend tests pass.
+
+Test set (new, blind): a Sonnet subagent wrote IM-01..12 (`data/eval_cases/images`, brief
+`focus_images.txt`) from a photo library of real photos (Pexels licence / CC, `SOURCES.json`) and one
+generated image; `scripts/stamp_case_photos.py` writes the capture time, GPS and software each case
+specifies. MiniMax image generation was out of balance, and free generators gave unusable images.
+Free dry run first (code checks + vision only): every problem photo raised the intended doubt and
+every genuine photo passed.
+
+Run 20261014-113148-images (one run, US$0.18): 8/12.
+| case | photo | result |
+|---|---|---|
+| IM-02, IM-04 | genuine | decided correctly (fee stands) |
+| IM-01, IM-03 | genuine | sent to a person; the Judge's ruling was right. IM-01: Fairness, because the Classifier filed it as a service-quality dispute ("refund beyond the disputed amount"); IM-03: the Judge asked |
+| IM-05 | no capture time, rider admits in chat | sent to a person: the Judge rested the ruling on the photo, not on the chat |
+| IM-06, 07, 09, 10, 11, 12 | clean seat, not a car, Photoshop, reused, 13.7 km away, AI-generated | sent to a person |
+| IM-08 | driver's photo taken 38 min before the trip, no receipt | refunded the rider's S$100 fee automatically; answer key: a person |
+
+No charge was upheld on a doubted photo. IM-08 is counted as a miss: the Judge removed the fee because
+the driver's evidence failed the case's evidence rule (photo outside the window, no receipt), a
+defensible reading, but the case's photo-doubt rule says a case officer decides, and the code Judge
+let it through because the decisive fact ("taken before the trip") is itself a code finding.
+Classification was 0/12: there is no cleaning-fee dispute type, so the Classifier files these as fare
+or service-quality disputes, which caused IM-01's escalation.
+
+Not done: a cleaning-fee dispute type; a rule that a ruling turning on a doubted photo goes to a
+person whichever side it favours; testing on real driver photos (the library is stock photos).
