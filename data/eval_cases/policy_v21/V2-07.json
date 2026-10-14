@@ -59,7 +59,8 @@
     "actual_duration_min": 37,
     "upfront_quote": 19.8,
     "actual_fare": 19.8,
-    "fare_difference": 0.0
+    "fare_difference": 0.0,
+    "cleaning_fee_claimed": 40.0
   },
   "gps_telemetry": [
     {
@@ -162,5 +163,5 @@
       "copy_of": null
     }
   },
-  "_operator_note": "Edited after writing (D50): the brief gave no image file, so a library photo was stamped with the time and place the case states, and the claim text was changed from a seat stain to the floor carpet the photo shows. Expected ruling unchanged."
+  "_operator_note": "Edited after writing (D50): the brief gave no image file, so a library photo was stamped with the time and place the case states, and the claim text was changed from a seat stain to the floor carpet the photo shows. Expected ruling unchanged. Second edit after run 20261014-192730-policy-v21 (scored as a miss there): the S$40.00 claim was only in the driver's free text, so the code Judge correctly refused it as a figure not in the records; trip_data.cleaning_fee_claimed added as a platform claim record would have it."
 }
