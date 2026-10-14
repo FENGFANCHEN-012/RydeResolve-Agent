@@ -15,7 +15,7 @@ from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -557,6 +557,18 @@ def _save_trace(order_id: str, events: list[dict]) -> str | None:
     except Exception:
         logging.getLogger(__name__).warning("Could not save the pipeline trace.")
         return None
+
+
+@app.get("/api/evidence-file")
+async def evidence_file(url: str):
+    """An uploaded evidence photo, for the dashboard. Only files under data/evidence and
+    data/evidence_samples are served; the access code applies like every /api/ call."""
+    from src.agents.photo_checks import IMAGE_EXTS, ROOT, photo_path
+    path = photo_path(url)
+    allowed = (ROOT / "data" / "evidence", ROOT / "data" / "evidence_samples")
+    if path is None or path.suffix.lower() not in IMAGE_EXTS or not any(a in path.parents for a in allowed):
+        raise HTTPException(status_code=404, detail="Evidence file not found")
+    return FileResponse(path)
 
 
 @app.get("/api/disputes/traces")

@@ -69,7 +69,7 @@ from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
 from src.agents.safety import SafetyAgent
 from src.agents.objection import ObjectionAgent, objecting_sides
-from src.agents import code_judge
+from src.agents import code_judge, image_analyst
 from src.config import OBJECTION_ROUND, OBJECTION_SIDES
 from src.core.debate import DebateEngine
 from src.core.trace import step
@@ -231,6 +231,14 @@ def build_dispute_graph(
                 language=state.get("language", "en"),
             )
             s["output"] = context
+        if any(image_analyst.is_photo(e) for e in context.evidence or []):
+            async with step("ImageAnalyst", "Describe the uploaded photos (vision model)", {
+                "sees": ["uploaded photos", "the claim text"], "photos": len(context.evidence),
+            }) as s:
+                reports, doubts = await image_analyst.analyse(context)
+                context = context.model_copy(update={"image_reports": reports,
+                                                     "findings": [*context.findings, *doubts]})
+                s["output"] = {"reports": reports, "findings": [f.model_dump() for f in doubts]}
         return {"context": context, "status": STATUS_IN_PROGRESS}
 
     @_safe_node(NODE_CLASSIFIER)
