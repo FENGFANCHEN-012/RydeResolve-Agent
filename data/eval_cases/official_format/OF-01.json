@@ -1,0 +1,219 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "fare: difference from an added stop and ERP, not surge",
+  "dispute_ticket": {
+    "dispute_id": "OF-01",
+    "trip_id": "TRIP-2026-31037",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was quoted S$20.50 and charged S$26.00. I did not agree to any price increase and the app never showed surge to me. Please refund the S$5.50 difference.",
+    "filed_at": "2026-10-02T15:02:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6170",
+    "name": "Catherine Yap",
+    "account_age_days": 800,
+    "total_trips": 301,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld": 2,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4310",
+    "name": "Lee Kok Wai",
+    "account_age_days": 1300,
+    "total_trips": 6120,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 1,
+      "rejected": 5
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKV 5512 L)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31037",
+    "rider_id": "R-6170",
+    "driver_id": "D-4310",
+    "pickup_location": {
+      "name": "Mandarin Gallery",
+      "lat": 1.3018,
+      "lng": 103.8365
+    },
+    "dropoff_location": {
+      "name": "Great World City",
+      "lat": 1.2935,
+      "lng": 103.8315
+    },
+    "start_time": "2026-10-02T14:08:00+08:00",
+    "end_time": "2026-10-02T14:32:00+08:00",
+    "estimated_duration_min": 24,
+    "actual_duration_min": 24,
+    "upfront_quote": 20.5,
+    "actual_fare": 26.0,
+    "fare_difference": 5.5
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 3.0,
+      "distance_fare": 12.2,
+      "time_fare": 3.8,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 19.0,
+      "total": 20.5
+    },
+    "actual_fare": {
+      "base_fare": 3.0,
+      "distance_fare": 12.2,
+      "time_fare": 3.8,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 19.0,
+      "added_stop_fee": 3.0,
+      "erp_charge": 2.5,
+      "total": 26.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-02T14:08:00+08:00",
+      "lat": 1.3018,
+      "lng": 103.8365,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-02T14:12:00+08:00",
+      "lat": 1.3004,
+      "lng": 103.8357,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-02T14:16:00+08:00",
+      "lat": 1.299,
+      "lng": 103.8348,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-02T14:20:00+08:00",
+      "lat": 1.2976,
+      "lng": 103.834,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-02T14:24:00+08:00",
+      "lat": 1.2963,
+      "lng": 103.8332,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-02T14:28:00+08:00",
+      "lat": 1.2949,
+      "lng": 103.8323,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-02T14:32:00+08:00",
+      "lat": 1.2935,
+      "lng": 103.8315,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-02T14:06:00+08:00",
+      "message": "I'm at Mandarin Gallery lobby."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-02T14:07:30+08:00",
+      "message": "Ok arrived."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-02T14:12:10+08:00",
+      "message": "Can we stop at the pharmacy on the way? 5 minutes only."
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "driver",
+      "timestamp": "2026-10-02T14:12:40+08:00",
+      "message": "Sure, I will wait. There is a stop fee, app will show."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-02T13:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$20.50 at 1.0x."
+    },
+    {
+      "timestamp": "2026-10-02T13:58:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-02T14:07:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T14:08:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-02T14:12:30+08:00",
+      "event_type": "stop_added",
+      "details": "Rider added 1 stop. Added-stop fee S$3.00 shown to rider and accepted."
+    },
+    {
+      "timestamp": "2026-10-02T14:25:00+08:00",
+      "event_type": "erp_gantry_crossed",
+      "details": "ERP charge S$2.50 applied."
+    },
+    {
+      "timestamp": "2026-10-02T14:32:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 1.0,
+    "surge_activated_at": null,
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": null
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Surge was 1.0x at quote and at trip start, so there is no surge differential (s3.3 row 4). The S$5.50 difference in fare_breakdown is an added-stop fee S$3.00 (the rider asked for the stop in chat at 14:12 and the app event shows the fee was shown and accepted) plus ERP S$2.50. Neither is refundable under v2.1. Under S$10, AI final.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.1: Upfront Quote Binding",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds"
+    ],
+    "heldout": true
+  }
+}

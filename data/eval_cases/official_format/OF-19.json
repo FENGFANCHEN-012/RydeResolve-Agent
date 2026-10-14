@@ -1,0 +1,179 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "property: cleaning claim above S$50",
+  "dispute_ticket": {
+    "dispute_id": "OF-19",
+    "trip_id": "TRIP-2026-31703",
+    "filed_by": "driver",
+    "dispute_type": "property_damage",
+    "description": "The rider's plant pots spilled soil over the rear carpet and seats. I needed the carpet shampooed and the interior detailed, so I am claiming S$85.00.",
+    "filed_at": "2026-10-03T21:52:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6247",
+    "name": "Pauline Lee",
+    "account_age_days": 180,
+    "total_trips": 33,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4431",
+    "name": "Jeffrey Sim",
+    "account_age_days": 610,
+    "total_trips": 2200,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mercedes V-Class (SKW 3407 N)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31703",
+    "rider_id": "R-6247",
+    "driver_id": "D-4431",
+    "pickup_location": {
+      "name": "Pasir Ris Park car park",
+      "lat": 1.3811,
+      "lng": 103.95
+    },
+    "dropoff_location": {
+      "name": "Blk 301 Tampines Street 32",
+      "lat": 1.35,
+      "lng": 103.957
+    },
+    "start_time": "2026-10-03T21:05:00+08:00",
+    "end_time": "2026-10-03T21:30:00+08:00",
+    "estimated_duration_min": 25,
+    "actual_duration_min": 25,
+    "actual_fare": 15.2,
+    "cleaning_fee_claimed": 85.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T21:05:00+08:00",
+      "lat": 1.3811,
+      "lng": 103.95,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-03T21:09:10+08:00",
+      "lat": 1.3759,
+      "lng": 103.9512,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-03T21:13:20+08:00",
+      "lat": 1.3707,
+      "lng": 103.9523,
+      "speed_kmh": 38
+    },
+    {
+      "timestamp": "2026-10-03T21:17:30+08:00",
+      "lat": 1.3656,
+      "lng": 103.9535,
+      "speed_kmh": 45
+    },
+    {
+      "timestamp": "2026-10-03T21:21:40+08:00",
+      "lat": 1.3604,
+      "lng": 103.9547,
+      "speed_kmh": 32
+    },
+    {
+      "timestamp": "2026-10-03T21:25:50+08:00",
+      "lat": 1.3552,
+      "lng": 103.9558,
+      "speed_kmh": 20
+    },
+    {
+      "timestamp": "2026-10-03T21:30:00+08:00",
+      "lat": 1.35,
+      "lng": 103.957,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-03T21:06:00+08:00",
+      "message": "Sorry, carrying some plant pots, bit messy. Where to put them?"
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-03T21:06:30+08:00",
+      "message": "Put in the boot please."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-03T21:52:00+08:00",
+      "description": "Rear footwell carpet covered in soil and debris, being vacuumed after the trip.",
+      "file_url": "data/evidence_samples/cases/OF-19/photo1.jpg"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T20:55:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-03T20:56:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-03T21:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-03T21:30:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The claim is S$85.00. s4.3 caps a cleaning fee at S$50 without an external quote, and s6.1 sends any dispute value above S$50 to human review, with the AI preparing the case file only. The photo (taken 21:50, 20 min after trip end, in-app camera, GPS at drop-off) looks usable and the human should decide whether any amount up to the cap is allowed.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.3: Fee Structure",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  },
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "carpet_dirt_vacuum.jpg",
+      "taken_at": "2026-10-03T21:50:00+08:00",
+      "gps": [
+        1.3501,
+        103.9571
+      ],
+      "software": "RydeDriver 5.2 in-app camera",
+      "copy_of": null
+    }
+  }
+}

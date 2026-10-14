@@ -1,0 +1,235 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation: incident active, rider not informed, within tolerance",
+  "dispute_ticket": {
+    "dispute_id": "OF-25",
+    "trip_id": "TRIP-2026-31925",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a different way from the app route and nobody told me. The trip was estimated at S$20.56 and the fare was S$21.72. I think the longer distance was charged to me and I want a refund.",
+    "filed_at": "2026-10-10T16:19:00+08:00",
+    "status": "open",
+    "evidence_provided": [
+      "trip_screenshot",
+      "gps_route_screenshot",
+      "receipt"
+    ]
+  },
+  "rider_profile": {
+    "rider_id": "R-6135",
+    "name": "Natasha Ibrahim",
+    "account_age_days": 300,
+    "total_trips": 74,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4255",
+    "name": "Gordon Yeo",
+    "account_age_days": 700,
+    "total_trips": 2590,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKX 9010 C)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31925",
+    "rider_id": "R-6135",
+    "driver_id": "D-4255",
+    "pickup_location": {
+      "name": "Waterway Point, Punggol",
+      "lat": 1.4067,
+      "lng": 103.902
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3178,
+      "lng": 103.8928
+    },
+    "start_time": "2026-10-10T15:05:00+08:00",
+    "end_time": "2026-10-10T15:29:00+08:00",
+    "estimated_duration_min": 22,
+    "actual_duration_min": 24,
+    "estimated_distance_km": 11.2,
+    "actual_distance_km": 11.9,
+    "estimated_fare": 20.56,
+    "actual_fare": 21.72,
+    "excess_distance_km": 0.7,
+    "route_deviated": true
+  },
+  "fare_breakdown": {
+    "estimated": {
+      "base_fare": 3.5,
+      "distance_fare": 8.96,
+      "time_fare": 6.6,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 19.06,
+      "erp_charge": 0.0,
+      "total": 20.56
+    },
+    "actual": {
+      "base_fare": 3.5,
+      "distance_fare": 9.52,
+      "time_fare": 7.2,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 20.22,
+      "erp_charge": 0.0,
+      "total": 21.72
+    },
+    "distance_rate_per_km": 0.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T15:05:00+08:00",
+      "lat": 1.4067,
+      "lng": 103.902,
+      "speed_kmh": 0,
+      "location_desc": "Waterway Point (pickup)"
+    },
+    {
+      "timestamp": "2026-10-10T15:11:00+08:00",
+      "lat": 1.39,
+      "lng": 103.9,
+      "speed_kmh": 45,
+      "location_desc": "Sengkang West Way"
+    },
+    {
+      "timestamp": "2026-10-10T15:18:00+08:00",
+      "lat": 1.372,
+      "lng": 103.895,
+      "speed_kmh": 38,
+      "location_desc": "Hougang Avenue 3, avoiding KPE slip road"
+    },
+    {
+      "timestamp": "2026-10-10T15:24:00+08:00",
+      "lat": 1.35,
+      "lng": 103.89,
+      "speed_kmh": 40,
+      "location_desc": "Upper Serangoon Road"
+    },
+    {
+      "timestamp": "2026-10-10T15:29:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8928,
+      "speed_kmh": 0,
+      "location_desc": "Paya Lebar Quarter (dropoff)"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-10T14:58:00+08:00",
+      "message": "Hi, I'm at the taxi stand at Waterway Point."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-10T14:59:30+08:00",
+      "message": "On my way, 3 min."
+    }
+  ],
+  "optimal_route": {
+    "route_name": "KPE southbound to Paya Lebar",
+    "estimated_distance_km": 11.2,
+    "estimated_duration_min": 22,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.4067,
+        "lng": 103.902,
+        "location_desc": "Waterway Point (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.39,
+        "lng": 103.9,
+        "location_desc": "Sengkang West Way"
+      },
+      {
+        "point": 3,
+        "lat": 1.372,
+        "lng": 103.895,
+        "location_desc": "Hougang Avenue 3 / KPE"
+      },
+      {
+        "point": 4,
+        "lat": 1.35,
+        "lng": 103.89,
+        "location_desc": "Upper Serangoon Road"
+      },
+      {
+        "point": 5,
+        "lat": 1.3178,
+        "lng": 103.8928,
+        "location_desc": "Paya Lebar Quarter (dropoff)"
+      }
+    ]
+  },
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "KPE (Kallang-Paya Lebar Expressway)",
+      "direction": "southbound",
+      "stretch": "Hougang to Defu",
+      "incident_type": "vehicle_breakdown",
+      "severity": "medium",
+      "timestamp": "2026-10-10T14:50:00+08:00",
+      "clear_time": "2026-10-10T15:40:00+08:00",
+      "description": "Broken-down van on the left lane. Moderate delays."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T14:53:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-10T14:54:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-10T15:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-10T15:29:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual 11.9 km vs recommended 11.2 km = 0.7 km, within the 1 km tolerance. The rider was not told (s1.2) and TC-001 was active, but s1.3 row 3: not informed and deviation 1 km or less = no refund (within tolerance). Excess distance fare would be only S$0.56; the fare rise is mainly time-based.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.3: Refund Eligibility Matrix",
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.4: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

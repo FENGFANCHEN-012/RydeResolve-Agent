@@ -47,6 +47,7 @@ from src.config import (
 )
 from src.agents.fraud import fraud_refs
 from src.core.llm_client import LLMClient
+from src.core.governing_policy import CLAIM_FIELDS
 from src.core.policy_refs import case_policy_refs
 from src.models.dispute_state import FairnessAssessmentInput
 
@@ -206,7 +207,7 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
     # A driver's own recorded claim (cleaning / damage fee) sets the amount: paying up to it is not
     # discretion (V2-07, run 20261014-194633: a S$40 claim on record was held as discretionary)
     trip = context.get("trip") or {}
-    claimed = max([float(trip[k]) for k in ("cleaning_fee_claimed", "cleaning_fee", "damage_fee", "repair_fee")
+    claimed = max([float(trip[k]) for k in CLAIM_FIELDS
                    if isinstance(trip.get(k), (int, float))] or [0.0])
     if str(context.get("reporter") or "").lower() == "driver" and claimed and refunded <= claimed + 0.01:
         return []

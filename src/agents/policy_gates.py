@@ -15,7 +15,7 @@ A gate never changes the ruling; it only sends the case to a person, with the se
 """
 from __future__ import annotations
 
-from src.core.governing_policy import is_property_case
+from src.core.governing_policy import CLAIM_FIELDS, is_property_case
 
 AUTO_FINAL_BELOW = 10.0     # s6.1: under S$10 the AI ruling is final
 ALWAYS_HUMAN_ABOVE = 50.0   # s6.1: above S$50 always human review
@@ -34,7 +34,7 @@ def dispute_value(decision, context) -> float:
     trip = _get(context, "trip") or {}
     values = [disputed_total(context) or 0.0]
     if str(_get(context, "reporter") or "").lower() == "driver":
-        values += [float(trip[k]) for k in ("cleaning_fee_claimed", "cleaning_fee", "damage_fee", "repair_fee")
+        values += [float(trip[k]) for k in CLAIM_FIELDS
                    if isinstance(trip.get(k), (int, float))]
     try:
         values.append(float(getattr(decision, "refund_amount", None) or 0))

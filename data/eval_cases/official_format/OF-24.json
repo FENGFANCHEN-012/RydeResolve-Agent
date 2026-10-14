@@ -1,0 +1,139 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "driver no-show: rider cancels, no contact attempt",
+  "dispute_ticket": {
+    "dispute_id": "OF-24",
+    "trip_id": "TRIP-2026-31888",
+    "filed_by": "rider",
+    "dispute_type": "driver_no_show",
+    "description": "I booked a 7:40 pickup to get to a client meeting. The driver never arrived and never messaged or called me. I cancelled at 7:47 and had to book another car, which made me late. I want compensation.",
+    "filed_at": "2026-10-05T08:01:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6212",
+    "name": "Joanne Tay",
+    "account_age_days": 500,
+    "total_trips": 133,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 1,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4376",
+    "name": "Mustafa Ali",
+    "account_age_days": 150,
+    "total_trips": 240,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SMC 3320 X)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31888",
+    "rider_id": "R-6212",
+    "driver_id": "D-4376",
+    "pickup_location": {
+      "name": "Blk 127 Bishan Street 12",
+      "lat": 1.35,
+      "lng": 103.848
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-05T07:40:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-05T07:47:00+08:00",
+    "cancellation_fee": 0.0,
+    "cancelled_by": "rider",
+    "cancellation_reason": "driver_not_arrived"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T07:36:00+08:00",
+      "lat": 1.378,
+      "lng": 103.861,
+      "speed_kmh": 14,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T07:41:00+08:00",
+      "lat": 1.371,
+      "lng": 103.857,
+      "speed_kmh": 9,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T07:46:00+08:00",
+      "lat": 1.364,
+      "lng": 103.853,
+      "speed_kmh": 11,
+      "status": "en_route"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-05T07:44:20+08:00",
+      "message": "Where are you? App says you are still far."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "system",
+      "timestamp": "2026-10-05T07:47:00+08:00",
+      "type": "system",
+      "message": "Trip cancelled by rider. Reason: driver_not_arrived. No cancellation fee applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T07:24:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Scheduled pickup 07:40."
+    },
+    {
+      "timestamp": "2026-10-05T07:24:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-05T07:47:00+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled 7 min after scheduled pickup; driver had not arrived. No fee applied."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "credit_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Scheduled pickup 07:40; driver_arrival_time is null and GPS still shows the driver about 1.7 km away (and slow) at 07:46. Rider cancelled at 07:47, past scheduled + 5 min, so no fee (s2.4). The chat and call records show zero messages and zero calls from the driver, so the rider gets the S$5.00 goodwill credit (s2.4). Only the S$5.00 credit is available under v2.1. AI final (s6.2).",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.4: Driver No-Show",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

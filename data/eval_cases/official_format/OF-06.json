@@ -1,0 +1,189 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "service quality: rude-driver complaint, no fare problem",
+  "dispute_ticket": {
+    "dispute_id": "OF-06",
+    "trip_id": "TRIP-2026-31222",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver didn't greet me, answered my questions with one word, took a personal phone call on speaker for most of the ride, and gave a long sigh when I asked him to lower the aircon. It was an unpleasant ride. I'd like a full refund of the S$8.60 fare.",
+    "filed_at": "2026-10-11T14:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6296",
+    "name": "Jasmine Toh",
+    "account_age_days": 160,
+    "total_trips": 40,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4508",
+    "name": "Allan Chng",
+    "account_age_days": 520,
+    "total_trips": 1650,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Jazz (SKP 5530 U)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31222",
+    "rider_id": "R-6296",
+    "driver_id": "D-4508",
+    "pickup_location": {
+      "name": "Bukit Panjang Plaza",
+      "lat": 1.379,
+      "lng": 103.7627
+    },
+    "dropoff_location": {
+      "name": "Beauty World MRT",
+      "lat": 1.3412,
+      "lng": 103.7757
+    },
+    "start_time": "2026-10-11T13:15:00+08:00",
+    "end_time": "2026-10-11T13:27:00+08:00",
+    "estimated_duration_min": 12,
+    "actual_duration_min": 12,
+    "upfront_quote": 8.6,
+    "actual_fare": 8.6
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 3.0,
+      "distance_fare": 3.1,
+      "time_fare": 1.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 7.1,
+      "total": 8.6
+    },
+    "actual_fare": {
+      "base_fare": 3.0,
+      "distance_fare": 3.1,
+      "time_fare": 1.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 7.1,
+      "total": 8.6
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T13:15:00+08:00",
+      "lat": 1.379,
+      "lng": 103.7627,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-11T13:17:24+08:00",
+      "lat": 1.3714,
+      "lng": 103.7653,
+      "speed_kmh": 18
+    },
+    {
+      "timestamp": "2026-10-11T13:19:48+08:00",
+      "lat": 1.3639,
+      "lng": 103.7679,
+      "speed_kmh": 24
+    },
+    {
+      "timestamp": "2026-10-11T13:22:12+08:00",
+      "lat": 1.3563,
+      "lng": 103.7705,
+      "speed_kmh": 20
+    },
+    {
+      "timestamp": "2026-10-11T13:24:36+08:00",
+      "lat": 1.3488,
+      "lng": 103.7731,
+      "speed_kmh": 12
+    },
+    {
+      "timestamp": "2026-10-11T13:27:00+08:00",
+      "lat": 1.3412,
+      "lng": 103.7757,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-11T13:12:00+08:00",
+      "message": "I'm at the Bukit Panjang Plaza main entrance."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-11T13:13:30+08:00",
+      "message": "Ok."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-11T13:19:00+08:00",
+      "message": "Could you lower the aircon please?"
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "driver",
+      "timestamp": "2026-10-11T13:19:20+08:00",
+      "message": "Fine."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T13:04:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-11T13:05:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-11T13:15:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-11T13:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The fare S$8.60 equals the upfront quote (S$8.60), surge 1.0x, so there is no route, surge, cancellation or damage issue. v2.1 gives no refund entitlement for a discourtesy or service-quality complaint that has no fare error, and the chat shows no threat, harassment or unsafe conduct that would be a safety indicator under s5.1. So the AI dismisses with no refund (under S$10, AI final, s6.1). The complaint can be recorded in the driver's profile.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.1: Upfront Quote Binding",
+      "Ryde Dispute Resolution Policy v2.1 > Section 5.1: Automatic Escalation"
+    ],
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true
+  }
+}

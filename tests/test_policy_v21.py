@@ -199,3 +199,9 @@ def test_section_6_2_carries_the_route_note():
     [c] = [c for c in governing_policy.clauses_for({"trip": {}, "description": ""}, "route_deviation")
            if c["chunk_index"] == "6.2"]
     assert "RydeResolve note" in c["clause"] and "DISP-001" in c["clause"]
+
+
+def test_a_repair_claim_above_50_goes_to_a_person():
+    # OF-27: the claim is recorded as repair_fee_claimed
+    reasons = policy_gates.check(dec(), gctx(reporter="driver", trip={"repair_fee_claimed": 245.0}))
+    assert any("s6.1" in r for r in reasons)

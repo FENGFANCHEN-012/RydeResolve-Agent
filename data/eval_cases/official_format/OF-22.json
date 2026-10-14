@@ -1,0 +1,188 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "no-show: rider with fraud flag, fee correct",
+  "dispute_ticket": {
+    "dispute_id": "OF-22",
+    "trip_id": "TRIP-2026-31814",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_charge_dispute",
+    "description": "The driver cancelled after I told him I was almost there. I think S$5.00 is unfair because he did not wait for me.",
+    "filed_at": "2026-10-06T22:38:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6219",
+    "name": "Dylan Pereira",
+    "account_age_days": 250,
+    "total_trips": 47,
+    "avg_rating": 3.9,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 1,
+    "payment_method": "e-wallet",
+    "fraud_flag_details": "flagged_for_frequent_late_cancellations"
+  },
+  "driver_profile": {
+    "driver_id": "D-4387",
+    "name": "Tan Chee Meng",
+    "account_age_days": 980,
+    "total_trips": 3660,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SLG 5061 Y)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31814",
+    "rider_id": "R-6219",
+    "driver_id": "D-4387",
+    "pickup_location": {
+      "name": "Holland Village MRT",
+      "lat": 1.3111,
+      "lng": 103.7956
+    },
+    "dropoff_location": {
+      "name": "Dempsey Hill",
+      "lat": 1.305,
+      "lng": 103.812
+    },
+    "scheduled_time": "2026-10-06T22:15:00+08:00",
+    "driver_arrival_time": "2026-10-06T22:15:00+08:00",
+    "driver_wait_start": "2026-10-06T22:15:00+08:00",
+    "cancellation_time": "2026-10-06T22:24:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancelled_by": "driver",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T22:09:00+08:00",
+      "lat": 1.314,
+      "lng": 103.799,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T22:15:00+08:00",
+      "lat": 1.3111,
+      "lng": 103.7956,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T22:20:00+08:00",
+      "lat": 1.3111,
+      "lng": 103.7956,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-06T22:24:00+08:00",
+      "lat": 1.3111,
+      "lng": 103.7956,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-06T22:16:00+08:00",
+      "message": "I'm at Holland V MRT exit, white Corolla."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-06T22:18:30+08:00",
+      "type": "call",
+      "message": "Outgoing call to rider - not answered (rang 22s, no response)."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-06T22:22:15+08:00",
+      "message": "5 more minutes please, almost there"
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "driver",
+      "timestamp": "2026-10-06T22:23:00+08:00",
+      "message": "Sorry I have waited long already, I need to take the next job."
+    },
+    {
+      "message_id": "MSG-005",
+      "sender": "system",
+      "timestamp": "2026-10-06T22:24:00+08:00",
+      "type": "system",
+      "message": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of S$5.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T21:59:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Scheduled pickup 22:15."
+    },
+    {
+      "timestamp": "2026-10-06T21:59:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-06T22:15:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point. Auto-arrival confirmed."
+    },
+    {
+      "timestamp": "2026-10-06T22:15:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Free wait timer started. 5 min free wait from scheduled pickup 22:15 ends 22:20."
+    },
+    {
+      "timestamp": "2026-10-06T22:18:30+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Rang 22s, no answer."
+    },
+    {
+      "timestamp": "2026-10-06T22:20:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 5-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-06T22:24:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "No-show threshold reached. S$5.00 charged to rider payment method."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Scheduled 22:15, driver present from 22:15 (GPS stationary), free wait ended 22:20, cancelled 22:24. Contact: one chat message (22:16) and one in-app call (22:18:30), so s2.3 is met. Driver was not obliged to wait past the 5 min free wait. The S$5.00 fee (s2.2) is correct. The rider has fraud_flags 1, but no-show/cancellation rulings are final at the fixed S$5.00 under s6.2.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.1: Free Wait Time",
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.2: Cancellation Fee",
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.3: Driver Contact Obligation",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

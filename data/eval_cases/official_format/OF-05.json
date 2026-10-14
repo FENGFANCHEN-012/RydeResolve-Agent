@@ -1,0 +1,186 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "property: rider disputes a cleaning fee",
+  "dispute_ticket": {
+    "dispute_id": "OF-05",
+    "trip_id": "TRIP-2026-31185",
+    "filed_by": "rider",
+    "dispute_type": "property_damage",
+    "description": "I was charged a S$30.00 cleaning fee after my trip. My shoes were not muddy and any dirt on the floor was already in the car. I want the fee removed.",
+    "filed_at": "2026-10-04T11:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6261",
+    "name": "Yvonne Tay",
+    "account_age_days": 120,
+    "total_trips": 22,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4453",
+    "name": "Anthony Lau",
+    "account_age_days": 850,
+    "total_trips": 3900,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Elantra (SJT 6208 P)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31185",
+    "rider_id": "R-6261",
+    "driver_id": "D-4453",
+    "pickup_location": {
+      "name": "Bukit Timah Nature Reserve",
+      "lat": 1.3541,
+      "lng": 103.7767
+    },
+    "dropoff_location": {
+      "name": "Blk 5 Holland Close",
+      "lat": 1.3062,
+      "lng": 103.796
+    },
+    "start_time": "2026-10-04T09:40:00+08:00",
+    "end_time": "2026-10-04T10:02:00+08:00",
+    "estimated_duration_min": 22,
+    "actual_duration_min": 22,
+    "actual_fare": 12.8,
+    "cleaning_fee_claimed": 30.0,
+    "cleaning_fee": 30.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T09:40:00+08:00",
+      "lat": 1.3541,
+      "lng": 103.7767,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-04T09:43:40+08:00",
+      "lat": 1.3461,
+      "lng": 103.7799,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-04T09:47:20+08:00",
+      "lat": 1.3381,
+      "lng": 103.7831,
+      "speed_kmh": 38
+    },
+    {
+      "timestamp": "2026-10-04T09:51:00+08:00",
+      "lat": 1.3302,
+      "lng": 103.7863,
+      "speed_kmh": 45
+    },
+    {
+      "timestamp": "2026-10-04T09:54:40+08:00",
+      "lat": 1.3222,
+      "lng": 103.7896,
+      "speed_kmh": 32
+    },
+    {
+      "timestamp": "2026-10-04T09:58:20+08:00",
+      "lat": 1.3142,
+      "lng": 103.7928,
+      "speed_kmh": 20
+    },
+    {
+      "timestamp": "2026-10-04T10:02:00+08:00",
+      "lat": 1.3062,
+      "lng": 103.796,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-04T09:41:00+08:00",
+      "message": "Morning. Please remove the mud on your shoes before sitting?"
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "rider",
+      "timestamp": "2026-10-04T09:41:30+08:00",
+      "message": "They are clean, only dusty."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-04T10:05:00+08:00",
+      "message": "I will take photo of the floor for cleaning fee."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-04T10:12:00+08:00",
+      "description": "Mud and dirt from boots on the rear floor of the car.",
+      "file_url": "data/evidence_samples/cases/OF-05/photo1.jpg"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T09:30:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-04T09:31:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-04T09:40:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-04T10:02:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "A cleaning fee of S$30.00 was charged and the rider contests it. The driver's photo was taken at 10:10 (8 min after trip end), through the in-app camera, at the drop-off, so it is timely, but the rider says the floor was already dirty. s4.4: if the rider disputes the damage claim, it is routed to human review, which compares the photo and both accounts.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.4: Dispute Handling",
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.2: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  },
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car.jpg",
+      "taken_at": "2026-10-04T10:10:00+08:00",
+      "gps": [
+        1.3064,
+        103.7962
+      ],
+      "software": "RydeDriver 5.2 in-app camera",
+      "copy_of": null
+    }
+  }
+}

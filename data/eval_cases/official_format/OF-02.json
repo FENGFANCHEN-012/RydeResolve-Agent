@@ -1,0 +1,262 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation: incident active, rider informed and agreed, over tolerance",
+  "dispute_ticket": {
+    "dispute_id": "OF-02",
+    "trip_id": "TRIP-2026-31074",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "My trip was estimated at S$27.78 but I was charged S$31.22. The distance was longer than the estimate and I want the extra distance fare back.",
+    "filed_at": "2026-10-06T20:26:00+08:00",
+    "status": "open",
+    "evidence_provided": [
+      "trip_screenshot",
+      "gps_route_screenshot",
+      "receipt"
+    ]
+  },
+  "rider_profile": {
+    "rider_id": "R-6114",
+    "name": "Benedict Lau",
+    "account_age_days": 150,
+    "total_trips": 41,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4222",
+    "name": "Suresh Pillai",
+    "account_age_days": 820,
+    "total_trips": 3210,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SMB 3318 Z)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31074",
+    "rider_id": "R-6114",
+    "driver_id": "D-4222",
+    "pickup_location": {
+      "name": "AMK Hub, Ang Mo Kio",
+      "lat": 1.3693,
+      "lng": 103.8486
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "start_time": "2026-10-06T18:20:00+08:00",
+    "end_time": "2026-10-06T18:51:00+08:00",
+    "estimated_duration_min": 27,
+    "actual_duration_min": 31,
+    "estimated_distance_km": 14.6,
+    "actual_distance_km": 17.4,
+    "estimated_fare": 27.78,
+    "actual_fare": 31.22,
+    "excess_distance_km": 2.8,
+    "route_deviated": true
+  },
+  "fare_breakdown": {
+    "estimated": {
+      "base_fare": 3.5,
+      "distance_fare": 11.68,
+      "time_fare": 8.1,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 23.28,
+      "erp_charge": 3.0,
+      "total": 27.78
+    },
+    "actual": {
+      "base_fare": 3.5,
+      "distance_fare": 13.92,
+      "time_fare": 9.3,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 26.72,
+      "erp_charge": 3.0,
+      "total": 31.22
+    },
+    "distance_rate_per_km": 0.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T18:20:00+08:00",
+      "lat": 1.3693,
+      "lng": 103.8486,
+      "speed_kmh": 0,
+      "location_desc": "AMK Hub (pickup)"
+    },
+    {
+      "timestamp": "2026-10-06T18:24:00+08:00",
+      "lat": 1.36,
+      "lng": 103.856,
+      "speed_kmh": 30,
+      "location_desc": "Ang Mo Kio Ave 3 towards CTE"
+    },
+    {
+      "timestamp": "2026-10-06T18:29:00+08:00",
+      "lat": 1.347,
+      "lng": 103.857,
+      "speed_kmh": 50,
+      "location_desc": "CTE southbound approaching Braddell flyover"
+    },
+    {
+      "timestamp": "2026-10-06T18:33:00+08:00",
+      "lat": 1.341,
+      "lng": 103.849,
+      "speed_kmh": 25,
+      "location_desc": "Exited CTE onto Braddell Road"
+    },
+    {
+      "timestamp": "2026-10-06T18:40:00+08:00",
+      "lat": 1.32,
+      "lng": 103.843,
+      "speed_kmh": 30,
+      "location_desc": "Thomson Road near Novena"
+    },
+    {
+      "timestamp": "2026-10-06T18:46:00+08:00",
+      "lat": 1.301,
+      "lng": 103.859,
+      "speed_kmh": 35,
+      "location_desc": "Rochor, towards Nicoll Highway"
+    },
+    {
+      "timestamp": "2026-10-06T18:51:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "location_desc": "Marina Bay Sands (dropoff)"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-06T18:12:00+08:00",
+      "message": "I'm at the taxi stand on level 1."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-06T18:14:10+08:00",
+      "message": "OK, arriving now."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-06T18:32:20+08:00",
+      "message": "Accident ahead on CTE southbound near Braddell. I'll exit and go via Braddell Rd and Thomson Rd. Okay?"
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "rider",
+      "timestamp": "2026-10-06T18:32:50+08:00",
+      "message": "ok sure, no problem"
+    }
+  ],
+  "optimal_route": {
+    "route_name": "CTE southbound to Marina Bay",
+    "estimated_distance_km": 14.6,
+    "estimated_duration_min": 27,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.3693,
+        "lng": 103.8486,
+        "location_desc": "AMK Hub (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.36,
+        "lng": 103.856,
+        "location_desc": "CTE entry at Ang Mo Kio"
+      },
+      {
+        "point": 3,
+        "lat": 1.347,
+        "lng": 103.857,
+        "location_desc": "CTE near Braddell flyover"
+      },
+      {
+        "point": 4,
+        "lat": 1.32,
+        "lng": 103.86,
+        "location_desc": "CTE near Novena"
+      },
+      {
+        "point": 5,
+        "lat": 1.2834,
+        "lng": 103.8607,
+        "location_desc": "Marina Bay Sands (dropoff)"
+      }
+    ]
+  },
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "CTE (Central Expressway)",
+      "direction": "southbound",
+      "stretch": "Braddell flyover to Toa Payoh",
+      "incident_type": "accident",
+      "severity": "high",
+      "timestamp": "2026-10-06T18:05:00+08:00",
+      "clear_time": "2026-10-06T19:20:00+08:00",
+      "description": "Accident on CTE southbound. Two lanes blocked, heavy congestion."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T18:08:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-06T18:09:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-06T18:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-06T18:51:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Deviation 2.8 km (over 1 km), but TC-001 (CTE southbound accident, 18:05-19:20) was active on the recommended route during the 18:20-18:51 trip. The driver told the rider at 18:32:20, before the exit at about 18:33, with a reason, and the rider replied 'ok sure' at 18:32:50. s1.3 row 1: traffic reroute, rider informed and agrees = no refund. s1.4: chat confirms acknowledgment.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.2: Notification Requirement",
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.3: Refund Eligibility Matrix",
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.4: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

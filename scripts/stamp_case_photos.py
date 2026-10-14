@@ -31,7 +31,7 @@ def main(folder: str) -> None:
                 shutil.copyfile(CASES / spec["copy_of"], dst)
                 print(f"{cid}/{name}: copy of {spec['copy_of']}")
                 continue
-            src = LIBRARY / f"{spec['library']}.jpg"
+            src = LIBRARY / f"{str(spec['library']).removesuffix('.jpg')}.jpg"   # with or without the extension
             stamp(src, dst, spec.get("taken_at"), spec.get("gps"), spec.get("software"))
             print(f"{cid}/{name}: {spec['library']} taken {spec.get('taken_at')} gps {spec.get('gps')} "
                   f"software {spec.get('software')}")

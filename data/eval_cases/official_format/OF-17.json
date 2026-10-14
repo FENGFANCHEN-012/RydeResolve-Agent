@@ -1,0 +1,173 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "property: photo taken more than 24 hours after the trip",
+  "dispute_ticket": {
+    "dispute_id": "OF-17",
+    "trip_id": "TRIP-2026-31629",
+    "filed_by": "driver",
+    "dispute_type": "property_damage",
+    "description": "The rider left muddy marks on the floor of my car. I am claiming S$28.00 for cleaning.",
+    "filed_at": "2026-10-08T22:52:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6240",
+    "name": "Sean Heng",
+    "account_age_days": 330,
+    "total_trips": 71,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4420",
+    "name": "Daniel Quah",
+    "account_age_days": 280,
+    "total_trips": 650,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Fit (SJV 9134 A)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31629",
+    "rider_id": "R-6240",
+    "driver_id": "D-4420",
+    "pickup_location": {
+      "name": "Kallang Wave Mall",
+      "lat": 1.3029,
+      "lng": 103.8744
+    },
+    "dropoff_location": {
+      "name": "Blk 12 Lavender Street",
+      "lat": 1.3099,
+      "lng": 103.856
+    },
+    "start_time": "2026-10-07T20:30:00+08:00",
+    "end_time": "2026-10-07T20:45:00+08:00",
+    "estimated_duration_min": 15,
+    "actual_duration_min": 15,
+    "actual_fare": 9.1,
+    "cleaning_fee_claimed": 28.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T20:30:00+08:00",
+      "lat": 1.3029,
+      "lng": 103.8744,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-07T20:32:30+08:00",
+      "lat": 1.3041,
+      "lng": 103.8713,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-07T20:35:00+08:00",
+      "lat": 1.3052,
+      "lng": 103.8683,
+      "speed_kmh": 38
+    },
+    {
+      "timestamp": "2026-10-07T20:37:30+08:00",
+      "lat": 1.3064,
+      "lng": 103.8652,
+      "speed_kmh": 45
+    },
+    {
+      "timestamp": "2026-10-07T20:40:00+08:00",
+      "lat": 1.3076,
+      "lng": 103.8621,
+      "speed_kmh": 32
+    },
+    {
+      "timestamp": "2026-10-07T20:42:30+08:00",
+      "lat": 1.3087,
+      "lng": 103.8591,
+      "speed_kmh": 20
+    },
+    {
+      "timestamp": "2026-10-07T20:45:00+08:00",
+      "lat": 1.3099,
+      "lng": 103.856,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-07T20:31:00+08:00",
+      "message": "Hi, I'm at the main entrance. Coming from the sports hall."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-08T22:52:00+08:00",
+      "description": "Muddy shoe marks on the rear floor of the car.",
+      "file_url": "data/evidence_samples/cases/OF-17/photo1.jpg"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T20:20:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-07T20:21:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-07T20:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-07T20:45:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "reject_claim",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Trip ended 20:45 on 7 Oct; the photo was taken at 22:50 on 8 Oct and uploaded at 22:52, about 26 h 05 min later. s4.2 requires photos within 24 hours of trip completion. The photo GPS is also far from the drop-off, so it is not linked to the trip by location. s4.4: insufficient evidence means the claim is rejected. Claim S$28.00 is in the S$10-50 band but the rejection is clear. No refund or fee.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.2: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.4: Dispute Handling",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  },
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car.jpg",
+      "taken_at": "2026-10-08T22:50:00+08:00",
+      "gps": [
+        1.341,
+        103.795
+      ],
+      "software": "RydeDriver 5.2 in-app camera",
+      "copy_of": null
+    }
+  }
+}

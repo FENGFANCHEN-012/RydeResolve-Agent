@@ -1,0 +1,269 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "route deviation: incident active, rider not informed, over tolerance",
+  "dispute_ticket": {
+    "dispute_id": "OF-07",
+    "trip_id": "TRIP-2026-31259",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver left the PIE and took me through Novena, Lavender and Paya Lebar. No message or call from him about changing route. The trip was quoted S$44.92 and I was charged S$49.18. I want the extra distance charge refunded.",
+    "filed_at": "2026-10-03T09:32:00+08:00",
+    "status": "open",
+    "evidence_provided": [
+      "trip_screenshot",
+      "gps_route_screenshot",
+      "receipt"
+    ]
+  },
+  "rider_profile": {
+    "rider_id": "R-6107",
+    "name": "Priscilla Ng",
+    "account_age_days": 380,
+    "total_trips": 96,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4211",
+    "name": "Mohd Faizal",
+    "account_age_days": 610,
+    "total_trips": 1988,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLD 5521 K)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31259",
+    "rider_id": "R-6107",
+    "driver_id": "D-4211",
+    "pickup_location": {
+      "name": "JEM, Jurong East",
+      "lat": 1.3331,
+      "lng": 103.7436
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "start_time": "2026-10-03T08:10:00+08:00",
+    "end_time": "2026-10-03T08:52:00+08:00",
+    "estimated_duration_min": 38,
+    "actual_duration_min": 42,
+    "estimated_distance_km": 31.2,
+    "actual_distance_km": 34.8,
+    "estimated_fare": 44.92,
+    "actual_fare": 49.18,
+    "excess_distance_km": 3.6,
+    "route_deviated": true
+  },
+  "fare_breakdown": {
+    "estimated": {
+      "base_fare": 3.5,
+      "distance_fare": 26.52,
+      "time_fare": 11.4,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 41.42,
+      "erp_charge": 2.0,
+      "total": 44.92
+    },
+    "actual": {
+      "base_fare": 3.5,
+      "distance_fare": 29.58,
+      "time_fare": 12.6,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 45.68,
+      "erp_charge": 2.0,
+      "total": 49.18
+    },
+    "distance_rate_per_km": 0.85
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T08:10:00+08:00",
+      "lat": 1.3331,
+      "lng": 103.7436,
+      "speed_kmh": 0,
+      "location_desc": "JEM (pickup)"
+    },
+    {
+      "timestamp": "2026-10-03T08:16:00+08:00",
+      "lat": 1.319,
+      "lng": 103.765,
+      "speed_kmh": 62,
+      "location_desc": "PIE eastbound near Clementi"
+    },
+    {
+      "timestamp": "2026-10-03T08:22:00+08:00",
+      "lat": 1.329,
+      "lng": 103.812,
+      "speed_kmh": 38,
+      "location_desc": "PIE eastbound approaching Adam Road, slowing"
+    },
+    {
+      "timestamp": "2026-10-03T08:26:00+08:00",
+      "lat": 1.32,
+      "lng": 103.843,
+      "speed_kmh": 28,
+      "location_desc": "Thomson Road near Novena (off PIE)"
+    },
+    {
+      "timestamp": "2026-10-03T08:33:00+08:00",
+      "lat": 1.307,
+      "lng": 103.862,
+      "speed_kmh": 30,
+      "location_desc": "Serangoon Road near Lavender"
+    },
+    {
+      "timestamp": "2026-10-03T08:40:00+08:00",
+      "lat": 1.328,
+      "lng": 103.893,
+      "speed_kmh": 45,
+      "location_desc": "Paya Lebar, rejoining PIE"
+    },
+    {
+      "timestamp": "2026-10-03T08:47:00+08:00",
+      "lat": 1.33,
+      "lng": 103.934,
+      "speed_kmh": 60,
+      "location_desc": "PIE eastbound near Bedok Reservoir"
+    },
+    {
+      "timestamp": "2026-10-03T08:52:00+08:00",
+      "lat": 1.334,
+      "lng": 103.964,
+      "speed_kmh": 0,
+      "location_desc": "Changi Business Park (dropoff)"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-03T08:03:10+08:00",
+      "message": "Hi, I'm at the JEM main entrance next to the bus stop."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-03T08:05:00+08:00",
+      "message": "OK, I see you. 1 min."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "rider",
+      "timestamp": "2026-10-03T08:53:20+08:00",
+      "message": "Thanks. We went through the city though, not the expressway."
+    }
+  ],
+  "optimal_route": {
+    "route_name": "PIE eastbound direct",
+    "estimated_distance_km": 31.2,
+    "estimated_duration_min": 38,
+    "waypoints": [
+      {
+        "point": 1,
+        "lat": 1.3331,
+        "lng": 103.7436,
+        "location_desc": "JEM (pickup)"
+      },
+      {
+        "point": 2,
+        "lat": 1.319,
+        "lng": 103.765,
+        "location_desc": "PIE entry near Clementi"
+      },
+      {
+        "point": 3,
+        "lat": 1.329,
+        "lng": 103.812,
+        "location_desc": "PIE near Adam Road"
+      },
+      {
+        "point": 4,
+        "lat": 1.333,
+        "lng": 103.87,
+        "location_desc": "PIE near Paya Lebar"
+      },
+      {
+        "point": 5,
+        "lat": 1.33,
+        "lng": 103.934,
+        "location_desc": "PIE near Bedok Reservoir"
+      },
+      {
+        "point": 6,
+        "lat": 1.334,
+        "lng": 103.964,
+        "location_desc": "Changi Business Park (dropoff)"
+      }
+    ]
+  },
+  "traffic_conditions": [
+    {
+      "incident_id": "TC-001",
+      "road": "PIE (Pan-Island Expressway)",
+      "direction": "eastbound",
+      "stretch": "Adam Road exit to Braddell Road exit",
+      "incident_type": "multi_vehicle_accident",
+      "severity": "high",
+      "timestamp": "2026-10-03T07:50:00+08:00",
+      "clear_time": "2026-10-03T09:05:00+08:00",
+      "description": "Multi-vehicle accident on PIE eastbound. Lanes 1 and 2 blocked, long queue back to Thomson."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T07:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-03T07:59:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-03T08:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-03T08:52:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "refund_amount": 3.06,
+    "recommended_action": "refund_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual distance 34.8 km vs recommended 31.2 km = 3.6 km deviation (over the 1 km tolerance). TC-001 (PIE eastbound accident, 07:50-09:05) was active on the recommended route throughout the 08:10-08:52 trip, so the reroute was justified. Chat shows no notice before or at the deviation (about 08:24), so s1.2 was breached. s1.3: traffic justified, rider not informed, over 1 km = partial refund of the excess distance fare: 3.6 km x S$0.85/km = S$3.06. Under S$10, route deviation, AI ruling.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.2: Notification Requirement",
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.3: Refund Eligibility Matrix",
+      "Ryde Dispute Resolution Policy v2.1 > Section 1.4: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

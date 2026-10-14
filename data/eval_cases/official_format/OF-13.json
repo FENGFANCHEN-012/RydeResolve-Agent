@@ -1,0 +1,201 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "fare: surge rose, rider not notified, clean small refund",
+  "dispute_ticket": {
+    "dispute_id": "OF-13",
+    "trip_id": "TRIP-2026-31481",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "At booking the app showed S$16.00. I was charged S$21.80 when the trip ended. Nobody told me about any price change. I would like the S$5.80 difference back.",
+    "filed_at": "2026-10-04T21:49:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6149",
+    "name": "Grace Lim",
+    "account_age_days": 260,
+    "total_trips": 58,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4277",
+    "name": "Hakim Sulaiman",
+    "account_age_days": 500,
+    "total_trips": 1760,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SGB 7720 H)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31481",
+    "rider_id": "R-6149",
+    "driver_id": "D-4277",
+    "pickup_location": {
+      "name": "Suntec City",
+      "lat": 1.295,
+      "lng": 103.858
+    },
+    "dropoff_location": {
+      "name": "Tiong Bahru Plaza",
+      "lat": 1.2847,
+      "lng": 103.8382
+    },
+    "start_time": "2026-10-04T21:03:00+08:00",
+    "end_time": "2026-10-04T21:19:00+08:00",
+    "estimated_duration_min": 16,
+    "actual_duration_min": 16,
+    "upfront_quote": 16.0,
+    "actual_fare": 21.8,
+    "fare_difference": 5.8
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 3.0,
+      "distance_fare": 8.1,
+      "time_fare": 3.4,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 14.5,
+      "total": 16.0
+    },
+    "actual_fare": {
+      "base_fare": 3.0,
+      "distance_fare": 8.1,
+      "time_fare": 3.4,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.4,
+      "surge_amount": 5.8,
+      "surgeable_subtotal": 14.5,
+      "total": 21.8
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T21:03:00+08:00",
+      "lat": 1.295,
+      "lng": 103.858,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-04T21:05:40+08:00",
+      "lat": 1.2933,
+      "lng": 103.8547,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-04T21:08:20+08:00",
+      "lat": 1.2916,
+      "lng": 103.8514,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-04T21:11:00+08:00",
+      "lat": 1.2898,
+      "lng": 103.8481,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-04T21:13:40+08:00",
+      "lat": 1.2881,
+      "lng": 103.8448,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-04T21:16:20+08:00",
+      "lat": 1.2864,
+      "lng": 103.8415,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-04T21:19:00+08:00",
+      "lat": 1.2847,
+      "lng": 103.8382,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-04T21:00:00+08:00",
+      "message": "I'm at the Suntec Tower 3 lobby."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-04T21:01:30+08:00",
+      "message": "Ok arriving."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T20:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$16.00 at 1.0x."
+    },
+    {
+      "timestamp": "2026-10-04T20:52:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-04T20:56:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge changed to 1.4x."
+    },
+    {
+      "timestamp": "2026-10-04T21:02:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-04T21:03:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-04T21:19:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 1.4,
+    "surge_activated_at": "2026-10-04T20:56:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "demand_increase_after_event_end"
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 5.8,
+    "recommended_action": "refund_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Quote S$16.00 at 1.0x; surge became 1.4x at 20:56 before the 21:03 start and surge_pricing_log shows rider_notified false and no notification event. Booking fee S$1.50 is surge-exempt; the only change is surge S$5.80 (14.50 x 0.4). s3.3/s3.4: surge up, not notified = full refund of the differential S$5.80. Under S$10, AI final (s6.1/s6.2).",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.2: Surge Change Notification",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.4: Surge Differential Calculation",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds"
+    ],
+    "heldout": true
+  }
+}

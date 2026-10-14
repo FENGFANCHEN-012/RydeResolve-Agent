@@ -23,6 +23,10 @@ _CLEANING_WORDS = re.compile(r"\b(cleaning|clean-up|cleanup|vomit\w*|stain\w*|sp
                              r"damaged?|damages|repair\w*)\b", re.I)
 _SAFETY_WORDS = re.compile(r"\b(unsafe|harass\w*|assault\w*|threat\w*|reckless|dangerous|accident|touch\w*)\b", re.I)
 
+# Trip fields that record a cleaning / damage / repair amount (a fee charged or a driver's claim)
+CLAIM_FIELDS = ("cleaning_fee", "cleaning_fee_claimed", "damage_fee", "damage_fee_claimed",
+                "repair_fee", "repair_fee_claimed")
+
 BY_TYPE = {
     "route_deviation": ["1.1", "1.2", "1.3", "1.4", "7.1"],
     "no_show": ["2.1", "2.2", "2.3", "2.4", "2.5", "7.3"],
@@ -55,7 +59,7 @@ def sections() -> dict[str, dict]:
 
 def is_property_case(ctx: dict) -> bool:
     trip = ctx.get("trip") or {}
-    fees = [trip.get(k) for k in ("cleaning_fee", "cleaning_fee_claimed", "damage_fee", "repair_fee")]
+    fees = [trip.get(k) for k in CLAIM_FIELDS]
     return any(isinstance(f, (int, float)) and f > 0 for f in fees) or \
         bool(_CLEANING_WORDS.search(str(ctx.get("description") or "")))
 

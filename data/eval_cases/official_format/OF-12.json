@@ -1,0 +1,181 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "other: small driver-filed case under S$10, AI final",
+  "dispute_ticket": {
+    "dispute_id": "OF-12",
+    "trip_id": "TRIP-2026-31444",
+    "filed_by": "driver",
+    "dispute_type": "no_show_fee_claim",
+    "description": "I waited 9 minutes at Hougang Mall, sent a message and called, then cancelled as a no-show. The app closed the trip with no fee and I received nothing for my wait. I am asking for the S$5.00 no-show fee.",
+    "filed_at": "2026-10-09T14:28:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6310",
+    "name": "Kelly Seow",
+    "account_age_days": 210,
+    "total_trips": 38,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4530",
+    "name": "Lim Hock Seng",
+    "account_age_days": 990,
+    "total_trips": 4280,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Civic (SJZ 4107 Q)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31444",
+    "rider_id": "R-6310",
+    "driver_id": "D-4530",
+    "pickup_location": {
+      "name": "Hougang Mall",
+      "lat": 1.3732,
+      "lng": 103.8943
+    },
+    "dropoff_location": {
+      "name": "Kovan Hub",
+      "lat": 1.36,
+      "lng": 103.886
+    },
+    "scheduled_time": "2026-10-09T14:05:00+08:00",
+    "driver_arrival_time": "2026-10-09T14:05:00+08:00",
+    "driver_wait_start": "2026-10-09T14:05:00+08:00",
+    "cancellation_time": "2026-10-09T14:14:00+08:00",
+    "cancellation_fee": 0.0,
+    "cancelled_by": "driver",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T13:59:00+08:00",
+      "lat": 1.376,
+      "lng": 103.897,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T14:05:00+08:00",
+      "lat": 1.3732,
+      "lng": 103.8943,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-09T14:10:00+08:00",
+      "lat": 1.3732,
+      "lng": 103.8943,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T14:14:00+08:00",
+      "lat": 1.3732,
+      "lng": 103.8943,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-09T14:06:00+08:00",
+      "message": "I'm at Hougang Mall main entrance, black Civic."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-09T14:08:30+08:00",
+      "type": "call",
+      "message": "Outgoing call to rider - not answered (rang 22s, no response)."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "driver",
+      "timestamp": "2026-10-09T14:11:20+08:00",
+      "message": "Are you coming? I'll cancel if no reply."
+    },
+    {
+      "message_id": "MSG-004",
+      "sender": "system",
+      "timestamp": "2026-10-09T14:14:00+08:00",
+      "type": "system",
+      "message": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee not assessed."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T13:49:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Scheduled pickup 14:05."
+    },
+    {
+      "timestamp": "2026-10-09T13:49:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-09T14:05:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point. Auto-arrival confirmed."
+    },
+    {
+      "timestamp": "2026-10-09T14:05:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Free wait timer started. 5 min free wait from scheduled pickup 14:05 ends 14:10."
+    },
+    {
+      "timestamp": "2026-10-09T14:08:30+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Rang 22s, no answer."
+    },
+    {
+      "timestamp": "2026-10-09T14:10:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 5-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-09T14:14:00+08:00",
+      "event_type": "trip_closed",
+      "details": "Trip closed as cancelled (rider_no_show). Cancellation fee: S$0.00 assessed."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "award_driver_cancellation_fee",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Scheduled 14:05, driver arrived 14:05 (GPS stationary), free wait ended 14:10, cancelled 14:14. Contact: chat messages at 14:06 and 14:11:20 and an in-app call at 14:08:30, so s2.3 is met. trip_data shows a cancellation fee of S$0.00 assessed, which does not match s2.2 (fixed S$5.00 after the free wait). The S$5.00 is awarded to the driver. Under S$10, AI ruling is final (s6.1/s6.2).",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.2: Cancellation Fee",
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.3: Driver Contact Obligation",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds"
+    ],
+    "heldout": true
+  }
+}

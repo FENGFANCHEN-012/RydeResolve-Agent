@@ -1,0 +1,200 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "fare: surge differential above S$50",
+  "dispute_ticket": {
+    "dispute_id": "OF-20",
+    "trip_id": "TRIP-2026-31740",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The quote at booking was S$57.50 and I was charged S$113.50 for the same trip. There was no warning. I am requesting a refund of S$56.00.",
+    "filed_at": "2026-10-11T00:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6184",
+    "name": "Marcus Wong",
+    "account_age_days": 340,
+    "total_trips": 87,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4332",
+    "name": "Yusof Hamid",
+    "account_age_days": 880,
+    "total_trips": 3770,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vellfire (SJX 7001 M)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31740",
+    "rider_id": "R-6184",
+    "driver_id": "D-4332",
+    "pickup_location": {
+      "name": "Changi Airport Terminal 1",
+      "lat": 1.3601,
+      "lng": 103.9884
+    },
+    "dropoff_location": {
+      "name": "Tuas South Avenue 1",
+      "lat": 1.265,
+      "lng": 103.624
+    },
+    "start_time": "2026-10-10T23:35:00+08:00",
+    "end_time": "2026-10-11T00:20:00+08:00",
+    "estimated_duration_min": 45,
+    "actual_duration_min": 45,
+    "upfront_quote": 57.5,
+    "actual_fare": 113.5,
+    "fare_difference": 56.0
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 4.5,
+      "distance_fare": 44.5,
+      "time_fare": 7.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 56.0,
+      "total": 57.5
+    },
+    "actual_fare": {
+      "base_fare": 4.5,
+      "distance_fare": 44.5,
+      "time_fare": 7.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 2.0,
+      "surge_amount": 56.0,
+      "surgeable_subtotal": 56.0,
+      "total": 113.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T23:35:00+08:00",
+      "lat": 1.3601,
+      "lng": 103.9884,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-10T23:42:30+08:00",
+      "lat": 1.3443,
+      "lng": 103.9277,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-10T23:50:00+08:00",
+      "lat": 1.3284,
+      "lng": 103.8669,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-10T23:57:30+08:00",
+      "lat": 1.3125,
+      "lng": 103.8062,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-11T00:05:00+08:00",
+      "lat": 1.2967,
+      "lng": 103.7455,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-11T00:12:30+08:00",
+      "lat": 1.2809,
+      "lng": 103.6847,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-11T00:20:00+08:00",
+      "lat": 1.265,
+      "lng": 103.624,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-10T23:31:00+08:00",
+      "message": "I'm at T1 arrival pickup, door 4."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-10T23:32:30+08:00",
+      "message": "Ok, I'm coming."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T23:12:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$57.50 at 1.0x."
+    },
+    {
+      "timestamp": "2026-10-10T23:12:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-10T23:20:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge changed to 2.0x."
+    },
+    {
+      "timestamp": "2026-10-10T23:33:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-10T23:35:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-11T00:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 2.0,
+    "surge_activated_at": "2026-10-10T23:20:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "late_night_flight_arrivals"
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "Surge 1.0x to 2.0x at 23:20 with no rider notification (surge differential S$56.00), so on the merits s3.3 would support a refund, but the amount in dispute is above S$50 and s6.1/s6.2 say fare disputes above S$50 always go to human review; the AI only prepares the case file.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility"
+    ],
+    "heldout": true
+  }
+}

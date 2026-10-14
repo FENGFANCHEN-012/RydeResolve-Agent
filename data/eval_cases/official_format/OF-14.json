@@ -1,0 +1,209 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "fare: surge fell between quote and trip start",
+  "dispute_ticket": {
+    "dispute_id": "OF-14",
+    "trip_id": "TRIP-2026-31518",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The app showed a fare of S$20.10 when I booked. A few minutes into the ride I saw the surge had dropped to normal, so I think I should pay the normal price. The charge was S$16.38 and a normal fare would be S$13.90. I request the S$2.48 back.",
+    "filed_at": "2026-10-08T22:46:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6163",
+    "name": "Michelle Ong",
+    "account_age_days": 90,
+    "total_trips": 12,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4299",
+    "name": "Abdul Karim",
+    "account_age_days": 640,
+    "total_trips": 2080,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Civic (SKA 3941 J)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31518",
+    "rider_id": "R-6163",
+    "driver_id": "D-4299",
+    "pickup_location": {
+      "name": "Great World City",
+      "lat": 1.2935,
+      "lng": 103.8315
+    },
+    "dropoff_location": {
+      "name": "Clarke Quay",
+      "lat": 1.2906,
+      "lng": 103.8465
+    },
+    "start_time": "2026-10-08T22:02:00+08:00",
+    "end_time": "2026-10-08T22:16:00+08:00",
+    "estimated_duration_min": 14,
+    "actual_duration_min": 14,
+    "upfront_quote": 20.1,
+    "actual_fare": 16.38,
+    "fare_difference": -3.72
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 3.0,
+      "distance_fare": 6.0,
+      "time_fare": 3.4,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.5,
+      "surge_amount": 6.2,
+      "surgeable_subtotal": 12.4,
+      "total": 20.1
+    },
+    "actual_fare": {
+      "base_fare": 3.0,
+      "distance_fare": 6.0,
+      "time_fare": 3.4,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.2,
+      "surge_amount": 2.48,
+      "surgeable_subtotal": 12.4,
+      "total": 16.38
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T22:02:00+08:00",
+      "lat": 1.2935,
+      "lng": 103.8315,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-08T22:04:20+08:00",
+      "lat": 1.293,
+      "lng": 103.834,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-08T22:06:40+08:00",
+      "lat": 1.2925,
+      "lng": 103.8365,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-08T22:09:00+08:00",
+      "lat": 1.2921,
+      "lng": 103.839,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-08T22:11:20+08:00",
+      "lat": 1.2916,
+      "lng": 103.8415,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-08T22:13:40+08:00",
+      "lat": 1.2911,
+      "lng": 103.844,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-08T22:16:00+08:00",
+      "lat": 1.2906,
+      "lng": 103.8465,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-08T22:00:00+08:00",
+      "message": "I'm at the Great World City taxi stand."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-08T22:01:10+08:00",
+      "message": "Ok, I'm here, grey Civic."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T21:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$20.10 at 1.5x."
+    },
+    {
+      "timestamp": "2026-10-08T21:50:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-08T21:58:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge changed to 1.2x."
+    },
+    {
+      "timestamp": "2026-10-08T22:01:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-08T22:02:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-08T22:07:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge fell to 1.0x (after trip start)."
+    },
+    {
+      "timestamp": "2026-10-08T22:16:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.5,
+    "trip_start_surge": 1.2,
+    "surge_activated_at": "2026-10-08T21:58:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "demand_easing",
+    "later_change": {
+      "at": "2026-10-08T22:07:00+08:00",
+      "to": 1.0
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Quote S$20.10 at 1.5x; surge fell to 1.2x before the 22:02 start, so the lower actual fare S$16.38 was charged (S$3.72 lower than the quote). The later drop to 1.0x at 22:07 happened after trip start; s3.3 row 3 and Appendix A apply the multiplier in effect at trip start. Nothing to refund; the S$2.48 claimed is not a policy entitlement. Under S$10, AI final.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.1: Upfront Quote Binding",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds"
+    ],
+    "heldout": true
+  }
+}

@@ -1,0 +1,61 @@
+Official-format test set OF-01 .. OF-30 (2026-10-14). Purpose: a broad test of rulings under Ryde
+Dispute Resolution Policy v2.1 (data/policies/governing/ryde_dispute_resolution_policy_v2_1.md, read
+it in full) on cases written in the organisers' full sample format (data/Dispute_format/, all three
+files), across every dispute type.
+
+Format: follow the DISP files: dispute_ticket, rider_profile, driver_profile, trip_data,
+gps_telemetry, chat_logs (message_id, sender, timestamp, message; calls as entries with "type":
+"call"), app_events where the platform would log them, and the record sections the case needs:
+fare_breakdown (with "distance_rate_per_km" when a distance fare matters; components that add up),
+surge_pricing_log, optimal_route (route_name, estimated_distance_km, estimated_duration_min,
+waypoints), traffic_conditions (incident_id, road, direction, stretch, incident_type, severity,
+timestamp, clear_time, description), cancellation_policy (DISP-002 style) where a cancellation is
+involved. Do NOT include analysis sections (case_metadata, recommended_ruling, evidence_summary,
+traffic_analysis, chat_log_analysis) and no "notes" in fare_breakdown or optimal_route. The answer
+goes only in "expected_outcome".
+
+Records, not words: every amount a ruling needs must be in a record, not only in someone's text.
+A driver's claim amount goes in trip_data.cleaning_fee_claimed (or damage_fee / repair_fee); a fee
+charged to a rider goes in trip_data (cleaning_fee, cancellation_fee); fare differences come from the
+fare records. Photos: list them in "evidence" ({"evidence_type": "photo", "uploaded_by", "uploaded_at",
+"description", "file_url": "data/evidence_samples/cases/OF-xx/photo1.jpg"}) and say how to stamp
+each in "_photo_stamps" ({"photo1.jpg": {"library": <name>, "taken_at": ISO or null, "gps": [lat, lng]
+or null, "software": null or string, "copy_of": null}}), choosing the library photo from
+data/evidence_samples/library/README.md that really shows what the claim describes; write the claim
+to match that photo.
+
+Singapore, October 2026, +08:00, realistic places and SGD. Mix (exactly 30), shuffled across ids:
+- Route deviation (6): with and without an incident on the recommended route active during the trip;
+  rider informed (chat before or at the deviation) and not informed; deviations under and over the
+  1 km tolerance; at least one where the driver's chat gives a reason only AFTER the rider asks.
+- Fare and surge (6): surge rose and rider not notified (refund the surge differential); notified
+  and proceeded (no refund); surge fell (rider pays the lower fare, nothing to refund); a fare
+  difference not caused by surge (e.g. a toll or a stop the rider added, recorded in fare_breakdown);
+  one where the amount in dispute is S$10-50 and the records are clean; one above S$50 (a person).
+- No-show and cancellation (6): contact obligation met and not met (message only; call only);
+  driver no-show (driver never reached the pickup within scheduled time + 5 min: rider cancels free,
+  and with no contact attempt a S$5.00 goodwill credit per s2.4); a rider with fraud_flags 1 where
+  the fee is right (s6.2 final); one cancelled before the free wait ended.
+- Property damage and cleaning (6): driver claims at or under S$50 with a genuine photo that the
+  rider does not contest (upheld); a photo taken more than 24 h after the trip (claim rejected,
+  s4.2/s4.4); a claim above S$50 (a person, s6.1); a repair claim with a workshop quote (a person);
+  a rider disputing a cleaning fee (a person, s4.4); one where the photo does not show what is claimed
+  (choose a clean-seat library photo; a person).
+- Safety (3): a threat in the chat inside a fare dispute; reckless driving with GPS speeds; a rider
+  feeling unsafe. All: a person, no ruling (s5.1-5.2), expected_urgency "P0".
+- Service quality and other (3): a rude-driver complaint asking a refund with no fare problem (no
+  policy amount: a person or dismissed, say which and why under v2.1); a case where a party with a
+  fraud flag disputes S$10-50 (s6.3); a clear small case under S$10 (AI final).
+Do not make the answer obvious from the title or the description.
+
+Every case: expected_outcome with verdict (upheld / partially_upheld / dismissed, or null when a
+person must decide), refund_amount (refund or award in SGD; null when a person decides),
+recommended_action, requires_human_review, must_escalate (equal to requires_human_review), reason
+(cite the records, figures and the v2.1 sections), expected_dispute_type (route_deviation,
+fare_dispute, no_show, cancellation_refund, service_quality, driver_rights, accident_liability),
+expected_urgency (null or "P0"), expected_policy_sections (list of "Ryde Dispute Resolution Policy
+v2.1 > <section>"), acceptable_verdicts where honest, heldout: true. Routing rules apply on top of the
+merits: s6.1 (above S$50 always a person; S$10-50 only with clear evidence), s6.3, s4.4, s5.2. Where
+v2.1 s6.2 says a route deviation over 2 km escalates, do NOT apply it (the organisers' sample DISP-001
+rules a 4.3 km deviation automatically); keep route deviations of any size AI-decidable.
+Dispute ids OF-01..OF-30, trip ids TRIP-2026-3xxxx unique per case.

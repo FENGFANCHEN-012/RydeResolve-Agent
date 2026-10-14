@@ -1,0 +1,162 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "cancellation: driver cancelled before the free wait ended",
+  "dispute_ticket": {
+    "dispute_id": "OF-29",
+    "trip_id": "TRIP-2026-32073",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_charge_dispute",
+    "description": "I was walking over from the Bugis MRT and was told the driver had already cancelled. I got charged S$5.00 although it was just a few minutes past the pickup time.",
+    "filed_at": "2026-10-08T19:48:10+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6226",
+    "name": "Amanda Quek",
+    "account_age_days": 70,
+    "total_trips": 9,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4398",
+    "name": "Philip Seah",
+    "account_age_days": 410,
+    "total_trips": 1320,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SLR 1830 U)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-32073",
+    "rider_id": "R-6226",
+    "driver_id": "D-4398",
+    "pickup_location": {
+      "name": "Bugis Village, Queen Street",
+      "lat": 1.2987,
+      "lng": 103.8466
+    },
+    "dropoff_location": {
+      "name": "Mandai Wildlife West",
+      "lat": 1.4047,
+      "lng": 103.789
+    },
+    "scheduled_time": "2026-10-08T19:30:00+08:00",
+    "driver_arrival_time": "2026-10-08T19:31:00+08:00",
+    "driver_wait_start": "2026-10-08T19:31:00+08:00",
+    "cancellation_time": "2026-10-08T19:34:10+08:00",
+    "cancellation_fee": 5.0,
+    "cancelled_by": "driver",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T19:26:00+08:00",
+      "lat": 1.301,
+      "lng": 103.848,
+      "speed_kmh": 22,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T19:31:00+08:00",
+      "lat": 1.2987,
+      "lng": 103.8466,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-08T19:34:10+08:00",
+      "lat": 1.2987,
+      "lng": 103.8466,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-08T19:32:00+08:00",
+      "message": "I'm at the Queen Street side, black Vios."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-08T19:33:00+08:00",
+      "type": "call",
+      "message": "Outgoing call to rider - not answered (rang 20s, no response)."
+    },
+    {
+      "message_id": "MSG-003",
+      "sender": "system",
+      "timestamp": "2026-10-08T19:34:10+08:00",
+      "type": "system",
+      "message": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of S$5.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T19:14:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Scheduled pickup 19:30."
+    },
+    {
+      "timestamp": "2026-10-08T19:14:15+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-08T19:31:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point. Auto-arrival confirmed."
+    },
+    {
+      "timestamp": "2026-10-08T19:31:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Free wait timer started. 5 min free wait from scheduled pickup 19:30 ends 19:35."
+    },
+    {
+      "timestamp": "2026-10-08T19:33:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Rang 20s, no answer."
+    },
+    {
+      "timestamp": "2026-10-08T19:34:10+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "Fee applied by driver cancellation."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": 5,
+    "cancellation_fee_after_wait": 5.0,
+    "no_show_threshold_min": 8,
+    "fee_goes_to": "driver_compensation"
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "void_cancellation_fee",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Scheduled pickup 19:30, so the 5-minute free wait ran to 19:35. The driver cancelled at 19:34:10, 4 min 10 s after the scheduled time, and no wait_timer_expired event exists. s2.1/2.2: the no-show fee can be charged only after the free wait; it was charged too early. The driver did send a message (19:32) and make a call (19:33), but contact does not cure an early cancellation. The S$5.00 fee is reversed. AI final (s6.2).",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.1: Free Wait Time",
+      "Ryde Dispute Resolution Policy v2.1 > Section 2.2: Cancellation Fee",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  }
+}

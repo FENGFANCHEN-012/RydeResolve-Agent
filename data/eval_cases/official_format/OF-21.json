@@ -1,0 +1,202 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "fare: S$10-50 surge differential, clean records",
+  "dispute_ticket": {
+    "dispute_id": "OF-21",
+    "trip_id": "TRIP-2026-31777",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My booking showed S$31.50. The charge was S$43.50. I never received any alert about a higher price. I am asking for the S$12.00 back.",
+    "filed_at": "2026-10-09T08:56:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6177",
+    "name": "Hui Min Koh",
+    "account_age_days": 220,
+    "total_trips": 64,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4321",
+    "name": "Syed Omar",
+    "account_age_days": 540,
+    "total_trips": 2905,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Sonata (SLN 6633 G)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31777",
+    "rider_id": "R-6177",
+    "driver_id": "D-4321",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.945
+    },
+    "dropoff_location": {
+      "name": "Raffles Place",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "start_time": "2026-10-09T07:48:00+08:00",
+    "end_time": "2026-10-09T08:26:00+08:00",
+    "estimated_duration_min": 38,
+    "actual_duration_min": 38,
+    "upfront_quote": 31.5,
+    "actual_fare": 43.5,
+    "fare_difference": 12.0
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 3.5,
+      "distance_fare": 21.0,
+      "time_fare": 5.5,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 30.0,
+      "total": 31.5
+    },
+    "actual_fare": {
+      "base_fare": 3.5,
+      "distance_fare": 21.0,
+      "time_fare": 5.5,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.4,
+      "surge_amount": 12.0,
+      "surgeable_subtotal": 30.0,
+      "total": 43.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T07:48:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.945,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-09T07:54:20+08:00",
+      "lat": 1.3411,
+      "lng": 103.9294,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-09T08:00:40+08:00",
+      "lat": 1.3297,
+      "lng": 103.9138,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-09T08:07:00+08:00",
+      "lat": 1.3182,
+      "lng": 103.8982,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-09T08:13:20+08:00",
+      "lat": 1.3068,
+      "lng": 103.8827,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-09T08:19:40+08:00",
+      "lat": 1.2954,
+      "lng": 103.8671,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-09T08:26:00+08:00",
+      "lat": 1.284,
+      "lng": 103.8515,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-09T07:44:00+08:00",
+      "message": "I'm at Tampines Mall taxi stand."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-09T07:45:30+08:00",
+      "message": "Ok, 1 min."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T07:31:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$31.50 at 1.0x."
+    },
+    {
+      "timestamp": "2026-10-09T07:31:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-09T07:40:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge changed to 1.4x."
+    },
+    {
+      "timestamp": "2026-10-09T07:46:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-09T07:48:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-09T08:26:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 1.4,
+    "surge_activated_at": "2026-10-09T07:40:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "morning_peak_demand"
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 12.0,
+    "recommended_action": "refund_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Quote S$31.50 at 1.0x, actual S$43.50 at 1.4x (surge S$12.00 = 30.00 x 0.4; booking fee S$1.50 exempt). Surge went live at 07:40 and rider_notified is false with no notification event. s3.3: surge up, not notified = full refund of the differential S$12.00. Amount is S$10-50 (s6.1): AI ruling allowed because the records are complete and consistent and there are no fraud flags.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.2: Surge Change Notification",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.4: Surge Differential Calculation",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.3: Confidence Calibration"
+    ],
+    "heldout": true
+  }
+}

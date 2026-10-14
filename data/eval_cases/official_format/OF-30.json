@@ -1,0 +1,179 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "property: photo does not show the claimed damage",
+  "dispute_ticket": {
+    "dispute_id": "OF-30",
+    "trip_id": "TRIP-2026-32110",
+    "filed_by": "driver",
+    "dispute_type": "property_damage",
+    "description": "The rider spilled coffee on the rear white leather seat. I took a photo of the seat after dropping off and I am claiming a cleaning fee of S$40.00.",
+    "filed_at": "2026-10-06T23:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6268",
+    "name": "Felicia Wan",
+    "account_age_days": 600,
+    "total_trips": 140,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld": 1,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4464",
+    "name": "Kenneth Foo",
+    "account_age_days": 360,
+    "total_trips": 1020,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKM 2019 E)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-32110",
+    "rider_id": "R-6268",
+    "driver_id": "D-4464",
+    "pickup_location": {
+      "name": "Esplanade Theatres",
+      "lat": 1.2897,
+      "lng": 103.8555
+    },
+    "dropoff_location": {
+      "name": "Blk 25 Marine Parade Road",
+      "lat": 1.3025,
+      "lng": 103.906
+    },
+    "start_time": "2026-10-06T22:30:00+08:00",
+    "end_time": "2026-10-06T22:50:00+08:00",
+    "estimated_duration_min": 20,
+    "actual_duration_min": 20,
+    "actual_fare": 14.3,
+    "cleaning_fee_claimed": 40.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T22:30:00+08:00",
+      "lat": 1.2897,
+      "lng": 103.8555,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-06T22:33:20+08:00",
+      "lat": 1.2918,
+      "lng": 103.8639,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-06T22:36:40+08:00",
+      "lat": 1.294,
+      "lng": 103.8723,
+      "speed_kmh": 38
+    },
+    {
+      "timestamp": "2026-10-06T22:40:00+08:00",
+      "lat": 1.2961,
+      "lng": 103.8808,
+      "speed_kmh": 45
+    },
+    {
+      "timestamp": "2026-10-06T22:43:20+08:00",
+      "lat": 1.2982,
+      "lng": 103.8892,
+      "speed_kmh": 32
+    },
+    {
+      "timestamp": "2026-10-06T22:46:40+08:00",
+      "lat": 1.3004,
+      "lng": 103.8976,
+      "speed_kmh": 20
+    },
+    {
+      "timestamp": "2026-10-06T22:50:00+08:00",
+      "lat": 1.3025,
+      "lng": 103.906,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "driver",
+      "timestamp": "2026-10-06T22:52:00+08:00",
+      "message": "You spilled your coffee on the back seat, I will claim cleaning."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "rider",
+      "timestamp": "2026-10-06T22:53:00+08:00",
+      "message": "I had no drink with me. The seat was spotless when I got out."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-06T23:15:00+08:00",
+      "description": "Rear seat of the car after the trip where I say coffee was spilled.",
+      "file_url": "data/evidence_samples/cases/OF-30/photo1.jpg"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T22:20:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Trip booked by rider. Upfront quote shown."
+    },
+    {
+      "timestamp": "2026-10-06T22:21:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route to pickup."
+    },
+    {
+      "timestamp": "2026-10-06T22:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-06T22:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed at destination."
+    }
+  ],
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "Claim S$40.00. The photo is timely (23:12, 22 min after trip end, in-app camera, GPS at drop-off), but it shows clean white leather rear seats with no stain or spill, so it does not show the damage described. The rider disputes the claim in chat. s4.4 routes a contested damage claim to human review (and, if reviewed on the photo alone, insufficient evidence would lead to rejection); the AI does not decide it.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.4: Dispute Handling",
+      "Ryde Dispute Resolution Policy v2.1 > Section 4.2: Evidence Requirements",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.2: Category Thresholds"
+    ],
+    "heldout": true
+  },
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "seat_clean_white_leather.jpg",
+      "taken_at": "2026-10-06T23:12:00+08:00",
+      "gps": [
+        1.3026,
+        103.9062
+      ],
+      "software": "RydeDriver 5.2 in-app camera",
+      "copy_of": null
+    }
+  }
+}

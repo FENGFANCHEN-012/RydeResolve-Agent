@@ -1,0 +1,201 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "other: party with fraud flag disputes S$10-50",
+  "dispute_ticket": {
+    "dispute_id": "OF-09",
+    "trip_id": "TRIP-2026-31333",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I booked at S$37.50 and was charged S$51.90. There was no notification. Please return the S$14.40.",
+    "filed_at": "2026-10-12T09:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6303",
+    "name": "Edwin Sim",
+    "account_age_days": 300,
+    "total_trips": 69,
+    "avg_rating": 4.1,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 1,
+    "payment_method": "credit_card",
+    "fraud_flag_details": "flagged_for_chargeback_pattern"
+  },
+  "driver_profile": {
+    "driver_id": "D-4519",
+    "name": "Hassan Yusuf",
+    "account_age_days": 780,
+    "total_trips": 2980,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SLC 9921 R)"
+  },
+  "trip_data": {
+    "trip_id": "TRIP-2026-31333",
+    "rider_id": "R-6303",
+    "driver_id": "D-4519",
+    "pickup_location": {
+      "name": "Orchard MRT",
+      "lat": 1.304,
+      "lng": 103.832
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.334,
+      "lng": 103.964
+    },
+    "start_time": "2026-10-12T08:05:00+08:00",
+    "end_time": "2026-10-12T08:45:00+08:00",
+    "estimated_duration_min": 40,
+    "actual_duration_min": 40,
+    "upfront_quote": 37.5,
+    "actual_fare": 51.9,
+    "fare_difference": 14.4
+  },
+  "fare_breakdown": {
+    "upfront_quote": {
+      "base_fare": 4.0,
+      "distance_fare": 26.0,
+      "time_fare": 6.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "surgeable_subtotal": 36.0,
+      "total": 37.5
+    },
+    "actual_fare": {
+      "base_fare": 4.0,
+      "distance_fare": 26.0,
+      "time_fare": 6.0,
+      "booking_fee": 1.5,
+      "surge_multiplier": 1.4,
+      "surge_amount": 14.4,
+      "surgeable_subtotal": 36.0,
+      "total": 51.9
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T08:05:00+08:00",
+      "lat": 1.304,
+      "lng": 103.832,
+      "speed_kmh": 0
+    },
+    {
+      "timestamp": "2026-10-12T08:11:40+08:00",
+      "lat": 1.309,
+      "lng": 103.854,
+      "speed_kmh": 28
+    },
+    {
+      "timestamp": "2026-10-12T08:18:20+08:00",
+      "lat": 1.314,
+      "lng": 103.876,
+      "speed_kmh": 35
+    },
+    {
+      "timestamp": "2026-10-12T08:25:00+08:00",
+      "lat": 1.319,
+      "lng": 103.898,
+      "speed_kmh": 42
+    },
+    {
+      "timestamp": "2026-10-12T08:31:40+08:00",
+      "lat": 1.324,
+      "lng": 103.92,
+      "speed_kmh": 30
+    },
+    {
+      "timestamp": "2026-10-12T08:38:20+08:00",
+      "lat": 1.329,
+      "lng": 103.942,
+      "speed_kmh": 25
+    },
+    {
+      "timestamp": "2026-10-12T08:45:00+08:00",
+      "lat": 1.334,
+      "lng": 103.964,
+      "speed_kmh": 0
+    }
+  ],
+  "chat_logs": [
+    {
+      "message_id": "MSG-001",
+      "sender": "rider",
+      "timestamp": "2026-10-12T08:02:00+08:00",
+      "message": "I'm at Orchard MRT exit B."
+    },
+    {
+      "message_id": "MSG-002",
+      "sender": "driver",
+      "timestamp": "2026-10-12T08:03:30+08:00",
+      "message": "Ok, 1 min."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T07:48:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider booked trip. Upfront quote S$37.50 at 1.0x."
+    },
+    {
+      "timestamp": "2026-10-12T07:48:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver assigned and en route."
+    },
+    {
+      "timestamp": "2026-10-12T07:56:00+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge changed to 1.4x."
+    },
+    {
+      "timestamp": "2026-10-12T08:03:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver GPS within 10m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-12T08:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-12T08:45:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    }
+  ],
+  "surge_pricing_log": {
+    "quote_time_surge": 1.0,
+    "trip_start_surge": 1.4,
+    "surge_activated_at": "2026-10-12T07:56:00+08:00",
+    "rider_notified": false,
+    "notification_method": null,
+    "notification_timestamp": null,
+    "reason": "morning_peak_demand"
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_human",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "On the merits the records are clear: surge 1.0x to 1.4x at 07:56, no rider notification, surge differential S$14.40 (s3.3). But the rider has fraud_flags 1, so s6.3 raises the confidence threshold to 95% regardless of dispute value, and the amount is S$10-50 (s6.1), where the AI can rule only if confidence is above the threshold. Given the fraud flag the case goes to a human reviewer with the evidence summarised.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.3: Confidence Calibration",
+      "Ryde Dispute Resolution Policy v2.1 > Section 6.1: Monetary Thresholds",
+      "Ryde Dispute Resolution Policy v2.1 > Section 3.3: Refund Eligibility"
+    ],
+    "heldout": true
+  }
+}
