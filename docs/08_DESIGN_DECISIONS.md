@@ -1566,3 +1566,44 @@ cleaning-fee type, as in D46).
 Not done: an awarded amount for a driver's upheld cleaning claim (PS-06); a ruling settled by the
 chat when the photo only lacks a time (IM-05 only; PS-05 is a brief error, see above); cleaning-fee
 dispute type.
+
+## D48. The cancellation-fee text now says a driver-pressed no-show cancel is covered (2026-10-14)
+
+What: the scope sentence of `cancellation_fee_after_wait` ("It governs rider-side cancellations and
+no-shows, not cancellations caused by the driver.") and the `no_show_fee` variant ("It governs rider
+no-shows, not cancellations caused by the driver.") now read: "It covers rider [cancellations and
+rider] no-shows, including the no-show cancellation the driver presses after waiting past the
+threshold; it does not cover a cancellation the driver makes for the driver's own reasons." Changed in
+`data/policies/case_rule_texts.json` and, by exact string replacement (no other text touched), in 38
+case files (mock_disputes, heldout, fraud, fresh_sonnet, fresh2_sonnet, discretion_sonnet,
+precedent_train/test). Run traces in data/eval are unchanged. No code change.
+
+Why: F2-01 (wrong payout, D42), PX-01 and PX-06 (D45) all read "not cancellations caused by the
+driver" as "not cancellations the driver pressed", while a driver always presses cancel on a no-show.
+The official Ryde text (`ryde_help_driver_popular_topics.md`) says the fee is due when the driver
+pressed "I'm Here", waited and cancels (rider no-show). The wording was ours, not Ryde's.
+
+How checked:
+- 538 Python tests pass.
+- Replay of the three misses, run 20261014-142529-cancel-replay (US$0.04): F2-01 dismissed, PX-01
+  dismissed, PX-06 upheld S$6.00: 3/3 right (were all wrong). The first pass hit the Cerebras daily
+  token limit on one key; the script retried on the next key.
+- New blind set CS-01..10 (`data/eval_cases/cancel_scope`, brief `focus_cancel_scope.txt`, Sonnet
+  subagent, no code or results read). Run 20261014-140420-cancel-scope (one run, US$0.14): 7/10.
+
+| case | scenario | result |
+|---|---|---|
+| CS-01, 06 | driver pressed cancel on a no-show; rider says "the driver cancelled, not me" | fee stands: right |
+| CS-09 | same, driver asks for the held fee | released: right |
+| CS-03, 08 | driver's car broke down; driver cancelled 3 min early | refunded: right |
+| CS-05 | rider pressed cancel after the free wait | fee stands: right |
+| CS-10 | driver_arrived but GPS 900 m away | a person: right |
+| CS-04 | driver asks for a fee held because the rider contested | **wrong payout**: the Judge kept the fee held "pending review", not seeing that this dispute is that review. A new misreading, not the scope sentence |
+| CS-07 | driver says in chat he left to take another job; reason field says rider_no_show | **wrong payout**: the Judge kept the S$8 fee, saying "the policy ties the fee to the recorded reason, not to chat statements". The driver's own admission against his interest was set aside |
+| CS-02 | driver cancelled after 6 min, threshold 8, free wait 3 | sent to a person (Fairness: fee basis not met). The Judge charged the fee on the 3-min free wait. Our case texts have two waits (free wait and no-show threshold) and do not say which one a driver-pressed no-show needs; safe direction |
+
+The target misreading did not appear in any of the 13 runs. Two new wrong payouts did (CS-04,
+CS-07), on other points.
+
+Not done: a held fee in a driver's dispute (CS-04); a party's admission in the chat against their own
+interest (CS-07; same family as IM-05); which wait a driver-pressed no-show needs (CS-02).
