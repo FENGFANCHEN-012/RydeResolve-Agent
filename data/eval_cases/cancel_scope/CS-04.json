@@ -1,0 +1,249 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "A: driver-filed, held fee to release (wait 9 >= 7)",
+  "dispute_ticket": {
+    "dispute_id": "CS-04",
+    "trip_id": "RYDE-CS-004",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "The rider never showed up at Tiong Bahru Plaza. I waited at the pickup for 9 minutes, called and messaged, then cancelled. The rider complained and the S$5.50 no-show fee is now on hold and I have not received it. Please release the fee to me.",
+    "filed_at": "2026-10-06T21:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9031",
+    "name": "Chloe Teo Hui Min",
+    "account_age_days": 410,
+    "total_trips": 87,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4825",
+    "name": "Ahmad Fauzi Bin Salleh",
+    "account_age_days": 1800,
+    "total_trips": 7210,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SLM 1180 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-CS-004",
+    "rider_id": "R-9031",
+    "driver_id": "D-4825",
+    "pickup_location": {
+      "name": "Tiong Bahru Plaza (Kim Pong Road drop-off)",
+      "lat": 1.286,
+      "lng": 103.8326
+    },
+    "dropoff_location": {
+      "name": "ION Orchard",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-10-05T19:15:00+08:00",
+    "driver_arrival_time": "2026-10-05T19:13:00+08:00",
+    "driver_wait_start": "2026-10-05T19:13:00+08:00",
+    "cancellation_time": "2026-10-05T19:22:00+08:00",
+    "cancellation_fee": 5.5,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T19:05:00+08:00",
+      "lat": 1.298,
+      "lng": 103.8426,
+      "speed_kmh": 38,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T19:10:00+08:00",
+      "lat": 1.29,
+      "lng": 103.8356,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T19:13:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-05T19:15:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T19:17:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T19:19:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T19:21:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T19:22:00+08:00",
+      "lat": 1.286,
+      "lng": 103.8326,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T19:13:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I'm at the Kim Pong Road drop-off point outside Tiong Bahru Plaza."
+    },
+    {
+      "timestamp": "2026-10-05T19:17:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Waiting at the pickup point. Are you coming?"
+    },
+    {
+      "timestamp": "2026-10-05T19:19:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing call to rider - not answered (rang 25s, no response)."
+    },
+    {
+      "timestamp": "2026-10-05T19:21:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "9 minutes now with no reply. Cancelling as no-show."
+    },
+    {
+      "timestamp": "2026-10-05T19:22:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.50 applied."
+    },
+    {
+      "timestamp": "2026-10-05T19:31:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry stuck in a meeting, forgot to cancel."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T19:03:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9031 booked trip RYDE-CS-004 from Tiong Bahru Plaza (Kim Pong Road drop-off) to ION Orchard. Pickup 19:15."
+    },
+    {
+      "timestamp": "2026-10-05T19:03:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-4825 (Ahmad Fauzi Bin Salleh, Toyota Wish (SLM 1180 J)) assigned."
+    },
+    {
+      "timestamp": "2026-10-05T19:13:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'. Arrival recorded for the pickup point."
+    },
+    {
+      "timestamp": "2026-10-05T19:13:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-05T19:13:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started at driver arrival. 4 min free wait period ends at 19:17."
+    },
+    {
+      "timestamp": "2026-10-05T19:17:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 4-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-05T19:19:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Call rang 25s, no answer."
+    },
+    {
+      "timestamp": "2026-10-05T19:22:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Cancel pressed by driver D-4825. Reason selected: rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-05T19:22:05+08:00",
+      "event_type": "cancellation_fee_held",
+      "details": "Cancellation fee S$5.50 held pending review (rider contested the charge). Not yet credited to driver."
+    },
+    {
+      "timestamp": "2026-10-05T19:22:10+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-4825 released from trip. Trip status: cancelled (rider_no_show)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 4,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "no_show_threshold_min": {
+      "value": 7,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 5.5,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "release_held_fee_to_driver",
+    "refund_amount": 5.5,
+    "requires_human_review": false,
+    "reason": "Driver arrival is recorded at 19:13:00 with GPS at the pickup from 19:13 to 19:22. The driver pressed cancel at 19:22:00, a wait of 9 minutes, past this trip's 7-minute no-show threshold. The driver messaged and called; the rider's only reply, at 19:31, admits she was in a meeting. The no-show cancellation pressed by the driver after the threshold is covered by the policy, so the S$5.50 fee is due and the held amount is released to the driver.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ],
+    "heldout": true
+  }
+}

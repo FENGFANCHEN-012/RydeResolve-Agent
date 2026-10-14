@@ -8,7 +8,7 @@
   "arrival_evidence": "Names the record that counts as proof that the driver arrived at the pickup point. It governs how arrival is established, not whether a fee is due.",
   "arrival_wait_fee_threshold_min": "Minutes the driver must wait after arriving at the pickup point before a waiting or no-show fee can apply to the rider.",
   "cancellation_fee_after_driver_assigned": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only.",
-  "cancellation_fee_after_wait": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It governs rider-side cancellations and no-shows, not cancellations caused by the driver.",
+  "cancellation_fee_after_wait": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons.",
   "cancellation_fee_amount": "The cancellation fee in SGD that this trip's policy allows to be charged to the rider when a fee is due.",
   "cancellation_fee_sgd": "The cancellation fee in SGD that this trip's policy allows to be charged to the rider when a fee is due.",
   "cancellation_rating_applies_to": "Names which party's cancellation record or rating is affected by a cancellation on this trip.",

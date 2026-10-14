@@ -1,0 +1,242 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "B: driver cancelled before threshold (wait 7 < 10)",
+  "dispute_ticket": {
+    "dispute_id": "CS-08",
+    "trip_id": "RYDE-CS-008",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I got charged S$6.50 as a no-show but the driver cancelled so quickly. I was in the mall toilet and came out as soon as I saw the notification. I think the fee should not apply.",
+    "filed_at": "2026-10-10T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4658",
+    "name": "Siti Zulaikha Binte Hamid",
+    "account_age_days": 45,
+    "total_trips": 8,
+    "avg_rating": 4.2,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-8834",
+    "name": "Ong Kok Leong",
+    "account_age_days": 2600,
+    "total_trips": 11200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SKB 5021 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-CS-008",
+    "rider_id": "R-4658",
+    "driver_id": "D-8834",
+    "pickup_location": {
+      "name": "Tampines Mall (Tampines Central 5 drop-off)",
+      "lat": 1.3525,
+      "lng": 103.9446
+    },
+    "dropoff_location": {
+      "name": "Bedok Reservoir",
+      "lat": 1.3425,
+      "lng": 103.9319
+    },
+    "scheduled_time": "2026-10-09T17:20:00+08:00",
+    "driver_arrival_time": "2026-10-09T17:19:00+08:00",
+    "driver_wait_start": "2026-10-09T17:19:00+08:00",
+    "cancellation_time": "2026-10-09T17:26:00+08:00",
+    "cancellation_fee": 6.5,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T17:11:00+08:00",
+      "lat": 1.3645,
+      "lng": 103.9546,
+      "speed_kmh": 38,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T17:16:00+08:00",
+      "lat": 1.3565,
+      "lng": 103.9476,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T17:19:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9446,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-09T17:21:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9446,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T17:23:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9446,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T17:25:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9446,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T17:26:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9446,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T17:19:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arrived at Tampines Mall drop-off point, white Alphard."
+    },
+    {
+      "timestamp": "2026-10-09T17:22:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Still waiting here."
+    },
+    {
+      "timestamp": "2026-10-09T17:24:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing call to rider - not answered (rang 20s, no response)."
+    },
+    {
+      "timestamp": "2026-10-09T17:25:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Cancelling now, I cannot wait any longer."
+    },
+    {
+      "timestamp": "2026-10-09T17:26:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $6.50 applied."
+    },
+    {
+      "timestamp": "2026-10-09T17:27:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Just came out! Please come back"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T17:08:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-4658 booked trip RYDE-CS-008 from Tampines Mall (Tampines Central 5 drop-off) to Bedok Reservoir. Pickup 17:20."
+    },
+    {
+      "timestamp": "2026-10-09T17:08:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8834 (Ong Kok Leong, Toyota Alphard (SKB 5021 M)) assigned."
+    },
+    {
+      "timestamp": "2026-10-09T17:19:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'. Arrival recorded for the pickup point."
+    },
+    {
+      "timestamp": "2026-10-09T17:19:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-09T17:19:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started at driver arrival. 2 min free wait period ends at 17:21."
+    },
+    {
+      "timestamp": "2026-10-09T17:21:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 2-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-09T17:24:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Call rang 20s, no answer."
+    },
+    {
+      "timestamp": "2026-10-09T17:26:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Cancel pressed by driver D-8834. Reason selected: rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-09T17:26:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "Cancellation fee S$6.50 charged to rider payment method (e-wallet)."
+    },
+    {
+      "timestamp": "2026-10-09T17:26:10+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-8834 released from trip. Trip status: cancelled (rider_no_show)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 2,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "no_show_threshold_min": {
+      "value": 10,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 6.5,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund_cancellation_fee_to_rider",
+    "refund_amount": 6.5,
+    "requires_human_review": false,
+    "reason": "Driver arrival is recorded at 17:19:00 and the driver cancelled at 17:26:00, a wait of 7 minutes. This trip's no-show threshold is 10 minutes, so the rider did not yet count as a no-show (short by 3 minutes). The driver cancelled early, so no fee is due and the S$6.50 is refunded to the rider.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ],
+    "heldout": true
+  }
+}
