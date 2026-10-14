@@ -1558,10 +1558,11 @@ Run 20261014-132901-photo-side (one run, US$0.16): verdict 9/10, escalation 9/10
 | PS-04, 08, 09 | AI image, clean seat, reused photo | the Judge sent them to a person itself |
 | PS-02, PS-10 | genuine | fee stands, decided |
 | PS-06 | genuine, driver claim | upheld and executed, but refund_amount empty (the S$65 award to the driver was not filled): refund miss |
-| PS-05 | no capture time, rider admits in chat, receipt | sent to a person: the Judge again rested the ruling on the missing time, not the chat (same as IM-05). Miss, not caused by this change |
+| PS-05 | no capture time, rider admits in chat, receipt | sent to a person, citing the case's photo_doubt_rule. Counted as a miss, but the answer key is at fault: this set's brief dropped IM's "and no other record settles the claim" from photo_doubt_rule, so under the case's own rule a missing time is "timing in doubt" and a person decides. Not evidence of the IM-05 problem |
 
 No fee was confirmed or removed automatically on a doubted photo. Classification 0/10 (no
 cleaning-fee type, as in D46).
 
 Not done: an awarded amount for a driver's upheld cleaning claim (PS-06); a ruling settled by the
-chat when the photo only lacks a time (PS-05, IM-05); cleaning-fee dispute type.
+chat when the photo only lacks a time (IM-05 only; PS-05 is a brief error, see above); cleaning-fee
+dispute type.
