@@ -32,6 +32,7 @@ SGT = timezone(timedelta(hours=8))
 MAX_CASE_BYTES = 256 * 1024     # the dataset JSON
 MAX_CASES = 300                 # keeps a public demo from filling the disk
 MAX_PHOTOS = 8                  # existing + new, per case
+MAX_PIXELS = 60_000_000         # phone photos are 12-50 MP; checked from the header, before decoding
 MAX_LIST = 200                  # chat lines, app events, GPS points
 MAX_TEXT = 4000                 # any one string
 UPLOAD_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
@@ -141,11 +142,12 @@ def _write_photo(src: bytes | Path, dst: Path, meta: dict, n: int) -> None:
         return
     try:
         img = Image.open(src if isinstance(src, Path) else io.BytesIO(src))
+        # Size comes from the header: refuse a huge image before decoding it (the server has 2 GB)
+        if img.width * img.height > MAX_PIXELS:
+            _bad(f"Photo {n} is too large (at most {MAX_PIXELS // 1_000_000} megapixels).")
         img.load()
-    except (UnidentifiedImageError, OSError):
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
         _bad(f"Photo {n} is not a readable image.")
-    if img.width * img.height > 40_000_000:
-        _bad(f"Photo {n} is too large.")
     own = img.getexif() if mode == "own" else None
     taken_at = _time(meta.get("taken_at"), f"Photo {n} capture time") if mode == "set" else None
     gps = _gps(meta.get("gps"), f"Photo {n} GPS") if mode == "set" else None
