@@ -229,7 +229,11 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
         lines.append("Governing policy: clauses cited as ryde_dispute_policy_v2.1#<section> are Ryde Dispute "
                      "Resolution Policy v2.1, the policy RydeResolve rulings apply. Where it speaks it takes "
                      "precedence over help-centre text; this trip's own platform rules above still set the "
-                     "trip's figures. Cite the v2.1 section a ruling applies.")
+                     "trip's figures. Cite the v2.1 section a ruling applies. Its routing thresholds "
+                     "(section 6: dispute value, category, fraud-flag confidence) and the safety and "
+                     "contested-damage routing (5.2, 4.4) are applied by code after your ruling: rule on "
+                     "the merits and set human_review_needed only for your own reasons (evidence too weak, "
+                     "a deciding fact that cannot be verified), not to apply those thresholds.")
     if brief.get("clauses") and with_clause_list:
         lines.append("Policy clauses for this case (full text is given separately):")
         lines.extend(f"- {c['reference']} ({c['section']})"
