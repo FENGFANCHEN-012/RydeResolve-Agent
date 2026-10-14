@@ -1,0 +1,201 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "clean_photo",
+  "dispute_ticket": {
+    "dispute_id": "IM-06",
+    "trip_id": "RYDE-IM-006",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$90 for cleaning a bubble tea spill on the back seat. I never had any drink in the car. Please refund the charge.",
+    "filed_at": "2026-10-10T19:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7206",
+    "name": "Amanda Lim",
+    "account_age_days": 820,
+    "total_trips": 260,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5106",
+    "name": "Teo Kian Hock",
+    "account_age_days": 830,
+    "total_trips": 1290,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Freed (SMV 6190 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-006",
+    "rider_id": "R-7206",
+    "driver_id": "D-5106",
+    "pickup_location": {
+      "name": "Orchard Ion",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Toa Payoh Hub",
+      "lat": 1.3326,
+      "lng": 103.8474
+    },
+    "scheduled_time": "2026-10-10T14:00:00+08:00",
+    "pickup_time": "2026-10-10T14:00:00+08:00",
+    "dropoff_time": "2026-10-10T14:22:00+08:00",
+    "estimated_distance_km": 4.7,
+    "actual_distance_km": 4.7,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 22,
+    "estimated_fare": 8.1,
+    "total_fare": 8.1,
+    "cleaning_fee": 90.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T14:00:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T14:11:00+08:00",
+      "lat": 1.3183,
+      "lng": 103.8396,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T14:22:00+08:00",
+      "lat": 1.3326,
+      "lng": 103.8474,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T13:57:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at Ion Orchard taxi bay, white Freed."
+    },
+    {
+      "timestamp": "2026-10-10T14:23:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You left bubble tea spilled on the seat. I'll have to claim cleaning."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T13:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7206 booked trip RYDE-IM-006 from Orchard Ion to Toa Payoh Hub."
+    },
+    {
+      "timestamp": "2026-10-10T14:00:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-10T14:22:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-10T14:43:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$90.00 with 1 photo (photo1.jpg). Driver says bubble tea was spilled on the seat."
+    },
+    {
+      "timestamp": "2026-10-10T14:43:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    },
+    {
+      "timestamp": "2026-10-10T15:11:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$90.00 cleaning fee auto-charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 120,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-06/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-10T14:41:00+08:00",
+      "description": "Bubble tea spill on the seat after drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "seat_clean_leather",
+      "taken_at": "2026-10-10T14:34:00+08:00",
+      "gps": [
+        1.3328,
+        103.8475
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims a sticky bubble tea spill on the seat and S$90.00 was charged, but there is no receipt. Photo1 was taken at 14:34, 12 minutes after drop-off at 14:22, near Toa Payoh Hub, yet it shows a clean white leather seat with no spill or stain, which does not match the described mess. The rider denies any drink and the chat holds only the driver's assertion at 14:23. Nothing else settles it, so under the photo doubt rule a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

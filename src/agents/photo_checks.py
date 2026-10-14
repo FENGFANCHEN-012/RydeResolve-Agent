@@ -93,21 +93,26 @@ def _taken_at(meta: dict) -> datetime | None:
 
 
 @lru_cache(maxsize=1)
-def _hash_index(stamp: int) -> dict[str, set[str]]:
-    """sha256 -> case folders holding that picture. `stamp` (directory mtimes) refreshes the cache."""
-    index: dict[str, set[str]] = {}
+def _hash_index(stamp: int) -> dict[str, list[tuple[str, float]]]:
+    """sha256 -> (case folder, file time) for every stored picture. `stamp` refreshes the cache."""
+    index: dict[str, list[tuple[str, float]]] = {}
     for base in EVIDENCE_DIRS:
         if not base.is_dir():
             continue
         for p in base.rglob("*"):
             if p.is_file() and p.suffix.lower() in IMAGE_EXTS:
-                index.setdefault(hashlib.sha256(p.read_bytes()).hexdigest(), set()).add(p.parent.name)
+                index.setdefault(hashlib.sha256(p.read_bytes()).hexdigest(), []).append(
+                    (p.parent.name, p.stat().st_mtime))
     return index
 
 
-def _other_cases_with(sha: str, own_folder: str) -> list[str]:
+def _other_cases_with(sha: str, path: Path) -> list[str]:
+    """Other cases that already held this picture before this file was stored. Only the later
+    submission is the reuse: the first case to receive a photo is not doubted because of a copy."""
     stamp = sum(int(b.stat().st_mtime) for b in EVIDENCE_DIRS if b.is_dir())
-    return sorted(_hash_index(stamp).get(sha, set()) - {own_folder})
+    own_time = path.stat().st_mtime
+    return sorted({folder for folder, t in _hash_index(stamp).get(sha, [])
+                   if folder != path.parent.name and t < own_time})
 
 
 def _window(ctx) -> float:
@@ -167,7 +172,7 @@ def photo_checks(ctx) -> list[Finding]:
                 statement=f"Photo {n} is the same file as photo {j + 1}; it is one photo, not two.",
                 value={"sha256": meta["sha256"][:16]}, sources=[src, f"evidence[{j}]"], questioned=[src]))
         seen.setdefault(meta["sha256"], i)
-        others = _other_cases_with(meta["sha256"], path.parent.name)
+        others = _other_cases_with(meta["sha256"], path)
         if others:
             findings.append(Finding(
                 id=f"photo_checks.reused[{i}]", tool="photo_checks", kind="conflict",

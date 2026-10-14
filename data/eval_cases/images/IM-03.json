@@ -1,0 +1,205 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "genuine",
+  "dispute_ticket": {
+    "dispute_id": "IM-03",
+    "trip_id": "RYDE-IM-003",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider came back from the beach with sand and mud and the rear carpet was filthy. I had it cleaned for S$70 and want it charged to the rider.",
+    "filed_at": "2026-10-06T21:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7203",
+    "name": "Chloe Lee",
+    "account_age_days": 450,
+    "total_trips": 75,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5103",
+    "name": "Rahman bin Ismail",
+    "account_age_days": 1803,
+    "total_trips": 4210,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SLU 7765 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-003",
+    "rider_id": "R-7203",
+    "driver_id": "D-5103",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "dropoff_location": {
+      "name": "Pasir Ris Park",
+      "lat": 1.3814,
+      "lng": 103.9525
+    },
+    "scheduled_time": "2026-10-06T20:15:00+08:00",
+    "pickup_time": "2026-10-06T20:15:00+08:00",
+    "dropoff_time": "2026-10-06T20:31:00+08:00",
+    "estimated_distance_km": 4.3,
+    "actual_distance_km": 4.3,
+    "estimated_duration_min": 16,
+    "actual_duration_min": 16,
+    "estimated_fare": 7.7,
+    "total_fare": 7.7,
+    "cleaning_fee": 70.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T20:15:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T20:23:00+08:00",
+      "lat": 1.367,
+      "lng": 103.9486,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T20:31:00+08:00",
+      "lat": 1.3814,
+      "lng": 103.9525,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T20:12:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Outside Tampines Mall entrance B, grey Sienta."
+    },
+    {
+      "timestamp": "2026-10-06T20:33:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "It's just a bit of sand, I'm not paying $70."
+    },
+    {
+      "timestamp": "2026-10-06T20:34:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "The whole carpet has sand, mud and crumbs. I have photos and will send the receipt."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T20:07:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7203 booked trip RYDE-IM-003 from Tampines Mall to Pasir Ris Park."
+    },
+    {
+      "timestamp": "2026-10-06T20:15:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-06T20:31:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-06T21:07:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$70.00 with 1 photo (photo1.jpg). Rider disputed the amount in chat at 20:33."
+    },
+    {
+      "timestamp": "2026-10-07T09:40:00+08:00",
+      "event_type": "cleaning_receipt_submitted",
+      "details": "Driver submitted a ShineCar Valet receipt for S$70.00 (carpet shampoo and vacuum) dated 2026-10-07 09:20."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-03/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-06T21:05:00+08:00",
+      "description": "Rear carpet full of sand, mud and crumbs, before cleaning."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "carpet_dirt_vacuum",
+      "taken_at": "2026-10-06T20:52:00+08:00",
+      "gps": [
+        1.3816,
+        103.9523
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 70.0,
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Photo1 was taken at 20:52, 21 minutes after drop-off at 20:31, under 100 m from the drop-off point (Pasir Ris Park), and shows a visibly dirty car carpet. The rider argued in chat at 20:33 that it was only sand, but the photo shows sand, debris and stains. The ShineCar Valet receipt for S$70.00 dated 2026-10-07 09:20 matches the claim and S$70.00 is within this trip's S$100 cap. Upheld: S$70.00 credited to the driver.",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

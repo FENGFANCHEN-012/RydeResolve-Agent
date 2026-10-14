@@ -1,0 +1,199 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "genuine",
+  "dispute_ticket": {
+    "dispute_id": "IM-01",
+    "trip_id": "RYDE-IM-001",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "My rider got into the car with very muddy shoes and left mud all over the front and rear floor mat. I took a photo right after and had the car valeted. Please charge the cleaning cost to the rider.",
+    "filed_at": "2026-10-03T17:44:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7201",
+    "name": "Priya Nair",
+    "account_age_days": 980,
+    "total_trips": 340,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5101",
+    "name": "Lim Wei Jie",
+    "account_age_days": 1016,
+    "total_trips": 1850,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SMD 4471 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-001",
+    "rider_id": "R-7201",
+    "driver_id": "D-5101",
+    "pickup_location": {
+      "name": "MacRitchie Reservoir Park",
+      "lat": 1.342,
+      "lng": 103.834
+    },
+    "dropoff_location": {
+      "name": "Bishan Junction 8",
+      "lat": 1.3504,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-03T17:05:00+08:00",
+    "pickup_time": "2026-10-03T17:05:00+08:00",
+    "dropoff_time": "2026-10-03T17:19:00+08:00",
+    "estimated_distance_km": 2.4,
+    "actual_distance_km": 2.4,
+    "estimated_duration_min": 14,
+    "actual_duration_min": 14,
+    "estimated_fare": 5.7,
+    "total_fare": 5.7,
+    "cleaning_fee": 60.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T17:05:00+08:00",
+      "lat": 1.342,
+      "lng": 103.834,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T17:12:00+08:00",
+      "lat": 1.3462,
+      "lng": 103.8413,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T17:19:00+08:00",
+      "lat": 1.3504,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-03T17:02:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the MacRitchie carpark entrance, silver Altis."
+    },
+    {
+      "timestamp": "2026-10-03T17:20:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, there is a lot of mud on the floor mat. I will need to get the car cleaned."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T16:57:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7201 booked trip RYDE-IM-001 from MacRitchie Reservoir Park to Bishan Junction 8."
+    },
+    {
+      "timestamp": "2026-10-03T17:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-03T17:19:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-03T17:42:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$60.00 with 1 photo (photo1.jpg). Claim filed after the driver's chat message at 17:20."
+    },
+    {
+      "timestamp": "2026-10-03T19:40:00+08:00",
+      "event_type": "cleaning_receipt_submitted",
+      "details": "Driver submitted a SparkValet Pte Ltd receipt for S$60.00 (interior valet, floor mats) dated 2026-10-03 19:15."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 150,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-01/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-03T17:40:00+08:00",
+      "description": "Mud from the rider's shoes on the floor mat, taken after drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_sneakers_in_car",
+      "taken_at": "2026-10-03T17:31:00+08:00",
+      "gps": [
+        1.3506,
+        103.8487
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 60.0,
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Photo1 was taken at 17:31, 12 minutes after drop-off at 17:19, under 100 m from the drop-off point (Bishan Junction 8), and shows muddy sneakers and mud on the floor mat. That is inside the 60-minute window and no record contradicts it. The SparkValet receipt for S$60.00 dated 2026-10-03 19:15 matches the claimed S$60.00, which is within this trip's S$150 cap. Upheld: S$60.00 is credited to the driver.",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

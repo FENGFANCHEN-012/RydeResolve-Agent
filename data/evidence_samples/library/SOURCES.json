@@ -1,0 +1,59 @@
+{
+ "seat_clean_fabric_cleaning": {
+  "source": "https://www.pexels.com/photo/a-person-deep-cleaning-a-car-seat-5233285/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "seat_clean_interior": {
+  "source": "https://www.pexels.com/photo/picture-of-a-car-interior-17000848/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "seat_clean_leather": {
+  "source": "https://www.pexels.com/photo/leather-seats-inside-a-car-9513402/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "seat_clean_white_leather": {
+  "source": "https://www.pexels.com/photo/empty-vehicle-seat-1633602/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "mat_clean": {
+  "source": "https://www.pexels.com/photo/a-close-up-of-the-floor-mat-in-a-car-28055130/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "muddy_sneakers_in_car": {
+  "source": "https://www.pexels.com/photo/crop-person-in-dirty-sneakers-3772357/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "fastfood_bag_in_car": {
+  "source": "https://www.pexels.com/photo/close-up-of-bag-from-mcdonalds-in-car-9407368/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "coffee_spill_table": {
+  "source": "https://www.pexels.com/photo/spilled-coffee-on-table-4920849/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "wine_spill_floor": {
+  "source": "https://www.pexels.com/photo/a-wine-glass-lying-on-the-floor-with-spilled-wine-5659651/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "coffee_spill_steps": {
+  "source": "https://www.pexels.com/photo/cups-lying-down-and-coffee-spilled-on-planks-19142994/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "wrecked_car_exterior": {
+  "source": "https://www.flickr.com/photos/94936005@N04/9783957114",
+  "creator": "duck vs. chicken",
+  "licence": "CC BY 2.0"
+ },
+ "ai_generated_seat": {
+  "source": "generated with pollinations.ai (flux) for this test set; carries its watermark",
+  "licence": "generated"
+ },
+ "carpet_dirt_vacuum": {
+  "source": "https://www.pexels.com/photo/hand-holding-a-car-vacuum-cleaner-5233264/",
+  "licence": "Pexels licence (free to use)"
+ },
+ "muddy_boots_in_car": {
+  "source": "https://www.pexels.com/photo/pair-of-black-nike-shoes-2398346/",
+  "licence": "Pexels licence (free to use)"
+ }
+}

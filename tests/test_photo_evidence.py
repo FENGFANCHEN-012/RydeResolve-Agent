@@ -122,12 +122,24 @@ def test_same_file_twice_in_one_case(root):
 
 
 def test_photo_already_used_in_another_case(root):
+    import os
     make_photo(root / "cases/OLD-1/x.jpg", taken="2026:10:11 22:11:00")
     (root / "cases/CF-T").mkdir(parents=True)
     (root / "cases/CF-T/a.jpg").write_bytes((root / "cases/OLD-1/x.jpg").read_bytes())
+    os.utime(root / "cases/OLD-1/x.jpg", (1_000_000, 1_000_000))   # stored long before
     out = photo_checks.photo_checks(ctx("cases/CF-T/a.jpg"))
     reused = [f for f in out if f.id.startswith("photo_checks.reused")]
     assert reused and reused[0].value["other_cases"] == ["OLD-1"]
+
+
+def test_the_first_case_to_hold_a_photo_is_not_doubted_by_a_later_copy(root):
+    import os
+    make_photo(root / "cases/CF-T/a.jpg", taken="2026:10:11 22:11:00")
+    (root / "cases/LATER-1").mkdir(parents=True)
+    (root / "cases/LATER-1/x.jpg").write_bytes((root / "cases/CF-T/a.jpg").read_bytes())
+    os.utime(root / "cases/CF-T/a.jpg", (1_000_000, 1_000_000))   # ours came first
+    out = photo_checks.photo_checks(ctx("cases/CF-T/a.jpg"))
+    assert not [f for f in out if f.id.startswith("photo_checks.reused")]
 
 
 def test_no_photos_no_findings(root):
