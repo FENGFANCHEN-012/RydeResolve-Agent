@@ -192,6 +192,8 @@ class PassengerAgent:
             "reasoning": reason,
             "confidence": 0.0,
             "requires_human_review": True,
+            # The advocate did not speak: Fairness must not count this side as heard (D54)
+            "failed": True,
         }
 
     @staticmethod

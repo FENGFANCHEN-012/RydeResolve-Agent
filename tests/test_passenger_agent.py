@@ -316,8 +316,9 @@ async def test_invalid_json_returns_safe_result():
         "stance", "evidence", "contradictory_evidence",
         "missing_evidence", "obligations", "remedy_requested",
         "policy_references", "reasoning", "confidence",
-        "requires_human_review",
+        "requires_human_review", "failed",
     }
+    assert result["failed"] is True  # D54: a failed call is not a side that was heard
 
 
 # ---------------------------------------------------------------------------

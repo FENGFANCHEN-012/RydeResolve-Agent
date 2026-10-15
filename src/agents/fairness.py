@@ -133,8 +133,25 @@ def _dispute_type(context) -> str | None:
 
 def _advocate_ran(analysis: dict) -> bool:
     """True when an advocate produced an analysis (a stance or reasoning), even if it
-    found no evidence for its side. False for a missing or failed advocate."""
+    found no evidence for its side. False for a missing or failed advocate: a failed call puts its
+    error in "reasoning", so it is recognised by its "failed" mark, not by empty text (D54)."""
+    if analysis.get("failed"):
+        return False
     return bool(str(analysis.get("reasoning") or "").strip() or str(analysis.get("stance") or "").strip())
+
+
+# A rebuttal the advocate could not produce (passenger.py / driver.py _rebut_fallback)
+REBUTTAL_FAILED = "could not be generated automatically"
+
+
+def _failed_rebuttals(debate_history: list[dict] | None) -> list[str]:
+    """Speakers whose rebuttal is missing, e.g. ["driver (round 1)"]."""
+    out = []
+    for turn in debate_history or []:
+        content = turn.get("content") if isinstance(turn, dict) else None
+        if isinstance(content, str) and (not content.strip() or REBUTTAL_FAILED in content):
+            out.append(f"{turn.get('speaker')} (round {turn.get('round')})")
+    return out
 
 
 def _arrival_recorded(context: dict) -> bool:
@@ -583,6 +600,16 @@ class FairnessAgent:
             add_issue(
                 FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
                 f"The {missing}'s position was not analysed at all.",
+                severity="high",
+                recommended_action="Escalate to a human reviewer before executing.",
+            )
+            requires_human = True
+        elif _failed_rebuttals(debate_history):
+            # A side whose rebuttal is missing was not heard on the other side's case (D54)
+            add_issue(
+                FairnessIssueCode.ONE_SIDE_NOT_CONSIDERED,
+                "A rebuttal could not be generated, so the Judge ruled on a one-sided debate: "
+                + ", ".join(_failed_rebuttals(debate_history)) + ".",
                 severity="high",
                 recommended_action="Escalate to a human reviewer before executing.",
             )

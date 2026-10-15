@@ -2,6 +2,7 @@
 Multi-Agent Debate Engine
 Facilitates adversarial debate between Passenger and Driver agents.
 """
+import logging
 import re
 
 from src.agents.collector import DisputeContext
@@ -11,6 +12,8 @@ from src.agents.policy import PolicyAgent
 from src.config import MAX_DEBATE_ROUNDS
 from src.core.trace import record_retrieval, step
 from src.agents.case_brief import add_requested_clauses, valid_requests
+
+logger = logging.getLogger(__name__)
 
 
 def _fail_if_daily_quota_exhausted(result) -> None:
@@ -35,6 +38,26 @@ def _fail_if_daily_quota_exhausted(result) -> None:
 
 # Triage (D24) may allow complex cases a second round. On main the advocates cannot find new
 # evidence mid-debate, so a further round runs only if a side says it raised a new point.
+def _turn_failed(result) -> bool:
+    """An advocate turn that produced nothing: a failed analysis or a fallback rebuttal (D54)."""
+    if isinstance(result, dict):
+        return bool(result.get("failed"))
+    return isinstance(result, str) and (not result.strip() or "could not be generated automatically" in result)
+
+
+async def _with_one_retry(call):
+    """Run an advocate turn; if it failed (provider busy, empty or invalid answer), try once more.
+    A spent daily quota stops at once, as before. A second failure is returned as it is, and
+    Fairness then sends the case to a person rather than rule on a one-sided debate."""
+    result = await call()
+    _fail_if_daily_quota_exhausted(result)
+    if _turn_failed(result):
+        logger.warning("Advocate turn failed, retrying once")
+        result = await call()
+        _fail_if_daily_quota_exhausted(result)
+    return result
+
+
 NEW_POINT_INSTRUCTION = (
     "End with one last line, exactly 'NEW_POINT: yes' if this rebuttal raises a fact or argument "
     "not already made in the debate, otherwise exactly 'NEW_POINT: no'."
@@ -97,13 +120,11 @@ class DebateEngine:
         # Initial analysis from both sides
         sees = ["dispute context", "retrieved policy clauses"]
         async with step("Passenger", "Passenger advocate: opening analysis", {"sees": sees}) as s:
-            passenger_analysis = await self.passenger_agent.analyze(context)
+            passenger_analysis = await _with_one_retry(lambda: self.passenger_agent.analyze(context))
             s["output"] = passenger_analysis
-        _fail_if_daily_quota_exhausted(passenger_analysis)
         async with step("Driver", "Driver advocate: opening analysis", {"sees": sees}) as s:
-            driver_analysis = await self.driver_agent.analyze(context)
+            driver_analysis = await _with_one_retry(lambda: self.driver_agent.analyze(context))
             s["output"] = driver_analysis
-        _fail_if_daily_quota_exhausted(driver_analysis)
         async with step("Policy", "Policy compliance check (RAG)", {"sees": sees}) as s:
             policy_eval = await self.policy_agent.evaluate_compliance(context)
             s["output"] = policy_eval
@@ -147,9 +168,9 @@ class DebateEngine:
             driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
             async with step("Passenger", f"Round {round_num}: passenger rebuttal",
                             {"rebutting": driver_arg}) as s:
-                p_rebuttal = await self.passenger_agent.rebut(driver_arg, context, **_extra(ask))
+                p_rebuttal = await _with_one_retry(
+                    lambda: self.passenger_agent.rebut(driver_arg, context, **_extra(ask)))
                 s["output"] = p_rebuttal
-            _fail_if_daily_quota_exhausted(p_rebuttal)
             p_rebuttal, p_new = split_new_point(p_rebuttal)
             history.append({
                 "round": round_num,
@@ -160,9 +181,9 @@ class DebateEngine:
             # Driver rebuts passenger's latest argument
             async with step("Driver", f"Round {round_num}: driver rebuttal",
                             {"rebutting": p_rebuttal}) as s:
-                d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context, **_extra(ask))
+                d_rebuttal = await _with_one_retry(
+                    lambda: self.driver_agent.rebut(p_rebuttal, context, **_extra(ask)))
                 s["output"] = d_rebuttal
-            _fail_if_daily_quota_exhausted(d_rebuttal)
             d_rebuttal, d_new = split_new_point(d_rebuttal)
             history.append({
                 "round": round_num,

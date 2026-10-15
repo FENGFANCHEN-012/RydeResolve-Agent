@@ -1916,3 +1916,33 @@ Free scan of every stored trace for empty, cut-off or failed model answers:
   exceeded") and the driver's rebuttal (empty at the 1,500 cap), and the Judge asked for human review.
   The miss may come from the incomplete debate; it was not re-run, so the published 44/52 stands as
   measured.
+
+## D54. A failed advocate turn is retried once; a debate still missing a side goes to a person (2026-10-15)
+
+What was wrong: when an advocate's call failed (provider busy, empty or invalid answer), the debate
+went on without it. A failed opening put its error text in `reasoning`, and Fairness's "was this side
+heard" check (`_advocate_ran`) only looked for non-empty reasoning, so a failed side counted as heard.
+A missing rebuttal was not checked at all.
+
+How often (free scan of stored traces): in the regression run 20261015-152935 (the published 44/52),
+7 of 52 cases had at least one failed advocate turn. Two were still decided automatically and right
+(CR-001, CR-002-C2). Five went to a person; **four of those are among the 8 misses** (F2-15, FD-002-I2,
+FD-002-P2, NS-002-B1), so half of that run's misses ran on a debate with a side missing, mostly after
+Cerebras "queue exceeded" (429). The other v2.1 runs (official samples, the 30-case set, its replay)
+had none.
+
+What changed:
+- `src/core/debate.py` `_with_one_retry`: each opening and rebuttal that fails is tried once more; a
+  spent daily quota still stops the run at once. A turn that works is never retried.
+- `passenger.py` / `driver.py` `_safe_result` marks the analysis `failed: True`; `_advocate_ran`
+  returns False for it, so Fairness raises ONE_SIDE_NOT_CONSIDERED (high, to a person).
+- Fairness also raises it when a rebuttal in the debate history is the fallback text or empty.
+
+How it was checked: tests for the retry (a failed turn is retried once, a good turn is not, a double
+failure is returned as failed), for a failed opening not counting as heard, and for Fairness
+escalating a failed opening and a missing rebuttal; the two analysis key-set tests now include
+`failed`; 647 Python tests pass.
+
+Not done: the 7 affected cases were not re-run (paid, about US$0.15). With a retry the four misses may
+resolve, and the two right ones could instead go to a person if both tries fail; the published 44/52
+stays as measured until a re-run.
