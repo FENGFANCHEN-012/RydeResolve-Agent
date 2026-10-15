@@ -58,6 +58,26 @@ test('same-origin serving avoids asking visitors to connect to their own localho
     assert.equal(page(undefined,'https://demo.example').run('API_BASE'),'https://demo.example');
 });
 
+test('a late 401 from a request sent before the code was entered keeps the code',async () => {
+    // Live 2026-10-13: the case list kept failing with 401 after a correct code, because a
+    // page-load request answered 401 after the code was set and cleared it
+    let releaseSlow;
+    const slow = new Promise(r => { releaseSlow = r; });
+    const fetchImpl = async (url, opts) => {
+        const auth = (opts.headers || {}).Authorization;
+        if (url === '/api/slow' && !auth) await slow;
+        return auth === 'Bearer good' ? {ok:true,status:200,json:async () => ({})}
+            : {ok:false,status:401,json:async () => ({})};
+    };
+    const p = page(fetchImpl);
+    p.run(`window.prompt=()=>'good'`);
+    const slowReq = p.run("apiFetch('/api/slow')");
+    assert.equal((await p.run("apiFetch('/api/fast')")).status, 200);
+    releaseSlow();
+    assert.equal((await slowReq).status, 200);
+    assert.equal(p.run('apiToken'), 'good');
+});
+
 test('cancelled access-code prompt does not repeat during background retries',async () => {
     const p = page(async () => ({ok:false,status:401,json:async () => ({detail:'Access required'})}));
     p.run(`prompts=0; window.prompt=()=>{prompts++;return null}`);

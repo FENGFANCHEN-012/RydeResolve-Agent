@@ -776,3 +776,871 @@ the verdict.
 
 **Not done (next):** the driver's false arrival as a hard signal (GPS far from pickup when "I'm
 here" is pressed, the NS-002-C1 pattern) and a claim that contradicts GPS/app events (design §4).
+
+## D23-D31. Experimental architecture, not adopted (2026-10-07 to 2026-10-09)
+
+D23-D31 live on the branches `feature/judge-and-cost-fixes` (D23-D28) and
+`experiment/structured-judge` (D29-D31); read them there. In short: advocate-chosen lookups with
+numbered evidence pools, adaptive orchestration, Judge checks, and a structured Judge whose refund
+is computed by code. Three full regressions scored 31-32/37 on D20's cases (D20: 35/37) at +42% to
++47% tokens, so `main` keeps the D22 pipeline. D32 ports only the cheap parts of D24 onto `main`.
+
+## D32. Adaptive triage on main, without evidence pools; Fairness adds up the disputed total (2026-10-09)
+
+Branch `feature/adaptive-triage` (off `origin/main`). From D24 it keeps what cost no tokens:
+
+1. **Triage, code only** (`src/core/triage.py`): two labels from signals already in the case, each
+   with its reasons. complexity simple/complex (a data conflict, 2+ data gaps, fraud risk above LOW, disputed amount above
+   `COMPLEX_AMOUNT_SGD` = S$30), risk safe/dangerous (P0 report or a safety alert in the chat). A label can only be
+   raised by a signal, never lowered.
+2. **Safety agent and graph node** (`src/agents/safety.py`): imminent danger or a legal threat goes
+   to a person now; verbal abuse gets protective actions, the money question is still ruled, and a
+   person reviews afterwards. Before this, `main` escalated any "threatened" wording at the
+   classifier, so a money dispute with a vague threat never got a ruling.
+3. **Fairness audit depth:** a simple + safe case gets the code checks only, no LLM audit. Every
+   other case gets the full audit. The code checks always run.
+4. **Round cap with a NEW_POINT tag** (`src/core/debate.py`): a complex case may run a further
+   round only when a side says its last rebuttal raised a new point.
+
+**Fix found by the stress cases:** the Fairness guard `refund_beyond_disputed_amount` compared the
+refund with one charge only. ST-003 disputes a fee, a fare excess and a rider cleaning fee, so a
+correct S$39.60 refund was flagged. New `case_brief.disputed_total()` adds up all three; only this
+guard uses it. Replayed on 731 saved traces: only ST-003 changes.
+
+**New stress cases** (`data/eval_cases/stress_new/`, run with
+`EXTRA_DISPUTE_DIRS=data/eval_cases/stress_new`):
+- ST-003: several asks, updated quote S$30, a cleaning photo sent late. Expected partially upheld,
+  S$39.60.
+- ST-003-T: ST-003 plus a vague threat. The money must still be ruled.
+- ST-004: consent to a fare change withdrawn. Expected upheld, S$17.80.
+- ST-005: pickup changed by the rider. Expected upheld, S$8.
+
+**Regression run 20261009-164028** (38 cases): 35/38 (92.1%). On D20's 37 cases 34/37 against
+D20's 35/37, +6% tokens, median 92 s per case, 0 wrong payouts executed. Misses: CR-001 (new; the
+Judge varies on it), NS-002-B1 and NS-002-C1. The one-case gap to D20 is
+within single-run noise on CR-001.
+
+## D33. One debate round for complex cases; the filer may object to the draft ruling (2026-10-11)
+
+**1. Second debate round: no effect, so the default is now one.** A/B on ST-003/004/005, three
+runs each: `COMPLEX_MAX_ROUNDS=2` (run 20261011-093011) against `=1` (run 20261011-094751): 9/9
+against 9/9, and the second round cost +18% tokens. The Judge reads all the raw records, so the
+driver's misleading last rebuttal never misled it. `COMPLEX_MAX_ROUNDS` now defaults to 1 (still
+set by env). The NEW_POINT machinery stays for when the cap is raised.
+
+**2. Objection to the Judge's draft (court-style rehearing, `src/agents/objection.py`).** The
+Judge's remaining errors are misread rules, not missing arguments: a 7-minute wait held to an
+8-minute threshold (NS-002-B1), a fee kept although the driver was past the delay waiver (CR-001),
+an arrival trusted although GPS put the driver 0.96 km away (NS-002-C1). More rounds do not fix
+that. So after the draft:
+- code picks who may object: the **filer only**, when the draft dismisses or only partly upholds
+  the claim; nobody when the draft already goes to a person;
+- that advocate may file ONE objection naming a rule the Judge may cite and a record that exists
+  (`app_events[i]`, `chat_log[i]`, `gps_trace[i]` or a finding id);
+- code checks both; an invalid objection is dropped and the Judge never sees it;
+- a valid objection makes the Judge reconsider once.
+
+Switched by `OBJECTION_ROUND=1`, **off by default** until a full regression shows it flips no
+correct ruling.
+
+**A/B on the three missed cases, three runs each** (ON run 20261011-102412, OFF run
+20261011-104150): 5/9 against 4/9, which is within noise, at +19% tokens. Where it fired: 2 of 2
+wrong drafts corrected, 0 of 2 correct drafts flipped, 1 wrong draft missed (the advocate said the
+draft was fine). Objections from the respondent (driver) side never corrected anything, so the
+first version, which let both sides object, was narrowed to the filer only.
+
+**Next:** full 38-case regression with `OBJECTION_ROUND=1` (about 1.25M tokens). Keep it on only if
+no correct ruling is flipped and the score is not lower than run 20261009-164028.
+
+**Tests:** 448 passed (objection: who may object, rule and record checks, a dropped objection
+changes nothing, off by default).
+
+## D34. Objection stays off; Judge reasoning effort brings nothing; Fairness checks a dismissal with a penalty (2026-10-11)
+
+**1. Full regression with the objection on (run 20261011-111637, `OBJECTION_ROUND=1`, filer
+only): 34/38, two wrong payouts executed.** One of them, RD-002, was a correct draft that the
+objection flipped: the passenger's advocate cited
+`platform_policy.rider_route_requests_must_be_agreed_before_trip` and the Judge was persuaded,
+although that rule binds route requests made by the rider and the detour was the driver's. The
+other (SQ-001) was a label error unrelated to the objection. A first trace scan claimed the
+advocates never object; that was a scanner bug (`objections` appears several times in a trace and
+only the first was read).
+
+**2. `OBJECTION_SIDES=both` (run 20261011-132910, RD-002 and SQ-001, three runs each).** Letting
+the respondent object back kept RD-002 correct 3/3, but SQ-001 still executed one wrong payout.
+The objection mechanism stays **off by default** (`OBJECTION_ROUND` unset). The switch
+`OBJECTION_SIDES=filer|both` stays for experiments.
+
+**3. `JUDGE_REASONING_EFFORT=high` (run 20261011-154025, the hard cases, three runs each).** Same
+accuracy as the default (4/9 on CR-001, NS-002-B1, NS-002-C1), no wrong payout executed, tokens
+flat. High effort first used all 4096 output tokens on reasoning and returned invalid JSON, so
+`JUDGE_MAX_TOKENS=16000` now applies whenever an effort is set. The default stays unset.
+
+**4. Fairness check `penalty_with_dismissal` (service_quality only).** A replay of 731 saved
+traces found rulings that dismissed a conduct complaint but still issued a driver warning
+(CR-004, RD-002-I3). A dismissal with a driver penalty is now flagged and sent to a person.
+
+**What actually stops wrong payouts:** the code checks (`fee_basis`, `refund_beyond_disputed`,
+`penalty_with_dismissal`) caught every Judge error in these runs before payment. More
+deliberation (rounds, objections, effort) did not.
+
+**Tests:** 452 passed.
+
+## D35. Clerk (rule-applicability checker) rejected; root cause is rules with no text (2026-10-11)
+
+**Idea:** a Clerk agent reads the Judge's draft and, for each cited rule, asks whether the event
+that rule governs actually happened here (`src/agents/clerk.py`). `scripts/clerk_replay.py`
+replays it over a finished run's saved rulings, with no new pipeline run.
+
+**Replay on run 20261011-111637** (`data/eval/20261011-111637_clerk.json`): it missed the RD-002
+trap (it called the misapplied rule "sound") and wrongly flagged four correct rulings (NS-001,
+NS-001-P1, NS-002-B1, FD-003). Not adopted; the code stays for the record and is not wired in.
+
+**Root cause.** A case's policy block gave each rule only a name and a value, for example
+`rider_route_requests_must_be_agreed_before_trip = true`. Whom the rule binds lived only in the
+name. The official help-centre clauses have full text; the case rules had none. No agent, Judge or
+checker, can verify that a rule applies when the rule has no words to check against. That is
+fixed at the source in D36.
+
+## D36. Every case rule carries a scope text (2026-10-11)
+
+**Format.** A key in `cancellation_policy` / `platform_policy` may now be
+`{"value": ..., "text": "..."}`. The text states only the rule's SCOPE: which party it binds,
+which event it governs, the unit of the value. It never says how a case should be decided. Old
+plain values are still accepted everywhere (`src/core/case_policy.py`).
+
+**Where it goes.**
+- The Collector splits the block: `platform_policy` keeps the old key -> value shape, so every
+  code check (fee basis, wait thresholds, the eval charge cap, citation whitelists) is unchanged;
+  `platform_policy_text` holds the texts.
+- The case brief shows each rule as `key = value` with a `scope:` line under it. The Judge's raw
+  copy of the field is dropped, as for the other summarised fields.
+- The objection prompt and the Clerk also show the scope.
+- `scripts/eval.py` unwraps the new format before computing the charge cap; a wrapped fee would
+  otherwise sit under the key "value" and drop out of the cap.
+
+**Texts.** One text per key in `data/policies/case_rule_texts.json` (135 keys across all case
+sets), written into the case files by `scripts/apply_case_rule_texts.py`, which rewrites only the
+policy blocks and prints only key names, so it is safe over the sealed sets. The sealed-case
+generator now asks for the same format.
+
+**Checks.** For all 50 tracked case files, old and new give the same values, the same citable
+rule names and the same charge cap. **Tests:** 457 passed (new `tests/test_case_policy.py`).
+
+**Cost:** about 170 tokens per brief render, roughly +4% tokens per case.
+
+**Next:** full 38-case regression on a fresh key (about 1.15M tokens). Compare with run
+20261009-164028 and run 20261011-111637, with special attention to RD-002 and the route-deviation
+cases. A checker agent comes back only if rule-misreading errors remain after this.
+
+**Result: run 20261011-181308 (703fc62, objection off, keys rotated).** 34/38 correct, one wrong
+payout executed, 1.02M tokens (26.9k per run, no rise; the rounds-2 baseline was 28.2k).
+
+| Case | D32 base (164028) | D33 objection on (111637) | D36 scope text (181308) |
+|---|---|---|---|
+| CR-001 | to a person | correct | to a person |
+| NS-002-B1 | to a person | correct | correct |
+| NS-002-C1 | to a person | to a person | to a person |
+| RD-002 | correct | WRONG, paid (upheld) | WRONG, paid (partially upheld, S$1.55) |
+| RD-002-I3 | correct | to a person | correct |
+| SQ-001 | correct | WRONG, paid | correct |
+| SQ-002 | correct | correct | to a person |
+
+- The scope text fixed the original RD-002 misreading: the Judge now reads the route rule as
+  binding rider requests and the closure detour as billable. It then found a "communication
+  breach" (fare increase not stated in chat) and used `refund_at_ryde_discretion` to refund half
+  of the extra charge. A new error class: a discretionary split of a charge the case rules allow.
+  No code check covers it yet.
+- A network outage (about 18:40-20:40) voided DR-002 and DR-003; both were re-run in the same
+  folder (void traces in `20261011-181308_void_network`).
+- SI-001 (P0 safety) escalates with zero LLM tokens by design; the key-rotation script read that
+  as a quota failure. Its trace was restored; the rotation check must skip zero-token P0 cases.
+
+## D37. Fairness sends a discretionary partial refund to a person (2026-10-11)
+
+**Error (RD-002, run 20261011-181308).** The Judge applied the case rules correctly (a verified
+road-closure detour is billable) and then refunded half the extra charge, S$1.55 of S$3.10, under
+`refund_at_ryde_discretion` for a "fare increase not disclosed" lapse. No code check covered it,
+so the payout was executed.
+
+**Check `discretionary_partial_refund` (high, to a person).** It fires when the refund is above
+zero, the ruling rests on Ryde's discretion (cites `refund_at_ryde_discretion` or says
+"discretion"), and the refund is below the disputed amount the platform data computes
+(`disputed_total`). A discretionary amount has no rule behind it, so a person sets it, the same
+principle as the service-quality refund rule in D17. A refund of the computed amount itself is
+untouched.
+
+**Why this rule and not "any refund citing discretion".** Correct rulings cite the discretion
+key often (RD-001, RD-001-P4, FD-003, SQ-002: about 60 saved rulings) but refund exactly the
+computed amount. A replay over 790 saved rulings (634 correct, 156 wrong) fired once: the wrong
+RD-002 above. Zero correct rulings flagged.
+
+**Test set for this error class.** `scripts/gen_sealed_cases.py` now takes `--out-dir`,
+`--prefix`, `--types` and `--focus-file`. Brief: `data/eval_cases/focus_discretion.txt` (charge
+allowed / not / partly by the case's own rules, plus a side issue that tempts a goodwill split;
+some side issues decisive by rule). Planned: 20 Gemini cases in `data/eval_cases/discretion/`
+(prefix DS-). Blocked on 2026-10-11: the Gemini project's prepaid credit is used up (402).
+
+**Tests:** 470 passed (5 new cases for the check).
+
+**Sonnet test set, run 20261011-221641 (20 cases written by a Claude Sonnet subagent, DS-01..20,
+plus RD-002; ran with the FIRST version of the check).** 10/21 correct by label.
+- Four were sent to a person by the first version only (DS-05, DS-06, DS-14, DS-17): each refund was
+  a figure the records give (a cap excess, a per-km detour, a duplicate charge, one gantry rate)
+  while the ruling cited or mentioned discretion. The check was narrowed twice; final rule: it fires
+  only when the reasoning rests on discretion AND the records cannot account for the amount (not a
+  number in trip / payment / app events / findings / case policy, nor the disputed total minus one;
+  chat excluded). On these four the final rule is quiet and the money was right. Replay over all
+  saved rulings: it still fires only on the wrong RD-002 (S$1.55).
+- Label only, money right: DS-12 (full S$6.40 refund labelled partial), DS-15 (fee stands, driver
+  warned for a curt message, labelled partial).
+- Wrong payouts executed: DS-09 (15-minute free-cancellation window read backwards, S$5), DS-11
+  (should go to a person: traffic feed outage, GPS gap, chat contradicts the claim; refunded S$4.50),
+  DS-20 (vomit-claim evidence failed to upload; refunded S$180, key says a person decides; arguable),
+  RD-002 (closure detour accepted as billable, then refunded IN FULL "at Ryde's discretion").
+- DS-18 dismissed a driver's claim the key sends to a person (no money moved).
+- RD-002's full discretionary refund is not a partial split, so the check cannot see it, and "any
+  refund mentioning discretion" would hit many correct rulings (RD-001-P4, SQ-002). Fixed at the
+  source instead: the scope text of `refund_at_ryde_discretion` now says it is a person's decision,
+  never makes a charge the other rules allow refundable, and sets no amount.
+- Open: window-direction misreads (DS-09) and missing-evidence cases ruled instead of escalated
+  (DS-11, DS-20) have no code check yet.
+
+## D38. Code Judge: the draft must pass code checks before it can execute (2026-10-11, branch feature/code-judge)
+
+**Why.** The remaining errors fall into general classes, not case-specific rules (D37 Sonnet set,
+plus CR-001, NS-002-B1, NS-002-C1): the Judge rules on a fact the records cannot verify (DS-11,
+DS-20, DS-18, NS-002-C1), invents an amount (RD-002), or misreads a numeric rule (DS-09, CR-001).
+More LLM helpers did not fix this (D23-D31, Clerk D35, objection D34: same model, same misreads),
+and an optional helper would not be called when the Judge is confidently wrong. Code checks are
+what has stopped every wrong payout so far. So the Judge now states what its ruling rests on, in a
+form code can check, and the check is mandatory.
+
+**What the Judge adds (src/agents/arbitrator.py, CODE_JUDGE on):**
+- `decisive_facts`: the facts the ruling turns on, each with its records (`app_events[i]`,
+  `gps_trace[i]`, a finding id...) and a status `verified` / `unverifiable` / `contradicted`.
+- `refund_calculation`: for any refund, plain arithmetic on figures from the records or the case
+  rules ("60 - 40", "4 * 1.20").
+
+**What code checks (src/agents/code_judge.py):**
+1. Every decisive fact is `verified`, and none of its records is named by a Collector conflict or
+   gap finding. Otherwise the ruling cannot be automated.
+2. The refund calculation is arithmetic, gives the refund, and uses only numbers that are figures
+   in the platform records (trip, payment, app events, findings, case rules). Dates, times and ids
+   are stripped first so they cannot supply small constants; the chat is never a source.
+
+A failed check sends the draft back to the Judge once with the problems; a second failure sets
+human_review_needed (a person decides). The check never changes a ruling itself.
+
+**Collector (general, not per case):** an app event whose name or detail says the platform's own
+data failed (gap, outage, unavailable, failed, error, retry, timeout, lost) becomes a data-gap
+finding, so the brief and the check see it. On the 41 dev / held-out / fraud / stress cases it adds
+one finding, NS-003's manual arrival "GPS unavailable", where the key already says a person decides.
+The brief's event timeline is now numbered `app_events[i]` so the Judge can cite events.
+
+**Not covered yet:** a numeric rule read in the wrong direction (DS-09) when the Judge marks its
+facts verified and refunds a record figure. That needs code to evaluate the rule itself (planned
+next if this step helps).
+
+**Switch:** CODE_JUDGE=0 restores the old prompt and flow (for A/B). Tests run with it off except
+tests/test_code_judge.py. **Tests:** 484 passed (20 new).
+
+**Next:** A/B on the cases this targets (DS-09, DS-11, DS-18, DS-20, RD-002, NS-002-C1, CR-001) plus
+regressions it could cause (cases with correct partial refunds: DS-05, DS-06, DS-14, DS-17, RD-001,
+SQ-002), then the full 38. The Sonnet DS set was used for tuning (D37); the final measure must use
+a fresh set.
+
+**First A/B, run 20261011-232103 (code Judge ON, 13 targeted cases, one run each).** Compared with
+the same cases in runs 20261011-181308 / -221641 (code Judge off):
+
+| Case | Before (off) | Code Judge on |
+|---|---|---|
+| DS-11 | WRONG, paid S$4.50 | to a person (correct): remand, Judge then marked the closure unverifiable |
+| DS-20 | WRONG, paid S$180 | to a person (correct): remand |
+| DS-18 | wrong (driver claim dismissed) | to a person (correct): remand |
+| RD-002 | WRONG, paid S$3.10 / S$1.55 | correct, dismissed (no remand: the D37 discretion text, not the check) |
+| DS-05, DS-06, DS-14, RD-001, SQ-002 | correct refunds | correct (DS-06, DS-14 after a remand) |
+| DS-09 | WRONG, paid S$5 | WRONG, paid S$5 (window direction: not covered) |
+| CR-001, NS-002-C1 | to a person | to a person |
+| DS-17 | refund S$2.50 correct | dismissed (Judge variance, no remand) |
+
+10/13 correct; wrong payouts executed 4 -> 1 (DS-09). Remands on 6/13 cases; tokens 437.7k
+(33.7k per case, about +25% against 27k, all from the remands). One run each: within-noise for any
+single case, but the three escalations come from the mechanism (remand, then the Judge's own
+"unverifiable"), not chance.
+
+**Known looseness to fix next:** (1) a record that IS the gap event (telemetry_gap_start) proves
+that the gap exists; the check now treats it as unverified too (over-strict). (2) The Judge marked
+chat messages "verified"; the prompt forbids it, code does not yet. (3) DS-09: the rule's own
+comparison needs to be evaluated by code.
+
+**Follow-up (2026-10-12): (1) and (2) are not changed; the evidence says they are not loopholes.**
+- (1) Tried: let a fact that only states the data problem ("telemetry gap 07:53-08:03") count as
+  verified on the problem log. Replay of the first drafts of run 20261011-232103: DS-14 loses an
+  unneeded remand, but DS-20's first draft ("claim attachments failed to upload", refund S$180)
+  passes with no remand and the wrong payout executes again. A ruling that turns on the platform's
+  own data failure rests on what that data would have shown, so a person decides. The cost of the
+  strict rule is one extra remand on cases like DS-14; reverted, and a test pins it.
+- (2) Every chat-only fact marked "verified" in that run (6 facts: DS-11, DS-20, RD-001, RD-002,
+  SQ-002) states what a party said ("rider consented", "driver admitted missing the exit", "driver
+  used rude language"). The chat log does verify that. A code rule that bans chat-only verified facts
+  would remand correct consent and conduct rulings, and code cannot tell "X said Y" from "Y is true".
+  Left to the prompt.
+- (3) DS-09: the Judge measured the interval correctly (8.8 min before the scheduled time) and read
+  the rule's direction backwards. Code can only evaluate the rule if the rule says, in a form code
+  can read, what is measured and which side is free. That is the planned rule-engine step.
+
+**Full regression, run 20261012-092517 (code Judge ON, all 38 cases, one run each), against D36
+run 20261011-181308 (code Judge off):**
+
+| Metric | D36 (off) | Code Judge on |
+|---|---|---|
+| Correct | 34/38 | 33/38 |
+| Wrong automated rulings | 1 (RD-002, paid S$1.55) | 0 |
+| Sent to a person | 9 | 11 |
+| Tokens per case | 26.9k | 28.7k (+7%) |
+| Remands | - | 6/38 (FD-003, NS-001, NS-001-P1, NS-002-C1, NS-003, SQ-002) |
+
+Only three cases changed. RD-002 is now correctly dismissed. NS-001 and NS-001-P1 (correct S$8
+refund in D36) now go to a person: the decisive fact "driver never arrived" rests on
+trip.driver_arrival_time, and the data-conflict check flags that same record ("cancelled as a rider
+no-show, but no driver arrival is recorded"). The strict rule from follow-up (1) sends it to a
+person, even though the conflict is the rider's own evidence. Every miss in this run is a hand-off
+to a person (CR-001, NS-001, NS-001-P1, NS-002-C1, SQ-002), and no wrong payout executes. That
+is the trade the project wants (escalate over misjudge). A narrower exception for "the conflict
+note itself states the fact" is possible, but it must pass the DS-20 replay before it ships.
+
+**Fix (2026-10-12): a conflict names the sources it questions.** A conflict finding may carry
+`questioned`, the sources it calls into question when its other sources agree with each other; the
+code Judge distrusts only those (all sources when the field is empty). Set on one conflict:
+`consistency.no_show_without_arrival` questions only `trip.cancellation_reason`, since the trip
+record and the app log agree that no arrival happened. Offline replay of all 61 saved drafts of runs
+20261011-232103 and 20261012-092517: only NS-001 and NS-001-P1 change (now pass); DS-20, DS-11 and
+every other draft get the same result as before. Gap findings (the DS-20 data failure) are untouched.
+
+
+## D39. Rule checks: code evaluates the trip's time rules (2026-10-12, branch feature/rule-engine)
+
+**Why.** DS-09: the Judge measured the interval correctly (cancelled 8.8 min before the scheduled
+pickup) and read the rule's direction backwards (free only when cancelled at least 15 min before).
+CR-001 and NS-002-B1 are the same class: a lateness waiver and a no-show threshold misapplied by a
+minute or by direction. A measurement and a comparison are what code does exactly, so code now does
+them and the Judge gets the result.
+
+**What.** A new Collector tool `rule_checks` (no LLM). For each numeric time rule of the trip:
+- the moments it compares come from the records: booked, matched, scheduled, eta_shown (the clock
+  time or "ETA n min" in the assignment event), arrived, wait_start (falls back to arrival),
+  cancelled, trip_end, arrived_or_cancelled. A trip field wins over an event of the same meaning;
+- its condition comes from `data/policies/case_rule_checks.json` (by rule name: five rules cover
+  the 38-case set) or from a `check` inside the case's rule (`{"from", "to", "op", "condition"}`;
+  the case generator now asks for it);
+- the finding states the rule, its condition, the measured minutes, the two records, and MET / NOT
+  MET. Exactly at the limit, a boundary rule (`*_inclusive`) decides; without one the finding says
+  the rules do not say whether the limit counts.
+
+**Guards (all general):**
+- A trip rule that sets how time is counted (`*_basis`, `wait_clock_starts`, `*_count_from`, ...)
+  stops the conclusion: the finding gives the measure and says to use the moment that rule names
+  (DS-04 counts from the device tap time, not the server's cancellation time).
+- A moment with no record (no arrival, so no wait) gives "not evaluated", with no source, so the
+  code Judge never reads it as a gap on the rule.
+- A check timed from a disputed arrival (an arrival conflict) is listed as computed from a
+  disputed record; the wait start is disputed with the arrival.
+- The brief says a check only states whether the condition holds; whether the rule governs this
+  event (who cancelled, which party it binds) is set by its scope text (CR-004: the no-show
+  threshold is NOT MET for a rider's own cancellation, which that rule does not govern).
+
+**Dry run on all case files** (no LLM): every concluded check agrees with the expected outcome's
+reasoning (CR-001 late 12.5 min > 10: MET; NS-002-B1 7 < 8: NOT MET; DS-09 8.8 < 15: NOT MET;
+CR-002 4 > 3 and CR-002-C2 2 <= 3 on the free window; NS-002 family exactly 8: flagged at the limit).
+DS-04 is not concluded (time-basis rule).
+
+**Not done:** the code Judge does not yet compare the ruling with the checks; the checks only
+inform. **Tests:** 499 passed (13 new in tests/test_rule_checks.py).
+
+**Next:** after the full code-Judge regression finishes (one eval process at a time), A/B on
+DS-09, CR-001, NS-002-B1, NS-002-C1, NS-002, CR-002-C2, DS-04, CR-004 (targets and the cases a
+wrong check could break), then fold into the full run.
+
+**First A/B, run 20261012-105053 (rule checks + code Judge ON, 10 cases, one run each),** against
+the code Judge run 20261012-092517 (no rule checks) and, for the DS cases, runs 20261011-232103 /
+-221641:
+
+| Case | Before | Rule checks on |
+|---|---|---|
+| DS-09 | WRONG, paid S$5 | correct, dismissed (the target: 8.8 < 15 NOT MET) |
+| CR-001 | to a person | correct, refund S$4 (late 12.5 > 10 MET) |
+| NS-001 | to a person | correct, refund S$8 (the D38 questioned-sources fix, live) |
+| NS-002-B1, NS-002, CR-002-C2, CR-004, DS-04 | correct | correct (no check broke them) |
+| NS-001-P1 | to a person | to a person: the Judge itself named the no-show label as a decisive fact, and that label is the questioned record |
+| NS-002-C1 | to a person | to a person (disputed arrival: GPS 0.96 km away; every run so far) |
+
+8/10 correct, 0 wrong payouts (before on the same cases: 5/10, 1 wrong payout). Tokens on the 8
+cases both runs share: 35.7k vs 33.9k per case (+5%). One run each, so a single case can still
+flip; the DS-09 and CR-001 fixes come from a computed comparison, not chance.
+
+**Full regression, run 20261012-115556 (rule checks + code Judge ON, all 38 cases, one run each):**
+
+| Metric | D36 | Code Judge (092517) | Rule checks + code Judge |
+|---|---|---|---|
+| Correct | 34/38 | 33/38 | 33/38 |
+| Wrong automated rulings | 1 (RD-002) | 0 | 0 |
+| Sent to a person | 9 | 11 | 11 |
+| Tokens per case | 26.9k | 28.7k | 29.1k |
+
+Against the code Judge run: NS-001 and NS-001-P1 now correct (questioned-sources fix); DR-002 and
+NS-004 now go to a person. Neither loss comes from a rule check: on DR-002 the Judge marked "no
+itemised breakdown of the S$300" as unverifiable (an absence the records do show), and on NS-004
+the Judge twice returned no decisive facts (and the Fairness audit failed it). CR-001 was correct in
+the 10-case A/B and went to a person here, with no code problem: the Judge asked for review itself.
+These three are Judge variance on single runs. DS-09, the target, is not in the 38-case set (see
+the A/B above). No run so far with the code Judge has executed a wrong payout.
+
+**Absence rule in the Judge prompt (2026-10-12).** DR-002 x3 on the rule-engine branch (run
+20261012-141208): 1/3 correct, the other two went to a person because the Judge marked "no
+itemised breakdown of the S$300" unverifiable. The prompt now says: an absence from a platform
+record (a null trip field, no such app event, nothing attached to the claim) is verified on that
+record; an absence in the chat is not, since people also talk outside the app. Worst-case replay
+first (126 saved drafts, every "unverifiable" absence fact flipped to verified): DS-20 and FD-003
+stay blocked by their data-gap findings, but SQ-002's "rider did not refuse the detour"
+(chat_log[0]) would have executed a wrong amount; hence the chat exclusion. Live (runs
+20261012-143014-absence-dr002 / -143539-absence-guards): DR-002 2/3 correct (the miss: the Judge
+still marked the absence unverifiable, with no source); DS-20 to a person (correct); SQ-002 correct
+with refund S$4.20 (to a person in every earlier run); NS-001 to a person, because the Judge named
+"fee charged with reason rider_no_show" (the questioned label) as a decisive fact, the same
+pattern as NS-001-P1 in run 105053, unrelated to this rule. No wrong payout.
+
+## D40. Fresh blind test set; harassment in plain words is P0 (2026-10-12, branch feature/rule-engine)
+
+**Fresh set.** 20 cases (FS-01..FS-20, `data/eval_cases/fresh_sonnet/`) written by a Claude Sonnet
+subagent that read only the brief (`data/eval_cases/focus_fresh.txt`), the labelling conventions,
+two format examples and the official policy text; not the code, tests or earlier eval data. Mix: 6
+charge stands, 5 full refund, 4 partial refund, 5 for a person; 8+ turn on a time rule, with
+boundary cases. Why: every earlier set (dev, heldout, DS) has been looked at while fixing, so a
+score on them overstates what the system does on new cases.
+
+**First run, 20261012-155745-fresh (D38 code Judge + D39 rule checks + absence rule, one run
+each): 16/20 correct, no wrong payout.** The four misses:
+
+| Case | Result | Expected | Cause |
+|---|---|---|---|
+| FS-19 | resolved, partially_upheld, no refund | a person | Harassment report not recognised as P0: the filer wrote "felt unsafe", "commenting on my body"; no P0 keyword matched, and a given ticket type (service_quality) skips the LLM classifier. Fixed below. |
+| FS-10 | resolved, dismissed | upheld S$5.00 (driver's waiting fee) | The Judge applied a retrieved official clause (the driver must switch on the waiting fee at drop-off) that the case's own policy block does not contain. Wrong ruling against the driver; no money paid out. Open. |
+| FS-09 | a person | upheld S$14.50 (double charge) | The data-gap tool reads "gateway retry after timeout" in the second payment_captured event as a platform data failure, so the decisive fact is unverifiable. Safe miss; narrowing the tool would loosen a check, so left as is. |
+| FS-12 | resolved, upheld S$85.00 | partially_upheld S$85.00 | Refund correct; label only (fee reduced to the receipt amount). |
+
+**Change: more P0 safety keywords** (`src/agents/classifier.py`): harass, harassed, harassing,
+unsafe, stalk, stalked, stalking, sexual, groped, molested, touched me, inappropriately.
+What: a filer describing harassment or feeling unsafe without the word "harassment" now goes to
+a person at once (P0), whatever ticket type was given. Why: FS-19, a sexual-harassment report,
+was closed by the system; a safety matter must always reach a person. This only adds escalations,
+so it cannot cause a wrong payout. Before the change, the new words were scanned over every case
+description in `data/` (except sealed): they match only FS-19 and SI-001, and SI-001 was already
+P0, so no other case changes. Test: `test_p0_harassment_in_plain_words_with_a_given_type`. Live
+run 20261012-163730-p0: FS-19 and SI-001 both to a person, correct. Not done: forcing a person
+whenever a case's policy has `p0_response = immediate_human_review`; that rule only says what to
+do once a case is P0, it does not make a case P0.
+
+**Change: this trip's own rules come first** (Judge system prompt, `src/agents/arbitrator.py`).
+What: a retrieved help-centre clause applies only where this trip's rules say nothing on the
+point; it cannot change a number in a rule this trip has, or add a step a party had to take.
+Why: FS-10 was dismissed against the driver because a help clause (switch on the waiting fee at
+drop-off) was added to the trip's own waiting-fee rule. Risk: a ruling that was right only
+because of a help clause could now pay out. Check before the live run: every saved draft in runs
+115556 and 155745-fresh that denied or cut a refund while citing a help clause was listed
+(CR-002-P3, CR-004, DISP-002, FS-02, FS-06, FS-13) and used as a guard, with RD-002 and SQ-002
+(past wrong-payout risks).
+
+Live, runs 20261012-164401-fs10 (FS-10 x3) and 20261012-164858-guards (one run each):
+
+| Case | Before | After |
+|---|---|---|
+| FS-10 x3 | dismissed (1 run) | upheld S$5.00 once; to a person once; dismissed once (the Judge still applied the help clause) |
+| CR-002-P3, CR-004, DISP-002, FS-02, FS-06, RD-002 | correct | correct |
+| SQ-002 | correct S$4.20 | correct S$4.20 |
+| FS-13 | correct S$2.50 | to a person |
+
+No wrong payout, so the line stays; the FS-10 gain is small (1/3). FS-13 and FS-10 run 2 went to a
+person for the same reason, not caused by this line: the Judge listed the disputed charge record
+itself ("trip_completed reports ERP S$5.00", "waiting fee applied S$0.00") as a decisive fact with
+status "contradicted", the record its own ruling finds wrong, and the code Judge blocks a ruling
+that rests on a contradicted fact. NS-001's misses (D39) are the same pattern with the questioned
+no-show label. Open: tell the Judge to list as decisive the records that show a charge is wrong,
+not the wrong charge record itself; the code check would stay as strict.
+
+**Tried and rejected: "the record you correct is not a decisive fact"** (Judge prompt, not kept).
+What was tried: one sentence in the decisive_facts instruction saying that when the ruling finds a
+record wrong (a disallowed charge, a contradicted label), that record is what the ruling corrects,
+so list the records that show it is wrong; any record the ruling needs to be true must still be
+listed with its real status. Why: the pattern above (FS-13, FS-10 run 2, NS-001). Live, run
+20261012-170817-corr-targets (x2 each): FS-10 1/2, FS-13 1/2, NS-001 0/2, NS-001-P1 0/2; every miss
+went to a person because the Judge still listed the corrected record (the no-show label as
+"verified", the S$0.00 waiting fee or the S$5.00 ERP total as "contradicted"). Worse than before
+on NS-001, so removed. Guards (run 20261012-172239-corr-guards): CR-004, DR-002, DS-11, DS-20 and
+FD-003 correct; FS-16..FS-20 not run (KEY_3 daily quota hit, run stopped once the targets showed
+the line does not work). The Judge does not follow a general instruction here; a fix, if any,
+belongs in the remand message, which names the exact fact.
+
+## D41. Sealed set, run once (2026-10-12, feature/rule-engine c5cbc20 + docs)
+
+What: the sealed cases, never used for a fix, run once on the submission candidate (D38 code
+Judge, D39 rule checks, D40). 23 cases: SL-01..SL-15 without SL-06 (written by Gemini, D16) and
+SA-01..SA-10 without SA-04 (written by qwen, blind-audited; SA-04 dropped earlier as a bad key).
+Why: every other set has been looked at while fixing; this is the generalisation number.
+
+**Run 20261012-174317-sealed: 14/23 correct.** Cerebras returned "queue exceeded" (429) on two
+runs: SA-02 (the Judge call) and SL-04 (the passenger advocate). Both were re-run once, run
+20261012-182201-sealed-retry: SA-02 correct (partially_upheld S$5.00), SL-04 correct (to a person).
+**With the two provider-hit runs replaced: 16/23.** No code or prompt was changed for or after
+this run.
+
+| Case | Result | Expected | What went wrong |
+|---|---|---|---|
+| SA-08 | resolved, upheld, refund S$8.00 | a person | **Wrong payout.** The decisive arrival record is contradicted by a GPS gap. The first draft was blocked by the code Judge (it cited the questioned app event); on remand the Judge dropped that record from its decisive facts and the draft passed. This is the risk named in D38/D40: a remand lets the Judge remove the record that blocked it. |
+| SL-14 | resolved, dismissed | upheld S$4.50 | Wrong rule: the Judge applied the 3-min free waiting time instead of the 8-min no-show threshold (exactly 8:00 by the timestamps; the app event says 7:55). |
+| SL-02, SL-09 | resolved, dismissed | upheld S$6.61 | The rider cancelled after the free window; the answer key refunds because the driver was not moving towards the pickup ("spirit" of the waiver clause). The system applied the written window. Arguable keys, counted as wrong. |
+| SA-01 | a person | dismissed | Safe miss: "continuous presence in the radius" marked unverifiable. |
+| SL-10 | a person | upheld S$2.00 | Safe miss: refund arithmetic used 0.5, not the record figure 50 (%). |
+| SL-15 | a person | partially_upheld S$200.00 | Safe miss: Fairness flagged a penalty with a dismissal. |
+
+Summary: 16/23 (70%) against 33/38 on the dev/held-out set and 16/20 on the fresh set; one wrong
+payout (SA-08, S$8.00), three wrong dismissals, three cases sent to a person that could have been
+decided. The claim "no wrong payout since the code Judge" holds on the 38-case and fresh sets,
+not on the sealed set.
+
+Open, not fixed (fixing on the sealed set would void it): a remanded draft must not pass by
+dropping the record the first check named; a conflict or gap finding on the topic of the ruling
+should still count after a remand.
+
+## D42. A remand cannot pass by dropping the blocked record (2026-10-12, feature/rule-engine)
+
+What: in the code Judge (`src/agents/code_judge.py`, `check_remand`; called from
+`src/core/workflow.py` `_code_judge`), a revised draft also fails when the first draft was blocked
+because a verified decisive fact rested on a record a conflict or gap finding questions, and the
+revised draft pays the same verdict and the same refund but no longer lists that record. Such a
+draft goes to a person. A revised draft that changes the ruling or the amount, or keeps the record
+and marks the fact as not verified, is left to the existing checks.
+
+Why: the SA-08 wrong payout (D41). The trace shows the second draft is the first draft word for word
+with `app_events[8]` deleted from one fact's sources: same fact, same verdict upheld, same S$8.00.
+Deleting a record does not remove what the ruling used it for.
+
+This fix was found on the sealed set, so the sealed result (D41, 16/23) stays the number for the
+code before this change; it is not re-scored.
+
+How checked (no LLM calls): replay over all 135 saved traces on this branch. 13 runs had a draft
+blocked and then passed after the remand; the new rule sends only SA-08 to a person (12 still pass).
+A broader rule was considered and rejected: "any decisive-fact problem on the first draft and the
+same payout after the remand goes to a person" would also have sent 4 correct runs to a person
+(NS-001 x2, DR-002 x2), where the Judge really corrected a fact's status and the ruling stayed the
+same. Unit tests: `test_remand_cannot_just_drop_the_blocked_record`,
+`test_remand_rule_ignores_drafts_blocked_for_other_reasons`; 507 tests pass.
+
+New-case check: per the rule that every change is tested on cases written for it, a new blind set
+F2-01..F2-20 (`data/eval_cases/fresh2_sonnet/`, brief `data/eval_cases/focus_fresh2.txt`) was
+written by a Claude Sonnet subagent without access to the code, with about 8 cases on imperfect
+platform records (half where the doubtful record is decisive, half where it is not).
+
+**Run 20261012-213702-fresh2 (commit a992efd), one run each: 13/20, one wrong payout (S$8.00).**
+Five runs failed on the daily quota of the first key and were re-run with the next key (traces of
+the failed runs kept in `_failed_quota`).
+
+The new rule fired live once and stopped a payout: F2-17 (expected: a person; the ETA record is
+missing and the two parties contradict each other). The first draft refunded S$5.00 on a fact
+resting on the questioned `app_events[1]`; the remand dropped that record and kept S$5.00; D42 sent
+it to a person.
+
+| Case | Result | Expected | What went wrong |
+|---|---|---|---|
+| F2-01 | resolved, upheld, refund S$8.00 | dismissed | **Wrong payout.** Facts all correct (arrival 10:02, 8.5-min wait, threshold 8 min met). The Judge read the fee rule's text "not cancellations caused by the driver" as "not cancellations the driver pressed" and refunded a no-show fee because the driver taps cancel on a no-show. The code Judge checks facts and arithmetic, not how a rule's words are read, so it passed. The GPS dropout (the theme of the case) played no part. |
+| F2-11 | resolved, partially_upheld, no refund | partially_upheld S$6.00 | Under-refund: the label was right but no amount was set. No money moved wrongly. |
+| F2-10 | resolved, upheld S$4.50 | partially_upheld S$4.50 | Label only: the refund is the right figure. Counted as a miss. |
+| F2-02, F2-05, F2-14, F2-15 | a person | decided | Safe misses: F2-02 (exact 8:00 boundary) and F2-05 marked human review; F2-14 listed no decisive facts twice; F2-15 rested on a questioned fee record. |
+
+Imperfect-records theme: the 3 cases where the doubtful record is decisive all went to a person
+(F2-16, F2-17, F2-19). Of the 5 where it is beside the point, 1 was decided correctly (F2-09), 2
+went to a person (F2-05, F2-14), 1 was under-refunded (F2-11), and 1 was the wrong payout for an
+unrelated reason (F2-01).
+
+Summary: 13/20 (65%) against 16/20 on the first fresh set; one wrong payout of a kind the code
+Judge cannot see (reading a rule's words). No code or prompt was changed for or after this run;
+the set is now used and is not "new" for the next change.
+
+Not done: SL-14 (wrong rule applied) is a sealed-set miss and is not fixed from that case.
+
+## D43. When the Judge sees precedents: design only, not built (2026-10-12)
+
+What exists: human-reviewed precedents (pending -> staged -> evaluation gate -> active, D-feedback
+loop in `src/store/feedback.py`) are found by fact similarity (`src/rag/precedents.py`, top 3) and
+appended to the Judge's prompt as guidance. In every evaluated run so far the Judge received none:
+140 Judge calls in the 2026-10-12 runs, 0 with precedents. All reported results are without them.
+
+Proposal considered: let the Judge ask for precedents itself when its confidence is low.
+Rejected, for two reasons:
+1. The Judge's confidence is its own number, not a measured probability. Wrong rulings in our
+   traces carry 0.85-0.9 as often as right ones (SA-08, F2-01). Letting the model decide when it
+   needs help is the self-checking that the code Judge (D38) was built to avoid.
+2. Low-confidence cases are the ones the code Judge and Fairness now send to a person. A precedent
+   added there would raise the Judge's confidence and turn some of them into automatic rulings; a
+   precedent that only looks similar would then become a wrong payout.
+
+Planned instead (after submission):
+- Code decides when precedents are given: Triage grades the case high-complexity, the case's rules
+  are silent or discretionary, or the first draft was remanded by the code Judge.
+- A similarity threshold replaces the fixed top 3.
+- A ruling that follows a precedent still passes the code Judge: its facts verified, its amount
+  from record figures.
+- First version: precedents are shown to the human reviewer on the review desk, not to the
+  automatic ruling; a case that would go to a person still goes to a person. Precedents reach the
+  automatic Judge only after an evaluation shows rulings that follow them are right.
+
+## D44. Deployment faults the laptop did not show (2026-10-13)
+
+What: three faults found when the site went live on the Tencent server, and their fixes.
+1. Access code cleared by a late 401 (`frontend/index.html`, `apiFetch`). Several requests start at
+   page load without a code; one answered 401 after the visitor entered a correct code, and the page
+   cleared the code, so every later request failed (899 consecutive 401s in the server log). Now the
+   code is cleared only when the server refused that code; a request sent before the code was entered
+   is retried with it. Test: `frontend_chat.test.cjs`, "a late 401 ... keeps the code" (24 frontend
+   tests pass).
+2. Old dependency pins. The server installed `requirements.txt`, pinned to versions far older than
+   the ones the tests run on (LangGraph 0.3.0 vs 0.6.11, openai 1.50 vs 2.52, ...). LangGraph 0.3.0
+   rejects a node named like a state key ("'safety' is already being used as a state key"), so every
+   live run failed. The pins now match the tested versions; numpy is 1.26.4 because the server runs
+   Python 3.12 (langchain-community needs >=1.26.2 there). Resolution checked on the server with
+   `pip install --dry-run` before installing.
+3. Provider key without credit. The server's `CEREBRAS_API_KEY` returned HTTP 402 (payment
+   required) on every call; it was replaced by a working key (not in git).
+
+Also seen, not changed: once, a driver rebuttal came back empty (the model spent its 1500-token
+budget on reasoning); the debate records it as needing review and the ruling still ran its checks.
+It did not occur in the 172 evaluation runs of 2026-10-12. A retry on empty output would be a change
+to the pipeline and would need its own new-set test, so it is left for after submission.
+
+Why: none of these appear in the unit tests or evaluation runs, which use the laptop's packages,
+keys and a single browser request at a time. `deploy/README.md` now lists checks to run after each
+update.
+
+## D45. First test of the learning loop with precedents: no gain, not released (2026-10-13/14)
+
+What: the first end-to-end run of the feedback loop (D-feedback, D43) on new blind cases.
+- A Claude Sonnet subagent, blind to the code, wrote a training set PT-01..10 (grey-area cases a
+  careful reviewer can decide) and a test set PX-01..16: 7 siblings where the training case's
+  principle applies, 3 where one fact makes it not apply, 6 controls that must go to a person
+  (`data/eval_cases/focus_precedent.txt`, `precedent_train/`, `precedent_test/`).
+- The pipeline ran PT-01..10 (run 20261013-222203-ptrain): 6 right, 3 escalated (PT-05/06/07),
+  1 wrong without payout (PT-08 dismissed, S$2.00 due).
+- A second Sonnet subagent acted as the human reviewer: it saw each case without its answer key
+  plus the system's result. Its 10 decisions all matched the blind answer keys. The reviewer is
+  simulated, not a person; the reviewer field on every review says so.
+- `scripts/ingest_reviews.py` (new) replays the saved traces as rulings and submits the reviews
+  through `Store.submit_review`. 6 confirms of resolved rulings made no precedent; the 4 decisions
+  on cases the system did not get right made precedents #1-#4, approved to staged.
+- PX-01..16 ran once without precedents (20261013-223932-pxbase; stopped by the laptop at 11/16
+  for low memory and resumed) and once with the staged ones (20261014-094713-pxcand). Cost of all
+  42 runs: US$0.54.
+
+Result: 11/16 in both runs; every hard metric equal (P0 recall 1.0, refund cap 1.0, failures 0).
+| case | role | without | with precedents |
+|---|---|---|---|
+| PX-01 | sibling of PT-01 (no precedent) | right | escalated: the Judge drafted a refund |
+| PX-04 | sibling of PT-04 (no precedent) | escalated (code Judge) | right |
+| PX-05 | sibling of PT-05 (precedent #1) | escalated (Fairness), Judge right | same |
+| PX-06 | sibling of PT-06 (precedent #2) | escalated, Judge misread the fee rule | same misreading |
+| PX-07 | rule does not apply | escalated (code Judge: refund figures) | same |
+| PX-13 | fraud control | dismissed, not escalated (no payout) | same |
+Other 10 cases: same outcome both runs.
+
+What the traces show:
+1. The Judge never followed or named a precedent, although the sibling's precedent was ranked first
+   for PX-05 and PX-06. PX-06 and PX-01 repeat exactly the misreading precedent #2 corrects ("the
+   fee applies only to rider-side cancellations, so a driver-initiated no-show cancellation has no
+   fee"); this is also how F2-01 went wrong (D42). A precedent in the prompt does not fix a rule the
+   model keeps misreading.
+2. The PX-01 and PX-04 changes are run-to-run variation, not precedent effects: PX-01's precedents
+   were unrelated to its failure, and PX-04's code-Judge finding came and went without them.
+3. Every case gets three precedents. The returned scores are fused ranks (the top hit always 1.0),
+   so the planned similarity threshold (D43) cannot be set on them.
+4. A precedent's verdict label depends on who filed: "upheld" on a driver's claim (PT-06, fee
+   stands) means the opposite of "upheld" on a rider's claim. The precedent text does not state the
+   outcome in plain terms.
+5. The gate (`feedback.gate`) passes this candidate, because accuracy did not drop. Passing a change
+   that did nothing, while a correct case flipped, shows the gate is too weak to be the only check.
+
+Decision: precedents #1-#4 stay staged (live rulings do not see them); `release` was not run. The
+live server shares the precedent index, so releasing would have put them into every live ruling.
+
+Next, if pursued: state each precedent's outcome in plain terms (who pays whom, how much); filter by
+dispute type and filer role and by a real similarity score; make the gate also fail when any case
+that was right becomes wrong; and catch the recurring fee-scope misreading with a code rule check,
+tested on a new blind set. Not done before submission.
+
+## D46. Photo evidence: code checks the file, a vision model describes it (2026-10-14)
+
+What (the multi-modal stretch goal, cleaning-fee disputes):
+- `src/agents/photo_checks.py`, a Collector tool, no LLM. Per uploaded photo, findings citing
+  `evidence[i]`: capture time (EXIF) against the trip (before pickup, or past the case's
+  `photo_window_after_dropoff_min`, default 60, is a conflict; no capture time is a gap); capture
+  place (EXIF GPS) more than 1 km from drop-off is a conflict; uploaded before taken is a conflict;
+  an editing or generation program in EXIF Software is a conflict; the same file twice in a case, or
+  a file another case already held before this one was stored, is a conflict (only the later copy is
+  doubted: the first fix of this check flagged the original too).
+- `src/agents/image_analyst.py`: a vision model (Groq `qwen/qwen3.8-27b`, free tier; Gemini was
+  out of credit, other providers had no vision model on our keys) describes each photo: scene, mess,
+  severity, match with the claim, signs of editing or generation. Its report is shown to the advocates
+  and the Judge as unverified. It becomes a finding only as a doubt (not a car, no mess, does not
+  match, looks generated), a conflict on that photo; the code Judge then refuses a ruling resting on
+  it. The model can send a case to a person; it cannot approve a charge or refund. No key or a failed
+  call makes the photo a gap.
+- Dataset cases can list `evidence` files; the dashboard shows the photos (fetched with the access
+  code through `/api/evidence-file`, limited to `data/evidence*`) and an ImageAnalyst panel.
+- Tests: `tests/test_photo_evidence.py` (24). 531 Python and 24 frontend tests pass.
+
+Test set (new, blind): a Sonnet subagent wrote IM-01..12 (`data/eval_cases/images`, brief
+`focus_images.txt`) from a photo library of real photos (Pexels licence / CC, `SOURCES.json`) and one
+generated image; `scripts/stamp_case_photos.py` writes the capture time, GPS and software each case
+specifies. MiniMax image generation was out of balance, and free generators gave unusable images.
+Free dry run first (code checks + vision only): every problem photo raised the intended doubt and
+every genuine photo passed.
+
+Run 20261014-113148-images (one run, US$0.18): 8/12.
+| case | photo | result |
+|---|---|---|
+| IM-02, IM-04 | genuine | decided correctly (fee stands) |
+| IM-01, IM-03 | genuine | sent to a person; the Judge's ruling was right. IM-01: Fairness, because the Classifier filed it as a service-quality dispute ("refund beyond the disputed amount"); IM-03: the Judge asked |
+| IM-05 | no capture time, rider admits in chat | sent to a person: the Judge rested the ruling on the photo, not on the chat |
+| IM-06, 07, 09, 10, 11, 12 | clean seat, not a car, Photoshop, reused, 13.7 km away, AI-generated | sent to a person |
+| IM-08 | driver's photo taken 38 min before the trip, no receipt | refunded the rider's S$100 fee automatically; answer key: a person |
+
+No charge was upheld on a doubted photo. IM-08 is counted as a miss: the Judge removed the fee because
+the driver's evidence failed the case's evidence rule (photo outside the window, no receipt), a
+defensible reading, but the case's photo-doubt rule says a case officer decides, and the code Judge
+let it through because the decisive fact ("taken before the trip") is itself a code finding.
+Classification was 0/12: there is no cleaning-fee dispute type, so the Classifier files these as fare
+or service-quality disputes, which caused IM-01's escalation.
+
+Not done: a cleaning-fee dispute type; a rule that a ruling turning on a doubted photo goes to a
+person whichever side it favours; testing on real driver photos (the library is stock photos).
+
+## D47. A doubted photo goes to a person whichever side the ruling favours (2026-10-14)
+
+What: new code Judge check `check_photos` (`src/agents/code_judge.py`). If any conflict finding
+questions a photo (`evidence[i]`: taken before the trip, edited, reused, far from the trip, or the
+vision model says it does not show what is claimed) and the draft ruling is not already marked
+`human_review_needed`, the draft fails the code check. As with the other checks it goes back to the
+Judge once with the problem, and if the revised draft still does not send it to a person, code does.
+A gap (no capture time) or a photo that checks out does not trigger it.
+
+Why: IM-08 (D46). `check_facts` only blocks a ruling that RESTS on a doubted record. In IM-08 the
+driver's photo predated the trip and the Judge refunded the rider S$100 on that fact, so the ruling
+rested on the doubt itself, which is a code finding and therefore counted as verified. A photo in
+doubt is a possible fake, and deciding that is a person's call either way (escalate over misjudge).
+
+How checked:
+- Tests: 7 new in `tests/test_code_judge.py` (conflict with and without a `questioned` list, already
+  sent to a person, gap, fact, conflicts on other records only, problem names the photo).
+  538 Python tests pass.
+- Free replay on run 20261014-113148-images: the check fires on IM-06..12 only (every case with a
+  photo conflict). All seven have must_escalate=true; six were already escalated, IM-08 now would be.
+  IM-01..05 (facts or a gap only) are unchanged. Expected 9/12 on that set. Sets without photos
+  have no `evidence[i]` findings and are unaffected.
+
+New blind set PS-01..10 (`data/eval_cases/photo_side`, brief `focus_photo_side.txt`, written by a
+Sonnet subagent that read no code or results): mostly rider disputes of a fee charged on the
+driver's photo. Free dry run first: code photo checks matched the brief on 8/10; PS-04 (AI image)
+and PS-08 (clean seat) need the vision model.
+
+Run 20261014-132901-photo-side (one run, US$0.16): verdict 9/10, escalation 9/10.
+| case | photo | result |
+|---|---|---|
+| PS-01, PS-03 | 3 km from drop-off; taken 94 min before the trip | the Judge's first draft refunded the rider S$90 / S$150 (the IM-08 mistake); the code check sent both to a person. PS-03 was caught by check_photos only |
+| PS-07 | Photoshop | first draft kept the fee; blocked (check_facts and check_photos). The redraft hit the Cerebras daily token limit (429), so the person route came partly from that failure |
+| PS-04, 08, 09 | AI image, clean seat, reused photo | the Judge sent them to a person itself |
+| PS-02, PS-10 | genuine | fee stands, decided |
+| PS-06 | genuine, driver claim | upheld and executed, but refund_amount empty (the S$65 award to the driver was not filled): refund miss |
+| PS-05 | no capture time, rider admits in chat, receipt | sent to a person, citing the case's photo_doubt_rule. Counted as a miss, but the answer key is at fault: this set's brief dropped IM's "and no other record settles the claim" from photo_doubt_rule, so under the case's own rule a missing time is "timing in doubt" and a person decides. Not evidence of the IM-05 problem |
+
+No fee was confirmed or removed automatically on a doubted photo. Classification 0/10 (no
+cleaning-fee type, as in D46).
+
+Not done: an awarded amount for a driver's upheld cleaning claim (PS-06); a ruling settled by the
+chat when the photo only lacks a time (IM-05 only; PS-05 is a brief error, see above); cleaning-fee
+dispute type.
+
+## D48. The cancellation-fee text now says a driver-pressed no-show cancel is covered (2026-10-14)
+
+What: the scope sentence of `cancellation_fee_after_wait` ("It governs rider-side cancellations and
+no-shows, not cancellations caused by the driver.") and the `no_show_fee` variant ("It governs rider
+no-shows, not cancellations caused by the driver.") now read: "It covers rider [cancellations and
+rider] no-shows, including the no-show cancellation the driver presses after waiting past the
+threshold; it does not cover a cancellation the driver makes for the driver's own reasons." Changed in
+`data/policies/case_rule_texts.json` and, by exact string replacement (no other text touched), in 38
+case files (mock_disputes, heldout, fraud, fresh_sonnet, fresh2_sonnet, discretion_sonnet,
+precedent_train/test). Run traces in data/eval are unchanged. No code change.
+
+Why: F2-01 (wrong payout, D42), PX-01 and PX-06 (D45) all read "not cancellations caused by the
+driver" as "not cancellations the driver pressed", while a driver always presses cancel on a no-show.
+The official Ryde text (`ryde_help_driver_popular_topics.md`) says the fee is due when the driver
+pressed "I'm Here", waited and cancels (rider no-show). The wording was ours, not Ryde's.
+
+How checked:
+- 538 Python tests pass.
+- Replay of the three misses, run 20261014-142529-cancel-replay (US$0.04): F2-01 dismissed, PX-01
+  dismissed, PX-06 upheld S$6.00: 3/3 right (were all wrong). The first pass hit the Cerebras daily
+  token limit on one key; the script retried on the next key.
+- New blind set CS-01..10 (`data/eval_cases/cancel_scope`, brief `focus_cancel_scope.txt`, Sonnet
+  subagent, no code or results read). Run 20261014-140420-cancel-scope (one run, US$0.14): 7/10.
+
+| case | scenario | result |
+|---|---|---|
+| CS-01, 06 | driver pressed cancel on a no-show; rider says "the driver cancelled, not me" | fee stands: right |
+| CS-09 | same, driver asks for the held fee | released: right |
+| CS-03, 08 | driver's car broke down; driver cancelled 3 min early | refunded: right |
+| CS-05 | rider pressed cancel after the free wait | fee stands: right |
+| CS-10 | driver_arrived but GPS 900 m away | a person: right |
+| CS-04 | driver asks for a fee held because the rider contested | **wrong payout**: the Judge kept the fee held "pending review", not seeing that this dispute is that review. A new misreading, not the scope sentence |
+| CS-07 | driver says in chat he left to take another job; reason field says rider_no_show | **wrong payout**: the Judge kept the S$8 fee, saying "the policy ties the fee to the recorded reason, not to chat statements". The driver's own admission against his interest was set aside |
+| CS-02 | driver cancelled after 6 min, threshold 8, free wait 3 | sent to a person (Fairness: fee basis not met). The Judge charged the fee on the 3-min free wait. Our case texts have two waits (free wait and no-show threshold) and do not say which one a driver-pressed no-show needs; safe direction |
+
+The target misreading did not appear in any of the 13 runs. Two new wrong payouts did (CS-04,
+CS-07), on other points.
+
+Not done: a held fee in a driver's dispute (CS-04); a party's admission in the chat against their own
+interest (CS-07; same family as IM-05); which wait a driver-pressed no-show needs (CS-02).
+
+## D49. Case editor: build or copy a case in the dashboard (2026-10-14)
+
+What: "+ New case" (blank form) and "Copy & edit" (the open case) open an editor
+(`frontend/case_editor.js`) with the complaint, trip, rider and driver profiles, in-app chat, app
+events, GPS points, this trip's rules (known keys fill in their scope text from
+`case_rule_texts.json`) and photos. Save posts the dataset and photos to `POST /api/custom-cases`
+(`src/api/custom_cases.py`); the case is written to `data/custom_cases/<CU-xxxxxx>.json`, listed with
+the other cases at once (the case index rescans that folder) and selected, ready to run. Fields the
+form does not show are kept as they were in the copied case. Demo and admin access codes can both
+save (user choice 10-14).
+
+Photos: every photo is written again on the server (re-encoded JPEG) with one of four settings
+chosen per photo: a capture time, GPS and optional software tag set in the form; the photo's own
+tags; no tags; or (kept photos only) a byte-for-byte copy, which the reuse check then flags. So a
+case can show a genuine photo or a doubtful one. The EXIF writer moved from
+`scripts/stamp_case_photos.py` to `src/agents/photo_stamp.py` (the script's output is byte-identical).
+
+Limits: the server assigns the ids; only known sections are kept (an answer key or anything else is
+dropped, so a built case has no expected outcome); dataset JSON at most 256 KB, lists at most 200
+items, strings at most 4000 characters; JPG/PNG/WebP, 10 MB each, 5 new photos per save, 8 in all; a
+kept photo must be a case photo under data/evidence*; at most 300 built cases. A failed save leaves
+no files. `data/custom_cases/` is git-ignored, and the deploy (tar over the folder) does not delete it.
+
+How checked: `tests/test_custom_cases.py` (21: ids, dropped sections, listing, the four photo modes
+read back with the photo checks, 17 refused inputs leaving nothing behind, case limit, access code).
+559 Python and 24 frontend tests pass. In Chrome on a local server: copied CR-001, added a chat line,
+uploaded a photo with a set time and place, saved; the new case was listed and selected, its rules
+and profiles equal the original's, and the Collector's photo check read the photo's place. A blank
+case with a rule and an event also saved. Both test cases were then deleted.
+
+Follow-up (same day): a photo's pixel count is now checked from its header before it is decoded (cap
+60 MP), so a small file with huge dimensions cannot use the server's memory; test added (560 pass).
+Live checks after deploy: a built case (CU-45DA39) ran end to end twice on the server (resolved); a
+photo saved through the live API carried the time and GPS set for it (test case then deleted).
+
+Not done: no way to edit or delete a built case in place (copy it instead).

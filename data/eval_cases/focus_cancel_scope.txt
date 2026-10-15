@@ -1,0 +1,44 @@
+Cancellation-scope test set CS-01 .. CS-10 (2026-10-14). Purpose: test who a no-show / cancellation
+fee covers when the DRIVER is the one who presses cancel.
+
+Every case is a no_show or cancellation dispute in Singapore, October 2026 (+08:00). Each case has a
+"cancellation_policy" block in the {"value": ..., "text": ...} format of the examples, with these keys
+and EXACTLY these texts (the values may differ per case):
+- free_wait_time_min: "Minutes the driver must wait at the pickup point, counted from arrival, before
+  any waiting or cancellation fee may apply to the rider."
+- no_show_threshold_min: "Minutes the driver must wait at the pickup point, counted from arrival,
+  before the rider counts as a no-show."
+- cancellation_fee_after_wait: "The fee in SGD charged to the rider when a booking is cancelled after
+  the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows,
+  including the no-show cancellation the driver presses after waiting past the threshold; it does not
+  cover a cancellation the driver makes for the driver's own reasons."
+- fee_goes_to: "Says who receives a cancellation or no-show fee once it is charged. It governs where
+  the money goes, not whether the fee is due."
+Trip records must have driver_arrival_time (or null), cancellation_time, cancellation_fee and
+cancellation_reason; app_events must include driver_arrived (when the driver arrived) and the
+cancellation event naming who pressed cancel.
+
+Mix (exactly), shuffled across ids:
+- 4 cases where the driver arrived (driver_arrived event, GPS at the pickup), waited past the
+  no-show threshold, and the DRIVER pressed cancel as a rider no-show: the fee is due. 2 filed by the
+  rider asking for a refund (dismissed, refund 0), 2 filed by the driver asking for a held fee to be
+  released (upheld, amount = the fee). In at least two the rider's description stresses that "the
+  driver cancelled, not me".
+- 2 cases where the driver pressed cancel BEFORE the threshold was reached (the wait is short by a
+  clear margin, at least 1 minute): no fee is due, the rider gets the fee back (upheld, refund = fee).
+- 2 cases where the driver cancelled for the driver's own reasons (e.g. the driver says in chat the
+  car broke down, or the driver chose to take another job) even though the cancel reason field says
+  rider_no_show: the fee is not due, refund the rider (upheld, refund = fee). The driver's own chat
+  message must make the reason clear.
+- 1 case where the RIDER pressed cancel after the driver had waited past the free waiting time: the
+  fee is due (rider dispute dismissed, refund 0).
+- 1 case where the records conflict on whether the driver was at the pickup (driver_arrived event but
+  GPS 900 m away at that time): a person decides (verdict null, requires_human_review true,
+  must_escalate true).
+Do not make the answer obvious from the title or the description.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action, requires_human_review,
+must_escalate, reason (cite the exact records, times and figures, and the wait in minutes),
+expected_dispute_type, acceptable_verdicts where honest, heldout: true. Dispute ids CS-01..CS-10,
+trip ids RYDE-CS-001.. . For a driver's claim upheld, refund_amount is the amount released to the
+driver.

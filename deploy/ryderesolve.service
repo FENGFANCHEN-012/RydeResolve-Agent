@@ -1,0 +1,15 @@
+[Unit]
+Description=RydeResolve dispute API and dashboard
+After=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ryderesolve
+EnvironmentFile=/home/ubuntu/ryderesolve/.env
+ExecStart=/home/ubuntu/ryderesolve/.venv/bin/python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+MemoryMax=1200M
+
+[Install]
+WantedBy=multi-user.target

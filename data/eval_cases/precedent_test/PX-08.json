@@ -1,0 +1,158 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-08",
+  "_role": "principle_does_not_apply",
+  "dispute_ticket": {
+    "dispute_id": "PX-08",
+    "trip_id": "RYDE-PX-008",
+    "filed_by": "driver",
+    "dispute_type": "fare_dispute",
+    "description": "I delivered the parcel to Changi Business Park and passed two ERP gantries. I forgot to key in the ERP. Please add the sender's half of the ERP to my earnings.",
+    "filed_at": "2026-10-07T19:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8108",
+    "name": "Brian Quek",
+    "account_age_days": 600,
+    "total_trips": 140,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7108",
+    "name": "Anwar Said",
+    "account_age_days": 1100,
+    "total_trips": 3800,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Suzuki Carry Van (GBA 2271 X)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-008",
+    "rider_id": "R-8108",
+    "driver_id": "D-7108",
+    "pickup_location": {
+      "name": "Blk 21 Tuas South Ave 2",
+      "lat": 1.281,
+      "lng": 103.63
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.3341,
+      "lng": 103.9632
+    },
+    "scheduled_time": "2026-10-07T17:30:00+08:00",
+    "pickup_time": "2026-10-07T17:34:00+08:00",
+    "dropoff_time": "2026-10-07T18:32:00+08:00",
+    "estimated_distance_km": 41.0,
+    "actual_distance_km": 41.4,
+    "estimated_duration_min": 55,
+    "actual_duration_min": 58,
+    "estimated_fare": 35.0,
+    "total_fare": 35.0,
+    "erp_keyed_by_driver": 0.0,
+    "erp_charged_to_rider": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T17:34:00+08:00",
+      "lat": 1.281,
+      "lng": 103.63,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T17:55:00+08:00",
+      "lat": 1.315,
+      "lng": 103.75,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T18:15:00+08:00",
+      "lat": 1.33,
+      "lng": 103.88,
+      "speed_kmh": 60,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T18:32:00+08:00",
+      "lat": 1.3341,
+      "lng": 103.9632,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T17:35:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Parcel loaded, heading to Changi Business Park."
+    },
+    {
+      "timestamp": "2026-10-07T18:32:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Received by my colleague, thanks."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T17:30:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Sender R-8108 booked RYDE-PX-008 (RydeSEND parcel delivery). Fixed fare S$35.00."
+    },
+    {
+      "timestamp": "2026-10-07T17:58:20+08:00",
+      "event_type": "erp_gantry_detected",
+      "details": "In-vehicle unit recorded ERP gantry G3: S$3.00."
+    },
+    {
+      "timestamp": "2026-10-07T18:20:40+08:00",
+      "event_type": "erp_gantry_detected",
+      "details": "In-vehicle unit recorded ERP gantry G4: S$2.00."
+    },
+    {
+      "timestamp": "2026-10-07T18:32:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Driver Toll (ERP) field left at S$0.00. Sender charged S$35.00."
+    }
+  ],
+  "platform_policy": {
+    "erp_treatment": {
+      "value": "included_in_fare",
+      "text": "How ERP is handled on this trip's service type (RydeSEND). The fare already includes all ERP charges incurred on the trip, so the driver does not charge the rider an ERP share and bears no separate split."
+    },
+    "erp_evidence": {
+      "value": "erp_gantry_detected app events",
+      "text": "The record used to establish the ERP incurred on a trip. It says what ERP was incurred, not who pays it."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_credit",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The two erp_gantry_detected events (S$3.00 and S$2.00, total S$5.00) are not in doubt, but this trip is a RydeSEND parcel delivery whose policy says the S$35.00 fare already includes ERP, so there is no rider share to add. The driver's claim for the sender's half has no basis here.",
+    "expected_dispute_type": "fare_dispute",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

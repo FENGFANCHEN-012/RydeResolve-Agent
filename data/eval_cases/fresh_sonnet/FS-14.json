@@ -1,0 +1,133 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-14",
+    "trip_id": "RYDE-FS-014",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I cancelled my 6pm booking about 20 minutes before pick-up, so it should be free. I was charged S$6.00. Please refund it.",
+    "filed_at": "2026-10-09T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8205",
+    "name": "Benjamin Yeo",
+    "account_age_days": 150,
+    "total_trips": 40,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-1933",
+    "name": "Ismail Hamid",
+    "account_age_days": 1000,
+    "total_trips": 4400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Noah (SKF 9400 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-014",
+    "rider_id": "R-8205",
+    "driver_id": "D-1933",
+    "pickup_location": {
+      "name": "Block 302 Ang Mo Kio Ave 3",
+      "lat": 1.37,
+      "lng": 103.845
+    },
+    "dropoff_location": {
+      "name": "Singapore Expo",
+      "lat": 1.335,
+      "lng": 103.961
+    },
+    "scheduled_time": "2026-10-09T18:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-09T17:47:30+08:00",
+    "cancellation_fee": 6.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T17:30:00+08:00",
+      "lat": 1.38,
+      "lng": 103.85,
+      "speed_kmh": 0,
+      "status": "waiting_for_trip"
+    },
+    {
+      "timestamp": "2026-10-09T17:47:30+08:00",
+      "lat": 1.38,
+      "lng": 103.85,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T16:50:00+08:00",
+      "event_type": "advance_booking_created",
+      "details": "Rider booked advance trip for 18:00."
+    },
+    {
+      "timestamp": "2026-10-09T16:50:30+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1933 matched to advance booking at 16:50:30."
+    },
+    {
+      "timestamp": "2026-10-09T17:47:30+08:00",
+      "event_type": "rider_cancel_tapped",
+      "details": "Rider cancelled advance booking 12 min 30 s before scheduled time 18:00:00."
+    },
+    {
+      "timestamp": "2026-10-09T17:47:32+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$6.00 charged to rider card."
+    }
+  ],
+  "cancellation_policy": {
+    "advance_free_cancellation_before_scheduled_min": {
+      "value": 15,
+      "text": "For an advance booking, a rider who cancels MORE than this many minutes before the scheduled time owes no fee. Exactly 15 min 00 s before is not free."
+    },
+    "advance_fee_cancelled_15_to_5_min_before": {
+      "value": 3.0,
+      "text": "Fee in SGD for a rider who cancels an advance booking 15 minutes or less, but 5 minutes or more, before the scheduled time."
+    },
+    "advance_fee_cancelled_under_5_min_before": {
+      "value": 6.0,
+      "text": "Fee in SGD for a rider who cancels an advance booking less than 5 minutes before the scheduled time."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only. The limit counts: a cancellation at exactly 3 min 00 s is still free."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 3.0,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The booking was for 18:00:00 and the rider cancelled at 17:47:30, which is 12 min 30 s before. That is under the 15-min free limit (so not free, and the rider's 'about 20 minutes' is wrong) and the free 3-min window after matching had long passed (matched 16:50:30). It falls in this trip's 15-to-5-min tier, a S$3.00 fee, not the S$6.00 under-5-min tier that was charged. Refund = 6.00 - 3.00 = S$3.00.",
+    "expected_dispute_type": "cancellation_refund"
+  }
+}

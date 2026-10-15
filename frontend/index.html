@@ -628,7 +628,7 @@
             .msg { max-width: 90%; }
         }
     </style>
-    <link rel="stylesheet" href="dispute.css">
+    <link rel="stylesheet" href="dispute.css?v=20261015a">
 </head>
 <body>
 
@@ -728,6 +728,7 @@
                     <div class="rr-lib-head">
                         <h3>Mock cases <span class="rr-count" id="rrCaseCount">0</span></h3>
                         <input id="rrFilter" class="rr-input" type="search" placeholder="Filter by id, type or text…" aria-label="Filter cases">
+                        <button class="rr-btn ghost ce-new" type="button" onclick="ceOpen(false)">+ New case</button>
                     </div>
                     <div class="rr-case-list" id="rrCaseList"><div class="rr-empty">Loading cases…</div></div>
                     <div class="rr-lib-foot">
@@ -755,6 +756,7 @@
                                     <div class="rr-hint">Trip, GPS, chat, app events and profiles always come from the case file. A live run makes ~12 LLM calls.</div>
                                 </div>
                             </details>
+                            <button class="rr-btn ghost" type="button" onclick="ceOpen(true)" title="Open this case in the editor and save your changes as a new case">Copy &amp; edit</button>
                             <button class="rr-btn primary" id="rrRunBtn" onclick="rrRun()" disabled>Run agents</button>
                         </div>
                     </header>
@@ -766,11 +768,11 @@
                         <div class="rr-block-body" id="rrBrief"><div class="rr-empty">Pick a case on the left.</div></div>
                     </div>
 
-                    <details class="rr-block rr-flow" id="rrFlow">
+                    <details class="rr-block rr-flow" id="rrFlow" open>
                         <summary class="rr-block-head"><h3>Agent flow</h3>
                             <div class="rr-right rr-legend">
                                 <span><i></i>waiting</span><span><i class="active"></i>data flowing</span><span><i class="done"></i>delivered</span>
-                                <span>click any agent to inspect it</span>
+                                <span>click any agent to see its full chain</span>
                             </div>
                         </summary>
                         <div class="rr-graph-wrap"><div class="rr-graph" id="rrGraph"></div></div>
@@ -791,6 +793,17 @@
                 </section>
             </div>
         </div>
+
+        <!-- Case editor (frontend/case_editor.js) -->
+        <dialog id="ceDialog" class="ce-dialog" aria-labelledby="ceTitle">
+            <form method="dialog" class="ce-head">
+                <h2 id="ceTitle">New case</h2>
+                <span class="rr-hint">Saved as a new case; the original is never changed.</span>
+                <button class="rr-btn ghost" value="cancel" formnovalidate>Cancel</button>
+                <button class="rr-btn primary" id="ceSaveBtn" type="button" onclick="ceSave()">Save case</button>
+            </form>
+            <div class="ce-body" id="ceBody"></div>
+        </dialog>
 
         <!-- Chat Tab -->
         <div class="tab-content" id="tab-chat">
@@ -897,11 +910,18 @@ let apiToken = '';
 let accessPrompt = null;
 let accessPrompted = false;
 async function apiFetch(url, options = {}) {
-    const send = () => fetch(url, { ...options, headers: {
-        ...options.headers, ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
-    }});
+    let sentWith = '';
+    const send = () => {
+        sentWith = apiToken;
+        return fetch(url, { ...options, headers: {
+            ...options.headers, ...(sentWith ? { Authorization: `Bearer ${sentWith}` } : {}),
+        }});
+    };
     let response = await send();
-    if (response.status === 401 && !apiToken && (accessPrompt || !accessPrompted)) {
+    if (response.status === 401 && !sentWith && apiToken) {
+        // Sent before the code was entered (several requests start at page load): retry with it
+        response = await send();
+    } else if (response.status === 401 && !apiToken && (accessPrompt || !accessPrompted)) {
         if (!accessPrompt) {
             accessPrompted = true;
             accessPrompt = Promise.resolve().then(() =>
@@ -911,7 +931,9 @@ async function apiFetch(url, options = {}) {
         accessPrompt = null;
         if (token) { apiToken = token.trim(); response = await send(); }
     }
-    if (response.status === 401) apiToken = '';
+    // Forget the code only when the server refused that code; a late 401 from a request sent
+    // without it must not wipe a code that works
+    if (response.status === 401 && sentWith && sentWith === apiToken) apiToken = '';
     return response;
 }
 const chatContainer = document.getElementById('chatContainer');
@@ -1443,6 +1465,7 @@ checkServerStatus();
 refreshStats();
 setInterval(checkServerStatus, 30000);
 </script>
-<script src="dispute.js"></script>
+<script src="dispute.js?v=20261015a"></script>
+<script src="case_editor.js?v=20261014c"></script>
 </body>
 </html>

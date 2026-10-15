@@ -1,0 +1,26 @@
+Every case in this set tests one judgement: whether a charge on the filer stands in full, is
+refunded in full, or is refunded in part, when the records also contain something that could
+tempt a reviewer to give a goodwill partial refund.
+
+Build each case like this:
+- The case's own policy block decides whether the disputed charge is allowed: a detour for a
+  verified road closure, a stop or route the rider asked for, a metered fare, a waiting or no-show
+  fee whose conditions are met, a cleaning fee within the cap and with photos, an ERP toll on a
+  confirmed gantry crossing, a surge shown before confirmation, and similar. Some charges are
+  allowed in full, some not at all, and in a few the rules allow one part and not the rest (for
+  example one agreed stop and one unagreed detour), so the correct refund is a figure the records
+  let a reviewer compute.
+- Include refund_at_ryde_discretion = true (or a rider_compensation rule "at_ryde_discretion") in
+  most policy blocks.
+- Add a side issue that does NOT change whether the charge is allowed under the case's rules: the
+  driver did not mention the fare would go up, a short delay, a curt but not abusive message, the
+  rider was in a hurry or upset, a minor app glitch afterwards. The filer leans on it.
+- Some cases must instead be decided by the side issue, because the case's own rules make it
+  decisive (for example a rule that a fare change must be accepted in the app before it applies).
+  Do not make every side issue a distraction.
+
+Mix the correct outcomes across the set: roughly a third dismissed (charge stands in full), a
+third upheld (full refund of the computed amount), a fifth partially upheld with a refund the
+rules compute exactly, and a few sent to a human because the records conflict or are missing.
+"A goodwill gesture" is never the reason in expected_outcome.reason: the reason must name the rule
+and the records.

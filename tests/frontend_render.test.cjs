@@ -9,7 +9,7 @@ function page(extra = {}) {
     const elements = new Map();
     const element = id => {
         if (!elements.has(id)) elements.set(id, {
-            innerHTML: '', textContent: '', hidden: false,
+            innerHTML: '', textContent: '', hidden: false, dataset: {},
             querySelector: () => null,
             addEventListener() {}, scrollIntoView() {},
         });
@@ -73,12 +73,16 @@ test('running timers tick without rerendering and stop at the server duration', 
     const node = p.element('timer-node'); node.dataset={rrNodeTime:'fairness'};
     const step = p.element('timer-step'); step.dataset={rrStepTime:'p'};
     const before = p.element('rrInspector').innerHTML;
+    assert.match(before, /Full chain/);
+    assert.match(before, /data-rr-step-time="p"/);
     now = 6350; tick();
     assert.equal(node.textContent,'5.3s');
     assert.equal(step.textContent,'5.3s');
     assert.equal(p.element('rrInspector').innerHTML,before);
     p.run('rrRenderDebate()');
     assert.match(p.element('rrDebate').innerHTML,/Thinking… · .*5\.3s/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-party">Policy check/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-turn">neutral/);
     p.run(`rrHandle({type:'step_end',id:'f',duration_ms:5432,output:{}})`);
     now=11000; tick();
     assert.equal(p.run("rrNodeMeta('fairness')"),'5.4s');
@@ -286,8 +290,11 @@ test('debate renders the full escaped transcript and selected state', () => {
     const p = page();
     p.run(`rr.order = ['p']; rr.selected = 'p'; rr.follow = false;
         rr.steps.p = {id:'p', agent:'Passenger', title:'Passenger opening', status:'done', duration:1200,
-        output:{reasoning:'a'.repeat(1200) + '<tail>'}, llm:[]}; rrRenderDebate()`);
+        output:{reasoning:'a'.repeat(1200) + '<tail> **Important**'}, llm:[]}; rrRenderDebate()`);
     assert.match(p.element('rrDebate').innerHTML, /a{1200}&lt;tail&gt;/);
+    assert.match(p.element('rrDebate').innerHTML, /<strong>Important<\/strong>/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-party">Passenger advocate/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-turn">Opening/);
     assert.match(p.element('rrDebate').innerHTML, /aria-pressed="true"/);
 });
 

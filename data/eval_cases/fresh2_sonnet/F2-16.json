@@ -1,0 +1,199 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-16",
+    "trip_id": "RYDE-F2-016",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was at the main entrance of Bedok Mall from before 8pm. No car ever came and the driver did not pick up my call, but I was charged $8.00 as a no-show. Please refund it.",
+    "filed_at": "2026-10-09T21:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7116",
+    "name": "Wei Jie Tan",
+    "account_age_days": 300,
+    "total_trips": 105,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8216",
+    "name": "Yeo Tiong Lai",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Prius (SJN 8830 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-016",
+    "rider_id": "R-7116",
+    "driver_id": "D-8216",
+    "pickup_location": {
+      "name": "Bedok Mall (Main Entrance)",
+      "lat": 1.3243,
+      "lng": 103.9301
+    },
+    "dropoff_location": {
+      "name": "Tampines Hub",
+      "lat": 1.3532,
+      "lng": 103.94
+    },
+    "scheduled_time": "2026-10-09T20:00:00+08:00",
+    "driver_arrival_time": "2026-10-09T20:05:00+08:00",
+    "driver_wait_start": "2026-10-09T20:05:00+08:00",
+    "cancellation_time": "2026-10-09T20:14:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T20:01:00+08:00",
+      "lat": 1.338,
+      "lng": 103.943,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-09T20:05:00+08:00",
+      "lat": 1.3345,
+      "lng": 103.942,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-09T20:09:00+08:00",
+      "lat": 1.3345,
+      "lng": 103.942,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T20:13:00+08:00",
+      "lat": 1.3345,
+      "lng": 103.942,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-09T20:14:00+08:00",
+      "lat": 1.3345,
+      "lng": 103.942,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T20:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the main entrance."
+    },
+    {
+      "timestamp": "2026-10-09T20:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm outside the mall, where are you?"
+    },
+    {
+      "timestamp": "2026-10-09T20:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I don't see any car. Where exactly are you?"
+    },
+    {
+      "timestamp": "2026-10-09T20:09:00+08:00",
+      "sender": "rider",
+      "type": "call",
+      "content": "Outgoing call to driver - not answered (rang 30s, no response)."
+    },
+    {
+      "timestamp": "2026-10-09T20:14:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $8.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T19:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7116 booked trip RYDE-F2-016 from Bedok Mall to Tampines Hub. Pickup 20:00."
+    },
+    {
+      "timestamp": "2026-10-09T19:52:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8216 (Yeo Tiong Lai, Toyota Prius SJN 8830 T) assigned. ETA 8 min."
+    },
+    {
+      "timestamp": "2026-10-09T20:05:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here. Geofence check could not be run (location service error)."
+    },
+    {
+      "timestamp": "2026-10-09T20:05:10+08:00",
+      "event_type": "gps_sync_error",
+      "details": "Location feed from driver app inconsistent with network position between 20:05 and 20:14; telemetry may be stale."
+    },
+    {
+      "timestamp": "2026-10-09T20:14:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-09T20:14:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$8.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. A wait of exactly this many minutes counts as a no-show (the limit is inclusive)."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "The decision turns on whether the driver was at the pickup from 20:05. trip_data and the driver_arrived event (20:05) say yes, but the geofence check did not run and every GPS fix from 20:05 to 20:14 puts the vehicle about 1.7 km from Bedok Mall; the platform itself logged a gps_sync_error saying the telemetry may be stale. The chats conflict too (driver says he is outside the mall, rider sees no car). No clean record settles arrival: if he arrived at 20:05 the 9-minute wait meets the 8-minute no-show threshold, if he never arrived the S$8.00 fee is unjustified. A person must decide.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": []
+  }
+}

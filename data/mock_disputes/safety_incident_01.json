@@ -161,9 +161,18 @@
     }
   ],
   "platform_policy": {
-    "p0_response": "immediate_human_review",
-    "driver_may_be_suspended_pending_investigation": true,
-    "contacting_passenger_after_trip_prohibited": true
+    "p0_response": {
+      "value": "immediate_human_review",
+      "text": "The response required for a P0 (most serious, safety-critical) report. It governs how the case is handled, not refunds."
+    },
+    "driver_may_be_suspended_pending_investigation": {
+      "value": true,
+      "text": "Governs serious safety or conduct reports against a driver. A true value means the driver's account may be suspended while the report is investigated."
+    },
+    "contacting_passenger_after_trip_prohibited": {
+      "value": true,
+      "text": "Governs a driver contacting a rider after the trip has ended. A true value means such contact is not allowed outside official channels."
+    }
   },
   "expected_outcome": {
     "verdict": null,

@@ -1,0 +1,54 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>RydeResolve cover</title>
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1520px;height:864px;overflow:hidden;font-family:"Segoe UI",Inter,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 85% 10%,#1e3a8a 0%,#0b1530 55%,#070d1f 100%);color:#fff;position:relative}
+  .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:64px 64px}
+  .left{position:absolute;left:96px;top:150px;width:720px}
+  .tag{display:inline-block;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:#a3e635;
+    border:2px solid rgba(163,230,53,.5);border-radius:999px;padding:8px 22px;margin-bottom:34px}
+  h1{font-size:132px;line-height:1;margin:0 0 30px;font-weight:800;letter-spacing:-.02em}
+  h1 span{color:#a3e635}
+  .blurb{font-size:44px;line-height:1.25;color:#dbe4ff;margin:0 0 46px;font-weight:500}
+  .facts{display:flex;gap:44px;white-space:nowrap}
+  .fact b{display:block;font-size:42px;color:#fff;font-weight:800}
+  .fact span{font-size:22px;color:#9fb0d9}
+  .right{position:absolute;right:90px;top:120px;width:560px;height:620px}
+  .node{position:absolute;border-radius:22px;padding:20px 24px;font-size:26px;font-weight:700;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);text-align:center;box-sizing:border-box;white-space:nowrap}
+  .rider{left:0;top:40px;width:232px;font-size:24px;background:#2563eb}
+  .driver{right:0;top:40px;width:232px;font-size:24px;background:#7c3aed}
+  .judge{left:140px;top:250px;width:280px;background:#f8fafc;color:#0b1530}
+  .code{left:140px;top:440px;width:280px;background:#a3e635;color:#0b1530}
+  .node small{display:block;font-size:18px;font-weight:500;opacity:.85;margin-top:4px}
+  svg{position:absolute;inset:0}
+</style></head>
+<body>
+  <div class="grid"></div>
+  <div class="left">
+    <div class="tag">Multi-agent dispute resolution</div>
+    <h1>Ryde<span>Resolve</span></h1>
+    <p class="blurb">Fair, explainable ride-dispute rulings in minutes, not days.</p>
+    <div class="facts">
+      <div class="fact"><b>~98 s</b><span>per dispute</span></div>
+      <div class="fact"><b>82%</b><span>closed without a human</span></div>
+      <div class="fact"><b>Code-checked</b><span>every payout</span></div>
+    </div>
+  </div>
+  <div class="right">
+    <svg viewBox="0 0 560 620" width="560" height="620">
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#c7d2fe"/></marker></defs>
+      <path d="M244 88 L316 88" stroke="#c7d2fe" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#a)" marker-start="url(#a)"/>
+      <path d="M110 150 C110 220 200 230 240 250" stroke="#c7d2fe" stroke-width="4" fill="none" marker-end="url(#a)"/>
+      <path d="M450 150 C450 220 360 230 320 250" stroke="#c7d2fe" stroke-width="4" fill="none" marker-end="url(#a)"/>
+      <path d="M280 345 L280 438" stroke="#c7d2fe" stroke-width="4" marker-end="url(#a)"/>
+    </svg>
+    <div class="node rider">Rider advocate<small>builds the case</small></div>
+    <div class="node driver">Driver advocate<small>builds the case</small></div>
+    <div class="node judge">Judge<small>rules with reasons</small></div>
+    <div class="node code">Code Judge ✓<small>facts &amp; amounts verified</small></div>
+  </div>
+</body></html>

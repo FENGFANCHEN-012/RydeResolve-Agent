@@ -1,0 +1,154 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-02",
+    "trip_id": "RYDE-FS-002",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I matched with a driver and cancelled within about a minute because the pickup pin was wrong. I was still charged $4.00. The cancel screen was also slow and glitchy. Please refund the fee.",
+    "filed_at": "2026-10-03T10:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2294",
+    "name": "Gabriel Ong",
+    "account_age_days": 95,
+    "total_trips": 31,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6015",
+    "name": "Mohd Hafiz",
+    "account_age_days": 300,
+    "total_trips": 1850,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SMK 2208 D)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-002",
+    "rider_id": "R-2294",
+    "driver_id": "D-6015",
+    "pickup_location": {
+      "name": "Junction 8, Bishan",
+      "lat": 1.3504,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Thomson Medical Centre",
+      "lat": 1.3263,
+      "lng": 103.8449
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-03T10:18:24+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T10:15:30+08:00",
+      "lat": 1.359,
+      "lng": 103.852,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-03T10:17:30+08:00",
+      "lat": 1.355,
+      "lng": 103.85,
+      "speed_kmh": 28,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-03T10:18:24+08:00",
+      "lat": 1.3541,
+      "lng": 103.8494,
+      "speed_kmh": 24,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-03T10:16:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry the pin is at the wrong entrance, can you go to Bishan Place side?"
+    },
+    {
+      "timestamp": "2026-10-03T10:17:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok, on my way."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T10:15:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-6015 matched. ETA 6 min."
+    },
+    {
+      "timestamp": "2026-10-03T10:16:40+08:00",
+      "event_type": "rider_edited_pickup_note",
+      "details": "Rider added note: 'Bishan Place side'."
+    },
+    {
+      "timestamp": "2026-10-03T10:18:24+08:00",
+      "event_type": "rider_cancel_tapped",
+      "details": "Rider cancelled the trip 3 min 04 s after matching."
+    },
+    {
+      "timestamp": "2026-10-03T10:18:26+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$4.00 charged to rider card."
+    },
+    {
+      "timestamp": "2026-10-03T10:18:40+08:00",
+      "event_type": "app_notice",
+      "details": "Cancel confirmation screen took 1.2 s to load; no effect on the cancellation time recorded."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only. The limit counts: a cancellation at exactly 3 min 00 s is still free."
+    },
+    "cancellation_fee_after_driver_assigned": {
+      "value": 4.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "no_fee_if_driver_delayed_beyond_eta_min": {
+      "value": 10,
+      "text": "Governs a rider who cancels while the driver is late. It sets the minutes past the driver's shown arrival time after which the rider owes no cancellation fee."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver was matched at 10:15:20 and the rider cancel was recorded at 10:18:24, which is 3 min 04 s after matching. This trip's policy makes cancellation free only up to exactly 3 min 00 s after matching, so the cancel fell 4 seconds outside the window and the S$4.00 fee applies. The rider's 'about a minute' is wrong. The driver was not late (ETA 6 min, shown arrival 10:21:20, rider cancelled before it), so the driver-delay exemption does not apply. The wrong pin and the 1.2 s slow cancel screen do not change the recorded cancel time.",
+    "expected_dispute_type": "cancellation_refund"
+  }
+}

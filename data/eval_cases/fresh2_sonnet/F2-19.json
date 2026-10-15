@@ -1,0 +1,156 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-19",
+    "trip_id": "RYDE-F2-019",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver kept making sexual comments about me and then put his hand on my shoulder. I told him to stop, pressed the safety button and got out early. I want my fare back and I want this reported.",
+    "filed_at": "2026-10-08T00:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7119",
+    "name": "Jasmine Lee",
+    "account_age_days": 420,
+    "total_trips": 130,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8219",
+    "name": "Sim Yong Chuan",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Camry (SKJ 9021 X)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-019",
+    "rider_id": "R-7119",
+    "driver_id": "D-8219",
+    "pickup_location": {
+      "name": "Clarke Quay",
+      "lat": 1.2906,
+      "lng": 103.8465
+    },
+    "dropoff_location": {
+      "name": "Bishan MRT",
+      "lat": 1.3508,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-07T23:03:00+08:00",
+    "pickup_time": "2026-10-07T23:05:00+08:00",
+    "dropoff_time": "2026-10-07T23:14:00+08:00",
+    "estimated_distance_km": 9.0,
+    "actual_distance_km": 3.1,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 9,
+    "estimated_fare": 15.0,
+    "total_fare": 15.0,
+    "ended_early": true
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T23:05:00+08:00",
+      "lat": 1.2906,
+      "lng": 103.8465,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T23:09:00+08:00",
+      "lat": 1.295,
+      "lng": 103.845,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T23:12:30+08:00",
+      "lat": 1.299,
+      "lng": 103.8455,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T23:14:00+08:00",
+      "lat": 1.2995,
+      "lng": 103.8458,
+      "speed_kmh": 0,
+      "status": "ended"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T23:12:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please stop talking like that. Do not touch me."
+    },
+    {
+      "timestamp": "2026-10-07T23:13:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Just joking, relax lah."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T23:03:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7119 confirmed fixed fare S$15.00."
+    },
+    {
+      "timestamp": "2026-10-07T23:09:30+08:00",
+      "event_type": "gps_telemetry_gap",
+      "details": "No GPS points received from driver app from 23:09:30 to 23:12:00 (150 s)."
+    },
+    {
+      "timestamp": "2026-10-07T23:13:00+08:00",
+      "event_type": "safety_button_pressed",
+      "details": "Rider pressed the in-app safety button."
+    },
+    {
+      "timestamp": "2026-10-07T23:14:00+08:00",
+      "event_type": "trip_ended_early",
+      "details": "Rider left the vehicle near Dhoby Ghaut. Trip ended at 3.1 km. Charged S$15.00 to credit card."
+    }
+  ],
+  "platform_policy": {
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip. It governs how the fare is calculated, not who pays tolls or ERP."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Ryde may refund or waive a fare outside the usual rules where service fell clearly below standard. It governs discretion only."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "The rider alleges sexual comments and unwanted touching. Her 23:12:30 chat message, the driver's reply at 23:13:10 (\"Just joking\") and the safety_button_pressed event at 23:13 support that something happened, and the 150 s telemetry gap from 23:09:30 to 23:12:00 leaves the period before her message unrecorded. A harassment or safety allegation must go to a person for investigation and driver action; the fare question (S$15.00 charged for a trip ended early at 3.1 km) is for that reviewer to settle with it.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": "P0",
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": []
+  }
+}

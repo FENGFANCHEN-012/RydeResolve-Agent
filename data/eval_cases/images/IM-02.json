@@ -1,0 +1,210 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "genuine",
+  "dispute_ticket": {
+    "dispute_id": "IM-02",
+    "trip_id": "RYDE-IM-002",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$80 for cleaning after my trip. I walked through one puddle, the mat was not that dirty and I think the fee is too high. Please refund it.",
+    "filed_at": "2026-10-06T09:12:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7202",
+    "name": "Kevin Ong",
+    "account_age_days": 540,
+    "total_trips": 120,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5102",
+    "name": "Tan Boon Keat",
+    "account_age_days": 1440,
+    "total_trips": 3120,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SNB 2208 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-002",
+    "rider_id": "R-7202",
+    "driver_id": "D-5102",
+    "pickup_location": {
+      "name": "Jurong Lake Gardens",
+      "lat": 1.339,
+      "lng": 103.727
+    },
+    "dropoff_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7653
+    },
+    "scheduled_time": "2026-10-05T16:10:00+08:00",
+    "pickup_time": "2026-10-05T16:10:00+08:00",
+    "dropoff_time": "2026-10-05T16:28:00+08:00",
+    "estimated_distance_km": 6.5,
+    "actual_distance_km": 6.5,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 18,
+    "estimated_fare": 10.0,
+    "total_fare": 10.0,
+    "cleaning_fee": 80.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T16:10:00+08:00",
+      "lat": 1.339,
+      "lng": 103.727,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T16:19:00+08:00",
+      "lat": 1.327,
+      "lng": 103.7462,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-05T16:28:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7653,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T16:07:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Reaching the gardens carpark now, white Vezel."
+    },
+    {
+      "timestamp": "2026-10-05T16:35:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I only stepped in a puddle at the park. $80 seems a lot for that."
+    },
+    {
+      "timestamp": "2026-10-05T16:36:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "The mat was covered in mud, I took photos and will send the receipt."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T16:02:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7202 booked trip RYDE-IM-002 from Jurong Lake Gardens to Clementi Mall."
+    },
+    {
+      "timestamp": "2026-10-05T16:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-05T16:28:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-05T16:50:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$80.00 with 1 photo (photo1.jpg). Fee was charged to the rider after the claim."
+    },
+    {
+      "timestamp": "2026-10-05T17:18:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$80.00 cleaning fee auto-charged to rider payment method (credit card)."
+    },
+    {
+      "timestamp": "2026-10-05T19:05:00+08:00",
+      "event_type": "cleaning_receipt_submitted",
+      "details": "Driver submitted a QuickShine Car Care receipt for S$80.00 (interior cleaning) dated 2026-10-05 18:30."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 150,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-02/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-05T16:48:00+08:00",
+      "description": "Muddy shoes and mud on the driver-side floor mat after the trip."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_boots_in_car",
+      "taken_at": "2026-10-05T16:41:00+08:00",
+      "gps": [
+        1.3149,
+        103.7656
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "dismiss_rider_dispute_keep_cleaning_fee_for_driver",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Photo1 (uploaded by the driver) was taken at 16:41, 13 minutes after drop-off at 16:28, within 100 m of Clementi Mall, and shows heavily muddied boots and mud on the floor mat. The rider's own chat at 16:35 concedes stepping in a puddle. The QuickShine receipt for S$80.00 dated 2026-10-05 18:30 equals the S$80.00 charged, within this trip's S$150 cap. The rider's dispute is dismissed and the S$80.00 fee stands for the driver; no refund.",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

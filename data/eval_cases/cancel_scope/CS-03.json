@@ -1,0 +1,238 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "C: driver cancelled for own reason (car broke down), reason field says rider_no_show",
+  "dispute_ticket": {
+    "dispute_id": "CS-03",
+    "trip_id": "RYDE-CS-003",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I was charged S$6.00 as a no-show. I was downstairs and told the driver I was coming. I think the charge is wrong, please look at the chat.",
+    "filed_at": "2026-10-05T10:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7745",
+    "name": "Daniel Koh Wei Jie",
+    "account_age_days": 75,
+    "total_trips": 19,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "e-wallet"
+  },
+  "driver_profile": {
+    "driver_id": "D-1196",
+    "name": "Rashid Bin Ismail",
+    "account_age_days": 2100,
+    "total_trips": 8840,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Avante (SNF 4417 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-CS-003",
+    "rider_id": "R-7745",
+    "driver_id": "D-1196",
+    "pickup_location": {
+      "name": "Blk 405 Yishun Avenue 6",
+      "lat": 1.429,
+      "lng": 103.8352
+    },
+    "dropoff_location": {
+      "name": "Woodlands Checkpoint",
+      "lat": 1.4455,
+      "lng": 103.7691
+    },
+    "scheduled_time": "2026-10-04T09:00:00+08:00",
+    "driver_arrival_time": "2026-10-04T08:58:00+08:00",
+    "driver_wait_start": "2026-10-04T08:58:00+08:00",
+    "cancellation_time": "2026-10-04T09:08:00+08:00",
+    "cancellation_fee": 6.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T08:50:00+08:00",
+      "lat": 1.441,
+      "lng": 103.8452,
+      "speed_kmh": 38,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-04T08:55:00+08:00",
+      "lat": 1.433,
+      "lng": 103.8382,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-04T08:58:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-04T09:00:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T09:02:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T09:04:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T09:06:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T09:08:00+08:00",
+      "lat": 1.429,
+      "lng": 103.8352,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-04T08:58:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at Blk 405 bus stop, blue Avante."
+    },
+    {
+      "timestamp": "2026-10-04T09:02:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Coming down now, 2 min!"
+    },
+    {
+      "timestamp": "2026-10-04T09:06:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, my car just started smoking and the engine is overheating. I have to stop and get it towed, I cannot do your trip."
+    },
+    {
+      "timestamp": "2026-10-04T09:08:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $6.00 applied."
+    },
+    {
+      "timestamp": "2026-10-04T09:09:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I'm at the bus stop now, I can see you with the bonnet up. Why am I being charged?"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T08:48:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7745 booked trip RYDE-CS-003 from Blk 405 Yishun Avenue 6 to Woodlands Checkpoint. Pickup 09:00."
+    },
+    {
+      "timestamp": "2026-10-04T08:48:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1196 (Rashid Bin Ismail, Hyundai Avante (SNF 4417 B)) assigned."
+    },
+    {
+      "timestamp": "2026-10-04T08:58:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'. Arrival recorded for the pickup point."
+    },
+    {
+      "timestamp": "2026-10-04T08:58:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-04T08:58:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started at driver arrival. 3 min free wait period ends at 09:01."
+    },
+    {
+      "timestamp": "2026-10-04T09:01:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 3-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-04T09:08:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Cancel pressed by driver D-1196. Reason selected: rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-04T09:08:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "Cancellation fee S$6.00 charged to rider payment method (e-wallet)."
+    },
+    {
+      "timestamp": "2026-10-04T09:08:10+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-1196 released from trip. Trip status: cancelled (rider_no_show)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 3,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 6.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund_cancellation_fee_to_rider",
+    "refund_amount": 6.0,
+    "requires_human_review": false,
+    "reason": "Driver arrival is recorded at 08:58:00 and the cancel was pressed by the driver at 09:08:00 (10-minute wait, which on its own is past the 8-minute threshold). But the driver's own chat at 09:06:00 says the car was smoking and overheating and he could not do the trip, and the rider had replied at 09:02 that he was coming down. The cancellation was made for the driver's own reasons, so the fee does not apply even though the reason field says rider_no_show. The S$6.00 is refunded to the rider.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ],
+    "heldout": true
+  }
+}

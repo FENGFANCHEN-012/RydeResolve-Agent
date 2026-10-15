@@ -1,0 +1,175 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-08",
+    "trip_id": "RYDE-PT-008",
+    "filed_by": "driver",
+    "dispute_type": "fare_dispute",
+    "description": "I forgot to key in the ERP at the end of the trip to the airport and the rider was charged only the base fare. Please add the rider's half of the ERP to my earnings. The app lost GPS for a few minutes in the tunnel, but the ERP is in the system.",
+    "filed_at": "2026-10-06T21:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7108",
+    "name": "Alvin Goh",
+    "account_age_days": 800,
+    "total_trips": 260,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6108",
+    "name": "Ismail Yusof",
+    "account_age_days": 1300,
+    "total_trips": 4800,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Odyssey (SLT 7712 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-008",
+    "rider_id": "R-7108",
+    "driver_id": "D-6108",
+    "pickup_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 2",
+      "lat": 1.356,
+      "lng": 103.99
+    },
+    "scheduled_time": "2026-10-06T17:45:00+08:00",
+    "pickup_time": "2026-10-06T17:47:00+08:00",
+    "dropoff_time": "2026-10-06T18:20:00+08:00",
+    "estimated_distance_km": 19.0,
+    "actual_distance_km": 19.2,
+    "estimated_duration_min": 32,
+    "actual_duration_min": 33,
+    "estimated_fare": 28.0,
+    "total_fare": 28.0,
+    "erp_keyed_by_driver": 0.0,
+    "erp_charged_to_rider": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T17:47:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T17:55:00+08:00",
+      "lat": 1.295,
+      "lng": 103.87,
+      "speed_kmh": 50,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T17:57:00+08:00",
+      "lat": 1.301,
+      "lng": 103.88,
+      "speed_kmh": 70,
+      "status": "gps_lost"
+    },
+    {
+      "timestamp": "2026-10-06T18:03:00+08:00",
+      "lat": 1.32,
+      "lng": 103.93,
+      "speed_kmh": 80,
+      "status": "gps_lost"
+    },
+    {
+      "timestamp": "2026-10-06T18:10:00+08:00",
+      "lat": 1.34,
+      "lng": 103.96,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:20:00+08:00",
+      "lat": 1.356,
+      "lng": 103.99,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T17:48:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Evening sir, going to T2 right?"
+    },
+    {
+      "timestamp": "2026-10-06T18:20:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "thanks!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T17:45:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7108 booked RYDE-PT-008 (RydeX) to Changi T2. Fixed fare S$28.00, ERP excluded."
+    },
+    {
+      "timestamp": "2026-10-06T17:52:10+08:00",
+      "event_type": "erp_gantry_detected",
+      "details": "In-vehicle unit recorded ERP gantry G1: S$2.50."
+    },
+    {
+      "timestamp": "2026-10-06T17:57:00+08:00",
+      "event_type": "telemetry_gap_start",
+      "details": "GPS signal lost 17:57 to 18:03 (tunnel). In-vehicle unit unaffected."
+    },
+    {
+      "timestamp": "2026-10-06T18:01:40+08:00",
+      "event_type": "erp_gantry_detected",
+      "details": "In-vehicle unit recorded ERP gantry G2: S$1.50."
+    },
+    {
+      "timestamp": "2026-10-06T18:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Driver Toll (ERP) field left at S$0.00. Rider charged S$28.00."
+    }
+  ],
+  "platform_policy": {
+    "erp_cost_split": {
+      "value": "50/50",
+      "text": "How the total ERP charge of a trip is shared. The driver bears 50% and the rider pays 50%. Applies to service types whose fare excludes ERP (this trip: RydeX)."
+    },
+    "erp_evidence": {
+      "value": "erp_gantry_detected app events",
+      "text": "The record used to establish the ERP incurred on a trip. The events come from the in-vehicle unit, not from GPS, so a GPS gap does not affect them. A driver's keyed amount does not override them."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "charge_rider_erp_share_and_credit_driver",
+    "refund_amount": 2.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Two erp_gantry_detected events from the in-vehicle unit (17:52 S$2.50, 18:01 S$1.50) give a total ERP of S$4.00 on a service whose fare excludes ERP. The driver left the Toll field at S$0.00, so the rider was not charged. Under the 50/50 split the rider owes S$2.00, credited to the driver. The 17:57-18:03 GPS tunnel gap is irrelevant because the gantry events do not depend on GPS.",
+    "expected_dispute_type": "fare_dispute",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

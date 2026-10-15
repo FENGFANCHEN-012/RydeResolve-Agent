@@ -118,6 +118,21 @@ function rrJson(value) {
 }
 function rrClip(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 
+// Agent prose: escape, then render **bold** and shrink rule ids (platform_policy.x) into quiet code tags
+const RR_RULE_RE = /\b((?:platform|trip|driver|rider|ryde)_policy\.[a-z0-9_]+)(\s*=\s*[\w.$]+)?/gi;
+function rrRich(text) {
+    return rrEsc(text)
+        .replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>')
+        .replace(RR_RULE_RE, (m, id, val) => `<code class="rr-rule" title="${id}">${rrRuleName(id)}${val ? rrEsc(val.replace(/\s+/g, ' ')) : ''}</code>`);
+}
+// "platform_policy.free_cancellation_within_min_of_match" -> "free cancellation within min of match"
+function rrRuleName(id) { return String(id).replace(/^[a-z_]+_policy\./i, '').replace(/_/g, ' '); }
+function rrRuleChips(refs) {
+    return refs.map(r => /^[a-z]+_policy\./i.test(r)
+        ? `<span class="rr-cite" title="${rrEsc(r)}">${rrEsc(rrRuleName(r))}</span>`
+        : `<span class="rr-cite doc">${rrEsc(r)}</span>`).join('');
+}
+
 // The trace keeps full provider errors under Raw data. Summaries must not
 // mistake a quota fallback for an agent's analysis or a valid ruling.
 function rrStepIssue(step) {
@@ -336,9 +351,11 @@ function rrRenderBrief() {
                 ${row('GPS points', (d.gps_telemetry || []).length || '0 — no GPS', (d.gps_telemetry || []).length ? '' : 'rr-flag')}
                 ${row('Chat messages', (d.chat_logs || []).length)}
                 ${row('App events', (d.app_events || []).length)}
+                ${row('Photos', (d.evidence || []).length || null)}
                 ${row('Trip policy', pol ? `${Object.keys(pol).length} rules` : 'none', pol ? '' : 'rr-flag')}
                 ${row('Answer key', 'hidden from agents')}</div>
         </div>
+        ${rrPhotos(d.evidence || [], true)}
         <details class="rr-more"><summary>Evidence timeline — chat + app events (${tl.length})</summary>
             <ul class="rr-tl">${tl.map(e => `<li><span class="time">${rrEsc(rrTime(e.ts))}</span>
                 <span class="kind ${rrEsc(e.kind)}">${rrEsc(e.label)}</span><span class="txt">${rrEsc(e.text)}</span></li>`).join('')}</ul></details>
@@ -533,7 +550,8 @@ function rrRiskFact(res) {
 function rrNodeOf(step) {
     if (/^Round /.test(step.title)) return 'debate';
     return { Collector: 'collector', Classifier: 'classifier', CaseBrief: 'casebrief', Passenger: 'passenger', Driver: 'driver',
-             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud' }[step.agent] || 'debate';
+             Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud',
+             ImageAnalyst: 'collector' }[step.agent] || 'debate';
 }
 function rrStepsOf(node) { return rr.order.map(id => rr.steps[id]).filter(s => rrNodeOf(s) === node); }
 // A failed run is also routed to human review by the workflow
@@ -614,8 +632,66 @@ function rrNodeMeta(node) {
 
 // ---------------------------------------------------------------- graph
 
+// ---------------------------------------------------------------- full chain of an agent
+
+// Edges of this run: a route to human review counts only from the agent that escalated
+function rrLiveEdges() {
+    const from = rrEscalatedFrom();
+    return RR_EDGES.filter(([a, b]) => b !== 'human' || a === from);
+}
+
+// Everything upstream and downstream of an agent, grouped into stages by distance from Case data
+function rrChain(key) {
+    const edges = rrLiveEdges();
+    const walk = forward => {
+        const seen = new Set(), todo = [key];
+        while (todo.length) {
+            const k = todo.pop();
+            for (const [a, b] of edges) {
+                const [x, y] = forward ? [a, b] : [b, a];
+                if (x === k && !seen.has(y)) { seen.add(y); todo.push(y); }
+            }
+        }
+        return seen;
+    };
+    const up = walk(false), down = walk(true);
+    const inUp = k => k === key || up.has(k), inDown = k => k === key || down.has(k);
+    const chainEdges = edges.filter(([a, b]) => (inUp(a) && inUp(b)) || (inDown(a) && inDown(b)));
+    const rank = { case: 0 };
+    for (let changed = true; changed;) {
+        changed = false;
+        for (const [a, b] of edges) {
+            if (rank[a] != null && (rank[b] == null || rank[b] < rank[a] + 1)) { rank[b] = rank[a] + 1; changed = true; }
+        }
+    }
+    const nodes = [...up, key, ...down].filter(k => rrNodeStatus(k) !== 'hidden');
+    const stages = [];
+    for (const k of nodes.sort((a, b) => rank[a] - rank[b])) {
+        const last = stages[stages.length - 1];
+        if (last && rank[last[0]] === rank[k]) last.push(k); else stages.push([k]);
+    }
+    return { nodes: new Set(nodes), edges: new Set(chainEdges.map(([a, b]) => `${a}>${b}`)), list: chainEdges, stages };
+}
+
+function rrSelectedNode() {
+    const step = rr.steps[rr.selected];
+    return step ? rrNodeOf(step) : rr.selected;
+}
+
+function rrRenderChain(key) {
+    const chain = rrChain(key);
+    return `<div class="rr-sec"><h5>Full chain</h5><ol class="rr-chainlist">${chain.stages.map((stage, i) => {
+        const into = [...new Set(chain.list.filter(([, b]) => stage.includes(b)).map(([, , l]) => l))];
+        return `${i ? `<li class="rr-hop" aria-hidden="true">↓ ${rrEsc(into.join(' · '))}</li>` : ''}
+            <li class="rr-stage ${stage.length < 2 ? '' : stage.includes('human') ? 'parallel branch' : 'parallel'}">${stage.map(k => `<button class="rr-chain-node ${rrNodeStatus(k)} ${k === key ? 'current' : ''}"
+                style="--c:${RR_NODES[k].color}" onclick="rrSelect('${k}')" ${k === key ? 'aria-current="true"' : ''}>
+                <span class="rr-dot"></span><b>${rrEsc(RR_NODES[k].name)}</b><span>${rrEsc(RR_NODES[k].role)}</span></button>`).join('')}</li>`;
+    }).join('')}</ol></div>`;
+}
+
 function rrRenderGraph() {
     const g = rrEl('rrGraph');
+    const chain = rrChain(rrSelectedNode());
     const nodesHtml = Object.entries(RR_NODES).map(([key, n]) => {
         const st = rrNodeStatus(key);
         if (st === 'hidden') return '';
@@ -631,7 +707,7 @@ function rrRenderGraph() {
                     onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); rrSelect('${s.id}'); }">${rrEsc(label)}</span>`;
             }).join('')}</div>`;
         }
-        return `<button class="rr-node ${st} ${isSel ? 'selected' : ''}" data-node="${key}"
+        return `<button class="rr-node ${st} ${isSel ? 'selected' : ''} ${chain.nodes.has(key) ? 'in-chain' : 'off-chain'}" data-node="${key}"
                     style="--c:${n.color}; grid-column:${n.col}; grid-row:${n.row}; ${key === 'debate' ? 'align-self:center;' : ''}"
                     onclick="rrSelect('${key}')">
                 <div class="rr-node-top"><span class="rr-dot"></span><span class="rr-node-name">${rrEsc(n.name)}</span>
@@ -640,6 +716,7 @@ function rrRenderGraph() {
                 <div class="rr-node-sum">${rrEsc(rrNodeSummary(key))}</div>${extra}
             </button>`;
     }).join('');
+    g.classList?.add('has-chain');
     g.innerHTML = `<svg class="rr-edges" id="rrEdges" aria-hidden="true"></svg>${nodesHtml}` +
         '<svg class="rr-edges labels" id="rrEdgeLabels" aria-hidden="true"></svg>';
     requestAnimationFrame(rrDrawEdges);
@@ -657,6 +734,7 @@ function rrDrawEdges() {
                  cy: (r.top + r.bottom) / 2 - box.top, cx: (r.left + r.right) / 2 - box.left };
     };
     let paths = '', labels = '';
+    const chain = rrChain(rrSelectedNode()).edges;
     for (const [from, to, label] of RR_EDGES) {
         const a = rect(from), b = rect(to);
         if (!a || !b) continue;
@@ -667,6 +745,7 @@ function rrDrawEdges() {
             if (from !== rrEscalatedFrom()) continue;
             cls = 'escalate';
         }
+        cls += chain.has(`${from}>${to}`) ? ' chain' : ' off-chain';
         // Source directly above the human-review box: straight drop onto its top
         if (to === 'human' && a.cx > b.l && a.cx < b.r) {
             const x = a.cx, ya = a.b, yb2 = b.t - 6;
@@ -720,6 +799,7 @@ function rrRenderInspector() {
     let head = `<div class="rr-insp-head" style="--c:${node.color}"><h2>${rrEsc(node.name)}</h2>
         <span class="rr-sub">${rrEsc(s ? s.title : node.role)}${s
             ? ` · <span data-rr-step-time="${rrEsc(s.id)}">${(rrStepElapsed(s) / 1000).toFixed(1)}s</span>` : ''}${s?.status === 'running' ? ' · running…' : ''}</span></div>`;
+    head += rrRenderChain(RR_NODES[nodeKey] ? nodeKey : 'case');
 
     if (nodeKey === 'case') {
         el.innerHTML = head + io + (rr.detail
@@ -801,6 +881,36 @@ function rrToolResult(value) {
     return `<pre class="rr-json">${rrJson(value)}</pre>`;
 }
 
+// Uploaded photos as thumbnails. The file is fetched with the access code (an <img src> cannot
+// send it), then shown from a blob URL; see rrHydratePhotos.
+function rrPhotos(evidence, large = false) {
+    const photos = evidence.map((e, i) => ({ ...e, i })).filter(e => /\.(jpe?g|png|webp)$/i.test(e.file_url || e.file || ''));
+    if (!photos.length) return '';
+    return `<div class="rr-label" style="margin-top:10px">Uploaded photos${large ? ' (click to enlarge)' : ''}</div>
+        <div class="rr-photos${large ? ' large' : ''}">${photos.map(e =>
+        `<figure><img alt="evidence[${e.i}]" title="Open full size" data-ev="${rrEsc(e.file_url || e.file)}"
+            onclick="this.src && window.open(this.src, '_blank')"><figcaption>evidence[${e.i}] · ${rrEsc(e.uploaded_by)}${
+            e.uploaded_at ? ' · uploaded ' + rrEsc(rrTime(e.uploaded_at)) : ''}${
+            e.description ? `<br>“${rrEsc(e.description)}”` : ''}</figcaption></figure>`).join('')}</div>`;
+}
+const rrPhotoCache = {};
+async function rrHydratePhotos(root) {
+    for (const img of root.querySelectorAll('img[data-ev]:not([src])')) {
+        const url = img.dataset.ev;
+        try {
+            if (!rrPhotoCache[url]) {
+                const resp = await apiFetch(`${API_BASE}/api/evidence-file?url=${encodeURIComponent(url)}`);
+                if (!resp.ok) throw new Error(resp.status);
+                rrPhotoCache[url] = URL.createObjectURL(await resp.blob());
+            }
+            img.src = rrPhotoCache[url];
+        } catch { img.replaceWith(Object.assign(document.createElement('span'), { className: 'rr-hint', textContent: 'photo not available' })); }
+    }
+}
+if (typeof MutationObserver !== 'undefined') {
+    new MutationObserver(() => rrHydratePhotos(document)).observe(document.body, { childList: true, subtree: true });
+}
+
 // Collector findings: conflicts and gaps first, each with the data it came from
 function rrFindings(findings) {
     if (!findings.length) return '';
@@ -815,7 +925,7 @@ function rrFindings(findings) {
 
 function rrReasoning(agent, out) {
     if (out == null) return '<div class="rr-hint">No output.</div>';
-    if (typeof out === 'string') return `<div class="rr-prose">${rrEsc(out)}</div>`;
+    if (typeof out === 'string') return `<div class="rr-prose">${rrRich(out)}</div>`;
     if (agent === 'Collector') {
         const dc = out.data_completeness || {};
         const fields = ['trip', 'payment', 'chat_log', 'gps_trace', 'rider_profile', 'driver_profile', 'app_events', 'platform_policy'];
@@ -825,6 +935,19 @@ function rrReasoning(agent, out) {
             <div class="k">Source</div><div>${rrEsc(dc.source || 'not found on platform')}</div>
             <div class="k">Data found</div><div>${fields.map(f =>
                 `<span class="rr-chip ${out[f] != null ? 'ok' : 'miss'}">${f}${count(out[f])}</span>`).join('')}</div></div>`
+            + rrPhotos(out.evidence || [])
+            + rrFindings(out.findings || []);
+    }
+    if (agent === 'ImageAnalyst') {
+        const reports = out.reports || [];
+        return `<div class="rr-hint">A vision model describes each photo. Its view is not a verified fact: it can only
+            raise doubts, which send the case to a person; it never approves a charge or refund.</div>
+            ${reports.map(r => `<div class="rr-kv" style="margin-top:8px">
+                <div class="k">${rrEsc(r.evidence)}</div><div>${rrEsc(r.description || '')}</div>
+                <div class="k">Seen</div><div>${rrEsc(r.scene)} · mess ${r.mess_visible ? 'yes' : 'no'} · ${rrEsc(r.severity)}
+                    · matches claim: ${rrEsc(r.matches_claim)}</div>
+                ${(r.generation_or_editing_signs || []).length ? `<div class="k">Edit signs</div><div>${
+                    r.generation_or_editing_signs.map(rrEsc).join('; ')}</div>` : ''}</div>`).join('')}`
             + rrFindings(out.findings || []);
     }
     if (agent === 'Executor') {
@@ -841,7 +964,7 @@ function rrReasoning(agent, out) {
         if (k === 'confidence' && typeof v === 'number') v = `${Math.round(v * 100)}%`;
         const body = Array.isArray(v)
             ? `<ul>${v.map(x => `<li>${rrEsc(typeof x === 'string' ? x : JSON.stringify(x))}</li>`).join('')}</ul>`
-            : `<div class="rr-prose">${rrEsc(String(v))}</div>`;
+            : `<div class="rr-prose">${rrRich(String(v))}</div>`;
         return `<div class="k">${rrEsc(k.replace(/_/g, ' '))}</div><div>${body}</div>`;
     }).join('')}</div>`;
 }
@@ -870,14 +993,15 @@ function rrRenderDebate() {
             if (s.agent === 'Passenger') lastOther.Driver = `Passenger R${r}`;
             else lastOther.Passenger = `Driver R${r}`;
         }
-        const who = s.agent === 'Policy' ? 'Policy check' : `${s.agent} ${isRound ? s.title.replace(/:.*/, '') : 'opening'}`;
+        const party = s.agent === 'Policy' ? 'Policy check' : s.agent === 'Passenger' ? 'Passenger advocate' : 'Driver advocate';
+        const turn = s.agent === 'Policy' ? 'neutral' : isRound ? s.title.replace(/:.*/, '') : 'Opening';
         return `<button class="rr-bubble ${cls} ${issue ? 'failed' : ''} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'rr-thinking' : ''}"
                     aria-pressed="${rr.selected === s.id}" onclick="rrSelect('${s.id}')">
             ${reply ? `<div class="reply">${rrEsc(reply)}</div>` : ''}
-            <div class="who">${rrEsc(who)}<span class="rr-turn-status">${issue ? 'Incomplete' : s.status === 'running'
+            <div class="who"><span class="rr-party">${rrEsc(party)}</span><span class="rr-turn">${rrEsc(turn)}</span><span class="rr-turn-status">${issue ? 'Incomplete' : s.status === 'running'
                 ? `Thinking… · <span data-rr-step-time="${rrEsc(s.id)}">${(rrStepElapsed(s) / 1000).toFixed(1)}s</span>`
                 : (rrStepElapsed(s) / 1000).toFixed(1) + 's'}</span></div>
-            ${s.status === 'running' ? '' : `<div class="txt">${rrEsc(text)}</div>`}</button>`;
+            ${s.status === 'running' ? '' : `<div class="txt">${rrRich(text)}</div>`}</button>`;
     }).join('');
     const sel = el.querySelector('.rr-bubble.selected');
     if (sel && rr.follow && !rr.result) sel.scrollIntoView({ block: 'nearest' });
@@ -913,12 +1037,14 @@ function rrRenderVerdict() {
     const res = rr.result;
     const label = '<div class="rr-verdict-label">Resolution</div>';
     if (rr.failure) {
-        el.innerHTML = label + `<div class="rr-pill-lg escalated">Incomplete</div>
+        el.dataset.tone = 'alert';
+        el.innerHTML = label + `<div class="rr-outcome"><span class="rr-outcome-icon" aria-hidden="true">!</span><span class="rr-pill-lg escalated">Incomplete</span></div>
             <div class="rr-verdict-text">${rrEsc(rr.failure)} No completed decision is available. Retry the review.</div>`;
         el.hidden = false;
         return;
     }
     if (!res) {
+        el.dataset.tone = rr.running ? 'running' : 'idle';
         el.innerHTML = label + `<div class="rr-pill-lg">${rr.running ? 'Review in progress' : 'Awaiting review'}</div>
             <div class="rr-verdict-text">${rr.running ? 'The agents are reviewing the evidence. The decision will appear here.'
                 : 'Run the agents or replay a saved run to see the decision, reasoning and any refund.'}</div>`;
@@ -926,7 +1052,8 @@ function rrRenderVerdict() {
     }
     const quotaIssue = rrRunIssue();
     if (quotaIssue) {
-        el.innerHTML = label + `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">Incomplete</span>
+        el.dataset.tone = 'alert';
+        el.innerHTML = label + `<div class="rr-verdict-summary"><div class="rr-outcome"><span class="rr-outcome-icon" aria-hidden="true">!</span><span class="rr-pill-lg escalated">Incomplete</span></div>
             <div class="rr-verdict-text">${rrEsc(quotaIssue.message)} Review the completed turns below and retry after the service issue is resolved.</div></div>`;
         el.hidden = false;
         return;
@@ -935,9 +1062,13 @@ function rrRenderVerdict() {
     let main;
     const escalated = rrEscalated();
     const v = res.verdict || {};
+    const tile = (k, x, cls = '') => `<div class="rr-tile ${cls}"><div class="k">${rrEsc(k)}</div><div class="x">${rrEsc(x)}</div></div>`;
     if (escalated) {
-        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg escalated">${res.status === 'failed' ? 'Incomplete · human review' : 'Escalated to human review'}</span>
-            <div class="rr-verdict-text">${rrEsc(res.reason)}</div>
+        el.dataset.tone = 'alert';
+        main = `<div class="rr-verdict-summary">
+            <div class="rr-outcome"><span class="rr-outcome-icon" aria-hidden="true">!</span>
+                <span class="rr-pill-lg escalated">${res.status === 'failed' ? 'Incomplete · human review' : 'Escalated to human review'}</span></div>
+            <div class="rr-verdict-text">${rrRich(res.reason)}</div>
             <div class="rr-verdict-facts">${res.classification?.urgency ? `<span class="rr-fact">Urgency <b>${rrEsc(res.classification.urgency)}</b></span>` : ''}${
                 v.verdict ? `<span class="rr-fact">Proposed <b>${rrEsc(rrVerdictLabel(v.verdict))}</b></span>
                 <span class="rr-fact">Refund <b>${v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'}</b></span>` : ''}${
@@ -945,21 +1076,32 @@ function rrRenderVerdict() {
                 rrRiskFact(res)
             }</div></div>`;
     } else {
+        el.dataset.tone = { upheld: 'ok', partially_upheld: 'partial', dismissed: 'neutral' }[v.verdict] || 'neutral';
+        const icon = { upheld: '✓', partially_upheld: '◐', dismissed: '✕' }[v.verdict] || '•';
         const conf = Math.round((v.confidence || 0) * 100);
         const stands = rrChargeStands(v.verdict);
+        const refund = Number(v.refund_amount) > 0;
+        const tiles = [
+            tile('Refund', refund ? rrMoney(v.refund_amount) : 'None', refund ? 'money' : 'muted'),
+            stands ? tile('Charge', stands, 'stands') : null,
+            tile('Confidence', `${conf}%`, 'conf'),
+        ].filter(Boolean).join('');
         const facts = [
-            stands ? ['Charge', stands] : null,
-            ['Refund', v.refund_amount != null ? rrMoney(v.refund_amount) : 'none'],
             v.compensation ? ['Compensation', v.compensation] : null,
             v.driver_penalty ? ['Driver', v.driver_penalty] : null,
             v.human_review_needed ? ['Review', 'human required'] : v.escalation_recommended ? ['Review', 'flagged for audit'] : null,
             res.fraud_report && res.fraud_report.level !== 'low' ? ['Risk', res.fraud_report.level.toUpperCase()] : null,
-            (v.policy_references || []).length ? ['Cites', v.policy_references.join(', ')] : ['Cites', 'no policy'],
         ].filter(Boolean);
-        main = `<div class="rr-verdict-summary"><span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc(rrVerdictLabel(v.verdict))}</span>
-            <div class="rr-verdict-text">${rrEsc(v.rationale || '')}</div>
-            <div class="rr-verdict-facts">${facts.map(([k, x]) => `<span class="rr-fact">${rrEsc(k)} <b>${rrEsc(x)}</b></span>`).join('')}</div></div>
-            <div class="rr-conf"><div class="num">${conf}%</div><div class="lbl">confidence</div><div class="bar"><div style="width:${conf}%"></div></div></div>`;
+        const refs = v.policy_references || [];
+        main = `<div class="rr-verdict-summary">
+            <div class="rr-outcome"><span class="rr-outcome-icon" aria-hidden="true">${icon}</span>
+                <span class="rr-pill-lg ${rrEsc(v.verdict || '')}">${rrEsc(rrVerdictLabel(v.verdict))}</span></div>
+            <div class="rr-tiles">${tiles}</div>
+            <h4 class="rr-why">Why</h4>
+            <div class="rr-verdict-text">${rrRich(v.rationale || '')}</div>
+            ${facts.length ? `<div class="rr-verdict-facts">${facts.map(([k, x]) => `<span class="rr-fact">${rrEsc(k)} <b>${rrEsc(x)}</b></span>`).join('')}</div>` : ''}
+            <div class="rr-cites"><span class="k">Rules cited</span>${refs.length ? rrRuleChips(refs) : '<span class="rr-cite doc">no policy cited</span>'}</div>
+            </div>`;
     }
 
     let key = '<div class="rr-key"><h4>Answer key</h4><div class="rr-hint">This case has no machine-readable expected outcome.</div></div>';
@@ -979,10 +1121,10 @@ function rrRenderVerdict() {
     // What each party is told: the executor writes one notice per party from the ruling's fields
     const notes = (res.execution?.notifications || []).filter(n => n && n.message);
     const notices = notes.length ? `<div class="rr-notices"><h4>Sent to both parties <span class="rr-hint">simulated, not delivered</span></h4>
-        <div class="rr-notice-grid">${notes.map(n => `<div class="rr-notice">
+        <div class="rr-notice-grid">${notes.map(n => `<div class="rr-notice ${rrEsc(n.recipient)}">
             <div class="rr-notice-to">To the ${rrEsc(n.recipient)}</div>
             <div class="rr-notice-subj">${rrEsc(n.subject || '')}</div>
-            <div class="rr-prose">${rrEsc(n.message)}</div></div>`).join('')}</div></div>` : '';
+            <div class="rr-prose">${rrRich(n.message)}</div></div>`).join('')}</div></div>` : '';
     el.innerHTML = `${label}${rr.saveWarning ? `<div class="rr-verdict-text">${rrEsc(rr.saveWarning)}</div>` : ''}<div class="rr-verdict-main">${main}</div>${notices}
         <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;

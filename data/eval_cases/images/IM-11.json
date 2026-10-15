@@ -1,0 +1,196 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "far_away",
+  "dispute_ticket": {
+    "dispute_id": "IM-11",
+    "trip_id": "RYDE-IM-011",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider left a stain on the rear seat fabric. I need S$90 for the cleaning.",
+    "filed_at": "2026-10-12T12:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7211",
+    "name": "Isabelle Ng",
+    "account_age_days": 910,
+    "total_trips": 305,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5111",
+    "name": "Wong Ah Kow",
+    "account_age_days": 2773,
+    "total_trips": 7120,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SNE 3359 D)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-011",
+    "rider_id": "R-7211",
+    "driver_id": "D-5111",
+    "pickup_location": {
+      "name": "Bugis Junction",
+      "lat": 1.2993,
+      "lng": 103.8554
+    },
+    "dropoff_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7653
+    },
+    "scheduled_time": "2026-10-12T11:00:00+08:00",
+    "pickup_time": "2026-10-12T11:00:00+08:00",
+    "dropoff_time": "2026-10-12T11:30:00+08:00",
+    "estimated_distance_km": 13.2,
+    "actual_distance_km": 13.2,
+    "estimated_duration_min": 30,
+    "actual_duration_min": 30,
+    "estimated_fare": 17.1,
+    "total_fare": 17.1,
+    "cleaning_fee": 90.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T11:00:00+08:00",
+      "lat": 1.2993,
+      "lng": 103.8554,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T11:15:00+08:00",
+      "lat": 1.3072,
+      "lng": 103.8103,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T11:30:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7653,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T10:57:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At Bugis Junction Victoria Street side, white Vios."
+    },
+    {
+      "timestamp": "2026-10-12T11:32:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There is a stain on the rear seat, I need to clean it."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T10:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7211 booked trip RYDE-IM-011 from Bugis Junction to Clementi Mall."
+    },
+    {
+      "timestamp": "2026-10-12T11:00:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-12T11:30:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-12T12:17:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$90.00 with 1 photo (photo1.jpg). Driver claims S$90 for a seat stain."
+    },
+    {
+      "timestamp": "2026-10-12T12:17:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-11/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-12T12:15:00+08:00",
+      "description": "Stain on the rear seat fabric."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "seat_clean_fabric_cleaning",
+      "taken_at": "2026-10-12T12:05:00+08:00",
+      "gps": [
+        1.4362,
+        103.7858
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims a seat stain (S$90.00, no receipt). Photo1 was taken at 12:05, 35 minutes after drop-off at 11:30, so the time fits the 60-minute window, but its GPS position (1.4362, 103.7858, Woodlands) is about 13 km from the drop-off point at Clementi Mall (1.3151, 103.7653), far outside 'at or near' the drop-off point. The rider denies a stain and nothing else settles it; a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

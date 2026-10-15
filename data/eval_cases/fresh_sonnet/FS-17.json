@@ -1,0 +1,133 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-17",
+    "trip_id": "RYDE-FS-017",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a very long way round and the fare jumped from S$19.90 to S$27.40. I did not agree to any route change. Please refund the difference.",
+    "filed_at": "2026-10-09T15:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-1010",
+    "name": "Olivia Tay",
+    "account_age_days": 250,
+    "total_trips": 60,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4471",
+    "name": "Ravindran Menon",
+    "account_age_days": 1800,
+    "total_trips": 7900,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry Hybrid (SKT 7712 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-017",
+    "rider_id": "R-1010",
+    "driver_id": "D-4471",
+    "pickup_location": {
+      "name": "Block 5 Bukit Merah View",
+      "lat": 1.28,
+      "lng": 103.813
+    },
+    "dropoff_location": {
+      "name": "Seletar Mall",
+      "lat": 1.398,
+      "lng": 103.875
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-09T14:10:00+08:00",
+    "driver_wait_start": "14:10:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": null,
+    "planned_distance_km": 18.6,
+    "duration_min": null,
+    "fare": 27.4,
+    "quoted_fare": 19.9
+  },
+  "gps_telemetry": [],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T14:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we on this road?"
+    },
+    {
+      "timestamp": "2026-10-09T14:12:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Traffic on CTE, this is faster."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T14:09:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-4471 matched."
+    },
+    {
+      "timestamp": "2026-10-09T14:10:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'."
+    },
+    {
+      "timestamp": "2026-10-09T14:11:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-09T14:55:00+08:00",
+      "event_type": "gps_ingest_failed",
+      "details": "Telemetry storage fault 14:00-15:30: no GPS points stored for this trip."
+    },
+    {
+      "timestamp": "2026-10-09T14:58:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Fare S$27.40 charged (fare_recalculated after route change flag set by driver app)."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "route_deviation_fare_adjustment": {
+      "value": "verify_from_gps",
+      "text": "A fare above the upfront quote is justified only if GPS telemetry shows a road closure, an agreed rider request or an unavoidable detour; otherwise the rider pays the quote. If the telemetry needed to decide is missing, a person must decide."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "human_review_request_more_evidence",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The fare went from the S$19.90 quote to S$27.40 (a S$7.50 gap), and this trip's policy says the extra can stand only if GPS telemetry shows a closure, an agreed request or an unavoidable detour. gps_telemetry is empty, distance_km and duration_min are null, and app_events at 14:55:00 record gps_ingest_failed (storage fault 14:00-15:30), so the record the decision needs does not exist. The chat (rider 'why are we on this road', driver 'traffic on CTE') is a claim, not proof. The policy says that when the telemetry is missing a person must decide, so this goes to review.",
+    "expected_dispute_type": "route_deviation"
+  }
+}

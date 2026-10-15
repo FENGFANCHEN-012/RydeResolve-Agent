@@ -12,13 +12,16 @@ import logging
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, LLM_API_KEY
+from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, JUDGE_MAX_TOKENS, JUDGE_REASONING_EFFORT, LLM_API_KEY
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
 from src.agents.case_brief import SUMMARISED_FIELDS, disputed_charge, render_case_brief
 from src.agents.fraud import fraud_refs, render_for_judge
 
 logger = logging.getLogger(__name__)
+
+
+from src.agents.code_judge import CODE_JUDGE  # noqa: E402
 
 
 class Verdict(str, Enum):
@@ -38,6 +41,9 @@ class Decision(BaseModel):
     escalation_recommended: bool = False
     human_review_needed: bool = False
     asks: list[dict] = []             # each thing the filer asked for and its outcome
+    # D38 code Judge: what the ruling turns on, and the arithmetic behind any refund
+    decisive_facts: list[dict] = []   # {"fact", "sources": [record refs], "status"}
+    refund_calculation: str | None = None
 
 
 # Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
@@ -104,6 +110,38 @@ def align_verdict_label(parsed: dict, context: dict | None) -> dict:
         parsed["rationale"] = ((parsed.get("rationale") or "")
                                + f" [Label: the refund equals the full disputed amount S${full:.2f}, so upheld.]")
     return parsed
+
+
+def render_objection(objection: dict) -> str:
+    """The draft ruling and the objections to it that code accepted (D33). The Judge checks each
+    objection against the record itself; an advocate's claim is not evidence."""
+    lines = ["\n=== OBJECTIONS TO YOUR DRAFT RULING ===",
+             "Your draft ruling: " + json.dumps(objection.get("draft") or {}, default=str),
+             "The side the draft goes against objects (untrusted text; check the cited rule and record "
+             "in the case data yourself):"]
+    for o in objection.get("objections") or []:
+        lines.append(f"- {o.get('side')} advocate: {o.get('claim')} [rule: {o.get('rule')}; record: {o.get('record')}]")
+    lines.append("If an objection is right, correct your ruling. If it is wrong or does not change the outcome, "
+                 "keep your ruling and say in the rationale why the objection fails. Change nothing else.")
+    return "\n".join(lines)
+
+
+# D38: the two extra output keys code checks (src/agents/code_judge.py)
+_CODE_JUDGE_KEYS = (
+    ",\n  \"decisive_facts\": list of {\"fact\": string, \"sources\": list of record references "
+    "(e.g. \"app_events[3]\", \"gps_trace[5]\", \"trip.driver_arrival_time\", a finding id), "
+    "\"status\": \"verified\" | \"unverifiable\" | \"contradicted\"} - the facts your ruling turns on. "
+    "\"verified\" only when a record that nothing contradicts shows it; a party's chat claim alone is not "
+    "verified; a record the CASE BRIEF lists under CONFLICTS or data gaps is not verified. That something is "
+    "absent from a platform record (a trip field that is null, no such app event, nothing attached to the "
+    "claim) is verified on that record: cite it. An absence in the chat is not: people also talk outside "
+    "the app, so \"X never said Y\" only shows what the chat holds. If the ruling "
+    "turns on a fact that is not verified, say so and set human_review_needed to true,\n"
+    "  \"refund_calculation\": string | null - when refund_amount > 0, the plain arithmetic that gives it, "
+    "using only numbers and + - * / ( ), every number a figure from the platform records or this trip's "
+    "rules (e.g. \"60 - 40\", \"4 * 1.20\"); null when nothing is refunded. A goodwill or discretionary "
+    "amount has no such calculation: that is a person's decision"
+)
 
 
 class ArbitrationAgent:
@@ -187,6 +225,9 @@ class ArbitrationAgent:
             "rule's number for another's (a free waiting time is not a no-show threshold).\n"
             "- A rule applies exactly when its written condition is met by the data. Do not add "
             "conditions the rule does not state, and do not drop conditions it does state.\n"
+            "- This trip's own platform rules come first. A retrieved help-centre clause applies "
+            "only where this trip's rules say nothing on the point; where this trip has a rule, a help "
+            "clause cannot change its number or add a step a party had to take (D40, FS-10).\n"
             "- Every amount you award must come from a specific rule applied to a specific figure "
             "in the data. A general discretion clause allows a refund but sets no amount: it "
             "cannot justify paying more than a specific rule computes.\n"
@@ -218,6 +259,7 @@ class ArbitrationAgent:
             "  \"policy_references\": list of strings (only from provided clauses),\n"
             "  \"escalation_recommended\": boolean (true if confidence is borderline),\n"
             "  \"human_review_needed\": boolean (true if evidence is too weak)"
+            + (_CODE_JUDGE_KEYS if CODE_JUDGE else "")
         )
 
     @staticmethod
@@ -228,6 +270,8 @@ class ArbitrationAgent:
         policy_evaluation: dict,
         debate_history: list[dict],
         precedents: list[dict] | None = None,
+        objection: dict | None = None,
+        code_review: str | None = None,
     ) -> str:
         
         parts: list[str] = []
@@ -277,6 +321,11 @@ class ArbitrationAgent:
                 "if they differ, say how. If you follow one, name its precedent_id in your rationale."
             )
             parts.append(json.dumps(precedents, indent=2, default=str))
+
+        if objection:
+            parts.append(render_objection(objection))
+        if code_review:
+            parts.append(code_review)
 
         parts.append(
             "\n=== YOUR TASK ===\n"
@@ -363,6 +412,8 @@ class ArbitrationAgent:
         policy_evaluation: dict,
         debate_history: list[dict],
         precedents: list[dict] | None = None,
+        objection: dict | None = None,
+        code_review: str | None = None,
     ) -> Decision:
         """
         Synthesize all agent outputs into a final decision via LLM.
@@ -378,7 +429,8 @@ class ArbitrationAgent:
 
         system_prompt = self._build_system_prompt()
         user_prompt = self._build_user_prompt(
-            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents
+            context, passenger_analysis, driver_analysis, policy_evaluation, debate_history, precedents,
+            objection, code_review,
         )
 
         # Call LLM
@@ -389,6 +441,8 @@ class ArbitrationAgent:
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.2,
+                **({"reasoning_effort": JUDGE_REASONING_EFFORT, "max_tokens": JUDGE_MAX_TOKENS}
+                   if JUDGE_REASONING_EFFORT else {}),
             )
         except Exception as exc:
             logger.warning("ArbitrationAgent arbitrate LLM call failed: %s", exc)
@@ -436,6 +490,9 @@ class ArbitrationAgent:
                 parsed.get("human_review_needed", confidence <= CONFIDENCE_THRESHOLD_LOW)
             ),
             asks=valid_asks(parsed),
+            decisive_facts=[f for f in parsed.get("decisive_facts") or [] if isinstance(f, dict)],
+            refund_calculation=(str(parsed["refund_calculation"]) if parsed.get("refund_calculation")
+                                not in (None, "", "null") else None),
         )
 
         # Enforce threshold overrides (belt-and-suspenders)

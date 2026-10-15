@@ -958,3 +958,36 @@ async def test_clause_from_the_case_brief_is_not_hallucinated():
     inp = make_input(context=ctx, decision=make_decision(policy_references=[ref]))
     a = await FairnessAgent(llm_client=FakeLLMClient()).assess(inp)
     assert FairnessIssueCode.HALLUCINATED_POLICY_REFS not in {i.code for i in a.issues}
+
+
+# ---------------------------------------------------------------------------
+# Triage (D24): simple + safe = code checks only; Safety tier sets chat-threat handling
+# ---------------------------------------------------------------------------
+
+CLEAN_SEMANTIC = '{"issues": [], "summary": "fair"}'
+
+
+@pytest.mark.asyncio
+async def test_simple_safe_triage_skips_the_llm_audit_but_keeps_code_checks():
+    llm = FakeLLMClient(response_text=CLEAN_SEMANTIC)
+    full = await FairnessAgent(llm_client=llm).assess(make_input())
+    triaged = await FairnessAgent(llm_client=llm).assess(make_input(
+        context=make_context(triage={"complexity": "simple", "risk": "safe", "fairness_llm_audit": False})))
+    assert full.audit_details.semantic_review_used is True
+    assert triaged.audit_details.semantic_review_used is False
+    assert "triage" in triaged.audit_details.semantic_review_skipped_reason
+    # the code checks still ran and reached the same recommendation
+    assert triaged.recommendation == full.recommendation
+
+
+@pytest.mark.asyncio
+async def test_chat_threat_goes_to_a_person_unless_safety_tier_is_verbal_abuse():
+    alerts = ["Threat in the chat (driver): \"you will regret this\""]
+    agent = FairnessAgent(llm_client=FakeLLMClient(response_text=CLEAN_SEMANTIC))
+    untiered = await agent.assess(make_input(context=make_context(safety_alerts=alerts)))
+    verbal = await agent.assess(make_input(context=make_context(
+        safety_alerts=alerts, safety={"tier": "verbal_abuse", "human_review": "after"})))
+    assert untiered.requires_human_review is True
+    threat = [i for i in verbal.issues if i.code == FairnessIssueCode.SAFETY_THREAT_IN_CHAT]
+    assert threat and threat[0].severity == "medium" and "verbal_abuse" in threat[0].description
+    assert verbal.requires_human_review is False

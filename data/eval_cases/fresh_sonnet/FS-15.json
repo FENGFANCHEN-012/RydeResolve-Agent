@@ -1,0 +1,160 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-15",
+    "trip_id": "RYDE-FS-015",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver missed the expressway exit and we drove an extra 3 km. He apologised but I was 9 minutes late for my appointment. I want a full refund of the S$21.00.",
+    "filed_at": "2026-10-11T16:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4418",
+    "name": "Evelyn Chan",
+    "account_age_days": 800,
+    "total_trips": 402,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld": 2,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7102",
+    "name": "Hakim Salleh",
+    "account_age_days": 250,
+    "total_trips": 980,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Suzuki Swift (SLE 3351 Y)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-015",
+    "rider_id": "R-4418",
+    "driver_id": "D-7102",
+    "pickup_location": {
+      "name": "Vista Exchange Green, one-north",
+      "lat": 1.307,
+      "lng": 103.79
+    },
+    "dropoff_location": {
+      "name": "Tuas Link MRT",
+      "lat": 1.3404,
+      "lng": 103.6368
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-11T14:02:00+08:00",
+    "driver_wait_start": "14:02:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 13.0,
+    "planned_distance_km": 9.8,
+    "duration_min": 34,
+    "fare": 21.0,
+    "quoted_fare": 21.0,
+    "fare_breakdown": {
+      "charged_fare": 21.0,
+      "direct_route_fare": 17.6
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T14:02:00+08:00",
+      "lat": 1.307,
+      "lng": 103.79,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-11T14:12:20+08:00",
+      "lat": 1.31,
+      "lng": 103.76,
+      "speed_kmh": 85,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-11T14:12:50+08:00",
+      "lat": 1.312,
+      "lng": 103.755,
+      "speed_kmh": 80,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-11T14:36:00+08:00",
+      "lat": 1.3404,
+      "lng": 103.6368,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T14:13:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, I missed the AYE exit, I'll turn back at the next one."
+    },
+    {
+      "timestamp": "2026-10-11T14:13:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Please hurry, I have an appointment."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T14:01:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-7102 matched."
+    },
+    {
+      "timestamp": "2026-10-11T14:12:40+08:00",
+      "event_type": "off_route_detected",
+      "details": "Vehicle passed the planned AYE exit; rerouting. No road closure and no rider request on record."
+    },
+    {
+      "timestamp": "2026-10-11T14:36:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Fare S$21.00 charged (fixed upfront)."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "route_deviation_fare_adjustment": {
+      "value": "direct_route_fare",
+      "text": "When the driver leaves the planned route without a verified road closure or an agreed rider request, the rider pays no more than the direct_route_fare in trip_data.fare_breakdown. Lateness or inconvenience is not refunded on top."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 3.4,
+    "recommended_action": "refund_route_adjustment",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver passed the planned AYE exit at 14:12:40 (off_route_detected, no closure and no rider request) and his 14:13:10 message admits he missed it, so the route change was his: 13.0 km driven vs 9.8 km planned. This trip's policy limits the rider to the direct_route_fare of S$17.60 in that case. Refund = 21.00 - 17.60 = S$3.40. The 9 minutes of lateness and the appointment are not refunded on top, so the rider's request for the full S$21.00 fails.",
+    "expected_dispute_type": "route_deviation"
+  }
+}

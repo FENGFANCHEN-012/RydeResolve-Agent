@@ -1,0 +1,177 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-03",
+    "trip_id": "RYDE-PT-003",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The driver stopped at a petrol station in the middle of my trip for around ten minutes to top up. I had asked him to be quick as I was going to meet a client. This is my first complaint ever. Please give me some money back for the wasted time.",
+    "filed_at": "2026-10-07T13:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7103",
+    "name": "Priya Nair",
+    "account_age_days": 900,
+    "total_trips": 402,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6103",
+    "name": "Lee Boon Kiat",
+    "account_age_days": 350,
+    "total_trips": 1180,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SLH 6318 Y)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-003",
+    "rider_id": "R-7103",
+    "driver_id": "D-6103",
+    "pickup_location": {
+      "name": "NEX (Serangoon Central)",
+      "lat": 1.3506,
+      "lng": 103.8721
+    },
+    "dropoff_location": {
+      "name": "Marina Square",
+      "lat": 1.2915,
+      "lng": 103.8566
+    },
+    "scheduled_time": "2026-10-07T12:05:00+08:00",
+    "pickup_time": "2026-10-07T12:07:00+08:00",
+    "dropoff_time": "2026-10-07T12:38:00+08:00",
+    "estimated_distance_km": 11.8,
+    "actual_distance_km": 11.9,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 31,
+    "estimated_fare": 14.5,
+    "total_fare": 14.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T12:07:00+08:00",
+      "lat": 1.3506,
+      "lng": 103.8721,
+      "speed_kmh": 15,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T12:11:00+08:00",
+      "lat": 1.339,
+      "lng": 103.87,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T12:15:00+08:00",
+      "lat": 1.339,
+      "lng": 103.87,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T12:20:00+08:00",
+      "lat": 1.339,
+      "lng": 103.87,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T12:21:00+08:00",
+      "lat": 1.338,
+      "lng": 103.869,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T12:38:00+08:00",
+      "lat": 1.2915,
+      "lng": 103.8566,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T12:11:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry boss, need to top up petrol, 5 min only."
+    },
+    {
+      "timestamp": "2026-10-07T12:13:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I need to be at Marina Square by 12.30 for a client, please be quick."
+    },
+    {
+      "timestamp": "2026-10-07T12:20:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok done, can go."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T12:05:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7103 booked RYDE-PT-003 from NEX to Marina Square. Fixed fare S$14.50."
+    },
+    {
+      "timestamp": "2026-10-07T12:11:10+08:00",
+      "event_type": "unrequested_stop_detected",
+      "details": "Vehicle stationary 12:11 to 12:20 (9 min) at a petrol kiosk, not a rider-requested waypoint."
+    },
+    {
+      "timestamp": "2026-10-07T12:38:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$14.50 charged."
+    }
+  ],
+  "platform_policy": {
+    "fares_fixed_at_booking": {
+      "value": true,
+      "text": "Says that the rider pays the fare quoted at booking regardless of trip time. It does not say whether Ryde may credit the rider for a service failure."
+    },
+    "unrequested_stop_credit": {
+      "value": "refund_at_ryde_discretion",
+      "text": "Whether Ryde credits a rider when the driver makes a stop the rider did not request that lasts more than 5 minutes (measured from vehicle stationary to moving again in the unrequested_stop_detected event). The credit is optional, not an entitlement."
+    },
+    "unrequested_stop_credit_amount_sgd": {
+      "value": 3.0,
+      "text": "The amount in SGD credited when Ryde chooses to give the unrequested-stop credit. It does not depend on the fare."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 3.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The unrequested_stop_detected event and GPS show the car stationary at a petrol kiosk from 12:11 to 12:20 (9 minutes, over the 5-minute threshold), the driver admits it in chat, and the rider had asked him to hurry at 12:13. The trip took 31 min against 22 estimated. The credit is at Ryde's discretion, but this is a clear service failure, a first complaint and a small amount, so the S$3.00 credit is given; the fixed fare of S$14.50 otherwise stands.",
+    "expected_dispute_type": "fare_dispute",
+    "acceptable_verdicts": [
+      "partially_upheld",
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

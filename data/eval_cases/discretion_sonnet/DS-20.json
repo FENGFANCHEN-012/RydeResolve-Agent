@@ -1,0 +1,214 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-20",
+    "trip_id": "RYDE-DS-020",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$180 for vomit I did not cause. I only coughed and felt a bit sick, and the car already smelled bad when I got in. I was in a hurry and the driver was rude. Please remove the charge.",
+    "filed_at": "2026-10-11T08:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7120",
+    "name": "Nadia Rahim",
+    "account_age_days": 330,
+    "total_trips": 92,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8120",
+    "name": "Bala Subra",
+    "account_age_days": 1200,
+    "total_trips": 5600,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 0,
+      "rejected": 6
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SKD 3390 F)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-020",
+    "rider_id": "R-7120",
+    "driver_id": "D-8120",
+    "pickup_location": {
+      "name": "Jurong East MRT",
+      "lat": 1.3331,
+      "lng": 103.7421
+    },
+    "dropoff_location": {
+      "name": "Orchard Ion",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-10-10T21:00:00+08:00",
+    "pickup_time": "2026-10-10T21:01:00+08:00",
+    "dropoff_time": "2026-10-10T21:29:00+08:00",
+    "estimated_distance_km": 12.8,
+    "actual_distance_km": 12.9,
+    "estimated_duration_min": 28,
+    "actual_duration_min": 28,
+    "estimated_fare": 18.2,
+    "total_fare": 18.2,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 9.1,
+      "time_fare": 5.2,
+      "subtotal": 18.2,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 18.2
+    },
+    "cleaning_fee": 180.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T21:01:00+08:00",
+      "lat": 1.3331,
+      "lng": 103.7421,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:09:00+08:00",
+      "lat": 1.325,
+      "lng": 103.77,
+      "speed_kmh": 30,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:17:00+08:00",
+      "lat": 1.315,
+      "lng": 103.8,
+      "speed_kmh": 33,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:24:00+08:00",
+      "lat": 1.308,
+      "lng": 103.82,
+      "speed_kmh": 25,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:29:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T21:15:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry can you open the window, I feel sick."
+    },
+    {
+      "timestamp": "2026-10-10T21:16:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Please do not vomit in my car."
+    },
+    {
+      "timestamp": "2026-10-10T21:29:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You vomited. I will claim."
+    },
+    {
+      "timestamp": "2026-10-10T21:30:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I did not vomit!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T20:55:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7120 booked trip RYDE-DS-020."
+    },
+    {
+      "timestamp": "2026-10-10T21:01:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-10T21:29:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-10T21:50:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted a claim for S$180.00 (vomit) listing 3 photos and a cleaning receipt number QV-5521. All attachments failed to upload (gateway error 504); no photo files, photo timestamps, plate visibility or receipt scan are retrievable."
+    },
+    {
+      "timestamp": "2026-10-11T07:30:00+08:00",
+      "event_type": "claim_attachment_retry",
+      "details": "Retry queued; attachments still not received. Claim held pending evidence."
+    },
+    {
+      "timestamp": "2026-10-11T07:45:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "Cleaning fee S$180.00 charged to rider R-7120 on the driver's claim amount, flagged 'unverified'."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max_vomit": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip when the mess is vomit."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "cleaning_claim_submission_window_hours": {
+      "value": 48,
+      "text": "Hours after the trip ends within which a driver must submit a cleaning claim. It governs driver claims only."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The S$180.00 is under this trip's S$200.00 vomit cap and the claim was lodged 21 minutes after drop-off, but this trip's policy requires timestamped photos and a cleaning receipt, and none of the attachments reached the system (gateway error 504, retry still failing). So the photos' timestamps and plate cannot be checked and the receipt cannot be read. The chat conflicts: the rider asks for the window at 21:15 because she feels sick, the driver says at 21:29 that she vomited, and she denies it at 21:30. Whether vomit occurred and whether the evidence exists cannot be decided from these records, so a human must get the files from the driver and rule.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

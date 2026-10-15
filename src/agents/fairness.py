@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
@@ -92,6 +93,10 @@ class FairnessIssueCode(str, Enum):
     # #7 the ruling keeps a fee whose basis the platform data contradicts or does not meet
     FEE_BASIS_NOT_MET = "fee_basis_not_met"
     REFUND_BEYOND_DISPUTED = "refund_beyond_disputed_amount"
+    # #7b a conduct complaint is dismissed although the ruling penalises the driver for that conduct
+    PENALTY_WITH_DISMISSAL = "penalty_with_dismissal"
+    # #7c a refund that rests on Ryde's discretion and is smaller than the disputed amount
+    DISCRETIONARY_PARTIAL_REFUND = "discretionary_partial_refund"
 
     # #8 the Fraud agent found hard evidence of fraud or collusion in this case
     FRAUD_RISK_HIGH = "fraud_risk_high"
@@ -179,12 +184,13 @@ def _fee_basis_problems(context: dict, verdict: str, refund) -> list[str]:
 
 
 def _refund_basis_problems(context: dict, refund) -> list[str]:
-    """A refund larger than the amount in dispute that the platform data computes (the fee charged,
-    or the excess over the quoted fare) has no rule the system can check behind the extra money.
-    The Judge refunded a whole S$22.60 fare where only the S$4.20 detour excess was refundable
-    (SQ-002, run 20261002-211912). Not decided here: the case goes to a person (D17)."""
-    from src.agents.case_brief import disputed_charge
-    disputed = disputed_charge(context)
+    """A refund larger than the amount in dispute that the platform data computes (every charge on
+    the filer it names: fee, excess over the quoted fare, cleaning fee) has no rule the system can
+    check behind the extra money. The Judge refunded a whole S$22.60 fare where only the S$4.20
+    detour excess was refundable (SQ-002, run 20261002-211912). Not decided here: the case goes to
+    a person (D17)."""
+    from src.agents.case_brief import disputed_total
+    disputed = disputed_total(context)
     try:
         refunded = float(refund or 0)
     except (TypeError, ValueError):
@@ -201,6 +207,74 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
         return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
                 "sets an amount, so a person decides it." % refunded]
     return []
+
+
+_NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
+
+
+def _record_numbers(context: dict) -> set[float]:
+    """Every number in the platform records (trip, payment, app events, findings, case policy),
+    including numbers written inside strings such as "S$2.50 gantry rate". Not the chat."""
+    from src.core.case_policy import policy_values
+    nums: set[float] = set()
+
+    def walk(v):
+        if isinstance(v, bool):
+            return
+        if isinstance(v, (int, float)):
+            nums.add(round(float(v), 2))
+        elif isinstance(v, str):
+            nums.update(round(float(x), 2) for x in _NUMBER_RE.findall(v))
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, (list, tuple)):
+            for x in v:
+                walk(x)
+
+    for section in ("trip", "payment", "app_events"):
+        walk(context.get(section))
+    walk(policy_values(context.get("platform_policy")))
+    walk([f.get("value") for f in _dump_findings(context)])
+    return nums
+
+
+def _traceable_amount(amount: float, disputed: float, context: dict) -> bool:
+    """True when the records account for `amount`: it is a number in them, or the disputed total
+    minus one."""
+    nums = _record_numbers(context)
+    return any(abs(amount - n) <= 0.01 or abs(amount - (disputed - n)) <= 0.01 for n in nums if n > 0)
+
+
+def _discretionary_split_problems(context: dict, decision) -> list[str]:
+    """A refund grounded on Ryde's discretion that is smaller than the disputed amount the platform
+    data computes: no rule sets that figure, so a person decides it. The Judge accepted that a
+    verified road-closure detour was billable, then found a "fare increase not disclosed" breach and
+    refunded half the extra charge under refund_at_ryde_discretion (RD-002, run 20261011-181308).
+    Correct rulings that cite discretion refund the computed amount itself (RD-001, SQ-002, FD-001),
+    so they are untouched; a replay of 790 saved rulings flagged only that RD-002 (D37)."""
+    from src.agents.case_brief import disputed_total
+    try:
+        refunded = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        return []
+    disputed = disputed_total(context)
+    if refunded <= 0 or not disputed or refunded >= disputed - 0.01:
+        return []
+    # The REASONING must rest on discretion; a citation list that merely includes the key is not
+    # enough. DS-05 (run 20261011-221641) refunded the S$20 above a S$40 cleaning-fee cap, a figure a
+    # rule computes, and listed refund_at_ryde_discretion among its references only
+    if "discretion" not in str(getattr(decision, "rationale", "") or "").lower():
+        return []
+    # ...and the platform records must not account for the amount. A refund that is a charge line,
+    # a rate, a cap or the disputed total minus one of those comes from the records (DS-17 refunded
+    # one S$2.50 gantry rate, DS-14 a duplicate S$5 charge, DS-05 the S$20 above a S$40 cap, all
+    # while mentioning discretion). RD-002's S$1.55 (half the excess) appears nowhere. The chat is
+    # left out: a party can type any number there
+    if _traceable_amount(refunded, disputed, context):
+        return []
+    return ["The refund S$%.2f is part of the S$%.2f in dispute and rests on Ryde's discretion; no rule "
+            "sets that amount, so a person decides it." % (refunded, disputed)]
 
 
 def _dump_findings(context: dict) -> list[dict]:
@@ -670,6 +744,25 @@ class FairnessAgent:
             )
             requires_human = True
 
+        # (i2) a service-quality complaint is about the driver's conduct, so penalising the driver
+        #      means the complaint was at least partly accepted. The Judge issued a formal warning
+        #      and still labelled SQ-001 "dismissed" (runs 20261011-111637, -132910). Limited to
+        #      service quality: in other types a warning can sit beside a correct dismissal (CR-004,
+        #      RD-002-I3 in the replay of 731 traces)
+        dispute_type = getattr((context or {}).get("type"), "value", (context or {}).get("type"))
+        penalty = str(getattr(decision, "driver_penalty", None) or "").strip()
+        if (dispute_type == "service_quality" and verdict_value == "dismissed"
+                and penalty and penalty.lower() not in ("none", "no", "n/a", "no penalty")):
+            add_issue(
+                FairnessIssueCode.PENALTY_WITH_DISMISSAL,
+                f"The ruling dismisses a service-quality complaint but penalises the driver for the "
+                f"conduct complained of ({penalty[:120]}). The label and the action contradict each other.",
+                severity="high",
+                refs=["decision.verdict", "decision.driver_penalty"],
+                recommended_action="Route to human review; the complaint looks at least partly upheld.",
+            )
+            requires_human = True
+
         # (j) the refund goes beyond the disputed amount the platform data computes
         for problem in _refund_basis_problems(context or {}, getattr(decision, "refund_amount", None)):
             add_issue(
@@ -681,19 +774,36 @@ class FairnessAgent:
             )
             requires_human = True
 
+        # (j2) a partial refund that rests on Ryde's discretion: no rule sets the amount
+        for problem in _discretionary_split_problems(context or {}, decision):
+            add_issue(
+                FairnessIssueCode.DISCRETIONARY_PARTIAL_REFUND,
+                problem,
+                severity="high",
+                refs=["decision.refund_amount", "platform_policy.refund_at_ryde_discretion"],
+                recommended_action="Route to human review; a discretionary amount is a person's call.",
+            )
+            requires_human = True
+
         # (l) a threat in the chat. The classifier sends safety complaints to a person before any
         #     debate; this catches a threat inside an ordinary dispute (e.g. a no-show fee). It is
         #     not a fraud signal and does not count against anyone's record.
         safety = (context or {}).get("safety_alerts") or []
         if safety:
+            # The Safety agent's tier decides (D24): verbal abuse / rudeness are ruled as usual with
+            # protective actions and a later human review; anything else (or no tier) goes to a person
+            tier = ((context or {}).get("safety") or {}).get("tier")
+            later = tier in ("verbal_abuse", "minor")
             add_issue(
                 FairnessIssueCode.SAFETY_THREAT_IN_CHAT,
-                "Safety: " + " ".join(safety),
-                severity="high",
+                "Safety: " + " ".join(safety) + (f" (Safety agent tier: {tier})" if tier else ""),
+                severity="medium" if later else "high",
                 refs=["chat_log"],
-                recommended_action="Route to human review as a safety matter; protect the threatened party.",
+                recommended_action=("Protective actions taken; a person reviews after the ruling." if later
+                                    else "Route to human review as a safety matter; protect the threatened party."),
             )
-            requires_human = True
+            if not later:
+                requires_human = True
 
         # (k) hard evidence of fraud or collusion: a person decides, with the Judge's draft and
         #     the report. Priors alone never reach HIGH, so this never fires on history only.
@@ -718,11 +828,14 @@ class FairnessAgent:
         skipped_due_to_escalation = requires_human or high_severity_present
 
         if skipped_due_to_escalation or not self._should_call_semantic(
-            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0
+            issues, decision_conf, cites=bool(cited_refs), has_evidence=passenger_count > 0 and driver_count > 0,
+            triage=(context or {}).get("triage"),
         ):
             semantic_skipped_reason = (
                 "deterministic findings already require human review"
                 if (requires_human or high_severity_present)
+                else "simple, safe case (triage): code checks only"
+                if ((context or {}).get("triage") or {}).get("fairness_llm_audit") is False
                 else "deterministic checks already decisive"
             )
         else:
@@ -827,10 +940,14 @@ class FairnessAgent:
         decision_conf: float,
         cites: bool,
         has_evidence: bool,
+        triage: dict | None = None,
     ) -> bool:
         # Only useful when there IS something to scrutinise and the agent is
         # not already in "block / escalate" territory.
         if not has_evidence:
+            return False
+        if (triage or {}).get("fairness_llm_audit") is False:
+            # Simple and safe case (D24 triage): the code checks above are the audit
             return False
         if decision_conf <= FAIRNESS_DECISION_CONFIDENCE_LOW:
             return False

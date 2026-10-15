@@ -1,0 +1,194 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-03",
+    "trip_id": "RYDE-DS-003",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was only about two minutes late and told the driver I was coming down. He cancelled anyway and was rude about it. I was charged $5.00 as a no-show. I was in a hurry and already stressed, please refund it.",
+    "filed_at": "2026-10-04T08:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7103",
+    "name": "Chua Mei Ling",
+    "account_age_days": 300,
+    "total_trips": 88,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8103",
+    "name": "Rahman bin Ismail",
+    "account_age_days": 1500,
+    "total_trips": 7700,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla (SJT 3320 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-003",
+    "rider_id": "R-7103",
+    "driver_id": "D-8103",
+    "pickup_location": {
+      "name": "Compass One, Sengkang",
+      "lat": 1.3917,
+      "lng": 103.8951
+    },
+    "dropoff_location": {
+      "name": "Punggol Waterway Point",
+      "lat": 1.4066,
+      "lng": 103.9021
+    },
+    "scheduled_time": "2026-10-04T08:10:00+08:00",
+    "driver_arrival_time": "2026-10-04T08:10:00+08:00",
+    "driver_wait_start": "2026-10-04T08:10:00+08:00",
+    "cancellation_time": "2026-10-04T08:16:20+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-04T08:04:00+08:00",
+      "lat": 1.399,
+      "lng": 103.899,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-04T08:08:00+08:00",
+      "lat": 1.393,
+      "lng": 103.896,
+      "speed_kmh": 14,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-04T08:10:00+08:00",
+      "lat": 1.3917,
+      "lng": 103.8951,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-04T08:13:00+08:00",
+      "lat": 1.3917,
+      "lng": 103.8951,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-04T08:16:20+08:00",
+      "lat": 1.3917,
+      "lng": 103.8951,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-04T08:10:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at the pickup point, Exit C, grey Corolla."
+    },
+    {
+      "timestamp": "2026-10-04T08:13:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "So sorry, coming down in 2 mins!"
+    },
+    {
+      "timestamp": "2026-10-04T08:16:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Waited more than 6 min already. Cancelling."
+    },
+    {
+      "timestamp": "2026-10-04T08:16:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Seriously?? I am almost there."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-04T07:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7103 booked trip RYDE-DS-003 from Compass One to Waterway Point. Pickup 08:10."
+    },
+    {
+      "timestamp": "2026-10-04T07:58:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8103 assigned."
+    },
+    {
+      "timestamp": "2026-10-04T08:10:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'; GPS within 20 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-04T08:16:20+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled; reason: rider did not board. Wait 6 min 20 s counted from driver_arrived. No-show fee S$5.00 applied."
+    },
+    {
+      "timestamp": "2026-10-04T08:17:40+08:00",
+      "event_type": "rider_location_ping",
+      "details": "Rider app location within 30 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-04T08:21:00+08:00",
+      "event_type": "app_notice",
+      "details": "Cancellation screen showed a duplicate 'trip cancelled' banner on the rider's app; fee was charged only once."
+    }
+  ],
+  "cancellation_policy": {
+    "no_show_threshold_min": {
+      "value": 6,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. The count is inclusive."
+    },
+    "no_show_fee": {
+      "value": 5.0,
+      "text": "The fee in SGD charged to the rider when the rider counts as a no-show. It covers rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver arrived at 08:10:00 (GPS within 20 m and a driver_arrived event) and cancelled at 08:16:20, a wait of 6 min 20 s. This trip's policy sets the no-show threshold at 6 minutes counted from arrival, inclusive, so the condition was met, and the rider's own app ping at 08:17:40 shows she reached the pickup only after the cancellation. The S$5.00 no-show fee stands; the rider's short delay, her hurry and the driver's curt tone do not change that.",
+    "expected_dispute_type": "no_show",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Rider Fares And Charges > Why am I charged for a Waiting Time Fee?"
+    ]
+  }
+}

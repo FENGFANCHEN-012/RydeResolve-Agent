@@ -1,0 +1,187 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-12",
+    "trip_id": "RYDE-DS-012",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The taxi estimate was about S$25.60 but the receipt says S$32.00 and mentions a peak surcharge. It was 2pm, not rush hour. The driver also did not tell me the fare would go up and I was upset. Please refund the S$6.40.",
+    "filed_at": "2026-10-09T15:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7112",
+    "name": "Marcus Yeo",
+    "account_age_days": 1000,
+    "total_trips": 260,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8112",
+    "name": "Lau Seng Huat",
+    "account_age_days": 2100,
+    "total_trips": 12400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Sonata (SHB 6071 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-012",
+    "rider_id": "R-7112",
+    "driver_id": "D-8112",
+    "pickup_location": {
+      "name": "Orchard Ion",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3244,
+      "lng": 103.9298
+    },
+    "scheduled_time": "2026-10-09T14:00:00+08:00",
+    "pickup_time": "2026-10-09T14:05:00+08:00",
+    "dropoff_time": "2026-10-09T14:33:00+08:00",
+    "estimated_distance_km": 13.2,
+    "actual_distance_km": 13.2,
+    "estimated_duration_min": 28,
+    "actual_duration_min": 28,
+    "route_deviation_percent": 0.0,
+    "estimated_fare": 25.6,
+    "total_fare": 32.0,
+    "fare_breakdown": {
+      "base_fare": 4.0,
+      "distance_fare": 13.2,
+      "time_fare": 8.4,
+      "subtotal": 25.6,
+      "peak_surcharge_percent": 25,
+      "peak_surcharge_amount": 6.4,
+      "total": 32.0
+    },
+    "driver_reported_reason": null,
+    "service_type": "RydeTAXI"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T14:05:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T14:12:00+08:00",
+      "lat": 1.309,
+      "lng": 103.856,
+      "speed_kmh": 29,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T14:19:00+08:00",
+      "lat": 1.314,
+      "lng": 103.88,
+      "speed_kmh": 29,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T14:26:00+08:00",
+      "lat": 1.319,
+      "lng": 103.905,
+      "speed_kmh": 30,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T14:33:00+08:00",
+      "lat": 1.3244,
+      "lng": 103.9298,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T14:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At Ion lobby."
+    },
+    {
+      "timestamp": "2026-10-09T14:33:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why the surcharge?"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T13:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7112 booked a RydeTAXI (metered) trip RYDE-DS-012. Metered fare estimate S$25.60 (13.2 km, 28 min)."
+    },
+    {
+      "timestamp": "2026-10-09T14:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up at 14:05."
+    },
+    {
+      "timestamp": "2026-10-09T14:33:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 13.2 km, 28 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-09T14:33:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Metered S$25.60 (flag-down S$4.00 + 13.2 km x S$1.00 + 28 min x S$0.30) + peak surcharge 25% S$6.40 = S$32.00 charged to credit card."
+    },
+    {
+      "timestamp": "2026-10-09T14:33:20+08:00",
+      "event_type": "app_notice",
+      "details": "Receipt screen briefly showed 'fare unavailable' before loading."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "metered: flag-down S$4.00 + S$1.00 per km + S$0.30 per minute",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "peak_surcharge_percent": {
+      "value": 25,
+      "text": "The percentage added to the metered fare for a trip that starts inside the peak surcharge windows."
+    },
+    "peak_surcharge_windows": {
+      "value": "06:00-09:30 and 17:00-20:00 daily, by trip start time",
+      "text": "States the times of day at which the peak surcharge applies."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 6.4,
+    "recommended_action": "refund_peak_surcharge",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Ryde taxi fares are metered, and the metered part is correct: S$4.00 + 13.2 km x S$1.00 + 28 min x S$0.30 = S$25.60, matching distance, time and route. But the trip started at 14:05, outside this trip's peak surcharge windows (06:00-09:30 and 17:00-20:00), so the 25% surcharge of S$6.40 should not have been added. The full S$6.40 is refunded; the driver's silence and the receipt glitch are irrelevant to this.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll"
+    ]
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "ai_generated",
+  "dispute_ticket": {
+    "dispute_id": "IM-12",
+    "trip_id": "RYDE-IM-012",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider left a stain on the seat during the morning trip. I need S$70 for cleaning.",
+    "filed_at": "2026-10-13T09:02:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7212",
+    "name": "Felicia Chan",
+    "account_age_days": 394,
+    "total_trips": 47,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5112",
+    "name": "Muthu Kumar",
+    "account_age_days": 1363,
+    "total_trips": 2890,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SNM 6624 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-012",
+    "rider_id": "R-7212",
+    "driver_id": "D-5112",
+    "pickup_location": {
+      "name": "Bukit Panjang Plaza",
+      "lat": 1.3784,
+      "lng": 103.7632
+    },
+    "dropoff_location": {
+      "name": "Bishan Junction 8",
+      "lat": 1.3504,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-13T08:15:00+08:00",
+    "pickup_time": "2026-10-13T08:15:00+08:00",
+    "dropoff_time": "2026-10-13T08:42:00+08:00",
+    "estimated_distance_km": 13.0,
+    "actual_distance_km": 13.0,
+    "estimated_duration_min": 27,
+    "actual_duration_min": 27,
+    "estimated_fare": 16.9,
+    "total_fare": 16.9,
+    "cleaning_fee": 70.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-13T08:15:00+08:00",
+      "lat": 1.3784,
+      "lng": 103.7632,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T08:28:30+08:00",
+      "lat": 1.3644,
+      "lng": 103.8058,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T08:42:00+08:00",
+      "lat": 1.3504,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-13T08:12:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At Bukit Panjang Plaza Level 1 drop-off, blue Ioniq."
+    },
+    {
+      "timestamp": "2026-10-13T08:44:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There's a stain on the back seat, I will have to claim cleaning."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-13T08:07:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7212 booked trip RYDE-IM-012 from Bukit Panjang Plaza to Bishan Junction 8."
+    },
+    {
+      "timestamp": "2026-10-13T08:15:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-13T08:42:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-13T09:00:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$70.00 with 1 photo (photo1.jpg). Driver claims S$70 for a seat stain."
+    },
+    {
+      "timestamp": "2026-10-13T09:00:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-12/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-13T08:58:00+08:00",
+      "description": "Stain on the seat after drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "ai_generated_seat",
+      "taken_at": "2026-10-13T08:50:00+08:00",
+      "gps": [
+        1.3505,
+        103.8483
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims a seat stain (S$70.00, no receipt). Photo1 was taken at 08:50, 8 minutes after drop-off at 08:42, near Bishan Junction 8, but the image shows an empty grey seat with no visible stain and carries a 'pollinations.ai' watermark, which marks it as an AI-generated image. The rider denies any stain and no other record settles it, so a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-07",
+    "trip_id": "RYDE-PT-007",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The air-con in the car did not work during the whole trip and it was very hot. I want 50% of my fare back.",
+    "filed_at": "2026-10-11T14:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7107",
+    "name": "Kelvin Tay",
+    "account_age_days": 150,
+    "total_trips": 22,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6107",
+    "name": "Rosli Hamid",
+    "account_age_days": 1100,
+    "total_trips": 4200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SLN 5546 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-007",
+    "rider_id": "R-7107",
+    "driver_id": "D-6107",
+    "pickup_location": {
+      "name": "Pasir Ris MRT",
+      "lat": 1.373,
+      "lng": 103.9493
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.318,
+      "lng": 103.893
+    },
+    "scheduled_time": "2026-10-11T14:00:00+08:00",
+    "pickup_time": "2026-10-11T14:01:00+08:00",
+    "dropoff_time": "2026-10-11T14:28:00+08:00",
+    "estimated_distance_km": 14.0,
+    "actual_distance_km": 14.1,
+    "estimated_duration_min": 26,
+    "actual_duration_min": 27,
+    "estimated_fare": 18.0,
+    "total_fare": 18.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T14:01:00+08:00",
+      "lat": 1.373,
+      "lng": 103.9493,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T14:14:00+08:00",
+      "lat": 1.345,
+      "lng": 103.92,
+      "speed_kmh": 65,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T14:28:00+08:00",
+      "lat": 1.318,
+      "lng": 103.893,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T14:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi could you turn on the aircon please, very hot"
+    },
+    {
+      "timestamp": "2026-10-11T14:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sure, engine just started, 1-2 min to get cold"
+    },
+    {
+      "timestamp": "2026-10-11T14:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "thanks, cool now!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T14:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7107 booked RYDE-PT-007. Fixed fare S$18.00."
+    },
+    {
+      "timestamp": "2026-10-11T14:29:00+08:00",
+      "event_type": "rider_rating",
+      "details": "Rider rated trip 5 stars, no feedback tags."
+    },
+    {
+      "timestamp": "2026-10-11T14:29:30+08:00",
+      "event_type": "tip_added",
+      "details": "Rider added S$2.00 tip."
+    }
+  ],
+  "platform_policy": {
+    "service_quality_remedy": {
+      "value": "refund_at_ryde_discretion",
+      "text": "Whether Ryde refunds part of a fixed fare when the service was clearly below standard. It applies only when the records show an actual failure; a refund is optional, never automatic."
+    },
+    "service_quality_remedy_max_pct": {
+      "value": 20,
+      "text": "The most, as a percentage of total_fare, that may be refunded under service_quality_remedy."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Chat shows the rider asked for air-con at 14:03, the driver turned it on within the minute, and the rider wrote 'thanks, cool now!' at 14:08, five minutes into a 27-minute trip. The rider then gave 5 stars and a S$2.00 tip at 14:29. The claim that it never worked contradicts the rider's own messages. The discretionary remedy needs an actual failure, and the records show none.",
+    "expected_dispute_type": "service_quality",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

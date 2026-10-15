@@ -7,12 +7,16 @@ Graph topology::
       -> collector
       -> classifier
       -> [route_after_classifier]
-             requires_human or node error -> human_review -> END
+             node error                    -> human_review -> END
+             requires_human (P0 report)    -> safety
              otherwise                     -> case_brief
+      -> safety (P0 report or a threat in the chat; tier imminent / legal -> human_review now,
+                 verbal_abuse / minor -> continue with protective actions, a person reviews after)
       -> case_brief (facts, conflicts, case rules, timeline, clauses; no LLM)
       -> fraud (risk signals from code rules + one chat check; MEDIUM/HIGH reach the Judge
                 and Fairness only, never the advocates; HIGH makes Fairness route to a person)
-      -> debate
+      -> [route_after_fraud] a threat in the chat not yet triaged -> safety, else debate
+      -> debate (triage first: complexity x risk set the rounds and the Fairness audit depth)
       -> [route_after_error]  -> arbitrator (or human_review on failure)
       -> arbitrator
       -> [route_after_error]  -> fairness  (or human_review on failure)
@@ -63,9 +67,14 @@ from src.agents.executor import (
 )
 from src.agents.fairness import FairnessAgent, FairnessRecommendation
 from src.agents.fraud import LOW as FRAUD_LOW, FraudAgent
+from src.agents.safety import SafetyAgent
+from src.agents.objection import ObjectionAgent, objecting_sides
+from src.agents import code_judge, image_analyst
+from src.config import OBJECTION_ROUND, OBJECTION_SIDES
 from src.core.debate import DebateEngine
 from src.core.trace import step
 from src.rag.precedents import find_precedents
+from src.core.triage import triage
 from src.core.workflow_state import (
     STATUS_ESCALATED,
     STATUS_FAILED,
@@ -89,6 +98,7 @@ NODE_ARBITRATOR = "arbitrator"
 NODE_FAIRNESS = "fairness_agent"
 NODE_EXECUTOR = "executor"
 NODE_HUMAN_REVIEW = "human_review"
+NODE_SAFETY = "safety"
 
 
 # ----------------------------------------------------------------------
@@ -168,6 +178,8 @@ def build_dispute_graph(
     executor: ExecutionAgent | None = None,
     case_brief: CaseBriefAgent | None = None,
     fraud_agent: FraudAgent | None = None,
+    safety_agent: SafetyAgent | None = None,
+    objection_agent: ObjectionAgent | None = None,
 ):
     """Compile and return the dispute-resolution LangGraph.
 
@@ -182,6 +194,8 @@ def build_dispute_graph(
     executor = executor or ExecutionAgent()
     case_brief = case_brief or CaseBriefAgent()
     fraud_agent = fraud_agent or FraudAgent()
+    safety_agent = safety_agent or SafetyAgent()
+    objection_agent = objection_agent or ObjectionAgent()
 
     def judge_context(state: DisputeWorkflowState) -> dict:
         """The context the Judge and Fairness read: a MEDIUM / HIGH fraud report is added here,
@@ -194,6 +208,10 @@ def build_dispute_graph(
         if report and report.get("safety_alerts"):
             # Read by Fairness only (it routes the case to a person); not a fraud signal
             ctx["safety_alerts"] = report["safety_alerts"]
+        if state.get("triage"):
+            ctx["triage"] = state["triage"]   # Fairness: whether to run its LLM audit (D24)
+        if state.get("safety"):
+            ctx["safety"] = state["safety"]   # Fairness: the Safety agent's tier for a chat threat (D24)
         return ctx
 
     # -- Nodes ----------------------------------------------------------
@@ -213,6 +231,14 @@ def build_dispute_graph(
                 language=state.get("language", "en"),
             )
             s["output"] = context
+        if any(image_analyst.is_photo(e) for e in context.evidence or []):
+            async with step("ImageAnalyst", "Describe the uploaded photos (vision model)", {
+                "sees": ["uploaded photos", "the claim text"], "photos": len(context.evidence),
+            }) as s:
+                reports, doubts = await image_analyst.analyse(context)
+                context = context.model_copy(update={"image_reports": reports,
+                                                     "findings": [*context.findings, *doubts]})
+                s["output"] = {"reports": reports, "findings": [f.model_dump() for f in doubts]}
         return {"context": context, "status": STATUS_IN_PROGRESS}
 
     @_safe_node(NODE_CLASSIFIER)
@@ -250,17 +276,72 @@ def build_dispute_graph(
         await asyncio.to_thread(_raise_pending_flags, state["context"], report)
         return {"fraud_report": report.model_dump()}
 
+    @_safe_node(NODE_SAFETY)
+    async def safety_node(state: DisputeWorkflowState) -> dict:
+        """A P0 report or a threat in the chat: pick the tier (D24). Imminent and legal go to a
+        person now; verbal abuse continues with protective actions and a later review."""
+        async with step("Safety", "Triage the safety report", {
+            "sees": ["complaint", "chat log", "chat threat alerts", "human-reviewed precedents"],
+        }) as s:
+            precedents = await asyncio.to_thread(find_precedents, state["context"])
+            assessment = await safety_agent.assess(state["context"], state.get("fraud_report"), precedents)
+            s["output"] = assessment
+        return {"safety": assessment}
+
     @_safe_node(NODE_DEBATE)
     async def debate_node(state: DisputeWorkflowState) -> dict:
         if hasattr(debate_engine, "debate_with_context"):
+            # Triage (D24): complexity x risk decide how many rounds and how deep Fairness audits
+            async with step("Triage", "Grade complexity and risk", {
+                "sees": ["case brief conflicts and gaps", "fraud report", "classification", "disputed amount"],
+            }) as s:
+                grade = triage(state["context"], state.get("classification"), state.get("fraud_report"))
+                s["output"] = grade
             # Clauses the advocates requested join the shared brief the Judge reads (D14)
-            history, context = await debate_engine.debate_with_context(state["context"])
-            return {"debate_history": history, "context": context}
+            history, context = await debate_engine.debate_with_context(
+                state["context"], max_rounds=grade["max_rounds"])
+            return {"debate_history": history, "context": context, "triage": grade}
         history = await debate_engine.debate(state["context"])
         return {"debate_history": history}
 
     @_safe_node(NODE_ARBITRATOR)
     async def arbitrator_node(state: DisputeWorkflowState) -> dict:
+        update, judge_inputs = await _rule(state)
+        if code_judge.CODE_JUDGE:
+            update = await _code_judge(update, judge_inputs)
+        return update
+
+    async def _code_judge(update: dict, judge_inputs: dict) -> dict:
+        """D38: code checks the draft (decisive facts verified, refund computed from record figures).
+        A failed check sends it back to the Judge once; a second failure goes to a person."""
+        context = judge_inputs["context"]
+        decision = update["decision"]
+        async with step("CodeJudge", "Code checks the draft ruling", {
+            "checks": ["decisive facts verified by uncontradicted records", "refund arithmetic on record figures"],
+        }) as s:
+            problems = code_judge.review(decision, context)
+            s["output"] = {"problems": problems}
+        if not problems:
+            return update
+        draft = {"verdict": getattr(decision.verdict, "value", decision.verdict),
+                 "refund_amount": decision.refund_amount, "refund_calculation": decision.refund_calculation,
+                 "decisive_facts": decision.decisive_facts}
+        async with step("Arbitrator", "Reconsider the draft after the code check", {"problems": problems}) as s:
+            revised = await arbitrator.arbitrate(
+                **judge_inputs, code_review=code_judge.render_code_review(draft, problems))
+            s["output"] = revised
+        async with step("CodeJudge", "Code checks the revised ruling", {}) as s:
+            remaining = (code_judge.review(revised, context)
+                         + code_judge.check_remand(decision, revised, context))
+            s["output"] = {"problems": remaining}
+        if remaining:
+            revised.human_review_needed = True
+            revised.rationale = (revised.rationale or "") + " [Code check: " + " ".join(remaining)[:600] + "]"
+        update.update({"decision": revised, "code_judge_draft": decision,
+                       "code_judge": {"first": problems, "after_revision": remaining}})
+        return update
+
+    async def _rule(state: DisputeWorkflowState) -> tuple[dict, dict]:
         # Preserve the legacy orchestrator convention: the round-0 debate
         # entries carry the passenger / driver / policy analyses.
         history = state.get("debate_history") or []
@@ -274,7 +355,7 @@ def build_dispute_graph(
                      *(["fraud risk report"] if "fraud_report" in context else [])],
             "precedent_ids": [p["precedent_id"] for p in precedents],
         }) as s:
-            decision = await arbitrator.arbitrate(
+            judge_inputs = dict(
                 context=context,
                 passenger_analysis=_as_analysis(history[0]["content"]) if len(history) > 0 else {},
                 driver_analysis=_as_analysis(history[1]["content"]) if len(history) > 1 else {},
@@ -283,8 +364,37 @@ def build_dispute_graph(
                 # Only passed when there are some, so with an empty index the call is unchanged
                 **({"precedents": precedents} if precedents else {}),
             )
+            decision = await arbitrator.arbitrate(**judge_inputs)
             s["output"] = decision
-        return {"decision": decision, "precedents": precedents}
+        update = {"decision": decision, "precedents": precedents}
+        sides = objecting_sides(decision, getattr(state["context"], "reporter", None), OBJECTION_SIDES) if OBJECTION_ROUND else []
+        if not sides:
+            return update, judge_inputs
+        # D33: the filer, when the draft goes against them, may object once (rule + record, checked by code);
+        # only a valid objection makes the Judge reconsider
+        valid_rules = arbitrator._build_valid_refs(judge_inputs["policy_evaluation"], context)
+        objections = []
+        for side in sides:
+            async with step("Objection", f"{side.title()} advocate: objection to the draft ruling", {
+                "sees": ["draft ruling", "case brief", "numbered records", "rules the Judge may cite"],
+            }) as s:
+                o = await objection_agent.object(side, context, decision, valid_rules)
+                s["output"] = o
+            objections.append(o)
+        update["objections"] = objections
+        standing = [o for o in objections if o.get("objection")]
+        if not standing:
+            return update, judge_inputs
+        draft = {"verdict": getattr(decision.verdict, "value", decision.verdict),
+                 "refund_amount": decision.refund_amount, "asks": decision.asks}
+        async with step("Arbitrator", "Reconsider the draft after objections", {
+            "objections": [f"{o['side']}: {o['claim']}" for o in standing],
+        }) as s:
+            reconsidered = await arbitrator.arbitrate(
+                **judge_inputs, objection={"draft": draft, "objections": standing})
+            s["output"] = reconsidered
+        update.update({"decision": reconsidered, "draft_decision": decision})
+        return update, judge_inputs
 
     @_safe_node(NODE_FAIRNESS)
     async def fairness_node(state: DisputeWorkflowState) -> dict:
@@ -353,7 +463,8 @@ def build_dispute_graph(
                 "human_review_reason": reason,
                 "execution": None,
             }
-        # Classifier-driven escalation — preserve the legacy reason string.
+        # Safety- or classifier-driven escalation — preserve the legacy reason string
+        # (the Safety agent's tier and actions travel in the "safety" field)
         return {
             "status": STATUS_ESCALATED,
             "human_review_reason": "Safety/legal issue requires human review",
@@ -373,13 +484,27 @@ def build_dispute_graph(
         return router
 
     def route_after_classifier(state: DisputeWorkflowState) -> str:
-        """Classifier gate: safety/legal issues bypass debate entirely."""
+        """Classifier gate: a safety/legal report goes to the Safety agent before anything else."""
         if state.get("error"):
             return NODE_HUMAN_REVIEW
         classification = state.get("classification")
         if classification is not None and classification.requires_human:
-            return NODE_HUMAN_REVIEW
+            return NODE_SAFETY   # the Safety agent decides: a person now, or continue with protection
         return NODE_CASE_BRIEF
+
+    def route_after_fraud(state: DisputeWorkflowState) -> str:
+        if state.get("error"):
+            return NODE_HUMAN_REVIEW
+        report = state.get("fraud_report") or {}
+        if report.get("safety_alerts") and not state.get("safety"):
+            return NODE_SAFETY   # a threat inside an ordinary dispute
+        return NODE_DEBATE
+
+    def route_after_safety(state: DisputeWorkflowState) -> str:
+        if state.get("error") or (state.get("safety") or {}).get("human_review") == "now":
+            return NODE_HUMAN_REVIEW
+        # Continue where the case was: before the brief (P0 report) or before the debate (chat threat)
+        return NODE_DEBATE if state.get("fraud_report") is not None else NODE_CASE_BRIEF
 
     def route_after_fairness(state: DisputeWorkflowState) -> str:
         """Only decisions cleared by both the arbitrator and fairness may execute."""
@@ -409,6 +534,7 @@ def build_dispute_graph(
     builder.add_node(NODE_CLASSIFIER, classifier_node)
     builder.add_node(NODE_CASE_BRIEF, case_brief_node)
     builder.add_node(NODE_FRAUD, fraud_node)
+    builder.add_node(NODE_SAFETY, safety_node)
     builder.add_node(NODE_DEBATE, debate_node)
     builder.add_node(NODE_ARBITRATOR, arbitrator_node)
     builder.add_node(NODE_FAIRNESS, fairness_node)
@@ -425,7 +551,12 @@ def build_dispute_graph(
     builder.add_conditional_edges(
         NODE_CLASSIFIER,
         route_after_classifier,
-        {NODE_CASE_BRIEF: NODE_CASE_BRIEF, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+        {NODE_CASE_BRIEF: NODE_CASE_BRIEF, NODE_SAFETY: NODE_SAFETY, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+    )
+    builder.add_conditional_edges(
+        NODE_SAFETY,
+        route_after_safety,
+        {NODE_CASE_BRIEF: NODE_CASE_BRIEF, NODE_DEBATE: NODE_DEBATE, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
     )
     builder.add_conditional_edges(
         NODE_CASE_BRIEF,
@@ -434,8 +565,8 @@ def build_dispute_graph(
     )
     builder.add_conditional_edges(
         NODE_FRAUD,
-        _route_or_human_review(NODE_DEBATE),
-        {NODE_DEBATE: NODE_DEBATE, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
+        route_after_fraud,
+        {NODE_DEBATE: NODE_DEBATE, NODE_SAFETY: NODE_SAFETY, NODE_HUMAN_REVIEW: NODE_HUMAN_REVIEW},
     )
     builder.add_conditional_edges(
         NODE_DEBATE,

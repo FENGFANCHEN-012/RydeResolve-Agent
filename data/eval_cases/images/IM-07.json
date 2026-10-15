@@ -1,0 +1,196 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "not_a_car",
+  "dispute_ticket": {
+    "dispute_id": "IM-07",
+    "trip_id": "RYDE-IM-007",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider spilled coffee on the rear seat. I took a photo straight after and I need S$60 for cleaning.",
+    "filed_at": "2026-10-10T21:52:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7207",
+    "name": "Marcus Tan",
+    "account_age_days": 416,
+    "total_trips": 58,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5107",
+    "name": "Goh Teck Lee",
+    "account_age_days": 2676,
+    "total_trips": 6830,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SLF 5527 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-007",
+    "rider_id": "R-7207",
+    "driver_id": "D-5107",
+    "pickup_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "dropoff_location": {
+      "name": "Bishan Junction 8",
+      "lat": 1.3504,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-10T21:00:00+08:00",
+    "pickup_time": "2026-10-10T21:00:00+08:00",
+    "dropoff_time": "2026-10-10T21:27:00+08:00",
+    "estimated_distance_km": 9.8,
+    "actual_distance_km": 9.8,
+    "estimated_duration_min": 27,
+    "actual_duration_min": 27,
+    "estimated_fare": 13.5,
+    "total_fare": 13.5,
+    "cleaning_fee": 60.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T21:00:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:13:30+08:00",
+      "lat": 1.3169,
+      "lng": 103.8546,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T21:27:00+08:00",
+      "lat": 1.3504,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T20:57:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At MBS Tower 1 drop-off, dark Wish."
+    },
+    {
+      "timestamp": "2026-10-10T21:29:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Your coffee spilled in the back, I need to clean it."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T20:52:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7207 booked trip RYDE-IM-007 from Marina Bay Sands to Bishan Junction 8."
+    },
+    {
+      "timestamp": "2026-10-10T21:00:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-10T21:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-10T21:50:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$60.00 with 1 photo (photo1.jpg). Driver says the rider spilled coffee on the rear seat."
+    },
+    {
+      "timestamp": "2026-10-10T21:50:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-07/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-10T21:48:00+08:00",
+      "description": "Coffee spilled on the rear seat after drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "coffee_spill_table",
+      "taken_at": "2026-10-10T21:40:00+08:00",
+      "gps": [
+        1.3503,
+        103.8487
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims coffee spilled on the rear seat (S$60.00) with no receipt. Photo1 was taken at 21:40, 13 minutes after drop-off at 21:27, near Bishan Junction 8, but it shows coffee spilled beside a cup on a white table, not the inside of a car. The rider denies drinking coffee and no other record confirms a spill. Because the photo content is in doubt and nothing else settles the claim, a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}
