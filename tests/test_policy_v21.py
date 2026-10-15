@@ -220,3 +220,25 @@ def test_hospital_as_a_place_is_not_a_safety_word(text, p0):
     assert _has_p0_keywords(text)[0] is p0
     if not p0:
         assert not any(re.search(p, text.lower()) for p in _IMMINENT_PATTERNS)
+
+
+@pytest.mark.parametrize("desc,events,flag", [
+    ("The driver was weaving between lanes and tailgating.", [], True),           # OF-16
+    ("Fare was higher than quoted.", [{"event_type": "speeding_alert"}], True),
+    ("Fare was higher than quoted.", [{"event_type": "trip_completed"}], False),
+])
+def test_safety_indicators_flag_any_dispute(desc, events, flag):
+    reasons = policy_gates.check(dec(), gctx(description=desc, app_events=events))
+    assert any("s5.2" in r for r in reasons) is flag
+
+
+def test_rejecting_a_drivers_claim_on_a_doubted_photo_is_allowed_paying_is_not():
+    from src.agents import code_judge
+    ctx = {"reporter": "driver", "trip": {"cleaning_fee_claimed": 28.0}, "description": "",
+           "findings": [{"id": "photo_checks.late[0]", "kind": "conflict", "statement": "26 h late",
+                         "sources": ["evidence[0]"], "questioned": ["evidence[0]"]}]}
+    fact = [{"fact": "photo taken 26 h after drop-off", "sources": ["evidence[0]"], "status": "contradicted"}]
+    reject = SimpleNamespace(verdict="dismissed", refund_amount=0, human_review_needed=False, decisive_facts=fact)
+    pay = SimpleNamespace(verdict="upheld", refund_amount=28.0, human_review_needed=False, decisive_facts=fact)
+    assert code_judge.check_photos(reject, ctx) == [] and code_judge.check_facts(reject, ctx) == []
+    assert code_judge.check_photos(pay, ctx) and code_judge.check_facts(pay, ctx)

@@ -145,12 +145,35 @@ def check_remand(first, revised, context: dict) -> list[str]:
             "not remove what it was used for. A person decides."]
 
 
+def rejects_own_claim(decision, context: dict) -> bool:
+    """D50: the ruling rejects a driver's own cleaning / damage claim and pays nothing. Policy v2.1
+    s4.4 rejects a claim whose photo evidence is insufficient (late, not linked to the trip), so a
+    doubt about the driver's own photo is the reason to reject, not a reason for a person
+    (OF-17: a photo 26 h late and 7.6 km away). Paying on a doubted photo is never allowed."""
+    from src.core.governing_policy import is_property_case
+    ctx = context or {}
+    if str(ctx.get("reporter") or "").lower() != "driver" or not is_property_case(ctx):
+        return False
+    verdict = getattr(getattr(decision, "verdict", None), "value", getattr(decision, "verdict", None))
+    try:
+        refund = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        return False
+    return verdict == "dismissed" and refund <= 0
+
+
+def _photo_only(f: dict) -> bool:
+    return bool(f.get("sources")) and all(str(s).startswith(("evidence[", "photo_checks.", "image_analysis."))
+                                          for s in f.get("sources"))
+
+
 def check_facts(decision, context: dict) -> list[str]:
     facts = [f for f in (getattr(decision, "decisive_facts", None) or []) if isinstance(f, dict)]
     if not facts:
         return ["The ruling lists no decisive facts: name the facts it turns on, their records and "
                 "whether each is verified."]
     flagged = _flagged(context)
+    rejecting = rejects_own_claim(decision, context)
     problems = []
     for f in facts:
         status = str(f.get("status") or "").lower()
@@ -158,6 +181,8 @@ def check_facts(decision, context: dict) -> list[str]:
         if status not in FACT_STATUSES:
             problems.append(f"Decisive fact \"{name}\" has no valid status (verified / unverifiable / contradicted).")
             continue
+        if rejecting and _photo_only(f):
+            continue   # a doubt about the claimant's own photo is what rejects the claim (v2.1 s4.4)
         if status != "verified":
             problems.append(f"The ruling turns on a fact that is {status}: \"{name}\". "
                             "A ruling that rests on it cannot be automated.")
@@ -201,7 +226,7 @@ def check_photos(decision, context: dict) -> list[str]:
     what it claims) is a possible fake, and that is a person's call whichever side the ruling favours.
     check_facts only catches a ruling that rests on the photo; IM-08 refunded the rider because the
     driver's photo predated the trip, which also settles the doubt about the driver by itself."""
-    if getattr(decision, "human_review_needed", False):
+    if getattr(decision, "human_review_needed", False) or rejects_own_claim(decision, context):
         return []
     doubted = {}
     for f in _findings(context):

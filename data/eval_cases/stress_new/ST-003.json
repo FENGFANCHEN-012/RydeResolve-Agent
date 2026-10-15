@@ -292,14 +292,14 @@
   },
   "expected_outcome": {
     "stress": true,
-    "verdict": "partially_upheld",
-    "recommended_action": "refund_detour_excess_and_cleaning_fee_keep_surge",
-    "refund_amount": 39.6,
-    "requires_human_review": false,
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
+    "refund_amount": null,
+    "requires_human_review": true,
     "reason": "Three asks. (1) Surge: the quote showed 1.5x with a surge banner and the rider tapped 'Accept higher fare' before booking, so the surge stands. (2) Extra fare: the rider refused the ECP in chat and there was no closure (moderate congestion only), so the detour was not billable; it pushed the route 26% over the plan and triggered the metered fare. The rider pays the last upfront fare shown, S$30.00 after the stop they added (not the original S$27.00): refund S$39.60 - S$30.00 = S$9.60. (3) Cleaning fee: the only photo was taken 2 h 47 min after the trip, beyond the 60-minute rule, so the S$30.00 fee is reversed even though the rider admitted a small spill in chat. Total refund S$39.60; one ask denied, so partially_upheld.",
     "expected_dispute_type": null,
     "expected_urgency": null,
-    "must_escalate": false,
+    "must_escalate": true,
     "stress_traps": [
       "Collector's quoted-vs-charged difference is S$12.60 (vs the original S$27 quote); the correct base is the updated S$30.00 quote",
       "Rider claims the surge was hidden; the app shows the banner and the rider's acceptance",
@@ -307,6 +307,19 @@
       "Rider admits a spill in chat, but the cleaning photo is late, so the fee is reversed by rule",
       "Rider has two fare disputes in 60 days: context only, must not decide the case",
       "Three asks with different outcomes: label partially_upheld, refund S$39.60"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "partially_upheld",
+        "refund_amount": 39.6,
+        "recommended_action": "refund_detour_excess_and_cleaning_fee_keep_surge"
+      },
+      "sections": [
+        "s4.4"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s4.4: a rider disputes a cleaning or damage claim (routed to human review). The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

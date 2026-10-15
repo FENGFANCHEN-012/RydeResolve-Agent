@@ -176,10 +176,10 @@
     }
   },
   "expected_outcome": {
-    "verdict": "partially_upheld",
-    "recommended_action": "formal_warning_to_driver_and_discretionary_partial_refund_or_credit",
+    "verdict": null,
+    "recommended_action": "escalate_to_human_review",
     "refund_amount": null,
-    "requires_human_review": false,
+    "requires_human_review": true,
     "reason": "Telematics confirm speeding (104 km/h in a 90 zone) and two harsh braking events, and the chat shows a dismissive reply to the rider. This is a P1 incident: formal warning to the driver. The trip itself was completed on the correct route, so a full refund is not required; partial refund or credit is at Ryde's discretion. Either upheld or partially upheld is accepted: the driver's misconduct is established, and this trip's policy leaves rider compensation at Ryde's discretion, so no refund amount is scored.",
     "priority": "P1",
     "driver_penalty": "formal_warning",
@@ -188,7 +188,7 @@
     "expected_policy_sections": [
       "Dispute Resolution Guide > Scenario 5: Service Quality (Driver Rudeness / Unsafe Driving)"
     ],
-    "must_escalate": false,
+    "must_escalate": true,
     "expected_official_sections": [
       "Ryde Help Rider Ryde Experience > I would like to provide feedback about my driver",
       "Ryde Help Rider Safety Emergency > Report a safety issue",
@@ -197,9 +197,22 @@
     ],
     "escalation_acceptable": true,
     "escalation_acceptable_reason": "User decision 2026-10-04: no policy rule sets a refund amount for unsafe or rude driving, so a refund here is a person's call; a warning-only ruling may still be automatic.",
-    "acceptable_verdicts": [
-      "partially_upheld",
-      "upheld"
-    ]
+    "v21_change": {
+      "was": {
+        "must_escalate": false,
+        "requires_human_review": false,
+        "verdict": "partially_upheld",
+        "refund_amount": null,
+        "recommended_action": "formal_warning_to_driver_and_discretionary_partial_refund_or_credit",
+        "acceptable_verdicts": [
+          "partially_upheld",
+          "upheld"
+        ]
+      },
+      "sections": [
+        "s5.2"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s5.2: a safety incident (a threat in the chat, or reckless driving: speeding and harsh-braking alerts); AI agents may not rule on it. The automatic ruling before v2.1 is kept under 'was' (D50)."
+    }
   }
 }

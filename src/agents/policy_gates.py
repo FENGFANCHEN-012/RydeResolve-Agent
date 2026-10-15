@@ -15,6 +15,8 @@ A gate never changes the ruling; it only sends the case to a person, with the se
 """
 from __future__ import annotations
 
+import re
+
 from src.core.governing_policy import CLAIM_FIELDS, is_property_case
 
 AUTO_FINAL_BELOW = 10.0     # s6.1: under S$10 the AI ruling is final
@@ -43,6 +45,23 @@ def dispute_value(decision, context) -> float:
     return round(max(values), 2)
 
 
+# s5.1 / s5.2: safety keywords or indicators flag a dispute whatever its type. OF-16 ("weaving
+# between lanes ... tailgating and braking hard", speeding alerts) was ruled as a fare dispute.
+_SAFETY_TEXT = re.compile(
+    r"\b(reckless\w*|dangerous(ly)?|weav(e|ed|ing)|tailgat\w*|speeding|harass\w*|assault\w*|threat\w*|"
+    r"unsafe|inappropriate(ly)?|accident|crash(ed)?|collision|attack\w*)\b", re.I)
+_SAFETY_EVENTS = {"speeding_alert", "harsh_braking_detected", "crash_detected", "sos_triggered", "safety_report"}
+
+
+def safety_indicators(context) -> list[str]:
+    """What marks this dispute as a safety incident under s5.1-5.2: words in the complaint, or
+    driving-safety events in the platform record."""
+    found = [m.group(0).lower() for m in _SAFETY_TEXT.finditer(str(_get(context, "description") or ""))]
+    found += [e.get("event_type") for e in _get(context, "app_events") or []
+              if isinstance(e, dict) and e.get("event_type") in _SAFETY_EVENTS]
+    return sorted(set(found))
+
+
 def _no_show_category(context) -> bool:
     t = _get(context, "type")
     t = getattr(t, "value", t)
@@ -56,7 +75,8 @@ def check(decision, context, urgency: str | None = None) -> list[str]:
         return []
     reasons = []
     safety = _get(context, "safety") or {}
-    if urgency == "P0" or _get(context, "safety_alerts") or (isinstance(safety, dict) and safety.get("tier")):
+    if urgency == "P0" or _get(context, "safety_alerts") or (isinstance(safety, dict) and safety.get("tier")) \
+            or safety_indicators(context):
         reasons.append("Policy v2.1 s5.2: a safety incident; AI agents may prepare the case but not rule on it.")
     value = dispute_value(decision, context)
     try:

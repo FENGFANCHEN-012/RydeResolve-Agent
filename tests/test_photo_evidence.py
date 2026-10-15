@@ -66,7 +66,7 @@ def test_photo_taken_after_dropoff_is_a_verified_fact(root):
 
 @pytest.mark.parametrize("taken,key", [
     ("2026:10:10 09:00:00", "photo_checks.before_trip"),   # a day before the trip
-    ("2026:10:11 23:30:00", "photo_checks.late"),          # 85 min after drop-off, past 60
+    ("2026:10:13 00:30:00", "photo_checks.late"),          # 25 h after drop-off, past v2.1's 24 h
 ])
 def test_photo_outside_the_trip_window_is_a_conflict_on_that_photo(root, taken, key):
     make_photo(root / "cases/CF-T/a.jpg", taken=taken)
@@ -78,6 +78,9 @@ def test_case_policy_sets_its_own_window(root):
     make_photo(root / "cases/CF-T/a.jpg", taken="2026:10:11 23:30:00")
     out = photo_checks.photo_checks(ctx("cases/CF-T/a.jpg", policy={"photo_window_after_dropoff_min": 120}))
     assert kinds(out) == {"photo_checks.time": "fact"}
+    # and a case's own shorter window still applies (the IM / PS sets use 60 min)
+    out = photo_checks.photo_checks(ctx("cases/CF-T/a.jpg", policy={"photo_window_after_dropoff_min": 60}))
+    assert kinds(out) == {"photo_checks.late": "conflict"}
 
 
 def test_exif_offset_is_respected(root):

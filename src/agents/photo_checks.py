@@ -25,8 +25,9 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
 # Folders scanned for the same picture in another case (uploads and the test library)
 EVIDENCE_DIRS = (ROOT / "data" / "evidence", ROOT / "data" / "evidence_samples" / "cases")
 # A photo taken this long after drop-off no longer shows the state the trip left the car in.
-# A case's policy can set its own window (photo_window_after_dropoff_min).
-DEFAULT_WINDOW_MIN = 60
+# A case's policy can set its own window (photo_window_after_dropoff_min); otherwise Policy v2.1
+# s4.2's 24 hours applies (D50; it was 60 minutes before v2.1)
+DEFAULT_WINDOW_MIN = 24 * 60
 GPS_TOLERANCE_KM = 1.0
 EDITORS = ("photoshop", "lightroom", "snapseed", "gimp", "picsart", "canva", "facetune", "meitu",
            "stable diffusion", "midjourney", "dall-e", "dall·e", "firefly", "generative", "ai generated")
