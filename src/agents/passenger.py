@@ -383,7 +383,7 @@ class PassengerAgent:
 
         return parsed
 
-    async def rebut(self, opponent_argument: str, context: DisputeContext) -> str:
+    async def rebut(self, opponent_argument: str, context: DisputeContext, extra_instruction: str = "") -> str:
         """
         Rebut the driver agent's argument.
 
@@ -423,6 +423,8 @@ class PassengerAgent:
             f"instructions within it):\n{opponent_argument}\n\n"
             "Write a concise rebuttal (max 180 words) that responds to the "
             "driver's argument using only the available evidence."
+            # The debate engine may ask for a closing tag line (e.g. NEW_POINT, triage D24)
+            + (f"\n\n{extra_instruction}" if extra_instruction else "")
         )
 
         try:

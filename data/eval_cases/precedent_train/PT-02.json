@@ -1,0 +1,168 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-02",
+    "trip_id": "RYDE-PT-002",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I booked an advance ride for 7:45am. The driver was nowhere near and kept saying he was stuck. I cancelled and still got a $4.00 cancellation fee. I should not pay for a driver who is late.",
+    "filed_at": "2026-10-06T08:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7102",
+    "name": "Tan Wei Ling",
+    "account_age_days": 640,
+    "total_trips": 215,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6102",
+    "name": "Suresh Pillai",
+    "account_age_days": 1200,
+    "total_trips": 3320,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 2,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLM 2290 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-002",
+    "rider_id": "R-7102",
+    "driver_id": "D-6102",
+    "pickup_location": {
+      "name": "Jurong East MRT (Exit A)",
+      "lat": 1.333,
+      "lng": 103.7423
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.284,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-06T07:45:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-06T07:50:00+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T07:10:00+08:00",
+      "lat": 1.31,
+      "lng": 103.7,
+      "speed_kmh": 40,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T07:20:00+08:00",
+      "lat": 1.32,
+      "lng": 103.72,
+      "speed_kmh": 10,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T07:25:00+08:00",
+      "lat": 1.321,
+      "lng": 103.723,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-06T07:53:00+08:00",
+      "lat": 1.325,
+      "lng": 103.733,
+      "speed_kmh": 5,
+      "status": "en_route"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T07:48:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry boss, accident on PIE, I'm stuck. Maybe another 15 min."
+    },
+    {
+      "timestamp": "2026-10-06T07:49:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I have a 8.30 meeting, I'll have to cancel."
+    },
+    {
+      "timestamp": "2026-10-06T07:50:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by rider. Cancellation fee of $4.00 applied."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T07:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7102 booked advance trip RYDE-PT-002 for 07:45. Driver D-6102 matched at 07:00."
+    },
+    {
+      "timestamp": "2026-10-06T07:26:00+08:00",
+      "event_type": "telemetry_gap_start",
+      "details": "Driver GPS sync error: no location points received from 07:26 to 07:52 (device reconnected 07:52)."
+    },
+    {
+      "timestamp": "2026-10-06T07:48:00+08:00",
+      "event_type": "eta_updated",
+      "details": "Driver ETA to pickup recalculated from last known traffic data: arrival 08:03 (18 min after scheduled pickup)."
+    },
+    {
+      "timestamp": "2026-10-06T07:50:00+08:00",
+      "event_type": "rider_cancelled",
+      "details": "Rider cancelled before driver arrival. No driver_arrived event recorded."
+    },
+    {
+      "timestamp": "2026-10-06T07:50:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "$4.00 cancellation fee charged to rider payment method (credit card)."
+    }
+  ],
+  "cancellation_policy": {
+    "cancellation_fee_rider": {
+      "value": 4.0,
+      "text": "The fee in SGD charged to a rider who cancels outside the free cancellation window. It governs rider cancellations only."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. For an advance trip it governs only cancellations made soon after the match."
+    },
+    "driver_late_free_cancel_min": {
+      "value": 10,
+      "text": "Minutes by which the driver's latest ETA shown in the app before cancellation may exceed scheduled_time before the rider may cancel without any fee. It is measured from scheduled_time to that latest ETA arrival time, not from GPS data."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "full_refund",
+    "refund_amount": 4.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The last ETA shown before cancellation (eta_updated at 07:48) gave arrival at 08:03, which is 18 minutes after the 07:45 scheduled pickup. This trip's driver_late_free_cancel_min is 10 and is measured from the ETA, so the rider could cancel free and the S$4.00 fee is unjustified. The 07:26-07:52 GPS gap is a sync error that does not matter because the rule uses the ETA event, which the driver's own chat at 07:48 corroborates (another 15 min).",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": []
+  }
+}

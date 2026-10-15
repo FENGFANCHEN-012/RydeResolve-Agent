@@ -159,8 +159,14 @@
     }
   ],
   "platform_policy": {
-    "surge_must_be_displayed_before_confirmation": true,
-    "service_fee_max_percent_of_user_charges": 20
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "service_fee_max_percent_of_user_charges": {
+      "value": 20,
+      "text": "The maximum service fee as a percentage of the rider's charges. It governs the platform's service fee, not the fare."
+    }
   },
   "expected_outcome": {
     "verdict": "upheld",

@@ -1,0 +1,211 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "photo with no capture time; rider admits mess in chat; receipt matches",
+  "dispute_ticket": {
+    "dispute_id": "PS-05",
+    "trip_id": "RYDE-PS-005",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I think S$70 is too high for some mud. Can the fee be removed?",
+    "filed_at": "2026-10-10T08:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5604",
+    "name": "Daniel Ong",
+    "account_age_days": 200,
+    "total_trips": 38,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6618",
+    "name": "Gopal Krishnan",
+    "account_age_days": 1340,
+    "total_trips": 4700,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Hyundai Staria (SJV 9023 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PS-005",
+    "rider_id": "R-5604",
+    "driver_id": "D-6618",
+    "pickup_location": {
+      "name": "Bukit Timah Nature Reserve Visitor Centre",
+      "lat": 1.3548,
+      "lng": 103.7766
+    },
+    "dropoff_location": {
+      "name": "Blk 410 Hougang Ave 10",
+      "lat": 1.3626,
+      "lng": 103.887
+    },
+    "scheduled_time": "2026-10-09T13:19:00+08:00",
+    "pickup_time": "2026-10-09T13:20:00+08:00",
+    "dropoff_time": "2026-10-09T13:52:00+08:00",
+    "estimated_distance_km": 15.1,
+    "actual_distance_km": 15.3,
+    "estimated_duration_min": 31,
+    "actual_duration_min": 32,
+    "estimated_fare": 24.8,
+    "total_fare": 24.8,
+    "cleaning_fee": 70.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T13:20:00+08:00",
+      "lat": 1.3548,
+      "lng": 103.7766,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T13:36:00+08:00",
+      "lat": 1.3587,
+      "lng": 103.8318,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T13:52:00+08:00",
+      "lat": 1.3626,
+      "lng": 103.887,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T13:18:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the visitor centre carpark, grey Staria."
+    },
+    {
+      "timestamp": "2026-10-09T13:55:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry uncle, I walked the muddy trail and my shoes left clay all over your mat. I should have wiped them. Please send me the cleaning claim, I will pay."
+    },
+    {
+      "timestamp": "2026-10-09T13:57:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Ok, I will send it for cleaning today and attach the receipt."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T13:12:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-5604 booked trip RYDE-PS-005 from Bukit Timah Nature Reserve Visitor Centre to Blk 410 Hougang Ave 10."
+    },
+    {
+      "timestamp": "2026-10-09T13:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-09T13:52:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-09T14:20:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$70.00 with 1 photo and a cleaning receipt."
+    },
+    {
+      "timestamp": "2026-10-09T14:20:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "Receipt attached: Hougang Auto Valet, Hougang St 61, S$70.00, dated 2026-10-09 15:30."
+    },
+    {
+      "timestamp": "2026-10-09T18:00:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$70.00 cleaning fee charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_tiers": {
+      "value": "food or drink spill up to S$40; stains (mud, dirt) and bodily fluids up to S$120; vomit up to S$200",
+      "text": "Usual fee by type of mess; a fee above the tier for the mess type needs a receipt."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": "photo of the mess and a cleaning receipt where available",
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "text": "If a photo's authenticity, timing, place or content is in doubt, a case officer decides; the fee is neither confirmed nor removed automatically."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider",
+        "no mess caused"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/PS-05/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-09T14:20:00+08:00",
+      "description": "Clay and mud on the rear floor mat, Hougang drop-off."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_sneakers_in_car",
+      "taken_at": null,
+      "gps": null,
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "uphold_cleaning_fee",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "reason": "The photo carries no capture time or GPS, so its timing cannot be checked from the file. But the mess is independently established: at 13:55, 3 min after the 13:52 drop-off, the rider wrote in the in-app chat that clay from the trail was all over the mat and offered to pay, and a receipt for S$70 (dated 2026-10-09, Hougang Auto Valet) matches the S$70 fee, which is within the S$120 stain tier and the S$200 cap. The photo shows mud on the mat, consistent with the admission. The rider's later dispute only says the fee is high. The fee stands; refund S$0.",
+    "expected_dispute_type": "cleaning_fee",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": [
+      "Ryde Help Rider Booking A Ryde > I made a mess in my driver's vehicle",
+      "Ryde Help Driver Ryde Experience > My Rider Made a Mess"
+    ]
+  }
+}

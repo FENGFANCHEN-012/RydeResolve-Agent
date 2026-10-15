@@ -2,6 +2,8 @@
 Multi-Agent Debate Engine
 Facilitates adversarial debate between Passenger and Driver agents.
 """
+import re
+
 from src.agents.collector import DisputeContext
 from src.agents.passenger import PassengerAgent
 from src.agents.driver import DriverAgent
@@ -31,6 +33,31 @@ def _fail_if_daily_quota_exhausted(result) -> None:
         )
 
 
+# Triage (D24) may allow complex cases a second round. On main the advocates cannot find new
+# evidence mid-debate, so a further round runs only if a side says it raised a new point.
+NEW_POINT_INSTRUCTION = (
+    "End with one last line, exactly 'NEW_POINT: yes' if this rebuttal raises a fact or argument "
+    "not already made in the debate, otherwise exactly 'NEW_POINT: no'."
+)
+_NEW_POINT_LINE = re.compile(r"^\s*\**\s*NEW_POINT\s*:\s*\**\s*(yes|no)\b.*$", re.I | re.M)
+
+
+def _extra(instruction: str) -> dict:
+    """Pass the instruction only when there is one, so rebut() is called as before otherwise."""
+    return {"extra_instruction": instruction} if instruction else {}
+
+
+def split_new_point(rebuttal):
+    """Strip the NEW_POINT tag (the other side and the Judge never see it) and read it.
+    No tag (or not text) counts as a new point: a missing answer must not cut the debate short."""
+    if not isinstance(rebuttal, str):
+        return rebuttal, True
+    tags = _NEW_POINT_LINE.findall(rebuttal)
+    if not tags:
+        return rebuttal, True
+    return _NEW_POINT_LINE.sub("", rebuttal).strip(), tags[-1].lower() == "yes"
+
+
 
 class DebateEngine:
     """
@@ -58,9 +85,13 @@ class DebateEngine:
         history, _ = await self.debate_with_context(context)
         return history
 
-    async def debate_with_context(self, context: DisputeContext) -> tuple[list[dict], DisputeContext]:
+    async def debate_with_context(self, context: DisputeContext,
+                                  max_rounds: int | None = None) -> tuple[list[dict], DisputeContext]:
         """The debate, plus the context it ended with: clauses the advocates requested
-        (policy_requests) are added to the shared case brief for the rebuttals and the Judge."""
+        (policy_requests) are added to the shared case brief for the rebuttals and the Judge.
+
+        max_rounds (triage, D24) caps the rebuttal rounds; None means MAX_DEBATE_ROUNDS. A round
+        after the first runs only if a side said its last rebuttal raised a new point."""
         history = []
 
         # Initial analysis from both sides
@@ -105,7 +136,10 @@ class DebateEngine:
         })
 
         # Debate rounds
-        for round_num in range(1, self.max_rounds + 1):
+        rounds = max_rounds or self.max_rounds
+        for round_num in range(1, rounds + 1):
+            # Ask for the NEW_POINT tag only when another round could follow
+            ask = NEW_POINT_INSTRUCTION if round_num < rounds else ""
             # Passenger rebuts driver's latest argument
             # Round 1: history[-1] is policy, so take the driver's initial analysis (-2).
             # Later rounds: history[-1] is the driver's latest rebuttal.
@@ -113,9 +147,10 @@ class DebateEngine:
             driver_arg = last_driver["content"] if isinstance(last_driver["content"], str) else str(last_driver["content"])
             async with step("Passenger", f"Round {round_num}: passenger rebuttal",
                             {"rebutting": driver_arg}) as s:
-                p_rebuttal = await self.passenger_agent.rebut(driver_arg, context)
+                p_rebuttal = await self.passenger_agent.rebut(driver_arg, context, **_extra(ask))
                 s["output"] = p_rebuttal
             _fail_if_daily_quota_exhausted(p_rebuttal)
+            p_rebuttal, p_new = split_new_point(p_rebuttal)
             history.append({
                 "round": round_num,
                 "speaker": "passenger",
@@ -125,13 +160,20 @@ class DebateEngine:
             # Driver rebuts passenger's latest argument
             async with step("Driver", f"Round {round_num}: driver rebuttal",
                             {"rebutting": p_rebuttal}) as s:
-                d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context)
+                d_rebuttal = await self.driver_agent.rebut(p_rebuttal, context, **_extra(ask))
                 s["output"] = d_rebuttal
             _fail_if_daily_quota_exhausted(d_rebuttal)
+            d_rebuttal, d_new = split_new_point(d_rebuttal)
             history.append({
                 "round": round_num,
                 "speaker": "driver",
                 "content": d_rebuttal,
             })
+
+            if ask and not (p_new or d_new):
+                async with step("Debate", f"Stop after round {round_num}: no new point from either side",
+                                {"max_rounds": rounds}) as s:
+                    s["output"] = {"rounds_run": round_num}
+                break
 
         return history, context

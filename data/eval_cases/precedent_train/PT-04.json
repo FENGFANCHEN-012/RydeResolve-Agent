@@ -1,0 +1,149 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-04",
+    "trip_id": "RYDE-PT-004",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a longer way. I checked his profile and he has low ratings and previous complaints from other riders, and he was on his phone during the ride. Clearly he is a bad driver and took the long route on purpose. I want part of my S$24.00 fare back.",
+    "filed_at": "2026-10-08T10:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7104",
+    "name": "Daniel Koh",
+    "account_age_days": 300,
+    "total_trips": 58,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6104",
+    "name": "Ahmad Fadzil",
+    "account_age_days": 700,
+    "total_trips": 1950,
+    "avg_rating": 3.9,
+    "dispute_history": {
+      "total_disputes": 7,
+      "upheld_against": 3,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMA 8820 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-004",
+    "rider_id": "R-7104",
+    "driver_id": "D-6104",
+    "pickup_location": {
+      "name": "Bukit Timah Plaza",
+      "lat": 1.34,
+      "lng": 103.777
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3554,
+      "lng": 103.9863
+    },
+    "scheduled_time": "2026-10-08T08:30:00+08:00",
+    "pickup_time": "2026-10-08T08:32:00+08:00",
+    "dropoff_time": "2026-10-08T09:05:00+08:00",
+    "estimated_distance_km": 17.0,
+    "actual_distance_km": 18.6,
+    "estimated_duration_min": 30,
+    "actual_duration_min": 33,
+    "estimated_fare": 24.0,
+    "total_fare": 24.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T08:32:00+08:00",
+      "lat": 1.34,
+      "lng": 103.777,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T08:42:00+08:00",
+      "lat": 1.335,
+      "lng": 103.83,
+      "speed_kmh": 60,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T08:52:00+08:00",
+      "lat": 1.33,
+      "lng": 103.9,
+      "speed_kmh": 75,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T09:05:00+08:00",
+      "lat": 1.3554,
+      "lng": 103.9863,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T08:31:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the bus stop in front of Bukit Timah Plaza."
+    },
+    {
+      "timestamp": "2026-10-08T09:05:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "We have arrived, have a good flight."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T08:30:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7104 booked RYDE-PT-004 to Changi Airport T3. Fixed fare S$24.00."
+    },
+    {
+      "timestamp": "2026-10-08T08:50:00+08:00",
+      "event_type": "route_note",
+      "details": "Driver took the PIE then ECP; one lane closure near Kallang noted on traffic feed, no rider-requested change."
+    },
+    {
+      "timestamp": "2026-10-08T09:05:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$24.00 charged."
+    }
+  ],
+  "platform_policy": {
+    "fares_fixed_at_booking": {
+      "value": true,
+      "text": "Says the rider pays the fare quoted at booking regardless of route taken."
+    },
+    "route_deviation_tolerance_pct": {
+      "value": 15,
+      "text": "The percentage by which actual_distance_km (GPS-measured, pickup to drop-off, in km) may exceed estimated_distance_km before the trip counts as a route deviation. Driver ratings and dispute history are not part of this test."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Actual distance is 18.6 km against an estimate of 17.0 km, which is 9.4% over, inside this trip's 15% tolerance. Duration was 33 min against 30. The rider's points about the driver's low rating, past complaints and phone use are not part of the deviation test in this trip's policy and no record shows the phone use. No deviation, fare is fixed at S$24.00.",
+    "expected_dispute_type": "route_deviation",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

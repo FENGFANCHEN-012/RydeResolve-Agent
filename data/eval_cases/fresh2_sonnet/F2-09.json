@@ -1,0 +1,162 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-09",
+    "trip_id": "RYDE-F2-009",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a much longer route than normal to Ang Mo Kio. I think he did it on purpose to run up the time. I want a refund of part of the $28.00 fare.",
+    "filed_at": "2026-10-03T23:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7109",
+    "name": "Lena Fischer",
+    "account_age_days": 95,
+    "total_trips": 19,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8209",
+    "name": "Foo Wai Keong",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Alphard (SJF 3305 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-009",
+    "rider_id": "R-7109",
+    "driver_id": "D-8209",
+    "pickup_location": {
+      "name": "Changi City Point",
+      "lat": 1.334,
+      "lng": 103.963
+    },
+    "dropoff_location": {
+      "name": "Ang Mo Kio Hub",
+      "lat": 1.37,
+      "lng": 103.848
+    },
+    "scheduled_time": "2026-10-03T21:03:00+08:00",
+    "pickup_time": "2026-10-03T21:05:00+08:00",
+    "dropoff_time": "2026-10-03T21:52:00+08:00",
+    "estimated_distance_km": 24.0,
+    "actual_distance_km": 27.5,
+    "estimated_duration_min": 32,
+    "actual_duration_min": 47,
+    "estimated_fare": 28.0,
+    "total_fare": 28.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-03T21:05:00+08:00",
+      "lat": 1.334,
+      "lng": 103.963,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T21:10:00+08:00",
+      "lat": 1.338,
+      "lng": 103.94,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T21:36:00+08:00",
+      "lat": 1.347,
+      "lng": 103.885,
+      "speed_kmh": 65,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T21:41:00+08:00",
+      "lat": 1.36,
+      "lng": 103.86,
+      "speed_kmh": 60,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-03T21:52:00+08:00",
+      "lat": 1.37,
+      "lng": 103.848,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-03T21:11:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "TPE slip road closed after an accident, navigation is sending us via KPE. Is that ok?"
+    },
+    {
+      "timestamp": "2026-10-03T21:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "ok fine, take the other way"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-03T21:02:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7109 confirmed fixed fare S$28.00."
+    },
+    {
+      "timestamp": "2026-10-03T21:10:30+08:00",
+      "event_type": "reroute_notice",
+      "details": "Traffic feed: TPE slip road closed (accident). Navigation rerouted via KPE. Estimated extra distance 3 km."
+    },
+    {
+      "timestamp": "2026-10-03T21:38:00+08:00",
+      "event_type": "gps_telemetry_dropout",
+      "details": "Driver app lost GPS signal from 21:38:00 to 21:40:30 (150 s). Cause logged: tunnel section."
+    },
+    {
+      "timestamp": "2026-10-03T21:52:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$28.00 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "detour_refund_rule": {
+      "value": "refund_only_if_unjustified",
+      "text": "A detour is refundable only if the driver left the navigated route without a road closure and without the rider's agreement. A detour caused by a road closure notice in the platform's traffic feed, or agreed by the rider, is not refundable."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip. It governs how the fare is calculated, not who pays tolls or ERP."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The platform's own reroute_notice at 21:10:30 records a TPE slip-road closure and the navigation reroute via KPE, and the rider agreed in chat at 21:12 (\"ok fine, take the other way\"). That settles the detour under this trip's detour rule, and the fare is fixed at S$28.00 so no extra was charged. The GPS dropout 21:38:00-21:40:30 is a tunnel section and does not change the finding: the clean fixes at 21:36 and 21:41 sit on the rerouted path. No refund.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}

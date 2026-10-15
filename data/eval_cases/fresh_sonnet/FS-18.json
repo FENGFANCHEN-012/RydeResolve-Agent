@@ -1,0 +1,164 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-18",
+    "trip_id": "RYDE-FS-018",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$140 for cleaning but my trip was spotless. The receipt he used looks like one I have seen reused. Please look into it.",
+    "filed_at": "2026-10-07T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6777",
+    "name": "Sandra Lau",
+    "account_age_days": 100,
+    "total_trips": 25,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9300",
+    "name": "Eddie Soh",
+    "account_age_days": 400,
+    "total_trips": 1500,
+    "avg_rating": 4.2,
+    "dispute_history": {
+      "total_disputes": 7,
+      "upheld_against": 3,
+      "rejected": 4
+    },
+    "fraud_flags": 2,
+    "vehicle": "Hyundai Avante (SJY 5530 N)",
+    "fraud_flag_details": "Receipt no. CR-20917 (QuickShine Cleaning) was already attached to cleaning claims on two other trips by this driver (RYDE-FS-OLD-1, RYDE-FS-OLD-2), both paid out in September 2026."
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-018",
+    "rider_id": "R-6777",
+    "driver_id": "D-9300",
+    "pickup_location": {
+      "name": "Jewel Changi Airport",
+      "lat": 1.3602,
+      "lng": 103.9892
+    },
+    "dropoff_location": {
+      "name": "Pasir Ris Park",
+      "lat": 1.3815,
+      "lng": 103.95
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-05T19:02:00+08:00",
+    "driver_wait_start": "19:02:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 7.1,
+    "duration_min": 15,
+    "fare": 13.2,
+    "cleaning_claim": {
+      "amount_claimed": 140.0,
+      "charged_to_rider": true,
+      "photos_attached": 2,
+      "photo_timestamps": [
+        "2026-10-05T19:24:10+08:00",
+        "2026-10-05T19:24:50+08:00"
+      ],
+      "receipt_attached": true,
+      "receipt": {
+        "company": "QuickShine Cleaning",
+        "receipt_no": "CR-20917",
+        "contact": "6700 0000",
+        "address": "30 Defu Lane",
+        "date": "2026-10-06",
+        "amount": 140.0
+      }
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T19:02:00+08:00",
+      "lat": 1.3602,
+      "lng": 103.9892,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-05T19:08:00+08:00",
+      "lat": 1.37,
+      "lng": 103.97,
+      "speed_kmh": 55,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-05T19:19:00+08:00",
+      "lat": 1.3815,
+      "lng": 103.95,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T19:10:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks for the ride!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T19:03:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-05T19:19:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-06T09:00:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Claim S$140 with receipt CR-20917 (QuickShine Cleaning, dated 2026-10-06)."
+    },
+    {
+      "timestamp": "2026-10-06T09:00:00+08:00",
+      "event_type": "fraud_check_hit",
+      "details": "Receipt number CR-20917 matches receipts on 2 earlier paid claims by driver D-9300."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "fraud_check_hit_requires_human_review": {
+      "value": true,
+      "text": "Governs claims where an automated fraud check matches evidence to earlier claims. A true value means a person must decide; the system does not rule on the claim."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The claim looks complete (2 photos at 19:24:10 and 19:24:50, five minutes after drop-off at 19:19:00, and a receipt for S$140.00), but the driver profile carries 2 fraud flags and the 'fraud_check_hit' event says receipt no. CR-20917 was already used on two earlier paid claims by the same driver. The rider says her trip was spotless. A reused receipt is a fraud signal, and this trip's policy says such a hit must be decided by a person, so the case is escalated and no refund figure is set.",
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

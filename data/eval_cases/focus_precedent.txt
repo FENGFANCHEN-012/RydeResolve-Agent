@@ -1,0 +1,41 @@
+Precedent experiment (2026-10-13). Two sets written together by one blind author:
+
+A. Training set PT-01 .. PT-10 ("past cases"). These become precedents after a human reviewer
+   decides them. Every one is a grey-area case: a cautious automated system would likely hand it
+   to a person, yet an experienced reviewer who reads the records and the case's rules carefully
+   can decide it without more information. Use a different source of doubt in each, for example:
+   - a discretion rule (refund_at_ryde_discretion or similar) where the records point clearly
+     one way;
+   - a doubtful record (GPS dropout, telemetry gap, sync error) that is beside the decisive
+     point, or whose point another clean record settles;
+   - a time rule at or near its boundary, with the rule text saying whether the limit counts;
+   - a strong side issue the filer leans on that the case's rules make irrelevant;
+   - a goodwill situation (first complaint, small amount, clear service failure) under a
+     discretion rule;
+   - two records that look contradictory but are not once units or time zones are read right.
+   No safety, harassment or fraud allegation in the training set.
+
+B. Test set PX-01 .. PX-16 ("new cases"). Held out; nobody tunes on them.
+   - PX-01 .. PX-10: each is a sibling of one training case (name it in "_sibling_of"): the same
+     kind of doubt in a different place, with different people, times and amounts. In 7 of them
+     the right outcome follows the same principle as the sibling. In 3 of them one fact differs
+     so that the sibling's principle does NOT apply and the outcome changes (for example the
+     doubtful record is now on the decisive point, the time is now past the limit, or the
+     discretion rule is absent). Do not make the difference obvious from the title.
+   - PX-11 .. PX-16: controls that look similar to a training case on the surface but must go to
+     a person (verdict null, requires_human_review true, must_escalate true): two with a doubtful
+     record on the decisive point and no clean record settling it, one fraud signal, one safety or
+     harassment allegation, one where the case's own rules say a person decides, one where two
+     clean records truly contradict each other on the decisive point.
+
+Dispute types: spread over no_show, cancellation_refund, fare_dispute, route_deviation,
+service_quality, cleaning_fee, driver_rights. At least 3 training and 3 test cases filed by the
+driver. Use the same policy key names the example cases use, with a value and a text that says
+exactly what is measured and from which moment. All timestamps for one moment must agree across
+trip_data, gps_telemetry and app_events unless the case is meant to contain a conflict.
+
+Every case (both sets): expected_outcome with verdict, refund_amount, recommended_action,
+requires_human_review, must_escalate, reason (cite the exact records and figures),
+expected_dispute_type, acceptable_verdicts where the rules honestly allow more than one label,
+and heldout: true. Amounts in SGD, Singapore places, dates in October 2026, times +08:00.
+Dispute ids PT-01.. / PX-01..; trip ids RYDE-PT-001.. / RYDE-PX-001...

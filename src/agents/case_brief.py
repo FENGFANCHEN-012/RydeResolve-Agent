@@ -45,9 +45,10 @@ def _disputed_sources(conflicts: list[dict], app_events: list) -> set[str]:
     and driver_arrived event), so an arrival conflict disputes both."""
     disputed = {src for c in conflicts for src in c.get("sources") or []} - _NEUTRAL_SOURCES
     if any("arrival" in (c.get("id") or "") for c in conflicts):
-        disputed.add("trip.driver_arrival_time")
+        # The wait timer starts at the arrival, so it is disputed with it (D39 rule checks time from it)
+        disputed.update({"trip.driver_arrival_time", "trip.driver_wait_start"})
         disputed.update(f"app_events[{i}]" for i, e in enumerate(app_events or [])
-                        if isinstance(e, dict) and e.get("event_type") == "driver_arrived")
+                        if isinstance(e, dict) and e.get("event_type") in ("driver_arrived", "wait_timer_started"))
     return disputed
 
 
@@ -122,13 +123,18 @@ class CaseBriefAgent:
 
         def pick(kind):
             return [{"id": f.get("id"), "statement": f.get("statement"), "sources": f.get("sources") or []}
-                    for f in findings if f.get("kind") == kind][:_MAX_FINDINGS_PER_KIND]
+                    for f in findings if f.get("kind") == kind and f.get("tool") != "rule_checks"
+                    ][:_MAX_FINDINGS_PER_KIND]
 
         conflicts = pick("conflict")
         # A fact computed from a contradicted record (e.g. a wait timed from a disputed
         # arrival, eval case NS-002-C1) must not read as verified
         disputed = _disputed_sources(conflicts, ctx.get("app_events"))
         facts = [{**f, "disputed": bool(disputed & set(f["sources"]))} for f in pick("fact")]
+        # This trip's time rules evaluated on the records (D39), shown as their own section
+        rule_checks = [{"id": f.get("id"), "statement": f.get("statement"), "sources": f.get("sources") or [],
+                        "disputed": bool(disputed & set(f.get("sources") or []))}
+                       for f in findings if f.get("tool") == "rule_checks"]
 
         urgency = cls.get("urgency")
         return {
@@ -137,8 +143,12 @@ class CaseBriefAgent:
             "facts": facts,
             "conflicts": conflicts,
             "gaps": pick("gap"),
+            "rule_checks": rule_checks,
             "case_rules": {f"platform_policy.{k}": v for k, v in (ctx.get("platform_policy") or {}).items()
                            if isinstance(k, str) and not k.startswith("_")},
+            # What each rule covers (D36); shown next to its value, never computed with
+            "case_rule_texts": {f"platform_policy.{k}": t for k, t in (ctx.get("platform_policy_text") or {}).items()
+                                if isinstance(k, str) and not k.startswith("_")},
             "timeline": [{"time": e.get("timestamp"), "event": e.get("event_type"),
                           "detail": {k: v for k, v in e.items() if k not in ("timestamp", "event_type")}}
                          for e in (ctx.get("app_events") or [])[:_MAX_EVENTS] if isinstance(e, dict)],
@@ -195,11 +205,22 @@ def render_case_brief(context, with_clause_list: bool = True) -> str:
     if rules:
         lines.append("This trip's platform rules (cite by the exact key; where they speak they take "
                      "precedence over general help-centre text):")
-        lines.extend(f"- {k} = {v}" for k, v in rules.items())
+        texts = brief.get("case_rule_texts") or {}
+        lines.extend(f"- {k} = {v}" + (f"\n    scope: {texts[k]}" if texts.get(k) else "")
+                     for k, v in rules.items())
+    checks = brief.get("rule_checks") or []
+    section("Rule checks (code measured each time rule of this trip on the records and compared the "
+            "measure with the rule's condition. The measure and the comparison are exact; do not "
+            "re-derive them. A check only says whether the condition holds: whether the rule governs "
+            "this event at all (who cancelled, which party it binds) is set by its scope text):",
+            [c for c in checks if not c.get("disputed")])
+    section("Rule checks computed FROM A DISPUTED RECORD (only as reliable as that record; see CONFLICTS):",
+            [c for c in checks if c.get("disputed")])
     if brief.get("timeline"):
         lines.append("App event timeline:")
-        lines.extend(f"- {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
-                     for e in brief["timeline"])
+        # Numbered as app_events[i] (the timeline keeps the events' order), so a ruling can cite them
+        lines.extend(f"- [app_events[{i}]] {e['time']} {e['event']}" + (f" {e['detail']}" if e.get("detail") else "")
+                     for i, e in enumerate(brief["timeline"]))
     if brief.get("clauses") and with_clause_list:
         lines.append("Official policy clauses found for this case (full text is given separately):")
         lines.extend(f"- {c['reference']} ({c['section']})"
@@ -268,7 +289,8 @@ async def add_requested_clauses(context, requests: dict[str, list[str]], retriev
 # Raw context fields whose content the brief already carries (as computed facts, the event
 # timeline and the case rules). With a brief they are left out of prompts: the same data was
 # sent twice per prompt, and the raw GPS points made each agent re-derive distances (D15).
-SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy")
+SUMMARISED_FIELDS = ("gps_trace", "findings", "app_events", "platform_policy", "platform_policy_text",
+                     "platform_policy_checks")
 
 
 def _finding_values(context, finding_id: str) -> dict | None:
@@ -289,6 +311,27 @@ def disputed_charge(context) -> float | None:
     if fare and (fare.get("difference") or 0) > 0:
         return round(float(fare["difference"]), 2)
     return None
+
+
+def disputed_total(context) -> float | None:
+    """Every charge on the filer that the platform data names, added up: the cancellation fee, what
+    was charged above the quoted fare, and a cleaning fee charged to a rider who filed. One filing
+    can dispute several charges; disputed_charge names only one, so a correct refund of both a fare
+    excess and a cleaning fee looked like an over-refund (ST-003, run 20261011-081058). None when
+    the data names no amount."""
+    parts = []
+    fee = _finding_values(context, "fee_check.charged")
+    if fee and fee.get("fee"):
+        parts.append(float(fee["fee"]))
+    fare = _finding_values(context, "fare_check.quoted_vs_charged")
+    if fare and (fare.get("difference") or 0) > 0:
+        parts.append(float(fare["difference"]))
+    get = context.get if isinstance(context, dict) else lambda k: getattr(context, k, None)
+    trip = (get("trip") or {}) if isinstance(get("trip") or {}, dict) else {}
+    cleaning = trip.get("cleaning_fee")
+    if str(get("reporter") or "").lower() != "driver" and isinstance(cleaning, (int, float)) and cleaning > 0:
+        parts.append(float(cleaning))   # a driver's own cleaning claim is not a charge on the filer
+    return round(sum(parts), 2) if parts else None
 
 
 def has_brief(context) -> bool:

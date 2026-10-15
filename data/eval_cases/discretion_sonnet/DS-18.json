@@ -1,0 +1,191 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-18",
+    "trip_id": "RYDE-DS-018",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "The rider never came. I waited about 9 minutes at the pin and then cancelled. I want the S$6.00 no-show fee paid to me.",
+    "filed_at": "2026-10-10T07:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7118",
+    "name": "Shirley Ho",
+    "account_age_days": 520,
+    "total_trips": 171,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8118",
+    "name": "Abdul Karim",
+    "account_age_days": 1050,
+    "total_trips": 5000,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMJ 4402 V)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-018",
+    "rider_id": "R-7118",
+    "driver_id": "D-8118",
+    "pickup_location": {
+      "name": "Tampines Mall (map pin)",
+      "lat": 1.3525,
+      "lng": 103.9448
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.335,
+      "lng": 103.964
+    },
+    "scheduled_time": "2026-10-10T07:20:00+08:00",
+    "driver_arrival_time": "2026-10-10T07:22:00+08:00",
+    "driver_wait_start": "2026-10-10T07:22:00+08:00",
+    "cancellation_time": "2026-10-10T07:31:00+08:00",
+    "cancellation_fee": 0.0,
+    "cancellation_reason": "driver_cancelled_rider_not_at_pickup"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T07:16:00+08:00",
+      "lat": 1.358,
+      "lng": 103.94,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T07:19:00+08:00",
+      "lat": 1.3555,
+      "lng": 103.9425,
+      "speed_kmh": 10,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-10T07:20:30+08:00",
+      "lat": 1.355,
+      "lng": 103.943,
+      "speed_kmh": 4,
+      "status": "en_route"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T07:22:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at Tampines Mall, Gate A."
+    },
+    {
+      "timestamp": "2026-10-10T07:25:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I am at Gate B waiting, the pin is here."
+    },
+    {
+      "timestamp": "2026-10-10T07:26:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at Gate A. Come here."
+    },
+    {
+      "timestamp": "2026-10-10T07:27:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "The pin is not at Gate A! Please come to Gate B"
+    },
+    {
+      "timestamp": "2026-10-10T07:30:50+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Cancelling."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T07:12:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7118 booked trip RYDE-DS-018. Pickup pin: Tampines Mall (the pin sits between Gate A and Gate B)."
+    },
+    {
+      "timestamp": "2026-10-10T07:12:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8118 assigned."
+    },
+    {
+      "timestamp": "2026-10-10T07:20:30+08:00",
+      "event_type": "telemetry_gap_start",
+      "details": "Vehicle location updates stopped (device reported GPS unavailable)."
+    },
+    {
+      "timestamp": "2026-10-10T07:22:00+08:00",
+      "event_type": "driver_arrived_tapped",
+      "details": "Driver tapped 'I'm Here'. No GPS available to verify distance to pickup point."
+    },
+    {
+      "timestamp": "2026-10-10T07:24:00+08:00",
+      "event_type": "rider_location_ping",
+      "details": "Rider app location about 120 m from pickup pin (Gate B side); pings repeat to 07:31."
+    },
+    {
+      "timestamp": "2026-10-10T07:31:00+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled as rider no-show. No fee applied pending review; wait counted from the 'I'm Here' tap would be 9 min."
+    },
+    {
+      "timestamp": "2026-10-10T07:33:00+08:00",
+      "event_type": "telemetry_gap_end",
+      "details": "Vehicle location updates resumed."
+    }
+  ],
+  "cancellation_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show. The count is inclusive."
+    },
+    "arrival_requires_gps_within_m_of_pickup": {
+      "value": 100,
+      "text": "Governs when a driver counts as arrived for waiting and no-show purposes: the driver's GPS position must be within this many metres of the pickup point."
+    },
+    "no_show_fee": {
+      "value": 6.0,
+      "text": "The fee in SGD charged to the rider when the rider counts as a no-show. It covers rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "This trip's policy counts the wait from when the driver's GPS is within 100 m of the pickup point, with an 8-minute inclusive threshold. The GPS record stopped at 07:20:30 and resumed at 07:33:00, covering the whole waiting period, so the driver's arrival cannot be verified. The tap at 07:22 would give 9 minutes and a no-show, but if arrival is later than 07:23 the wait is under 8 minutes. The chat and the rider's pings (about 120 m from the pin at Gate B) show both parties were near the mall at different gates around an ambiguous pin. With the arrival time unprovable and the records in conflict, a human reviewer must decide.",
+    "expected_dispute_type": "no_show",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?"
+    ]
+  }
+}

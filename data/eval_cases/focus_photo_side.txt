@@ -1,0 +1,48 @@
+Photo-side test set PS-01 .. PS-10 (2026-10-14). Purpose: test photo evidence in cleaning-fee disputes,
+mostly disputes FILED BY THE RIDER against a cleaning fee already charged on the driver's photo.
+Photos come from the library in data/evidence_samples/library/ (README.md there says what each photo
+shows; use only those files and trust that description).
+
+Every case is a cleaning_fee dispute after a completed trip (Singapore, October 2026, +08:00).
+Each case's own policy block must include, with a value and text:
+- cleaning_fee_max (an amount), and the fee goes to the driver;
+- photo_window_after_dropoff_min: 60, text: "A cleaning claim needs at least one photo of the mess
+  taken within 60 minutes after drop-off, at or near the drop-off point.";
+- photo_doubt_rule: text: "If a photo's authenticity, timing, place or content is in doubt, a case
+  officer decides; the fee is neither confirmed nor removed automatically."
+Trip records must have pickup_time, dropoff_time, dropoff_location with lat/lng and the cleaning_fee
+charged (when one was charged).
+
+Mix (exactly):
+- 5 rider-filed disputes where the driver's photo is in doubt and the rider denies any mess; a person
+  must decide (verdict null, requires_human_review true, must_escalate true), each for a different
+  problem: (a) photo taken before the trip started, (b) photo taken more than 2 km from the drop-off
+  point, (c) photo names an editing program (software "Adobe Photoshop"), (d) photo shows a clean
+  seat or mat while the fee was for a mess, (e) the photo is the AI-generated image. In some of these
+  the driver also has a weakness that would let a careless reviewer simply remove the fee (no
+  receipt, a fee above the usual amount): the answer is still a person, not an automatic refund.
+- 2 rider-filed disputes where the driver's photo is genuine (real mess, taken 5-40 min after
+  drop-off near the drop-off point, amount within the cap, receipt or a standard policy amount): the
+  fee stands (verdict for the driver, refund 0). The rider argues back in at least one.
+- 1 rider-filed dispute where the driver's photo carries no capture time at all, but the rider
+  admitted the mess in the in-app chat right after the trip and a receipt matches: the fee stands.
+- 1 driver claim (filed by the driver) with a genuine photo and receipt: upheld, amount awarded.
+- 1 driver claim whose photo is a byte-for-byte copy (copy_of) of a photo from an earlier case of this
+  set, the rider denies: a person decides.
+Do not make the problem obvious from the title or the description; it lives in the photo and its data.
+
+Each case lists its photos in an "evidence" array:
+  {"evidence_type": "photo", "file_url": "data/evidence_samples/cases/PS-xx/photo1.jpg",
+   "uploaded_by": "driver" | "rider", "uploaded_at": ISO time, "description": the uploader's caption}
+and how each photo is to be stamped in "_photo_stamps":
+  {"photo1.jpg": {"library": "<library file name without .jpg>", "taken_at": ISO time or null,
+                  "gps": [lat, lng] or null, "software": null or a string, "copy_of": null or
+                  "PS-yy/photo1.jpg"}}
+(copy_of means a byte-for-byte copy of that other case's stamped photo; library/taken_at/gps/software
+are then ignored; the copied case must have a lower id). uploaded_at must be after taken_at.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action, requires_human_review,
+must_escalate, reason (cite the exact records, photo times and figures), expected_dispute_type
+"cleaning_fee", acceptable_verdicts where honest, heldout: true. Dispute ids PS-01..PS-10 in a
+shuffled order of the mix above, trip ids RYDE-PS-001.. . For a rider dispute where the fee stands,
+refund_amount is 0; for a driver's claim upheld, refund_amount is the amount awarded to the driver.

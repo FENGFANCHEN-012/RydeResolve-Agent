@@ -1,0 +1,148 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-08",
+  "_role": "control_must_escalate",
+  "dispute_ticket": {
+    "dispute_id": "PX-13",
+    "trip_id": "RYDE-PX-013",
+    "filed_by": "driver",
+    "dispute_type": "fare_dispute",
+    "description": "I paid S$9.00 in ERP on the airport trip but the rider was not charged her half. Please add S$4.50 to my earnings.",
+    "filed_at": "2026-10-12T22:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8113",
+    "name": "Fiona Lee",
+    "account_age_days": 700,
+    "total_trips": 190,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7113",
+    "name": "Jason Kwek",
+    "account_age_days": 400,
+    "total_trips": 2300,
+    "avg_rating": 4.1,
+    "dispute_history": {
+      "total_disputes": 6,
+      "upheld_against": 3,
+      "rejected": 3
+    },
+    "fraud_flags": 2,
+    "vehicle": "Honda Odyssey (SLV 6619 K)",
+    "fraud_flag_details": "Two earlier ERP claims were edited after trip end and found not to match in-vehicle unit records (Aug and Sep 2026)."
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-013",
+    "rider_id": "R-8113",
+    "driver_id": "D-7113",
+    "pickup_location": {
+      "name": "Raffles Hotel",
+      "lat": 1.295,
+      "lng": 103.854
+    },
+    "dropoff_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3554,
+      "lng": 103.9863
+    },
+    "scheduled_time": "2026-10-12T17:45:00+08:00",
+    "pickup_time": "2026-10-12T17:47:00+08:00",
+    "dropoff_time": "2026-10-12T18:20:00+08:00",
+    "estimated_distance_km": 19.0,
+    "actual_distance_km": 19.3,
+    "estimated_duration_min": 33,
+    "actual_duration_min": 33,
+    "estimated_fare": 28.0,
+    "total_fare": 28.0,
+    "erp_keyed_by_driver": 9.0,
+    "erp_charged_to_rider": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T17:47:00+08:00",
+      "lat": 1.295,
+      "lng": 103.854,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T18:00:00+08:00",
+      "lat": 1.31,
+      "lng": 103.91,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T18:10:00+08:00",
+      "lat": 1.34,
+      "lng": 103.96,
+      "speed_kmh": 70,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T18:20:00+08:00",
+      "lat": 1.3554,
+      "lng": 103.9863,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T17:48:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Good evening, to T3?"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T17:45:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8113 booked RYDE-PX-013 (RydeX) to Changi T3. Fixed fare S$28.00, ERP excluded."
+    },
+    {
+      "timestamp": "2026-10-12T18:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Driver Toll (ERP) field S$0.00. No erp_gantry_detected event was recorded by the in-vehicle unit during the trip."
+    },
+    {
+      "timestamp": "2026-10-12T19:02:00+08:00",
+      "event_type": "driver_manual_erp_entry",
+      "details": "Driver edited Toll (ERP) for this trip after completion: S$0.00 to S$1.50 (18:41), then to S$9.00 (19:02)."
+    }
+  ],
+  "platform_policy": {
+    "erp_cost_split": {
+      "value": "50/50",
+      "text": "How the total ERP charge of a trip is shared. The driver bears 50% and the rider pays 50%. Applies to service types whose fare excludes ERP (this trip: RydeX)."
+    },
+    "erp_evidence": {
+      "value": "erp_gantry_detected app events",
+      "text": "The record used to establish the ERP incurred on a trip. The events come from the in-vehicle unit. A driver's keyed amount does not override them."
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "Not an ordinary ERP claim: the in-vehicle unit recorded no erp_gantry_detected event at all, yet the driver raised the ERP from S$0.00 to S$1.50 and then S$9.00 after the trip ended, and the driver already carries two fraud flags for earlier edited ERP claims. This is a possible fraud pattern and must go to a person, not be paid or dismissed automatically.",
+    "expected_dispute_type": "fare_dispute",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

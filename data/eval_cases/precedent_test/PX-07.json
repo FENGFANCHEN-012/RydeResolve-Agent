@@ -1,0 +1,149 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-07",
+  "_role": "principle_does_not_apply",
+  "dispute_ticket": {
+    "dispute_id": "PX-07",
+    "trip_id": "RYDE-PX-007",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver's air-con was broken the whole trip and he only offered to open the window. It was a very hot afternoon and I arrived drenched. I would like some of my fare back.",
+    "filed_at": "2026-10-06T16:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8107",
+    "name": "Nadia Aziz",
+    "account_age_days": 120,
+    "total_trips": 19,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7107",
+    "name": "Hock Seng Tan",
+    "account_age_days": 800,
+    "total_trips": 2900,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SKM 1904 W)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-007",
+    "rider_id": "R-8107",
+    "driver_id": "D-7107",
+    "pickup_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3243,
+      "lng": 103.93
+    },
+    "dropoff_location": {
+      "name": "Ngee Ann City",
+      "lat": 1.302,
+      "lng": 103.834
+    },
+    "scheduled_time": "2026-10-06T16:00:00+08:00",
+    "pickup_time": "2026-10-06T16:01:00+08:00",
+    "dropoff_time": "2026-10-06T16:34:00+08:00",
+    "estimated_distance_km": 13.0,
+    "actual_distance_km": 13.1,
+    "estimated_duration_min": 32,
+    "actual_duration_min": 33,
+    "estimated_fare": 22.0,
+    "total_fare": 22.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T16:01:00+08:00",
+      "lat": 1.3243,
+      "lng": 103.93,
+      "speed_kmh": 10,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T16:17:00+08:00",
+      "lat": 1.315,
+      "lng": 103.89,
+      "speed_kmh": 50,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T16:34:00+08:00",
+      "lat": 1.302,
+      "lng": 103.834,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T16:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Could you turn on the aircon please? Very hot"
+    },
+    {
+      "timestamp": "2026-10-06T16:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Aircon spoil lah, open window can?"
+    },
+    {
+      "timestamp": "2026-10-06T16:20:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Still very hot, this is quite bad"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T16:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8107 booked RYDE-PX-007. Fixed fare S$22.00."
+    },
+    {
+      "timestamp": "2026-10-06T16:35:00+08:00",
+      "event_type": "rider_rating",
+      "details": "Rider rated trip 2 stars, tag: air-conditioning not working. No tip."
+    }
+  ],
+  "platform_policy": {
+    "service_quality_remedy": {
+      "value": "refund_at_ryde_discretion",
+      "text": "Whether Ryde refunds part of a fixed fare when the service was clearly below standard. It applies only when the records show an actual failure; a refund is optional, never automatic."
+    },
+    "service_quality_remedy_max_pct": {
+      "value": 20,
+      "text": "The most, as a percentage of total_fare, that may be refunded under service_quality_remedy."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 4.4,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The driver's own chat at 16:03 ('Aircon spoil lah') admits the air-con was broken, the rider complained again at 16:20, and she rated 2 stars with the air-conditioning tag and no tip on a 33-minute trip. That is a real failure, so the discretionary remedy is warranted. The cap is 20% of the S$22.00 fare, which is S$4.40, a proportionate goodwill refund; the rider did not claim more than a part.",
+    "expected_dispute_type": "service_quality",
+    "acceptable_verdicts": [
+      "partially_upheld",
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

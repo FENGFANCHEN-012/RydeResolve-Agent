@@ -1,0 +1,143 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-06",
+    "trip_id": "RYDE-FS-006",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "My driver was very late, over 10 minutes, and never messaged me even once to say he was delayed. I cancelled and got charged S$4.00. It's not fair, he never said a word.",
+    "filed_at": "2026-10-08T18:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9013",
+    "name": "Siti Rahmah",
+    "account_age_days": 233,
+    "total_trips": 75,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-4408",
+    "name": "Teo Chee Seng",
+    "account_age_days": 1900,
+    "total_trips": 8800,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 5,
+      "upheld_against": 1,
+      "rejected": 4
+    },
+    "fraud_flags": 0,
+    "vehicle": "Nissan Serena (SGM 2951 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-006",
+    "rider_id": "R-9013",
+    "driver_id": "D-4408",
+    "pickup_location": {
+      "name": "Block 245 Yishun Ring Rd",
+      "lat": 1.4256,
+      "lng": 103.8335
+    },
+    "dropoff_location": {
+      "name": "Northpoint City",
+      "lat": 1.4294,
+      "lng": 103.8355
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-08T17:57:30+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_cancelled"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T17:41:00+08:00",
+      "lat": 1.44,
+      "lng": 103.81,
+      "speed_kmh": 20,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T17:50:00+08:00",
+      "lat": 1.433,
+      "lng": 103.82,
+      "speed_kmh": 15,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T17:57:30+08:00",
+      "lat": 1.429,
+      "lng": 103.831,
+      "speed_kmh": 22,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T17:51:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Where are you? It's already late."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T17:40:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-4408 matched. Shown arrival time 17:48 (ETA 8 min)."
+    },
+    {
+      "timestamp": "2026-10-08T17:50:15+08:00",
+      "event_type": "in_app_call",
+      "details": "Driver called rider; connected, duration 96 s."
+    },
+    {
+      "timestamp": "2026-10-08T17:57:30+08:00",
+      "event_type": "rider_cancel_tapped",
+      "details": "Rider cancelled 17 min 30 s after matching; driver GPS 380 m from pickup."
+    },
+    {
+      "timestamp": "2026-10-08T17:57:32+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$4.00 charged to rider card."
+    }
+  ],
+  "cancellation_policy": {
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only. The limit counts: a cancellation at exactly 3 min 00 s is still free."
+    },
+    "cancellation_fee_after_driver_assigned": {
+      "value": 4.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "no_fee_if_driver_delayed_beyond_eta_min": {
+      "value": 10,
+      "text": "Governs a rider who cancels while the driver is late. The rider owes no fee only if the cancellation is made MORE than this many minutes after the arrival time shown at assignment; exactly 10 min 00 s does not qualify."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "cancellation_charge_upheld_no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The arrival time shown at assignment (17:40:00 + 8 min) was 17:48:00. The rider cancelled at 17:57:30, which is 9 min 30 s past it, under the 10-min limit in this trip's policy (and well outside the 3-min free window after matching, 17:40:00 to 17:57:30 = 17 min 30 s). So the S$4.00 fee applies. The rider's 'over 10 minutes' is wrong. Her claim that the driver 'never said a word' rests on the chat log alone, which is incomplete: app_events show the driver phoned her at 17:50:15 and connected for 96 s, so the driver did communicate. The delay claim and the lack of chat messages do not change the outcome.",
+    "expected_dispute_type": "cancellation_refund"
+  }
+}

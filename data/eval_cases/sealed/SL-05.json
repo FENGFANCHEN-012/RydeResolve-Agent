@@ -79,8 +79,14 @@
     }
   ],
   "platform_policy": {
-    "service_type": "RydeX",
-    "fare_type": "fixed"
+    "service_type": {
+      "value": "RydeX",
+      "text": "The Ryde service booked for this trip, for example RydeX, RydePOOL or RydeTAXI. It is a fact about the trip, not a rule."
+    },
+    "fare_type": {
+      "value": "fixed",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare."
+    }
   },
   "expected_outcome": {
     "heldout": true,

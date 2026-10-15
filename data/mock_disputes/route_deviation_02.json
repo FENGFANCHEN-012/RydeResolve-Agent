@@ -159,10 +159,22 @@
     }
   ],
   "platform_policy": {
-    "refund_at_ryde_discretion": true,
-    "rider_route_requests_must_be_agreed_before_trip": true,
-    "fare_basis": "metered (RydeTAXI fares are not fixed upfront)",
-    "detour_for_verified_road_closure_billable": true
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
+    },
+    "rider_route_requests_must_be_agreed_before_trip": {
+      "value": true,
+      "text": "Binds the rider. A route or stop that the rider asks for must be agreed with the driver before the trip starts. It does not govern route changes the driver makes."
+    },
+    "fare_basis": {
+      "value": "metered (RydeTAXI fares are not fixed upfront)",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    }
   },
   "expected_outcome": {
     "verdict": "dismissed",

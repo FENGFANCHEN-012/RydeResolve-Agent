@@ -1,0 +1,165 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-10",
+    "trip_id": "RYDE-F2-010",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The taxi driver ignored the navigation and went a longer way. I was charged $27.00 on the meter. I want the extra distance refunded.",
+    "filed_at": "2026-10-08T17:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7110",
+    "name": "Nora Abdullah",
+    "account_age_days": 610,
+    "total_trips": 260,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8210",
+    "name": "Gan Boon Tiong",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "RydeTAXI Hyundai Sonata (SHA 8815 D)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-010",
+    "rider_id": "R-7110",
+    "driver_id": "D-8210",
+    "pickup_location": {
+      "name": "Vivocity",
+      "lat": 1.2644,
+      "lng": 103.8222
+    },
+    "dropoff_location": {
+      "name": "Sembawang MRT",
+      "lat": 1.4491,
+      "lng": 103.82
+    },
+    "scheduled_time": "2026-10-08T15:28:00+08:00",
+    "pickup_time": "2026-10-08T15:30:00+08:00",
+    "dropoff_time": "2026-10-08T16:15:00+08:00",
+    "estimated_distance_km": 15.0,
+    "actual_distance_km": 18.0,
+    "estimated_duration_min": 34,
+    "actual_duration_min": 45,
+    "estimated_fare": null,
+    "total_fare": 27.0,
+    "service_type": "RydeTAXI",
+    "fare_basis": "metered"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T15:30:00+08:00",
+      "lat": 1.2644,
+      "lng": 103.8222,
+      "speed_kmh": 8,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T15:42:10+08:00",
+      "lat": 1.32,
+      "lng": 103.81,
+      "speed_kmh": 52,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T15:55:00+08:00",
+      "lat": 1.36,
+      "lng": 103.77,
+      "speed_kmh": 60,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T16:08:00+08:00",
+      "lat": 1.43,
+      "lng": 103.81,
+      "speed_kmh": 55,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T16:15:00+08:00",
+      "lat": 1.4491,
+      "lng": 103.82,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T15:44:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why are we leaving the route on my screen?"
+    },
+    {
+      "timestamp": "2026-10-08T15:45:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Shortcut, trust me."
+    },
+    {
+      "timestamp": "2026-10-08T15:45:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "The driver was also very rude about my luggage."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T15:28:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7110 booked RydeTAXI from Vivocity to Sembawang MRT. Metered fare; navigated route estimate 15.0 km."
+    },
+    {
+      "timestamp": "2026-10-08T15:42:10+08:00",
+      "event_type": "route_deviation_flag",
+      "details": "Vehicle left the navigated route. No road closure or traffic incident on the traffic feed for the area."
+    },
+    {
+      "timestamp": "2026-10-08T16:15:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Meter stopped. Actual distance 18.0 km. Metered fare S$27.00 charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "unjustified_detour_refund": {
+      "value": "fare_times_extra_distance_over_actual_distance",
+      "text": "Where a driver leaves the navigated route without a road closure and without the rider's agreement, the rider is refunded the part of the metered fare for the extra distance: metered fare x (actual distance - estimated distance) / actual distance."
+    },
+    "fare_type": {
+      "value": "metered",
+      "text": "RydeTAXI trips are charged by meter rather than at a fixed upfront fare."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund",
+    "refund_amount": 4.5,
+    "requires_human_review": false,
+    "reason": "route_deviation_flag at 15:42:10 shows the vehicle left the navigated route with no road closure on the traffic feed, and the driver's chat (\"Shortcut, trust me\") offers no closure; the rider objected at 15:44 and did not agree. Actual distance was 18.0 km against a 15.0 km estimate. This trip's rule refunds the metered fare for the extra distance: 27.00 x (18.0 - 15.0) / 18.0 = S$4.50. The rider's remark about rudeness does not change the amount.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}

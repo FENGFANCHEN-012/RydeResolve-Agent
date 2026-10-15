@@ -1,0 +1,201 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "before_trip",
+  "dispute_ticket": {
+    "dispute_id": "IM-08",
+    "trip_id": "RYDE-IM-008",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$100 for muddy shoes. My shoes were clean and I did not leave any mess in the car. Please remove this fee.",
+    "filed_at": "2026-10-11T14:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7208",
+    "name": "Siti Aminah",
+    "account_age_days": 1104,
+    "total_trips": 402,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5108",
+    "name": "Yap Chee Meng",
+    "account_age_days": 1080,
+    "total_trips": 2040,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Cerato (SNH 1146 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-008",
+    "rider_id": "R-7208",
+    "driver_id": "D-5108",
+    "pickup_location": {
+      "name": "Hougang Mall",
+      "lat": 1.3722,
+      "lng": 103.8924
+    },
+    "dropoff_location": {
+      "name": "Bishan Junction 8",
+      "lat": 1.3504,
+      "lng": 103.8485
+    },
+    "scheduled_time": "2026-10-11T09:30:00+08:00",
+    "pickup_time": "2026-10-11T09:30:00+08:00",
+    "dropoff_time": "2026-10-11T09:48:00+08:00",
+    "estimated_distance_km": 7.1,
+    "actual_distance_km": 7.1,
+    "estimated_duration_min": 18,
+    "actual_duration_min": 18,
+    "estimated_fare": 10.7,
+    "total_fare": 10.7,
+    "cleaning_fee": 100.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T09:30:00+08:00",
+      "lat": 1.3722,
+      "lng": 103.8924,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T09:39:00+08:00",
+      "lat": 1.3613,
+      "lng": 103.8705,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T09:48:00+08:00",
+      "lat": 1.3504,
+      "lng": 103.8485,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T09:27:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Outside Hougang Mall main entrance, grey Cerato."
+    },
+    {
+      "timestamp": "2026-10-11T09:50:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "There is mud on the mat from your shoes. I will claim cleaning."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T09:22:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7208 booked trip RYDE-IM-008 from Hougang Mall to Bishan Junction 8."
+    },
+    {
+      "timestamp": "2026-10-11T09:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-11T09:48:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-11T10:03:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$100.00 with 1 photo (photo1.jpg). Driver says the rider's shoes left mud on the floor mat."
+    },
+    {
+      "timestamp": "2026-10-11T10:03:05+08:00",
+      "event_type": "cleaning_claim_evidence_check",
+      "details": "No cleaning receipt attached."
+    },
+    {
+      "timestamp": "2026-10-11T10:31:00+08:00",
+      "event_type": "cleaning_fee_applied",
+      "details": "S$100.00 cleaning fee auto-charged to rider payment method (credit card)."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 120,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-08/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-11T10:01:00+08:00",
+      "description": "Mud on the floor mat after the trip."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "muddy_sneakers_in_car",
+      "taken_at": "2026-10-11T08:52:00+08:00",
+      "gps": [
+        1.3506,
+        103.8483
+      ],
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_case_officer",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The driver claims mud on the floor mat (S$100.00 charged, no receipt). Photo1 shows muddy sneakers and a muddy mat, but its capture time is 08:52, 38 minutes before pickup at 09:30 and 56 minutes before drop-off at 09:48, so it does not show a mess left by this rider. The rider denies leaving any mess and the chat holds only the driver's statement at 09:50. With the photo's timing in doubt and nothing else settling it, a case officer decides.",
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

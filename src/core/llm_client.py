@@ -312,6 +312,7 @@ class LLMClient:
         messages: list[dict],
         temperature: float | None = None,
         reasoning_effort: str | None = None,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Send a chat request expecting JSON output on this client's provider only.
@@ -337,6 +338,7 @@ class LLMClient:
                 temperature=temperature,
                 response_format=response_format,
                 reasoning_effort=reasoning_effort,
+                max_tokens=max_tokens,
             )
         except Exception as exc:
             if not self.openai_compatible or not _groq_json_validation_failed(exc):
@@ -348,6 +350,7 @@ class LLMClient:
                 temperature=temperature,
                 response_format=response_format,
                 reasoning_effort=reasoning_effort,
+                max_tokens=max_tokens,
             )
 
 
@@ -388,12 +391,13 @@ class LLMClient:
         messages: list[dict],
         temperature: float | None = None,
         reasoning_effort: str | None = None,
+        max_tokens: int | None = None,
     ) -> str:
         """JSON chat on the primary provider, then on each fallback if it fails.
         Returns the raw JSON string (caller should parse)."""
         return await self._with_fallback(
             "_chat_json_primary", messages=messages, temperature=temperature,
-            reasoning_effort=reasoning_effort)
+            reasoning_effort=reasoning_effort, max_tokens=max_tokens)
 
 
 # Singleton instance

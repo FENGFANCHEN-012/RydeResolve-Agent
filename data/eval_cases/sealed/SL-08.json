@@ -103,8 +103,14 @@
     }
   ],
   "cancellation_policy": {
-    "no_show_threshold_minutes": 3,
-    "cancellation_fee_amount": 6.61
+    "no_show_threshold_minutes": {
+      "value": 3,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_amount": {
+      "value": 6.61,
+      "text": "The cancellation fee in SGD that this trip's policy allows to be charged to the rider when a fee is due."
+    }
   },
   "expected_outcome": {
     "heldout": true,

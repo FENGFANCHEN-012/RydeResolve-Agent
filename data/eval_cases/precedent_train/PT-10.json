@@ -1,0 +1,164 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "dispute_ticket": {
+    "dispute_id": "PT-10",
+    "trip_id": "RYDE-PT-010",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "The rider made me wait 4 minutes at the pickup point before getting in, but no waiting fee was added to my earnings. Please credit me the S$5.00 waiting fee.",
+    "filed_at": "2026-10-12T11:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7110",
+    "name": "Grace Lim",
+    "account_age_days": 460,
+    "total_trips": 150,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6110",
+    "name": "Tommy Wong",
+    "account_age_days": 2000,
+    "total_trips": 7200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SJZ 2208 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PT-010",
+    "rider_id": "R-7110",
+    "driver_id": "D-6110",
+    "pickup_location": {
+      "name": "Blk 12 Toa Payoh Lor 7",
+      "lat": 1.339,
+      "lng": 103.856
+    },
+    "dropoff_location": {
+      "name": "Novena Square",
+      "lat": 1.32,
+      "lng": 103.844
+    },
+    "scheduled_time": "2026-10-12T10:00:00+08:00",
+    "driver_arrival_time": "2026-10-12T10:00:00+08:00",
+    "driver_wait_start": "2026-10-12T10:00:00+08:00",
+    "pickup_time": "2026-10-12T10:03:00+08:00",
+    "dropoff_time": "2026-10-12T10:14:00+08:00",
+    "estimated_distance_km": 3.2,
+    "actual_distance_km": 3.3,
+    "estimated_duration_min": 11,
+    "actual_duration_min": 11,
+    "estimated_fare": 9.0,
+    "total_fare": 9.0,
+    "waiting_fee_charged": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T09:57:00+08:00",
+      "lat": 1.342,
+      "lng": 103.858,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-12T10:00:00+08:00",
+      "lat": 1.3391,
+      "lng": 103.8561,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-12T10:03:00+08:00",
+      "lat": 1.3391,
+      "lng": 103.8561,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-12T10:04:00+08:00",
+      "lat": 1.338,
+      "lng": 103.8555,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T10:14:00+08:00",
+      "lat": 1.32,
+      "lng": 103.844,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T10:00:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the lift lobby of Blk 12."
+    },
+    {
+      "timestamp": "2026-10-12T10:02:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "coming, 1 min!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T09:40:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7110 booked RYDE-PT-010 to Novena Square. Pickup 10:00."
+    },
+    {
+      "timestamp": "2026-10-12T10:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here at 10:00:00."
+    },
+    {
+      "timestamp": "2026-10-12T10:03:00+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded at 10:03:00. Wait time 3 min 0 s."
+    },
+    {
+      "timestamp": "2026-10-12T10:14:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. No waiting fee triggered."
+    }
+  ],
+  "platform_policy": {
+    "waiting_fee_amount": {
+      "value": 5.0,
+      "text": "The waiting time fee in SGD charged to the rider and credited to the driver when it is triggered."
+    },
+    "waiting_fee_trigger_min": {
+      "value": 3,
+      "text": "The waiting fee is due only if the wait, from the driver_arrived event to the rider_boarded event, is MORE than this many minutes. A wait of exactly this many minutes does not trigger the fee."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_credit",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived is 10:00:00 and rider_boarded is 10:03:00, a wait of exactly 3 min 0 s. The trip's rule says the fee is due only when the wait is MORE than 3 minutes and that exactly 3 minutes does not trigger it. The driver's 'about 4 minutes' is not supported by the records (the car moved off at 10:04, one minute after boarding). No waiting fee is due.",
+    "expected_dispute_type": "driver_rights",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

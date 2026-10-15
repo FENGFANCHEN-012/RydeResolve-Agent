@@ -1,0 +1,164 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-13",
+    "trip_id": "RYDE-FS-013",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My receipt shows two ERP charges but I'm sure we only passed one gantry. I also do not think I should pay ERP at all. Please take it off.",
+    "filed_at": "2026-10-08T09:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-5047",
+    "name": "Vivian Ng",
+    "account_age_days": 300,
+    "total_trips": 88,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6633",
+    "name": "Thomas Ang",
+    "account_age_days": 880,
+    "total_trips": 3900,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Skoda Octavia (SMC 1847 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-013",
+    "rider_id": "R-5047",
+    "driver_id": "D-6633",
+    "pickup_location": {
+      "name": "Sengkang Grand Mall",
+      "lat": 1.3919,
+      "lng": 103.8953
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Financial Centre",
+      "lat": 1.2797,
+      "lng": 103.8541
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-08T08:02:00+08:00",
+    "driver_wait_start": "08:02:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 16.8,
+    "duration_min": 31,
+    "fare": 21.4,
+    "fare_breakdown": {
+      "base_fare": 16.4,
+      "erp_charges": [
+        {
+          "gantry": "PIE Eunos",
+          "amount": 2.5
+        },
+        {
+          "gantry": "Sims Ave",
+          "amount": 2.5
+        }
+      ],
+      "erp_total": 5.0,
+      "total": 21.4
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T08:02:00+08:00",
+      "lat": 1.3919,
+      "lng": 103.8953,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-08T08:12:00+08:00",
+      "lat": 1.36,
+      "lng": 103.9,
+      "speed_kmh": 70,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-08T08:25:00+08:00",
+      "lat": 1.317,
+      "lng": 103.875,
+      "speed_kmh": 45,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-08T08:41:00+08:00",
+      "lat": 1.2797,
+      "lng": 103.8541,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T08:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Good morning, white Skoda."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T08:02:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'."
+    },
+    {
+      "timestamp": "2026-10-08T08:21:40+08:00",
+      "event_type": "erp_gantry_crossed",
+      "details": "Crossed ERP gantry PIE Eunos, S$2.50."
+    },
+    {
+      "timestamp": "2026-10-08T08:25:30+08:00",
+      "event_type": "route_segment",
+      "details": "Vehicle left expressway at Mountbatten Rd; Sims Ave gantry not on route."
+    },
+    {
+      "timestamp": "2026-10-08T08:41:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Fare S$21.40 charged: base S$16.40 + ERP S$5.00 (two gantries)."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed base fare plus ERP",
+      "text": "States how this trip's fare is set: a fixed upfront base fare, with ERP charged on top."
+    },
+    "erp_charge_per_gantry_crossed": {
+      "value": 2.5,
+      "text": "ERP is borne by the rider. A gantry may be charged at this SGD amount only if it appears as an erp_gantry_crossed event in app_events for this trip."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 2.5,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "ERP is borne by the rider under this trip's policy, so the rider's claim that she should pay none fails. But a gantry may be charged only if app_events hold an erp_gantry_crossed event: there is one (PIE Eunos, 08:21:40, S$2.50), and at 08:25:30 the vehicle left the expressway so the Sims Ave gantry was not on the route. The fare breakdown charged two gantries (S$5.00). Refund = 5.00 - 2.50 = S$2.50; total payable S$16.40 + S$2.50 = S$18.90, charged S$21.40.",
+    "expected_dispute_type": "fare_dispute"
+  }
+}

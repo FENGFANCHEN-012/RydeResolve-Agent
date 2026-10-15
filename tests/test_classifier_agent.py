@@ -113,6 +113,22 @@ async def test_p0_harassment_keyword():
     assert result.requires_human is True
 
 
+@pytest.mark.asyncio
+async def test_p0_harassment_in_plain_words_with_a_given_type():
+    """Harassment told without the word "harassment" is still P0, even when the ticket already
+    carries a non-safety type (D40, FS-19)."""
+    agent = ClassifierAgent()
+    ctx = make_context(
+        "The driver kept commenting on my body and asked for my number. I told him to stop and "
+        "he did not. I felt unsafe.",
+        type=DisputeType.SERVICE_QUALITY,
+    )
+    result = await agent.classify(ctx)
+
+    assert result.urgency == UrgencyLevel.P0
+    assert result.requires_human is True
+
+
 # ---------------------------------------------------------------------------
 # Offline Keyword Classification Tests (no API key, no LLM)
 # ---------------------------------------------------------------------------

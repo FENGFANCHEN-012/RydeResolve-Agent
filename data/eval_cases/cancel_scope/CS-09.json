@@ -1,0 +1,249 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "A: driver-filed, held fee to release (wait 10 >= 8); rider chat says driver cancelled",
+  "dispute_ticket": {
+    "dispute_id": "CS-09",
+    "trip_id": "RYDE-CS-009",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "Passenger did not come to Jurong East MRT Exit B. I waited 10 minutes, tried calling, then cancelled as a no-show. The S$4.00 fee was put on hold after the rider objected, but I did what the policy says. Please release the held fee to me.",
+    "filed_at": "2026-10-12T23:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6602",
+    "name": "Benjamin Chua",
+    "account_age_days": 95,
+    "total_trips": 12,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9150",
+    "name": "Mohamed Hakim Bin Yusof",
+    "account_age_days": 1500,
+    "total_trips": 5370,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Grace Hybrid (SMF 6619 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-CS-009",
+    "rider_id": "R-6602",
+    "driver_id": "D-9150",
+    "pickup_location": {
+      "name": "Jurong East MRT (Exit B taxi stand)",
+      "lat": 1.3333,
+      "lng": 103.7424
+    },
+    "dropoff_location": {
+      "name": "Tuas Link MRT",
+      "lat": 1.3404,
+      "lng": 103.6368
+    },
+    "scheduled_time": "2026-10-11T22:10:00+08:00",
+    "driver_arrival_time": "2026-10-11T22:09:00+08:00",
+    "driver_wait_start": "2026-10-11T22:09:00+08:00",
+    "cancellation_time": "2026-10-11T22:19:00+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T22:01:00+08:00",
+      "lat": 1.3453,
+      "lng": 103.7524,
+      "speed_kmh": 38,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-11T22:06:00+08:00",
+      "lat": 1.3373,
+      "lng": 103.7454,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-11T22:09:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-11T22:11:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-11T22:13:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-11T22:15:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-11T22:17:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-11T22:19:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7424,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T22:09:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I'm at Jurong East MRT Exit B taxi stand, grey Honda Grace."
+    },
+    {
+      "timestamp": "2026-10-11T22:13:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Waiting at the pickup point, please come."
+    },
+    {
+      "timestamp": "2026-10-11T22:16:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing call to rider - not answered (rang 25s, no response)."
+    },
+    {
+      "timestamp": "2026-10-11T22:18:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "10 minutes passed. Cancelling as no-show."
+    },
+    {
+      "timestamp": "2026-10-11T22:19:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $4.00 applied."
+    },
+    {
+      "timestamp": "2026-10-11T22:24:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "You cancelled the trip, not me. I was still walking from the other exit."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T21:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-6602 booked trip RYDE-CS-009 from Jurong East MRT (Exit B taxi stand) to Tuas Link MRT. Pickup 22:10."
+    },
+    {
+      "timestamp": "2026-10-11T21:58:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-9150 (Mohamed Hakim Bin Yusof, Honda Grace Hybrid (SMF 6619 R)) assigned."
+    },
+    {
+      "timestamp": "2026-10-11T22:09:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'. Arrival recorded for the pickup point."
+    },
+    {
+      "timestamp": "2026-10-11T22:09:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-11T22:09:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started at driver arrival. 5 min free wait period ends at 22:14."
+    },
+    {
+      "timestamp": "2026-10-11T22:14:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 5-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-11T22:16:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Call rang 25s, no answer."
+    },
+    {
+      "timestamp": "2026-10-11T22:19:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Cancel pressed by driver D-9150. Reason selected: rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-11T22:19:05+08:00",
+      "event_type": "cancellation_fee_held",
+      "details": "Cancellation fee S$4.00 held pending review (rider objected that the driver cancelled). Not yet credited to driver."
+    },
+    {
+      "timestamp": "2026-10-11T22:19:10+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-9150 released from trip. Trip status: cancelled (rider_no_show)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 4.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "release_held_fee_to_driver",
+    "refund_amount": 4.0,
+    "requires_human_review": false,
+    "reason": "Driver arrival is recorded at 22:09:00 with GPS at the pickup from 22:09 to 22:19. The driver pressed cancel at 22:19:00, a wait of 10 minutes, past this trip's 8-minute no-show threshold. The driver messaged and called with no reply. The rider's 22:24 chat that the driver cancelled is true but does not change the outcome: the policy fee covers the no-show cancellation the driver presses after the threshold. The held S$4.00 is released to the driver.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ],
+    "heldout": true
+  }
+}

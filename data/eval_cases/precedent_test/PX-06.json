@@ -1,0 +1,175 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-06",
+  "_role": "same_principle",
+  "dispute_ticket": {
+    "dispute_id": "PX-06",
+    "trip_id": "RYDE-PX-006",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "I waited 7 minutes at the pickup, the rider did not come out and did not pick up my call. I cancelled as a no-show but the S$6.00 fee is being held because the rider contested. Please release it to me.",
+    "filed_at": "2026-10-05T23:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8106",
+    "name": "Isabelle Lau",
+    "account_age_days": 390,
+    "total_trips": 83,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7106",
+    "name": "Peter Yeo",
+    "account_age_days": 1900,
+    "total_trips": 6600,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Civic (SKE 8821 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-006",
+    "rider_id": "R-8106",
+    "driver_id": "D-7106",
+    "pickup_location": {
+      "name": "Blk 15 Holland Close",
+      "lat": 1.3,
+      "lng": 103.795
+    },
+    "dropoff_location": {
+      "name": "Mount Elizabeth Hospital",
+      "lat": 1.305,
+      "lng": 103.835
+    },
+    "scheduled_time": "2026-10-05T22:10:00+08:00",
+    "driver_arrival_time": "2026-10-05T22:10:00+08:00",
+    "driver_wait_start": "2026-10-05T22:10:00+08:00",
+    "cancellation_time": "2026-10-05T22:17:00+08:00",
+    "cancellation_fee": 0.0,
+    "fee_status": "held_pending_review",
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T14:04:00Z",
+      "lat": 1.302,
+      "lng": 103.797,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-05T14:10:00Z",
+      "lat": 1.3001,
+      "lng": 103.7951,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-05T14:14:00Z",
+      "lat": 1.3001,
+      "lng": 103.7951,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-05T14:17:00Z",
+      "lat": 1.3001,
+      "lng": 103.7951,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T22:11:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At the carpark entrance of Blk 15, black Civic."
+    },
+    {
+      "timestamp": "2026-10-05T22:13:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing call to rider, not answered (rang 30s)."
+    },
+    {
+      "timestamp": "2026-10-05T22:14:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "5 more minutes please, my mum is getting ready"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T21:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8106 booked RYDE-PX-006 to Mount Elizabeth Hospital. Pickup 22:10."
+    },
+    {
+      "timestamp": "2026-10-05T22:10:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here; GPS 14 m from pickup pin."
+    },
+    {
+      "timestamp": "2026-10-05T22:17:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled with reason rider_no_show. No rider_boarded event."
+    },
+    {
+      "timestamp": "2026-10-05T22:17:05+08:00",
+      "event_type": "cancellation_fee_held",
+      "details": "S$6.00 fee not credited: rider contested via RydeHELP."
+    },
+    {
+      "timestamp": "2026-10-05T23:00:00+08:00",
+      "event_type": "export_note",
+      "details": "The gps_telemetry export from the driver device is logged in UTC (timestamps ending Z); app events and chat are logged in Singapore time (+08:00)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 6.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "no_show_threshold_min": {
+      "value": 6,
+      "text": "Minutes the driver must wait at the pickup point, counted from driver_arrival_time to cancellation_time, before the rider counts as a no-show. The limit is inclusive: a wait of exactly this many minutes already meets it."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "release_fee_to_driver",
+    "refund_amount": 6.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived is 22:10:00 and cancellation is 22:17:00, a wait of 7 minutes against this trip's 6-minute threshold. The UTC telemetry (14:10Z to 14:17Z) equals 22:10 to 22:17 +08:00 and matches the app events. The driver called at 22:13 and the rider asked for 5 more minutes at 22:14, which does not change that the threshold was passed at 22:16. The S$6.00 fee is due to the driver.",
+    "expected_dispute_type": "no_show",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee"
+    ],
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": []
+  }
+}

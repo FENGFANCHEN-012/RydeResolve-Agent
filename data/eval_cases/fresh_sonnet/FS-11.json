@@ -1,0 +1,171 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-11",
+    "trip_id": "RYDE-FS-011",
+    "filed_by": "rider",
+    "dispute_type": "cleaning_fee",
+    "description": "I was charged S$120 for cleaning after a short trip from Clementi. I never dirtied the car. The photos he sent look old to me. Also the app crashed when I tried to open the charge details. Please remove the fee.",
+    "filed_at": "2026-10-11T13:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6609",
+    "name": "Marcus Lim",
+    "account_age_days": 410,
+    "total_trips": 120,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8820",
+    "name": "Joseph Quek",
+    "account_age_days": 640,
+    "total_trips": 2950,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 4,
+      "upheld_against": 1,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Fit (SLB 9012 X)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-011",
+    "rider_id": "R-6609",
+    "driver_id": "D-8820",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7645
+    },
+    "dropoff_location": {
+      "name": "NUS University Town",
+      "lat": 1.3039,
+      "lng": 103.7737
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-11T09:24:00+08:00",
+    "driver_wait_start": "09:24:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 3.4,
+    "duration_min": 9,
+    "fare": 8.9,
+    "cleaning_claim": {
+      "amount_claimed": 120.0,
+      "charged_to_rider": true,
+      "photos_attached": 2,
+      "photo_timestamps": [
+        "2026-10-11T08:52:14+08:00",
+        "2026-10-11T08:52:40+08:00"
+      ],
+      "receipt_attached": false
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T09:24:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7645,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-11T09:27:10+08:00",
+      "lat": 1.3151,
+      "lng": 103.7645,
+      "speed_kmh": 0,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-11T09:36:00+08:00",
+      "lat": 1.3039,
+      "lng": 103.7737,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T09:25:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the drop-off bay."
+    },
+    {
+      "timestamp": "2026-10-11T09:36:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks!"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T09:27:10+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-11T09:36:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$8.90."
+    },
+    {
+      "timestamp": "2026-10-11T12:10:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted S$120 claim; 2 photos attached, photo timestamps 08:52:14 and 08:52:40; no receipt attached."
+    },
+    {
+      "timestamp": "2026-10-11T12:11:00+08:00",
+      "event_type": "cleaning_fee_charged",
+      "details": "S$120.00 charged to rider card."
+    },
+    {
+      "timestamp": "2026-10-11T13:02:00+08:00",
+      "event_type": "app_notice",
+      "details": "Rider app crashed once when opening charge details; reopened normally."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only. The photos must be timestamped after the rider boarded and before the trip ended."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "damage pre-existing",
+        "wrong timestamp",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 120.0,
+    "recommended_action": "waive_cleaning_fee_full_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The rider boarded and the trip started at 09:27:10 and ended at 09:36:00. The driver's two photos are timestamped 08:52:14 and 08:52:40, about 35 minutes before the trip began, so they fail this trip's rule that photos be taken during the trip and fall under the rider's 'wrong timestamp' dispute ground. The claim also has receipt_attached false although a cleaning company receipt is required. With both required items missing or invalid, the S$120.00 fee charged at 12:11:00 is refunded in full. The app crash at 13:02:00 is irrelevant.",
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_role": "B: driver cancelled before threshold (wait 6 < 8)",
+  "dispute_ticket": {
+    "dispute_id": "CS-02",
+    "trip_id": "RYDE-CS-002",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "The driver cancelled on me and I got charged S$5.00. I came out to Lorong Liput as soon as I got the notification and the car was pulling away. I would like the fee refunded.",
+    "filed_at": "2026-10-03T13:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-2287",
+    "name": "Priya Nair",
+    "account_age_days": 530,
+    "total_trips": 148,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-6402",
+    "name": "Tan Boon Keat",
+    "account_age_days": 900,
+    "total_trips": 3550,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SLE 9031 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-CS-002",
+    "rider_id": "R-2287",
+    "driver_id": "D-6402",
+    "pickup_location": {
+      "name": "Holland Village MRT (Lorong Liput)",
+      "lat": 1.3112,
+      "lng": 103.796
+    },
+    "dropoff_location": {
+      "name": "Dempsey Hill",
+      "lat": 1.305,
+      "lng": 103.81
+    },
+    "scheduled_time": "2026-10-02T12:00:00+08:00",
+    "driver_arrival_time": "2026-10-02T11:58:00+08:00",
+    "driver_wait_start": "2026-10-02T11:58:00+08:00",
+    "cancellation_time": "2026-10-02T12:04:00+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_no_show"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-02T11:50:00+08:00",
+      "lat": 1.3232,
+      "lng": 103.806,
+      "speed_kmh": 38,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-02T11:55:00+08:00",
+      "lat": 1.3152,
+      "lng": 103.799,
+      "speed_kmh": 24,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-02T11:58:00+08:00",
+      "lat": 1.3112,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-02T12:00:00+08:00",
+      "lat": 1.3112,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-02T12:02:00+08:00",
+      "lat": 1.3112,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-02T12:04:00+08:00",
+      "lat": 1.3112,
+      "lng": 103.796,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-02T11:58:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arrived at Holland V MRT, silver Vezel next to the bus stop."
+    },
+    {
+      "timestamp": "2026-10-02T12:01:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Waiting at the pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T12:03:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing call to rider - not answered (rang 20s, no response)."
+    },
+    {
+      "timestamp": "2026-10-02T12:03:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "No reply, I have to go. Cancelling now."
+    },
+    {
+      "timestamp": "2026-10-02T12:04:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee of $5.00 applied."
+    },
+    {
+      "timestamp": "2026-10-02T12:05:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I am here at the road! Please come back"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-02T11:48:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-2287 booked trip RYDE-CS-002 from Holland Village MRT (Lorong Liput) to Dempsey Hill. Pickup 12:00."
+    },
+    {
+      "timestamp": "2026-10-02T11:48:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-6402 (Tan Boon Keat, Honda Vezel (SLE 9031 T)) assigned."
+    },
+    {
+      "timestamp": "2026-10-02T11:58:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'. Arrival recorded for the pickup point."
+    },
+    {
+      "timestamp": "2026-10-02T11:58:05+08:00",
+      "event_type": "rider_notified",
+      "details": "Push notification + in-app alert sent to rider: 'Your driver has arrived.'"
+    },
+    {
+      "timestamp": "2026-10-02T11:58:10+08:00",
+      "event_type": "wait_timer_started",
+      "details": "Wait timer started at driver arrival. 3 min free wait period ends at 12:01."
+    },
+    {
+      "timestamp": "2026-10-02T12:01:10+08:00",
+      "event_type": "wait_timer_expired",
+      "details": "Free 3-min wait period expired. Rider had not boarded."
+    },
+    {
+      "timestamp": "2026-10-02T12:03:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call to rider. Call rang 20s, no answer."
+    },
+    {
+      "timestamp": "2026-10-02T12:04:00+08:00",
+      "event_type": "trip_cancelled_by_driver",
+      "details": "Cancel pressed by driver D-6402. Reason selected: rider_no_show."
+    },
+    {
+      "timestamp": "2026-10-02T12:04:05+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "Cancellation fee S$5.00 charged to rider payment method (credit_card)."
+    },
+    {
+      "timestamp": "2026-10-02T12:04:10+08:00",
+      "event_type": "driver_released",
+      "details": "Driver D-6402 released from trip. Trip status: cancelled (rider_no_show)."
+    }
+  ],
+  "cancellation_policy": {
+    "free_wait_time_min": {
+      "value": 3,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 5.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund_cancellation_fee_to_rider",
+    "refund_amount": 5.0,
+    "requires_human_review": false,
+    "reason": "Driver arrival is recorded at 11:58:00 and the driver cancelled at 12:04:00, a wait of 6 minutes. This trip's no-show threshold is 8 minutes, so the rider did not yet count as a no-show (short by 2 minutes). Cancelling before the threshold does not trigger the fee, so the S$5.00 charge is refunded to the rider.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
+      "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
+    ],
+    "heldout": true
+  }
+}

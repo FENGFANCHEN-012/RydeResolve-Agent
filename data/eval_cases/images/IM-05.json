@@ -1,0 +1,202 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-14",
+  "_photo_role": "chat_settles",
+  "dispute_ticket": {
+    "dispute_id": "IM-05",
+    "trip_id": "RYDE-IM-005",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider's child dropped food and drink on the rear carpet and tracked dirt in. The rider confirmed it in chat. I had the carpet cleaned for S$50.",
+    "filed_at": "2026-10-09T23:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7205",
+    "name": "Natalie Sim",
+    "account_age_days": 492,
+    "total_trips": 96,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5105",
+    "name": "Chua Hock Seng",
+    "account_age_days": 2200,
+    "total_trips": 5400,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKR 3382 Y)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-IM-005",
+    "rider_id": "R-7205",
+    "driver_id": "D-5105",
+    "pickup_location": {
+      "name": "Changi Airport Terminal 3",
+      "lat": 1.3573,
+      "lng": 103.9886
+    },
+    "dropoff_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3243,
+      "lng": 103.9299
+    },
+    "scheduled_time": "2026-10-09T22:05:00+08:00",
+    "pickup_time": "2026-10-09T22:05:00+08:00",
+    "dropoff_time": "2026-10-09T22:32:00+08:00",
+    "estimated_distance_km": 9.7,
+    "actual_distance_km": 9.7,
+    "estimated_duration_min": 27,
+    "actual_duration_min": 27,
+    "estimated_fare": 13.4,
+    "total_fare": 13.4,
+    "cleaning_fee": 50.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T22:05:00+08:00",
+      "lat": 1.3573,
+      "lng": 103.9886,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T22:18:30+08:00",
+      "lat": 1.3408,
+      "lng": 103.9592,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T22:32:00+08:00",
+      "lat": 1.3243,
+      "lng": 103.9299,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T22:02:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "At T3 arrival pick-up, Level 1, grey Prius."
+    },
+    {
+      "timestamp": "2026-10-09T22:36:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Your child's snack and mud are all over the rear carpet."
+    },
+    {
+      "timestamp": "2026-10-09T22:40:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry about that, my son spilled his drink and trod chocolate cake into the carpet. Please send me the cleaning bill and I will pay."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T21:57:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7205 booked trip RYDE-IM-005 from Changi Airport Terminal 3 to Bedok Mall."
+    },
+    {
+      "timestamp": "2026-10-09T22:05:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-09T22:32:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed."
+    },
+    {
+      "timestamp": "2026-10-09T22:57:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$50.00 with 1 photo (photo1.jpg). Rider acknowledged the mess in chat at 22:40."
+    },
+    {
+      "timestamp": "2026-10-10T10:30:00+08:00",
+      "event_type": "cleaning_receipt_submitted",
+      "details": "Driver submitted an AutoSpa Bedok receipt for S$50.00 (carpet cleaning) dated 2026-10-10 10:00."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 100,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip. The fee is paid to the driver."
+    },
+    "cleaning_fee_recipient": {
+      "value": "driver",
+      "text": "A cleaning fee charged to a rider is credited to the driver who made the claim."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "photo of the mess",
+        "cleaning receipt where available"
+      ],
+      "text": "Evidence a driver should provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "photo_window_after_dropoff_min": {
+      "value": 60,
+      "text": "A cleaning claim needs at least one photo of the mess taken within 60 minutes after drop-off, at or near the drop-off point."
+    },
+    "photo_doubt_rule": {
+      "value": "refer_to_case_officer",
+      "text": "If a photo's authenticity, timing, place or content is in doubt and no other record settles the claim, a case officer decides."
+    },
+    "rider_may_dispute_if": {
+      "value": [
+        "no mess was left",
+        "wrong timestamp or place",
+        "disproportionate amount",
+        "caused by previous rider"
+      ],
+      "text": "Lists the grounds on which a rider may dispute a cleaning fee charged to them."
+    }
+  },
+  "evidence": [
+    {
+      "evidence_type": "photo",
+      "file_url": "data/evidence_samples/cases/IM-05/photo1.jpg",
+      "uploaded_by": "driver",
+      "uploaded_at": "2026-10-09T22:55:00+08:00",
+      "description": "Rear carpet with food crumbs and stains."
+    }
+  ],
+  "_photo_stamps": {
+    "photo1.jpg": {
+      "library": "carpet_dirt_vacuum",
+      "taken_at": null,
+      "gps": null,
+      "software": null,
+      "copy_of": null
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 50.0,
+    "recommended_action": "charge_rider_cleaning_fee_and_credit_driver",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Photo1 carries no capture time, so on its own it cannot be placed inside the 60-minute window (it was uploaded at 22:55, 23 minutes after drop-off at 22:32). The rider settles the point in chat at 22:40: 'my son spilled his drink and trod chocolate cake into the carpet. Please send me the cleaning bill and I will pay.' The AutoSpa Bedok receipt for S$50.00 dated 2026-10-10 10:00 matches the claim, within this trip's S$100 cap. The chat and receipt settle the claim: upheld, S$50.00 credited to the driver.",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true,
+    "expected_dispute_type": "cleaning_fee"
+  }
+}

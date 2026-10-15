@@ -97,8 +97,14 @@
     }
   ],
   "cancellation_policy": {
-    "grace_period_minutes": 3,
-    "cancellation_fee_amount": 6.61
+    "grace_period_minutes": {
+      "value": 3,
+      "text": "Minutes in the grace period that this trip's cancellation policy allows before a fee can apply to the rider."
+    },
+    "cancellation_fee_amount": {
+      "value": 6.61,
+      "text": "The cancellation fee in SGD that this trip's policy allows to be charged to the rider when a fee is due."
+    }
   },
   "expected_outcome": {
     "heldout": true,

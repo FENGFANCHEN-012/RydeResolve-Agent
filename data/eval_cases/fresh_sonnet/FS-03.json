@@ -1,0 +1,169 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-03",
+    "trip_id": "RYDE-FS-003",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The app told me S$17.00 and I was charged S$23.80. Nobody showed me any surge. I was already having a terrible evening and this is the last straw. I want the S$6.80 difference back.",
+    "filed_at": "2026-10-05T20:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8841",
+    "name": "Tan Wei Jie",
+    "account_age_days": 620,
+    "total_trips": 240,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld": 1,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-1190",
+    "name": "Suresh Pillai",
+    "account_age_days": 1210,
+    "total_trips": 5230,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKX 1109 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-003",
+    "rider_id": "R-8841",
+    "driver_id": "D-1190",
+    "pickup_location": {
+      "name": "ION Orchard",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "dropoff_location": {
+      "name": "Jurong East MRT",
+      "lat": 1.333,
+      "lng": 103.7423
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-05T19:11:00+08:00",
+    "driver_wait_start": "19:11:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 17.4,
+    "duration_min": 27,
+    "fare": 23.8,
+    "fare_breakdown": {
+      "base_fare": 17.0,
+      "surge_multiplier": 1.4,
+      "surge_amount": 6.8,
+      "total": 23.8
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-05T19:11:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-05T19:20:00+08:00",
+      "lat": 1.319,
+      "lng": 103.8,
+      "speed_kmh": 62,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-05T19:38:00+08:00",
+      "lat": 1.333,
+      "lng": 103.7423,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-05T19:12:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Can you turn the aircon down a bit?"
+    },
+    {
+      "timestamp": "2026-10-05T19:12:45+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sure."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-05T19:01:45+08:00",
+      "event_type": "demand_surge_banner_displayed",
+      "details": "Banner shown to rider: 'High demand - 1.4x pricing in your area'."
+    },
+    {
+      "timestamp": "2026-10-05T19:02:10+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Fixed fare S$23.80 shown (base S$17.00 x 1.4 surge)."
+    },
+    {
+      "timestamp": "2026-10-05T19:02:41+08:00",
+      "event_type": "rider_confirmed_booking",
+      "details": "Rider tapped 'Confirm' on the S$23.80 quote."
+    },
+    {
+      "timestamp": "2026-10-05T19:03:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-1190 matched."
+    },
+    {
+      "timestamp": "2026-10-05T19:11:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'."
+    },
+    {
+      "timestamp": "2026-10-05T19:38:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$23.80 (equal to confirmed quote)."
+    },
+    {
+      "timestamp": "2026-10-05T19:40:00+08:00",
+      "event_type": "app_notice",
+      "details": "Receipt screen briefly displayed 'S$17.00' base fare line before the full total loaded."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Records show the surge was displayed before confirmation: the 1.4x demand banner at 19:01:45 and the S$23.80 quote (base S$17.00 x 1.4 = S$23.80) at 19:02:10, and the rider tapped Confirm at 19:02:41. The fare is fixed upfront and the final charge of S$23.80 equals the confirmed quote, so there is no overcharge. The S$17.00 the rider remembers is the base line that flashed on the receipt screen at 19:40:00 (a display glitch after the trip), and her bad evening is not a ground for refund.",
+    "expected_dispute_type": "fare_dispute"
+  }
+}

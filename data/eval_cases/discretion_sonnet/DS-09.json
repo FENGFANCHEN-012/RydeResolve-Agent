@@ -1,0 +1,155 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-09",
+    "trip_id": "RYDE-DS-009",
+    "filed_by": "rider",
+    "dispute_type": "cancellation_refund",
+    "description": "I cancelled my 6pm advance booking before the driver reached me and was charged $5.00. The driver was still very far away and my flight was changed so I had no choice. I was very upset about the charge. Please refund it.",
+    "filed_at": "2026-10-08T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7109",
+    "name": "Vincent Tay",
+    "account_age_days": 1100,
+    "total_trips": 540,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8109",
+    "name": "Ng Kah Wai",
+    "account_age_days": 800,
+    "total_trips": 3300,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SKR 5503 P)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-009",
+    "rider_id": "R-7109",
+    "driver_id": "D-8109",
+    "pickup_location": {
+      "name": "Bishan MRT",
+      "lat": 1.3509,
+      "lng": 103.8485
+    },
+    "dropoff_location": {
+      "name": "Changi Airport T3",
+      "lat": 1.3572,
+      "lng": 103.9886
+    },
+    "scheduled_time": "2026-10-08T18:00:00+08:00",
+    "driver_arrival_time": null,
+    "driver_wait_start": null,
+    "cancellation_time": "2026-10-08T17:51:10+08:00",
+    "cancellation_fee": 5.0,
+    "cancellation_reason": "rider_cancelled_inside_advance_window",
+    "trip_type": "advanced"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T17:35:00+08:00",
+      "lat": 1.28,
+      "lng": 103.82,
+      "speed_kmh": 0,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T17:45:00+08:00",
+      "lat": 1.285,
+      "lng": 103.825,
+      "speed_kmh": 6,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T17:51:10+08:00",
+      "lat": 1.29,
+      "lng": 103.83,
+      "speed_kmh": 10,
+      "status": "en_route"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T17:30:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I will be at Bishan MRT by 6pm."
+    },
+    {
+      "timestamp": "2026-10-08T17:52:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I cancelled, my flight changed."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T21:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7109 booked ADVANCED trip RYDE-DS-009 from Bishan MRT to Changi Airport T3 for 2026-10-08 18:00."
+    },
+    {
+      "timestamp": "2026-10-08T17:20:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-8109 accepted the advance booking. Match time 17:20:00."
+    },
+    {
+      "timestamp": "2026-10-08T17:51:10+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Rider cancelled 8 min 50 s before the scheduled time, inside the 15-minute advance window. Cancellation fee S$5.00 applied."
+    },
+    {
+      "timestamp": "2026-10-08T17:55:00+08:00",
+      "event_type": "app_notice",
+      "details": "Cancellation confirmation screen showed an error banner; the cancellation itself was recorded correctly."
+    }
+  ],
+  "cancellation_policy": {
+    "advanced_trip_free_cancellation_min_before_scheduled": {
+      "value": 15,
+      "text": "For an advance booking, the number of minutes before the scheduled pickup time up to which the rider may cancel without a fee. It governs rider cancellations of advance bookings only."
+    },
+    "cancellation_fee_after_driver_assigned": {
+      "value": 5.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after the free window of an advance booking has closed. It governs rider cancellations only."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "This was an advance booking for 18:00 and the rider cancelled at 17:51:10, 8 min 50 s before the scheduled time. This trip's policy makes cancellation free only until 15 minutes before the scheduled time (17:45), so the window had closed and the S$5.00 fee applies. The driver being about 7 km away on GPS, the flight change and the error banner on the confirmation screen do not alter the window.",
+    "expected_dispute_type": "cancellation_refund",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
+      "Ryde Help Rider Fares And Charges > Will I be charged for cancelling a ride?",
+      "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy"
+    ]
+  }
+}

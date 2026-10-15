@@ -1,0 +1,197 @@
+{
+  "_generated_by": "Sonnet出的题目 (Claude Sonnet subagent, 2026-10-11)",
+  "dispute_ticket": {
+    "dispute_id": "DS-17",
+    "trip_id": "RYDE-DS-017",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My total was S$29.00 but the quote was S$21.50. I was told nothing about ERP and I don't think we passed any gantry at all. I was rushing to a meeting and the driver was curt. Please refund the S$7.50 ERP charge.",
+    "filed_at": "2026-10-10T14:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7117",
+    "name": "Edwin Chan",
+    "account_age_days": 840,
+    "total_trips": 310,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8117",
+    "name": "Poh Boon Kiat",
+    "account_age_days": 1800,
+    "total_trips": 9500,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 2,
+      "upheld_against": 0,
+      "rejected": 2
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SLJ 2260 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DS-017",
+    "rider_id": "R-7117",
+    "driver_id": "D-8117",
+    "pickup_location": {
+      "name": "Tampines Hub",
+      "lat": 1.3535,
+      "lng": 103.9405
+    },
+    "dropoff_location": {
+      "name": "Orchard Ion",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-10-10T12:35:00+08:00",
+    "pickup_time": "2026-10-10T12:36:00+08:00",
+    "dropoff_time": "2026-10-10T13:08:00+08:00",
+    "estimated_distance_km": 16.5,
+    "actual_distance_km": 16.6,
+    "estimated_duration_min": 31,
+    "actual_duration_min": 32,
+    "estimated_fare": 21.5,
+    "total_fare": 29.0,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 10.9,
+      "time_fare": 6.7,
+      "subtotal": 21.5,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "erp_charges": 7.5,
+      "total": 29.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-10T12:36:00+08:00",
+      "lat": 1.3535,
+      "lng": 103.9405,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T12:45:00+08:00",
+      "lat": 1.345,
+      "lng": 103.92,
+      "speed_kmh": 21,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T12:54:00+08:00",
+      "lat": 1.333,
+      "lng": 103.89,
+      "speed_kmh": 30,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T13:02:00+08:00",
+      "lat": 1.32,
+      "lng": 103.86,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-10T13:08:00+08:00",
+      "lat": 1.304,
+      "lng": 103.8318,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-10T12:34:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Arrived, black Camry."
+    },
+    {
+      "timestamp": "2026-10-10T13:08:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I didn't know about ERP, you should have told me."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-10T12:28:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$21.50 shown. Note: 'ERP and tolls are charged separately.' Surge 1.0x."
+    },
+    {
+      "timestamp": "2026-10-10T12:28:20+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7117 confirmed trip RYDE-DS-017 at S$21.50 plus ERP."
+    },
+    {
+      "timestamp": "2026-10-10T12:36:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-10T12:48:10+08:00",
+      "event_type": "erp_gantry_crossing",
+      "details": "Gantry PIE-Kallang at 12:48:10: GPS crossing confirmed, gantry log rate S$2.50."
+    },
+    {
+      "timestamp": "2026-10-10T12:56:40+08:00",
+      "event_type": "erp_gantry_crossing",
+      "details": "Gantry CTE-Newton at 12:56:40: GPS crossing confirmed, gantry log rate S$2.50."
+    },
+    {
+      "timestamp": "2026-10-10T13:04:20+08:00",
+      "event_type": "erp_gantry_crossing",
+      "details": "Gantry ECP-Rochor at 13:04:20: GPS crossing confirmed, gantry log rate S$0.00 (charging hours ended 13:00). Rate-card estimate S$2.50 was used in the receipt."
+    },
+    {
+      "timestamp": "2026-10-10T13:08:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 16.6 km, 32 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-10T13:08:05+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$29.00 (fare S$21.50 + ERP S$7.50: three gantries at S$2.50 each) charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "erp_charged_to_rider_on_confirmed_gantry_crossing": {
+      "value": true,
+      "text": "Governs ERP tolls on this trip. A true value means a toll for a gantry crossing confirmed by GPS and the gantry log is charged to the rider in addition to the fare."
+    },
+    "erp_amount_source": {
+      "value": "gantry log rate at the crossing time",
+      "text": "States which record sets the ERP amount charged for each gantry crossing."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "refund_amount": 2.5,
+    "recommended_action": "partial_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The app log shows three GPS-confirmed gantry crossings, and the quote at 12:28 said ERP is charged separately. Two crossings, PIE-Kallang at 12:48:10 and CTE-Newton at 12:56:40, have gantry-log rates of S$2.50 each, so S$5.00 of ERP stands. The third, ECP-Rochor at 13:04:20, has a gantry-log rate of S$0.00 because charging hours had ended at 13:00, but the receipt used the S$2.50 rate-card estimate. This trip's policy sets the amount by the gantry log rate at the crossing time, so S$2.50 is refunded and S$5.00 is retained. The rider's rush and the driver's tone do not change this.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_official_sections": [
+      "Ryde Help Rider Fares And Charges > Do I need to pay ERP charges?",
+      "Ryde Help Rider Fares And Charges > I was overcharged for ERP/toll",
+      "Ryde Help Rider Fares And Charges > Understanding the Fare Structure"
+    ]
+  }
+}

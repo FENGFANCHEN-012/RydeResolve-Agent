@@ -122,14 +122,38 @@
     }
   ],
   "cancellation_policy": {
-    "free_wait_time_min": 5,
-    "cancellation_fee_after_wait": 4.0,
-    "no_show_threshold_min": 8,
-    "fee_goes_to": "driver_compensation",
-    "free_cancellation_before_driver_assignment": true,
-    "cancellation_fee_after_driver_assigned": 4.0,
-    "no_fee_if_driver_delayed_beyond_eta_min": 10,
-    "free_cancellation_within_min_of_match": 3
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before any waiting or cancellation fee may apply to the rider."
+    },
+    "cancellation_fee_after_wait": {
+      "value": 4.0,
+      "text": "The fee in SGD charged to the rider when a booking is cancelled after the driver has waited past the free waiting time. It covers rider cancellations and rider no-shows, including the no-show cancellation the driver presses after waiting past the threshold; it does not cover a cancellation the driver makes for the driver's own reasons."
+    },
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from arrival, before the rider counts as a no-show."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    },
+    "free_cancellation_before_driver_assignment": {
+      "value": true,
+      "text": "Governs a rider who cancels before any driver has been assigned. A true value means no fee applies to that cancellation."
+    },
+    "cancellation_fee_after_driver_assigned": {
+      "value": 4.0,
+      "text": "The cancellation fee in SGD for a rider who cancels after a driver has been assigned and outside any free window. It governs rider cancellations only."
+    },
+    "no_fee_if_driver_delayed_beyond_eta_min": {
+      "value": 10,
+      "text": "Governs a rider who cancels while the driver is late. It sets the minutes past the driver's shown arrival time after which the rider owes no cancellation fee."
+    },
+    "free_cancellation_within_min_of_match": {
+      "value": 3,
+      "text": "Minutes after the driver is matched during which the rider may cancel without a fee. It governs rider cancellations only."
+    }
   },
   "expected_outcome": {
     "verdict": "upheld",

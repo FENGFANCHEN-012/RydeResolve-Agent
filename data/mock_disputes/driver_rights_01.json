@@ -162,15 +162,24 @@
     }
   ],
   "platform_policy": {
-    "cleaning_fee_max": 200.0,
-    "cleaning_claim_evidence_required": [
-      "timestamped photos",
-      "cleaning company receipt with name, contact, address and date"
-    ],
-    "typical_vomit_cleaning_range": [
-      50.0,
-      150.0
-    ]
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only."
+    },
+    "typical_vomit_cleaning_range": {
+      "value": [
+        50.0,
+        150.0
+      ],
+      "text": "The usual cost range in SGD for cleaning up vomit. It governs whether a cleaning fee claimed against a rider is reasonable."
+    }
   },
   "expected_outcome": {
     "verdict": "upheld",

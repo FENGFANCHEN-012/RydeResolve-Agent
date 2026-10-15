@@ -1,0 +1,7 @@
+:80 {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000 {
+		# stream the live agent trace (server-sent events) without buffering
+		flush_interval -1
+	}
+}

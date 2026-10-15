@@ -1,0 +1,166 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-13",
+  "_sibling_of": "PT-10",
+  "_role": "principle_does_not_apply",
+  "dispute_ticket": {
+    "dispute_id": "PX-10",
+    "trip_id": "RYDE-PX-010",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "The rider kept me waiting more than 4 minutes at the pickup before getting in, but no waiting fee was added to my earnings. Please credit the S$5.00 waiting fee.",
+    "filed_at": "2026-10-12T19:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8110",
+    "name": "Alicia Sim",
+    "account_age_days": 330,
+    "total_trips": 73,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7110",
+    "name": "Chandran Raj",
+    "account_age_days": 1700,
+    "total_trips": 6100,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Staria (SKF 4408 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-PX-010",
+    "rider_id": "R-8110",
+    "driver_id": "D-7110",
+    "pickup_location": {
+      "name": "Blk 41 Bedok South Rd",
+      "lat": 1.32,
+      "lng": 103.939
+    },
+    "dropoff_location": {
+      "name": "Parkway Parade",
+      "lat": 1.301,
+      "lng": 103.905
+    },
+    "scheduled_time": "2026-10-12T18:30:00+08:00",
+    "driver_arrival_time": "2026-10-12T18:30:00+08:00",
+    "driver_wait_start": "2026-10-12T18:30:00+08:00",
+    "pickup_time": "2026-10-12T18:34:20+08:00",
+    "dropoff_time": "2026-10-12T18:50:00+08:00",
+    "estimated_distance_km": 5.0,
+    "actual_distance_km": 5.1,
+    "estimated_duration_min": 15,
+    "actual_duration_min": 15,
+    "estimated_fare": 10.0,
+    "total_fare": 10.0,
+    "waiting_fee_charged": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T18:27:00+08:00",
+      "lat": 1.323,
+      "lng": 103.94,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-12T18:30:00+08:00",
+      "lat": 1.3201,
+      "lng": 103.9391,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-12T18:34:00+08:00",
+      "lat": 1.3201,
+      "lng": 103.9391,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-12T18:35:00+08:00",
+      "lat": 1.319,
+      "lng": 103.938,
+      "speed_kmh": 20,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T18:50:00+08:00",
+      "lat": 1.301,
+      "lng": 103.905,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T18:30:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I'm at the bus stop in front of Blk 41."
+    },
+    {
+      "timestamp": "2026-10-12T18:32:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "sorry, almost there, my lift is slow"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T18:10:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-8110 booked RYDE-PX-010 to Parkway Parade. Pickup 18:30."
+    },
+    {
+      "timestamp": "2026-10-12T18:30:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed I'm Here at 18:30:00."
+    },
+    {
+      "timestamp": "2026-10-12T18:34:20+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded at 18:34:20. Wait time 4 min 20 s."
+    },
+    {
+      "timestamp": "2026-10-12T18:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. No waiting fee was applied."
+    }
+  ],
+  "platform_policy": {
+    "waiting_fee_amount": {
+      "value": 5.0,
+      "text": "The waiting time fee in SGD charged to the rider and credited to the driver when it is triggered."
+    },
+    "waiting_fee_trigger_min": {
+      "value": 4,
+      "text": "The waiting fee is due only if the wait, from the driver_arrived event to the rider_boarded event, is MORE than this many minutes. A wait of exactly this many minutes does not trigger the fee."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "credit_driver_waiting_fee",
+    "refund_amount": 5.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived is 18:30:00 and rider_boarded is 18:34:20, a wait of 4 min 20 s, more than this trip's 4-minute trigger. GPS shows the car stationary at the pin until 18:34 and the rider's 18:32 message confirms she was late. The S$5.00 waiting fee is due and was not applied.",
+    "expected_dispute_type": "driver_rights",
+    "heldout": true,
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "expected_official_sections": []
+  }
+}

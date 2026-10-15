@@ -79,8 +79,14 @@
     }
   ],
   "platform_policy": {
-    "service_type": "RydeTAXI",
-    "erp_handling": "exclude_from_base"
+    "service_type": {
+      "value": "RydeTAXI",
+      "text": "The Ryde service booked for this trip, for example RydeX, RydePOOL or RydeTAXI. It is a fact about the trip, not a rule."
+    },
+    "erp_handling": {
+      "value": "exclude_from_base",
+      "text": "States how ERP tolls are treated in this trip's fare, for example whether they sit inside or outside the base fare."
+    }
   },
   "expected_outcome": {
     "heldout": true,

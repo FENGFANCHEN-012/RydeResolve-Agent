@@ -187,3 +187,81 @@ def test_service_quality_refund_of_an_overcharge_is_fine():          # SQ-002: S
 
 def test_service_quality_with_no_refund_is_fine():                    # warning only
     assert _refund_basis_problems({"type": "service_quality", "findings": []}, 0) == []
+
+
+# ---- a filing can dispute several charges: they are added up (ST-003, run 20261011-081058)
+EXCESS_1260 = {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 12.6}}
+
+
+def multi_charge_ctx(reporter="passenger"):
+    return {"type": "fare_dispute", "reporter": reporter, "findings": [EXCESS_1260], "trip": {"cleaning_fee": 30.0}}
+
+
+def test_refund_of_fare_excess_and_cleaning_fee_is_fine():          # ST-003: S$9.60 + S$30.00
+    assert _refund_basis_problems(multi_charge_ctx(), 39.6) == []
+
+
+def test_refund_above_all_disputed_charges_is_still_flagged():
+    problems = _refund_basis_problems(multi_charge_ctx(), 50.0)
+    assert problems and "S$42.60" in problems[0]
+
+
+def test_driver_filed_cleaning_claim_is_not_a_charge_on_the_filer():
+    assert _refund_basis_problems(multi_charge_ctx(reporter="driver"), 39.6)
+
+
+def test_fee_and_fare_excess_are_added():
+    from src.agents.case_brief import disputed_total
+    assert disputed_total({"findings": [FEE_4, EXCESS_420]}) == 8.2
+    assert disputed_total({"findings": []}) is None
+
+
+# ---- a conduct complaint dismissed while the driver is penalised (SQ-001, run 20261011-111637)
+@pytest.mark.asyncio
+@pytest.mark.parametrize("type_,penalty,flagged", [
+    ("service_quality", "formal warning issued to driver", True),
+    ("service_quality", "", False),
+    ("service_quality", "none", False),
+    ("cancellation_refund", "warning issued to driver", False),   # CR-004: a warning beside a correct dismissal
+])
+async def test_penalty_with_dismissal(type_, penalty, flagged):
+    from tests.test_fairness_agent import FakeLLMClient, make_context, make_decision, make_input
+    from src.agents.fairness import FairnessAgent, FairnessIssueCode
+    from src.agents.arbitrator import Verdict
+    d = make_decision(verdict=Verdict.DISMISSED, refund_amount=None)
+    d.driver_penalty = penalty or None
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(
+        make_input(context=make_context(type=type_), decision=d))
+    assert (FairnessIssueCode.PENALTY_WITH_DISMISSAL in {i.code for i in a.issues}) is flagged
+
+
+# ---- a refund that splits the disputed amount on Ryde's discretion (RD-002, run 20261011-181308)
+EXCESS_310 = {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 3.1}}
+GANTRY_100 = {"id": "erp_check.gantry_rate", "kind": "fact", "value": {"rate": 1.0}}  # a number in the records
+DISC_SPLIT = ("The closure detour is billable. However, the driver did not disclose the fare increase; "
+              "given platform_policy.refund_at_ryde_discretion a partial refund of $1.55 balances this.")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("refund,rationale,refs,flagged", [
+    (1.55, DISC_SPLIT, ["platform_policy.refund_at_ryde_discretion"], True),          # RD-002
+    (1.55, "Half of the excess is refunded at Ryde's discretion.", [], True),
+    (20.0, "The fee exceeds the S$40 cap, so the excess S$20 is refunded.",                    # DS-05
+     ["platform_policy.cleaning_fee_max", "platform_policy.refund_at_ryde_discretion"], False),
+    (1.0, "One gantry rate was wrongly charged; Ryde's discretion allows refunding it.", [], False),  # DS-17 shape
+    (1.03, "At Ryde's discretion a third of the charge is returned.", [], True),
+    (3.1, "The whole detour excess is refunded under Ryde's discretion.", [], False),  # computed amount
+    (1.55, "The rider asked for one stop; half the excess is billable.", ["platform_policy.detour_billable_only_if"], False),
+    (None, DISC_SPLIT, [], False),                                                       # nothing refunded
+])
+async def test_discretionary_partial_refund(refund, rationale, refs, flagged):
+    from tests.test_fairness_agent import FakeLLMClient, make_context, make_decision, make_input
+    from src.agents.fairness import FairnessAgent, FairnessIssueCode
+    d = make_decision(refund_amount=refund, rationale=rationale)
+    d.policy_references = refs
+    a = await FairnessAgent(llm_client=FakeLLMClient()).assess(
+        make_input(context=make_context(findings=[EXCESS_310, GANTRY_100]), decision=d))
+    codes = {i.code for i in a.issues}
+    assert (FairnessIssueCode.DISCRETIONARY_PARTIAL_REFUND in codes) is flagged
+    if flagged:
+        assert a.requires_human_review

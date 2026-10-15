@@ -41,6 +41,7 @@ from src.core import llm_client as llm_module  # noqa: E402
 
 # A fallback provider would put a second model's answers into the run; fail instead
 llm_module.LLM_FALLBACK_PROVIDERS = []
+from src.core.case_policy import case_policy_block, policy_values  # noqa: E402
 from src.core.policy_refs import case_policy_refs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -117,7 +118,7 @@ def load_cases(selected: set[str] | None = None) -> list[dict]:
             "expected": expected,
             "charge_cap": _charge_cap(data),
             "case_policy_refs": sorted(case_policy_refs({
-                "platform_policy": data.get("cancellation_policy") or data.get("platform_policy"),
+                "platform_policy": policy_values(case_policy_block(data)),
             })),
         })
     return sorted(cases, key=lambda c: c["dispute_id"])
@@ -139,7 +140,8 @@ def _charge_cap(data: dict) -> float | None:
                 amounts.append(float(value))
 
     for section in ("trip_data", "payment", "payment_data", "cancellation_policy", "platform_policy"):
-        walk(data.get(section))
+        # A {value, text} rule is unwrapped first, or its fee would hide under the key "value"
+        walk(policy_values(data.get(section)) if section.endswith("_policy") else data.get(section))
     return max(amounts) if amounts else None
 
 

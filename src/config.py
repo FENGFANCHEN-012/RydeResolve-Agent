@@ -101,6 +101,21 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # A single rebuttal round keeps one full dispute within a small daily quota.
 # Set MAX_DEBATE_ROUNDS=3 explicitly when a larger request budget is available.
 MAX_DEBATE_ROUNDS = int(os.getenv("MAX_DEBATE_ROUNDS", "1"))
+# Triage (src/core/triage.py) may give complex cases more rounds: COMPLEX_MAX_ROUNDS, default 1.
+# Reasoning effort for the Safety agent's LLM call (D24); the more careful the better here
+SAFETY_REASONING_EFFORT = os.getenv("SAFETY_REASONING_EFFORT", "high").strip().lower()
+# Reasoning effort for the Judge's LLM call (D34). Empty = provider default (medium for gpt-oss).
+# The Judge's remaining errors are misread rule conditions, which more reasoning may fix.
+JUDGE_REASONING_EFFORT = os.getenv("JUDGE_REASONING_EFFORT", "").strip().lower()
+# Output budget for the Judge when JUDGE_REASONING_EFFORT is set: at "high" the reasoning alone
+# used the whole default 4096 and the answer was cut off (run 20261011-153608, CR-001)
+JUDGE_MAX_TOKENS = int(os.getenv("JUDGE_MAX_TOKENS", "16000"))
+# D33: the filer, when a draft ruling goes against them, may object once (rule + record, checked by code) and
+# the Judge reconsiders. Off by default until measured; OBJECTION_ROUND=1 turns it on.
+OBJECTION_ROUND = os.getenv("OBJECTION_ROUND", "0").strip().lower() in ("1", "true", "yes", "on")
+# "filer" (default): only the filer objects. "both": the respondent may object to an upheld or
+# partly upheld draft too (RD-002 test: a misread rule that only the driver had reason to contest)
+OBJECTION_SIDES = os.getenv("OBJECTION_SIDES", "filer").strip().lower()
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
 

@@ -1,0 +1,149 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-12",
+  "dispute_ticket": {
+    "dispute_id": "F2-07",
+    "trip_id": "RYDE-F2-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My fare was quoted at $18.40 but I was charged $21.40. I was never told about any extra charge. I want the $3.00 taken off.",
+    "filed_at": "2026-10-07T12:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7107",
+    "name": "Grace Lim",
+    "account_age_days": 480,
+    "total_trips": 190,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-8207",
+    "name": "Chua Eng Hock",
+    "account_age_days": 900,
+    "total_trips": 3000,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Camry (SKM 2766 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-F2-007",
+    "rider_id": "R-7107",
+    "driver_id": "D-8207",
+    "pickup_location": {
+      "name": "Tanjong Pagar Centre",
+      "lat": 1.2765,
+      "lng": 103.8466
+    },
+    "dropoff_location": {
+      "name": "Novena Medical Centre",
+      "lat": 1.3215,
+      "lng": 103.844
+    },
+    "scheduled_time": "2026-10-07T08:20:00+08:00",
+    "pickup_time": "2026-10-07T08:22:00+08:00",
+    "dropoff_time": "2026-10-07T08:47:00+08:00",
+    "estimated_distance_km": 9.8,
+    "actual_distance_km": 9.9,
+    "estimated_duration_min": 24,
+    "actual_duration_min": 25,
+    "estimated_fare": 18.4,
+    "total_fare": 21.4
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T08:22:00+08:00",
+      "lat": 1.2765,
+      "lng": 103.8466,
+      "speed_kmh": 8,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:35:00+08:00",
+      "lat": 1.288,
+      "lng": 103.85,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:41:00+08:00",
+      "lat": 1.305,
+      "lng": 103.845,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:47:00+08:00",
+      "lat": 1.3215,
+      "lng": 103.844,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T08:48:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why is the total more than the quoted fare?"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T08:18:00+08:00",
+      "event_type": "fare_quoted",
+      "details": "Upfront fare S$18.40 quoted. ERP and tolls are not included in the quote."
+    },
+    {
+      "timestamp": "2026-10-07T08:19:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7107 confirmed the booking at S$18.40."
+    },
+    {
+      "timestamp": "2026-10-07T08:35:10+08:00",
+      "event_type": "erp_gantry_crossed",
+      "details": "Vehicle crossed ERP gantry CBD-12 at 08:35:10. Gantry active 07:30-09:30. Charge S$3.00."
+    },
+    {
+      "timestamp": "2026-10-07T08:47:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$21.40 (fare S$18.40 plus ERP S$3.00) to credit card."
+    }
+  ],
+  "platform_policy": {
+    "erp_charges": {
+      "value": "charged_to_rider_at_cost",
+      "text": "ERP charges are not part of the fixed fare. When the vehicle passes an active ERP gantry during the trip, the gantry charge is billed to the rider at cost, once per crossing."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip. It governs how the fare is calculated, not who pays tolls or ERP."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "reason": "The fare charged was the confirmed S$18.40 plus one ERP charge of S$3.00. The erp_gantry_crossed event (08:35:10, gantry CBD-12, active 07:30-09:30) and the GPS fix at 08:35 show the crossing was real and in active hours, and the quote note says ERP is excluded. This trip's policy bills ERP to the rider at cost. Total S$21.40 is correct; no refund.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": []
+  }
+}

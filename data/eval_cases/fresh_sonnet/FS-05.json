@@ -1,0 +1,157 @@
+{
+  "_generated_by": "Sonnet fresh set (Claude Sonnet subagent, 2026-10-12)",
+  "dispute_ticket": {
+    "dispute_id": "FS-05",
+    "trip_id": "RYDE-FS-005",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a long detour and the trip was 31 minutes instead of 18. He never asked me and never told me why. I want some of the fare back.",
+    "filed_at": "2026-10-07T21:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-3377",
+    "name": "Daniel Foo",
+    "account_age_days": 520,
+    "total_trips": 167,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2260",
+    "name": "Kamal Hassan",
+    "account_age_days": 1100,
+    "total_trips": 6050,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 3,
+      "upheld_against": 0,
+      "rejected": 3
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Wish (SGN 7719 E)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-FS-005",
+    "rider_id": "R-3377",
+    "driver_id": "D-2260",
+    "pickup_location": {
+      "name": "Novena Square",
+      "lat": 1.3204,
+      "lng": 103.8438
+    },
+    "dropoff_location": {
+      "name": "Holland Village MRT",
+      "lat": 1.3116,
+      "lng": 103.7959
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-07T20:41:00+08:00",
+    "driver_wait_start": "20:41:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 9.0,
+    "planned_distance_km": 7.2,
+    "duration_min": 31,
+    "fare": 16.5,
+    "quoted_fare": 16.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T20:41:00+08:00",
+      "lat": 1.3204,
+      "lng": 103.8438,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-07T20:50:00+08:00",
+      "lat": 1.318,
+      "lng": 103.83,
+      "speed_kmh": 18,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-07T21:02:00+08:00",
+      "lat": 1.324,
+      "lng": 103.808,
+      "speed_kmh": 25,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-07T21:20:00+08:00",
+      "lat": 1.3116,
+      "lng": 103.7959,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T20:52:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Bukit Timah Rd is closed ahead, I'll go via Dunearn Rd instead. OK?"
+    },
+    {
+      "timestamp": "2026-10-07T20:52:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "ok"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T20:40:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2260 matched."
+    },
+    {
+      "timestamp": "2026-10-07T20:49:30+08:00",
+      "event_type": "road_closure_verified",
+      "details": "Closure of Bukit Timah Rd (Newton to Clemenceau) verified from traffic feed, active 20:00 to 23:00."
+    },
+    {
+      "timestamp": "2026-10-07T20:51:00+08:00",
+      "event_type": "route_changed",
+      "details": "Navigation rerouted via Dunearn Rd due to verified closure."
+    },
+    {
+      "timestamp": "2026-10-07T21:20:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Fare S$16.50 charged (fixed upfront; equal to quote)."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "detour_for_verified_road_closure_billable": {
+      "value": true,
+      "text": "Governs extra distance caused by a road closure. A true value means the rider may be billed for it only when the closure is verified."
+    },
+    "rider_route_requests_must_be_agreed_before_trip": {
+      "value": true,
+      "text": "Binds the rider. A route or stop that the rider asks for must be agreed with the driver before the trip starts. It does not govern route changes the driver makes."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The 1.8 km extra distance (9.0 km driven vs 7.2 km planned) came from a road closure that the platform verified at 20:49:30 (Bukit Timah Rd, active 20:00-23:00), and the navigation reroute at 20:51:00 follows it. The chat also contradicts the rider's 'never asked': the driver asked at 20:52:10 and the rider answered 'ok' at 20:52:40. The fare was fixed upfront at S$16.50 and charged at S$16.50, so no extra distance was billed. Nothing is refundable.",
+    "expected_dispute_type": "route_deviation"
+  }
+}
