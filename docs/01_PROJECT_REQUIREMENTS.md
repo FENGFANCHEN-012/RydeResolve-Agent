@@ -103,25 +103,26 @@ TRTC ASR/TTS, and Tencent Cloud infrastructure.
   AI Interaction, Technical Execution, Feasibility, Demo & Storytelling, Innovation &
   Creativity, UX & Accessibility, **Responsible AI & Ethics**, Overall Quality.
 
-## Where we stand (2026-09-30)
+## Where we stand (2026-10-15)
 
 | Requirement | Status | Where |
 |---|---|---|
 | Rider / Driver Advocates | Done | `src/agents/passenger.py`, `driver.py` |
-| Advocates *autonomously gather* their evidence | **Partial**: they receive the case data and one shared policy search; they cannot run their own lookups | see `08_DESIGN_DECISIONS.md` D7 |
-| Judge with confidence and reasoning | Done | `src/agents/arbitrator.py` |
-| Evidence sources (GPS, chat, fare, profiles) | Done (mock data) | `data/mock_disputes/` |
-| 2+ categories end to end | Done: no-show, cancellation, route, fare, mess, safety, service | 14-case eval, 86% verdict accuracy |
-| Observable inter-agent communication | Done | live agent trace in the dashboard |
-| Evidence Collection Agent | **Partial**: deterministic Collector with tools; not multi-modal | `src/agents/collector.py` |
-| Policy & Precedent Agent | **Partial**: official-policy RAG; **no past rulings yet** | `src/agents/policy.py` |
-| Escalation Protocol | Done: confidence threshold plus Fairness checks route to human review | `src/core/workflow.py`, `fairness.py` |
-| SLA & Routing | Partial: urgency tiers, safety cases go straight to a human; no queue | `classifier.py` |
-| Fraud & Bad-Faith Agent | Not built (profiles carry fraud flags only) | |
-| Image Analysis | Not built (photos are text descriptions) | |
-| Learning Feedback Loop | Not built | |
-| CodeBuddy proof | In progress | `proof of usage of codebuddy/` |
-| Blurb, cover image, description | To do | |
+| Advocates *autonomously gather* their evidence | **Partial**: they argue from one shared case brief built by the Collector's tools; they do not run their own lookups (constrained autonomy, D7) | `src/agents/case_brief.py` |
+| Judge with confidence and reasoning | Done; a code Judge checks every draft and remands it once (D38, D42) | `src/agents/arbitrator.py`, `code_judge.py` |
+| Evidence sources (GPS, chat, fare, profiles, photos) | Done (mock data and the organisers' sample format, D50) | `data/` |
+| 2+ categories end to end | Done: every dispute type in the organisers' format | samples 3/3, blind OF 25/30, regression 44/52 with no wrong payout (README) |
+| Observable inter-agent communication | Done | live agent trace and saved runs in the dashboard |
+| Evidence Collection Agent | Done: deterministic Collector tools, photo file checks and a vision model (D46, D47) | `src/agents/collector.py`, `photo_checks.py`, `image_analyst.py` |
+| Policy & Precedent Agent | Done: Policy v2.1 governs, its official precedents 7.1-7.3 go into every brief; reviewed past rulings are chosen by type, policy version and principle (D51) | `src/agents/policy.py`, `src/rag/precedents.py` |
+| Escalation Protocol | Done: Policy v2.1 gate, code Judge and Fairness route to a person; review desk shows why | `src/core/workflow.py`, `policy_gates.py`, `frontend/review.html` |
+| SLA & Routing | Done: urgency P0-P3, safety and legal go straight to a person; no production queue (README, Scale) | `src/core/triage.py`, `src/agents/safety.py` |
+| Fraud & Bad-Faith Agent | Done: risk signals and pair history, seen by the Judge only | `src/agents/fraud.py` |
+| Image Analysis | Done: file checks in code plus a vision model that can only raise doubts | D46, D47 |
+| Learning Feedback Loop | Built, gated: a reviewer's ruling becomes a precedent only after an evaluation shows no harm; none released yet (D45) | `src/store/feedback.py` |
+| Notices and chat tone | Done: notices in four languages (D51); chat tone shown to reviewers and used for notice wording only (D52) | `src/agents/executor.py`, `chat_signals.py` |
+| CodeBuddy proof | Done | `proof of usage of codebuddy/` |
+| Blurb, cover image, description | Done | `docs/SUBMISSION_FORM.md` |
 
 ## Corrections to the previous version of this file
 

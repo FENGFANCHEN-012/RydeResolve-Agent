@@ -248,6 +248,11 @@ What the system does today:
 - **Both parties get an explanation they can read.** Each party's notice is built by code from the
   ruling's fields only, so it cannot state an amount the ruling did not make. The dashboard shows it
   in English, Chinese, Malay or Tamil (`POST /api/notices`, no model call).
+- **Tone is read, never weighed.** Code labels each chat message's tone (calm, frustrated, angry,
+  abusive, distress) and key moments (agree, object, apology, promise), citing the message. Reviewers
+  see the tags in the case timeline and an upset party's notice opens with one acknowledging line; the
+  advocates and the Judge never get the labels, and Fairness flags a ruling on a fare, fee or refund
+  whose reasons lean on a party's manner (`src/agents/chat_signals.py`, D52).
 - **A person decides what AI should not.** Safety reports, disputes above S$50, contested damage,
   doubted photos, low confidence and failed checks go to a person; the escalated party is told no
   money moves until a specialist reviews the case.

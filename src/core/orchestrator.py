@@ -19,6 +19,7 @@ import json
 import logging
 import os
 
+from src.agents.chat_signals import chat_signals
 from src.agents.collector import DisputeContext, EvidenceItem
 from src.core.workflow import build_dispute_graph
 from src.core.workflow_state import (
@@ -171,6 +172,8 @@ class Orchestrator:
             "fairness": fairness.model_dump() if fairness else None,
             "execution": execution,
             "debate_rounds": len(debate_history),
+            # Tone of the chat (D52): for reviewers and notice wording, never for the ruling
+            "chat_signals": chat_signals(context.chat_log),
             "platform_data_summary": {
                 "trip_distance_km": context.trip.get("actual_distance_km") if context.trip else None,
                 "fare_discrepancy": self._calc_fare_discrepancy(context),

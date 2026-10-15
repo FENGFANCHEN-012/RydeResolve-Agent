@@ -41,6 +41,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from src.agents.chat_signals import DEMEANOUR_WORDS
 from src.config import (
     CONFIDENCE_THRESHOLD_LOW as FAIRNESS_DECISION_CONFIDENCE_LOW,
     LLM_API_KEY,
@@ -98,6 +99,8 @@ class FairnessIssueCode(str, Enum):
     PENALTY_WITH_DISMISSAL = "penalty_with_dismissal"
     # #7c a refund that rests on Ryde's discretion and is smaller than the disputed amount
     DISCRETIONARY_PARTIAL_REFUND = "discretionary_partial_refund"
+    # #8 the reasons lean on a party's manner (rude, angry) in a dispute about money, not conduct (D52)
+    TONE_RELIANCE = "tone_reliance"
 
     # #8 the Fraud agent found hard evidence of fraud or collusion in this case
     FRAUD_RISK_HIGH = "fraud_risk_high"
@@ -117,6 +120,15 @@ _VERDICT_MEANING = {
 
 # Dispute types whose ruling depends on where the driver was (at pickup, on the route)
 _LOCATION_DECIDED_TYPES = {"no_show", "no_show_charge", "cancellation_refund", "route_deviation"}
+
+
+_CONDUCT_TYPES = {"service_quality", "driver_rights", "accident_liability"}
+
+
+def _dispute_type(context) -> str | None:
+    context = context or {}
+    dtype = context.get("type") if isinstance(context, dict) else getattr(context, "type", None)
+    return getattr(dtype, "value", dtype)
 
 
 def _advocate_ran(analysis: dict) -> bool:
@@ -709,6 +721,18 @@ class FairnessAgent:
                 "Rationale is too short to be supported by the considered evidence.",
                 severity="medium",
                 recommended_action="Require a more detailed rationale before proceeding.",
+            )
+
+        # (f2) manner is not evidence: who sounded angrier must not decide a fare, fee or refund.
+        # Medium = recorded for the reviewer, never a block; conduct disputes are about manner.
+        manner = sorted({m.group(0).lower() for m in DEMEANOUR_WORDS.finditer(rationale)})
+        if manner and _dispute_type(context) not in _CONDUCT_TYPES:
+            add_issue(
+                FairnessIssueCode.TONE_RELIANCE,
+                f"The reasons mention a party's manner ({', '.join(manner[:4])}) in a dispute decided by "
+                "the records; check that the ruling does not rest on it.",
+                severity="medium",
+                recommended_action="Confirm the outcome follows from the records and policy, not from tone.",
             )
 
         # (g) low arbitrator decision confidence

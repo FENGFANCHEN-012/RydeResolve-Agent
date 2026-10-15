@@ -327,7 +327,8 @@ function rrRenderBrief() {
 
     // Chat + app events merged into one timeline: exactly what the agents can see
     const tl = [
-        ...(d.chat_logs || []).map(m => ({ ts: m.timestamp, kind: m.sender, label: m.type === 'call' ? `${m.sender} call` : m.sender, text: m.content })),
+        ...(d.chat_logs || []).map((m, i) => ({ ts: m.timestamp, kind: m.sender, label: m.type === 'call' ? `${m.sender} call` : m.sender, text: m.content,
+            tone: rr.toneFor === d ? rr.tone[`chat_log[${i}]`] : null })),
         ...(d.app_events || []).map(e => ({ ts: e.timestamp, kind: 'event', label: e.event_type.replace(/_/g, ' '), text: e.details })),
     ].sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
 
@@ -358,9 +359,35 @@ function rrRenderBrief() {
         ${rrPhotos(d.evidence || [], true)}
         <details class="rr-more"><summary>Evidence timeline — chat + app events (${tl.length})</summary>
             <ul class="rr-tl">${tl.map(e => `<li><span class="time">${rrEsc(rrTime(e.ts))}</span>
-                <span class="kind ${rrEsc(e.kind)}">${rrEsc(e.label)}</span><span class="txt">${rrEsc(e.text)}</span></li>`).join('')}</ul></details>
+                <span class="kind ${rrEsc(e.kind)}">${rrEsc(e.label)}</span><span class="txt">${rrEsc(e.text)}${rrToneTags(e.tone)}</span></li>`).join('')}</ul>
+            <div class="rr-tone-note">Tone tags come from code word lists. Reviewers see them and they shape notice wording; they never change a ruling.</div></details>
         <details class="rr-more"><summary>Exact data sent to the agents (JSON)</summary>
             <pre class="rr-json">${rrJson(d)}</pre></details>`;
+    if (rr.toneFor !== d && (d.chat_logs || []).length) rrLoadTone(d);
+}
+
+// Tone of each chat message (D52), computed by code on the server; shown next to the message
+async function rrLoadTone(d) {
+    rr.toneFor = d; rr.tone = {};
+    try {
+        const resp = await apiFetch(`${API_BASE}/api/chat-signals`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_log: d.chat_logs || [] }),
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const sig = await resp.json();
+        if (rr.detail?.dataset !== d) return;  // another case was opened meanwhile
+        for (const m of sig.messages || []) rr.tone[m.source] = m;
+        rrRenderBrief();
+    } catch (err) {
+        console.warn('Chat tone unavailable', err);
+    }
+}
+
+function rrToneTags(t) {
+    if (!t) return '';
+    const tags = [...(t.tone && t.tone !== 'calm' ? [t.tone] : []), ...(t.events || [])];
+    return tags.map(x => ` <span class="rr-tone ${rrEsc(x)}">${rrEsc(x)}</span>`).join('');
 }
 
 // ---------------------------------------------------------------- run / replay
@@ -1151,7 +1178,7 @@ async function rrNoticeLang(lang) {
                 body: JSON.stringify({
                     verdict: res.verdict || {}, dispute_id: res.dispute_id || rr.current || '',
                     reporter: rr.request?.reporter || rr.detail?.dataset?.dispute_ticket?.filed_by || null,
-                    escalated: rrEscalated(), language: lang,
+                    escalated: rrEscalated(), language: lang, chat_signals: res.chat_signals || null,
                 }),
             });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);

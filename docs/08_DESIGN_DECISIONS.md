@@ -1789,3 +1789,34 @@ default, so no live ruling changes. The precedent selection has not been measure
 release gate (scripts/precedents.py) still has to show that rulings which see precedents are no
 worse before any precedent goes live. Cost figures for a Claude Judge are list-price estimates; the
 Claude adapter itself is not built.
+
+## D52. Chat tone: read for reviewers and notice wording, never weighed in a ruling (2026-10-15)
+
+What changed and why:
+- **Tone and key moments per chat message** (`src/agents/chat_signals.py`). Code word lists, no LLM:
+  tone is calm, frustrated, angry, abusive or distress; events are agree, object, apology, promise.
+  Each label cites `chat_log[i]`. English, Singlish, Chinese and Malay words. A question ("I go around,
+  ok?") is not counted as agreement, and an objection wins over agreement in the same message.
+- **Where it is used.** The run response carries `chat_signals`; the case timeline in the dashboard
+  shows the tags next to each message (`POST /api/chat-signals`); a notice to a party whose chat was
+  frustrated, angry or distressed opens with one acknowledging line in the notice's language. The
+  outcome lines are unchanged and the calm party gets the plain notice.
+- **Where it is not used.** The labels are not given to the advocates, the Judge or the Policy agent,
+  and they route no case: abuse and threats stay with the Safety agent (D24). "Who sounded angrier"
+  must not become evidence.
+- **Fairness: TONE_RELIANCE** (`src/agents/fairness.py`). A ruling on a non-conduct dispute (not
+  service quality, driver rights or accident) whose reasons mention a party's manner (rude, attitude,
+  shouted, tone...) gets a medium note for the reviewer. Medium never blocks: the ruling still
+  executes, the note stays on the record.
+
+How it was checked: tests for the labels (including the false hits below), message citations, calls
+skipped, the acknowledging line leaving the outcome text identical, the Fairness note (medium, not a
+block, absent for service quality) and the endpoint; 636 Python and 28 frontend tests pass. The labels
+were run over the chats of every case under `data/` (218 chats): the first word lists marked "bus stop"
+as an objection, "!!" as anger and "can you help me claim the fee" as distress; those patterns were
+narrowed and the scan re-run (49 frustrated, 1 distress "I am scared", 0 angry or abusive).
+
+Not done: no evaluation run, because no LLM input changed; the only ruling-side effect is the medium
+Fairness note, which cannot stop execution. The labels have not been scored on a labelled blind set of
+chats; a word list misses sarcasm and mixed languages it does not list. Saved demo runs predate D52, so
+their notices carry no acknowledging line; the timeline tags work on every case.

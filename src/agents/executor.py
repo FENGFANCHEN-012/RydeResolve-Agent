@@ -13,6 +13,7 @@ import logging
 from typing import Any
 
 from src.agents.arbitrator import Decision
+from src.agents.chat_signals import ANGRY, DISTRESS, FRUSTRATED, party_tone
 from src.config import SUPPORTED_LANGUAGES
 
 logger = logging.getLogger(__name__)
@@ -167,6 +168,17 @@ _OUTCOME_PHRASES: dict[str, dict[str, str]] = {
 }
 
 
+# One opening line for a party whose chat showed they were upset (D52). It changes the wording only:
+# the outcome lines below come from the ruling and are the same whatever the tone.
+_ACKNOWLEDGE = {
+    "en": "We understand this trip was frustrating, and we are sorry for the trouble.",
+    "zh": "我们理解这次行程给您带来了困扰，对此深表歉意。",
+    "ms": "Kami faham perjalanan ini mengecewakan, dan kami memohon maaf atas kesulitan ini.",
+    "ta": "இந்தப் பயணம் உங்களுக்கு ஏமாற்றமளித்தது என்பதை நாங்கள் புரிந்துகொள்கிறோம்; சிரமத்திற்கு மன்னிக்கவும்.",
+}
+_UPSET = (FRUSTRATED, ANGRY, DISTRESS)
+
+
 def outcome_text(decision, recipient: str, reporter: str | None, language: str) -> str:
     """The outcome lines for one recipient ("passenger" or "driver")."""
     ph = _OUTCOME_PHRASES.get(language, _OUTCOME_PHRASES["en"])
@@ -221,6 +233,7 @@ class ExecutionAgent:
         dispute_id: str,
         language: str = DEFAULT_LANGUAGE,
         reporter: str | None = None,
+        chat_signals: dict | None = None,
     ) -> dict:
         """Execute a ``Decision`` and return a structured result dict.
 
@@ -282,6 +295,7 @@ class ExecutionAgent:
                 result=result,
                 escalated=False,
                 reporter=reporter,
+                chat_signals=chat_signals,
             )
             return result
         except Exception as exc:  # pragma: no cover - defensive guard
@@ -406,6 +420,7 @@ class ExecutionAgent:
         result: dict,
         escalated: bool,
         reporter: str | None = None,
+        chat_signals: dict | None = None,
     ) -> None:
         """Produce simulated notifications for passenger and driver, each with its own outcome."""
         if not escalated and language not in _OUTCOME_PHRASES:
@@ -455,6 +470,8 @@ class ExecutionAgent:
                         outcome=outcome_text(decision, recipient, reporter, DEFAULT_LANGUAGE),
                     )
 
+            if not escalated and party_tone(chat_signals, recipient) in _UPSET:
+                message = f"{_ACKNOWLEDGE.get(language, _ACKNOWLEDGE[DEFAULT_LANGUAGE])} {message}"
             notification = {
                 "recipient": recipient,
                 "language": language,

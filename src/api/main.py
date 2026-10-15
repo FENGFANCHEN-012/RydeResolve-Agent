@@ -613,6 +613,7 @@ class NoticeRequest(BaseModel):
     reporter: str | None = None
     escalated: bool = False
     language: str = "en"              # en, zh, ms, ta
+    chat_signals: dict | None = None  # the run's chat tone (D52); wording only, never the outcome
 
 
 @app.post("/api/notices")
@@ -629,8 +630,20 @@ async def render_notices(req: NoticeRequest):
     language = ExecutionAgent._resolve_language(req.language)
     result = {"notifications": []}
     ExecutionAgent()._generate_notifications(decision=decision, dispute_id=req.dispute_id[:64], language=language,
-                                             result=result, escalated=req.escalated, reporter=req.reporter)
+                                             result=result, escalated=req.escalated, reporter=req.reporter,
+                                             chat_signals=req.chat_signals)
     return {"language": language, "notifications": result["notifications"]}
+
+
+class ChatSignalsRequest(BaseModel):
+    chat_log: list[dict] = []
+
+
+@app.post("/api/chat-signals")
+async def chat_tone(req: ChatSignalsRequest):
+    """Tone and key moments of a chat (D52), for the case view. Code only, no LLM."""
+    from src.agents.chat_signals import chat_signals
+    return chat_signals(req.chat_log[:500])
 
 
 @app.post("/api/disputes/resolve-with-files")

@@ -59,6 +59,7 @@ from langgraph.graph import END, START, StateGraph
 from src.agents.arbitrator import ArbitrationAgent
 from src.agents.classifier import ClassifierAgent
 from src.agents.case_brief import CaseBriefAgent
+from src.agents.chat_signals import chat_signals
 from src.agents.collector import CollectorAgent
 from src.agents.executor import (
     ExecutionAgent,
@@ -439,6 +440,7 @@ def build_dispute_graph(
             execution = await executor.execute(
                 state["decision"], state["context"].dispute_id,
                 reporter=getattr(state["context"], "reporter", None),
+                chat_signals=chat_signals(getattr(state["context"], "chat_log", None)),
             )
             s["output"] = execution
         if not isinstance(execution, dict):
