@@ -22,7 +22,7 @@ Our rule is simple: if the system cannot prove its ruling from the records, a pe
 **[Dashboard. Saved runs: demo-7-DISP-001]**
 
 This is the organisers' own sample. A rider going to Changi says the driver took a much longer route
-without telling her. The evidence collector reads the records: four point three kilometres over the
+without explaining why. The evidence collector reads the records: four point three kilometres over the
 recommended PIE route, and the fare breakdown prices that extra distance at three dollars forty-four.
 It also finds a vehicle fire on the PIE during the trip, right on the recommended route.
 
@@ -94,11 +94,13 @@ automatic refund. Safety is never automated.
 **[README results table]**
 
 How do we know it works? We test on cases with known answers, including sets written by another model
-that never saw our code, and a sealed set we ran once and never tuned on. Under the organisers'
-policy, all three of their samples are right, and 44 of 52 earlier cases re-run with no wrong payout. Most misses were cases handed to a person, which costs time, not money. There were five
-wrong payouts, and one ruling that left out the amount. The largest was a hundred-dollar refund on a
-doubtful photo; that is why every doubted photo now goes to a person, and on a new photo set after
-the fix, none slipped through. We publish every miss; the two newest are still open.
+that never saw our code. Under the organisers' policy, all three of their samples are right. On a
+blind set of thirty cases in their full format, twenty-five are right. And fifty-two earlier cases,
+re-run under the new policy: forty-four right, and no wrong payout. Seventy-eight percent of the
+disputes the policy lets AI decide closed with no human, in about ninety seconds each. Every miss on
+that re-run was a case handed to a person, which costs time, not money. The blind set did catch two
+wrong payouts; we fixed both and ran the cases again. Every miss, and the fix it led to, is published
+in the repo.
 
 **[A CodeBuddy screenshot]**
 
