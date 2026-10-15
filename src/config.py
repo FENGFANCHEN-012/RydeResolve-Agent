@@ -27,7 +27,9 @@ ADVOCATE_REASONING_EFFORT = os.getenv("ADVOCATE_REASONING_EFFORT", "").strip().l
 # Output budget of one rebuttal. gpt-oss counts its hidden reasoning in max_tokens: at 300, 18 of
 # 108 rebuttals in run 20261001-203206 spent all 300 on reasoning and came back empty. The prompt
 # still caps the text at 180 words; only tokens actually used are billed.
-REBUTTAL_MAX_TOKENS = int(os.getenv("REBUTTAL_MAX_TOKENS", "1500"))
+# gpt-oss counts its hidden reasoning in max_tokens: 300 left empty rebuttals (D16), 1500 still cut
+# 3 of 127 calls mid-sentence (D53). Same budget as every other call; the prompt keeps 180 words.
+REBUTTAL_MAX_TOKENS = int(os.getenv("REBUTTAL_MAX_TOKENS", "4096"))
 
 # Chat provider: "gemini" (default), "groq", "cerebras" or "hunyuan" (the last three use the
 # OpenAI-compatible API). Embeddings never use this setting.

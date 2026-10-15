@@ -110,14 +110,16 @@ async def step(agent: str, title: str, input: Any = None):
 
 def record_llm_call(prompt: str, response: str | None, duration_ms: int, error: str | None = None,
                     usage: dict | None = None, wait_ms: int = 0,
-                    provider: str | None = None, model: str | None = None) -> None:
-    """Called by LLMClient for every request; attaches it to the running step."""
+                    provider: str | None = None, model: str | None = None, truncated: bool = False) -> None:
+    """Called by LLMClient for every request; attaches it to the running step.
+    truncated: the answer stopped at max_tokens, so its end is missing (D53)."""
     tracer = current_tracer()
     if tracer is None:
         return
     tracer.emit({"type": "llm_call", "step_id": _step_id.get(), "prompt": prompt,
                  "response": response, "duration_ms": duration_ms, "error": error,
-                 "usage": usage, "wait_ms": wait_ms, "provider": provider, "model": model})
+                 "usage": usage, "wait_ms": wait_ms, "provider": provider, "model": model,
+                 **({"truncated": True} if truncated else {})})
 
 
 def record_retrieval(query_type: str, clauses: list[dict]) -> None:

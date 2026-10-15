@@ -80,6 +80,31 @@ async def test_groq_calls_are_traced_and_errors_raise(monkeypatch):
     assert calls[1]["error"] and "429" in calls[1]["error"]
 
 
+@pytest.mark.asyncio
+async def test_an_answer_cut_off_at_max_tokens_is_flagged_in_the_trace(monkeypatch):
+    # D53: a driver rebuttal stopped mid-sentence at the cap and nothing said so
+    client, fake = _groq_client(monkeypatch, reply="The “no-fee")
+    async def cut(**kwargs):
+        fake.calls.append(kwargs)
+        msg = type("M", (), {"content": "The “no-fee"})()
+        return type("R", (), {"choices": [type("C", (), {"message": msg, "finish_reason": "length"})()]})()
+    fake.create = cut
+    tracer = Tracer()
+    set_tracer(tracer)
+    try:
+        async with step("Driver", "rebut"):
+            await client.chat([{"role": "user", "content": "q"}])
+    finally:
+        set_tracer(None)
+    call = next(e for e in tracer.events if e["type"] == "llm_call")
+    assert call["truncated"] is True
+
+
+def test_rebuttal_budget_matches_the_other_calls():
+    from src import config
+    assert config.REBUTTAL_MAX_TOKENS >= 4096
+
+
 def test_groq_without_key_fails_clearly(monkeypatch):
     monkeypatch.setattr(llm_module, "LLM_PROVIDER", "groq")
     monkeypatch.setattr(llm_module, "GROQ_API_KEY", "")

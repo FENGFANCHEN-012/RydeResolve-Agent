@@ -184,10 +184,14 @@ class LLMClient:
         try:
             response = await self._get_groq().chat.completions.create(**kwargs)
             text = response.choices[0].message.content or ""
-            if not text.strip() and response.choices[0].finish_reason == "length":
+            truncated = getattr(response.choices[0], "finish_reason", None) == "length"
+            if truncated and not text.strip():
                 # A reasoning model can spend the whole budget thinking and return no answer
                 logger.warning("Empty answer: max_tokens=%s used up (reasoning model); raise it",
                                kwargs["max_tokens"])
+            elif truncated:
+                # Worse than empty: the answer looks complete but its end is missing (D53)
+                logger.warning("Answer cut off at max_tokens=%s; its end is missing", kwargs["max_tokens"])
         except Exception as exc:
             record_llm_call(prompt, None, int((time.perf_counter() - t0) * 1000), error=str(exc),
                             wait_ms=int(sum(waits) * 1000), provider=self.provider, model=self.model)
@@ -202,7 +206,8 @@ class LLMClient:
                 _spent_usd += (response.usage.prompt_tokens * LLM_PRICE_IN_PER_M
                                + response.usage.completion_tokens * LLM_PRICE_OUT_PER_M) / 1_000_000
         record_llm_call(prompt, text, int((time.perf_counter() - t0) * 1000),
-                        usage=usage, wait_ms=int(sum(waits) * 1000), provider=self.provider, model=self.model)
+                        usage=usage, wait_ms=int(sum(waits) * 1000), provider=self.provider, model=self.model,
+                        truncated=truncated)
         return text
 
     def _ensure_configured(self):

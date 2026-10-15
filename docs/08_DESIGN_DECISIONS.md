@@ -1881,3 +1881,25 @@ three threats, two personal remarks with a number request, and one "I am scared"
 The review desk labels escalations recorded before D52b by code on opening (`POST /api/chat-signals`, no model call).
 
 Not done: the browser check of the live page; the access-code prompt has to be answered by a person.
+
+## D53. Rebuttals cut off mid-sentence: same token budget as every other call, cuts flagged (2026-10-15)
+
+What was wrong: in run 20261015-215247 (RYDE-DEMO-007, a cancellation after a delayed driver) the
+driver's rebuttal stopped at "The “no-fee", just before the point that answers the rider: the rider
+cancelled at 08:08, two minutes before the updated ETA of 08:10. The reply had used exactly 1,500
+completion tokens, the rebuttal cap. gpt-oss counts its hidden reasoning in max_tokens (D16 found the
+same at 300 tokens, where replies came back empty). Across the 127 calls stored on the server, 3
+rebuttals stopped at exactly 1,500 (one empty, two cut mid-sentence); every other call has a 4,096 or
+larger cap. The client warned only when a reply was empty, so a cut reply looked complete, and the
+Judge read a debate where one side's main point was missing.
+
+What changed: `REBUTTAL_MAX_TOKENS` defaults to 4,096, the same budget as the other agent calls (the
+prompt still asks for at most 180 words, so the visible reply does not get longer; only replies that
+were being cut use more). The client now logs a warning for a cut reply as well as an empty one, and
+the trace marks that call `truncated: true`.
+
+How it was checked: the server traces above; a test that a reply ending at the cap is flagged in the
+trace and one that the rebuttal budget matches the other calls; 642 Python tests pass.
+
+Not done: the run was not repeated (paid); the Judge's ruling in that run (refund S$4.00, the driver
+12.5 minutes past the original ETA) was not re-examined against the updated-ETA argument.
