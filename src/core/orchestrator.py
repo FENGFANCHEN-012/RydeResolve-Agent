@@ -150,6 +150,9 @@ class Orchestrator:
             if fairness is not None:
                 response["fairness"] = fairness.model_dump()
             response["execution"] = execution  # Present if the executor requested review
+            if context is not None:
+                # The reviewer sees each message's tone next to the chat (D52)
+                response["chat_signals"] = state.get("chat_signals") or chat_signals(context.chat_log)
             response["debate_rounds"] = len(debate_history)
             return response
 
@@ -173,7 +176,7 @@ class Orchestrator:
             "execution": execution,
             "debate_rounds": len(debate_history),
             # Tone of the chat (D52): for reviewers and notice wording, never for the ruling
-            "chat_signals": chat_signals(context.chat_log),
+            "chat_signals": state.get("chat_signals") or chat_signals(context.chat_log),
             "platform_data_summary": {
                 "trip_distance_km": context.trip.get("actual_distance_km") if context.trip else None,
                 "fare_discrepancy": self._calc_fare_discrepancy(context),

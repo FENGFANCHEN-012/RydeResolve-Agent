@@ -68,3 +68,49 @@ def test_chat_signals_endpoint():
     client = TestClient(main.app, headers={"Authorization": "Bearer offline-demo"})
     r = client.post("/api/chat-signals", json={"chat_log": [{"sender": "rider", "content": "ok go ahead"}]})
     assert r.status_code == 200 and r.json()["messages"][0]["events"] == ["agree"]
+
+
+class _FakeLLM:
+    def __init__(self, reply):
+        self.reply, self.calls = reply, []
+
+    async def chat_json(self, messages, **kw):
+        self.calls.append(messages)
+        if isinstance(self.reply, Exception):
+            raise self.reply
+        return self.reply
+
+
+CHAT = [{"sender": "rider", "content": "Still waiting??"},
+        {"sender": "rider", "content": "Great, just great. Thanks for the scenic tour."},
+        {"sender": "driver", "content": "Kenapa lama sangat?"}]
+
+
+@pytest.mark.asyncio
+async def test_model_relabels_only_the_doubtful_messages_and_is_checked():
+    import json
+    from src.agents.chat_signals import chat_signals_refined
+    llm = _FakeLLM(json.dumps({"labels": [
+        {"id": "chat_log[1]", "tone": "angry", "events": [], "why": "sarcasm"},
+        {"id": "chat_log[2]", "tone": "frustrated", "events": ["bogus"]},
+        {"id": "chat_log[0]", "tone": "calm"},            # not asked: ignored
+        {"id": "chat_log[9]", "tone": "angry"},           # unknown id: ignored
+    ]}))
+    sig = await chat_signals_refined(CHAT, llm=llm)
+    by = {m["source"]: m for m in sig["messages"]}
+    assert "chat_log[0]" not in llm.calls[0][1]["content"].split("Label only these messages:")[1]
+    assert by["chat_log[0]"]["tone"] == "frustrated" and by["chat_log[0]"]["decided_by"] == "code"
+    assert by["chat_log[1]"]["tone"] == "angry" and by["chat_log[1]"]["decided_by"] == "llm"
+    assert by["chat_log[2]"]["events"] == [] and sig["llm_checked"] == 2
+    assert sig["overall"] == {"rider": "angry", "driver": "frustrated"}
+
+
+@pytest.mark.asyncio
+async def test_model_failure_or_nothing_doubtful_keeps_the_code_labels():
+    from src.agents.chat_signals import chat_signals, chat_signals_refined
+    sig = await chat_signals_refined(CHAT, llm=_FakeLLM(RuntimeError("quota")))
+    assert sig["llm_checked"] == 0 and "quota" in sig["llm_error"]
+    assert sig["messages"] == chat_signals(CHAT)["messages"]
+    calm = _FakeLLM("{}")
+    await chat_signals_refined([{"sender": "rider", "content": "I'm at the lobby"}], llm=calm)
+    assert calm.calls == []                               # no doubtful message: no model call

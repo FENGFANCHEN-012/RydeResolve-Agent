@@ -56,6 +56,7 @@ class DisputeWorkflowState(TypedDict, total=False):
     code_judge: dict                    # arbitrator node: problems found, first draft and after revision (D38)
     policy_gate: list[str]              # arbitrator node: Policy v2.1 sections that send the case to a person (D50)
     fairness: FairnessAssessment        # fairness node
+    chat_signals: dict                  # collector node: chat tone for reviewers and notices, never the ruling (D52)
     execution: dict                     # executor node
 
     # --- Control / audit ----------------------------------------------

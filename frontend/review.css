@@ -176,3 +176,13 @@ details.hv-raw pre { font-family: ui-monospace, Consolas, monospace; font-size: 
     .hv-tl li { grid-template-columns: 60px 1fr; }
     .hv-tl .d { grid-column: 1 / -1; }
 }
+
+/* Chat tone tags (D52) */
+.hv-tones { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+.hv-tone { padding: 0 6px; border-radius: 9px; font-size: 11px; font-weight: 600; background: #eee; color: #555; }
+.hv-tone.frustrated { background: #fff4d6; color: #7a5600; }
+.hv-tone.angry, .hv-tone.abusive { background: #fde2e1; color: #9b1c1c; }
+.hv-tone.distress { background: #9b1c1c; color: #fff; }
+.hv-tone.agree { background: #dff3e4; color: #1e6b34; }
+.hv-tone.object { background: #e8e1fa; color: #4b2a9b; }
+.hv-tone.ai { background: transparent; border: 1px dashed #999; font-weight: 500; }

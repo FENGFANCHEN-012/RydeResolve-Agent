@@ -116,10 +116,21 @@ function rows(obj, keys) {
         .map(k => `<div class="hv-row"><span>${esc(words(k))}</span><span class="${/fraud/.test(k) && obj[k] && obj[k] !== 0 && String(obj[k]) !== '[]' ? 'flag' : ''}">${esc(show(obj[k]))}</span></div>`).join('');
 }
 
+// Tone tags on a chat message (D52): tone if not calm, then key moments; "AI" when a model relabelled it
+function toneTags(t) {
+    if (!t) return '';
+    const tags = [...(t.tone && t.tone !== 'calm' ? [t.tone] : []), ...(t.events || [])];
+    if (!tags.length && t.decided_by === 'llm') tags.push('calm');
+    return `<div class="hv-tones">${tags.map(x => `<span class="hv-tone ${esc(x)}">${esc(x)}</span>`).join('')}${
+        t.decided_by === 'llm' ? `<span class="hv-tone ai" title="${esc(t.why || '')}">AI checked</span>` : ''}</div>`;
+}
+
 function renderCase() {
     const d = hv.data, ru = d.ruling, r = caseRecords(d), done = d.reviews.length > 0;
     const pts = points(r);
     const senderClass = s => /driver/i.test(s) ? 'driver' : /rider|passenger/i.test(s) ? 'rider' : 'system';
+    const tone = d.response?.chat_signals
+        ? Object.fromEntries((d.response.chat_signals.messages || []).map(m => [m.source, m])) : null;
     const html = `
         <header class="hv-casehead">
             <h2>${esc(ru.dispute_id)} <span class="hv-tag type">${esc(words(ru.dispute_type || r.type || 'unknown'))}</span></h2>
@@ -154,9 +165,9 @@ function renderCase() {
             ${r.payment ? `<div class="hv-card"><h4 class="hv-label">Payment</h4>${rows(r.payment)}</div>` : ''}
         </div></section>
 
-        <section class="hv-sec"><h3>In-app chat <small>${r.chat.length} messages</small></h3>
-            <div class="hv-chatlog">${r.chat.map(m => `<div class="hv-msg ${senderClass(m.sender)}">
-                <div class="who">${esc(m.sender || 'system')}<time>${hhmm(m.timestamp)}</time></div>${esc(m.content ?? m.message ?? '')}</div>`).join('')
+        <section class="hv-sec"><h3>In-app chat <small>${r.chat.length} messages${tone ? ' · tone tags: code, doubtful ones checked by a model; never used in the ruling' : ''}</small></h3>
+            <div class="hv-chatlog">${r.chat.map((m, i) => `<div class="hv-msg ${senderClass(m.sender)}">
+                <div class="who">${esc(m.sender || 'system')}<time>${hhmm(m.timestamp)}</time></div>${esc(m.content ?? m.message ?? '')}${toneTags(tone?.[`chat_log[${i}]`])}</div>`).join('')
                 || '<div class="hv-empty" style="padding:0">No chat.</div>'}</div></section>
 
         <section class="hv-sec"><h3>App events <small>${r.events.length} events · ${r.gps.length} GPS points</small></h3>

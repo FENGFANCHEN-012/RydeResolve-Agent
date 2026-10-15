@@ -328,7 +328,7 @@ function rrRenderBrief() {
     // Chat + app events merged into one timeline: exactly what the agents can see
     const tl = [
         ...(d.chat_logs || []).map((m, i) => ({ ts: m.timestamp, kind: m.sender, label: m.type === 'call' ? `${m.sender} call` : m.sender, text: m.content,
-            tone: rr.toneFor === d ? rr.tone[`chat_log[${i}]`] : null })),
+            tone: rrRunTone(i) || (rr.toneFor === d ? rr.tone[`chat_log[${i}]`] : null) })),
         ...(d.app_events || []).map(e => ({ ts: e.timestamp, kind: 'event', label: e.event_type.replace(/_/g, ' '), text: e.details })),
     ].sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
 
@@ -384,10 +384,17 @@ async function rrLoadTone(d) {
     }
 }
 
+// After a run, its labels (code + model check) replace the code-only preview
+function rrRunTone(i) {
+    const msgs = rr.result?.chat_signals?.messages;
+    return msgs ? (msgs.find(m => m.source === `chat_log[${i}]`) || { tone: 'calm', events: [] }) : null;
+}
+
 function rrToneTags(t) {
     if (!t) return '';
     const tags = [...(t.tone && t.tone !== 'calm' ? [t.tone] : []), ...(t.events || [])];
-    return tags.map(x => ` <span class="rr-tone ${rrEsc(x)}">${rrEsc(x)}</span>`).join('');
+    if (t.decided_by === 'llm') tags.push(t.tone === 'calm' && !tags.length ? 'calm · AI checked' : 'AI checked');
+    return tags.map(x => ` <span class="rr-tone ${rrEsc(x.split(' ')[0])}">${rrEsc(x)}</span>`).join('');
 }
 
 // ---------------------------------------------------------------- run / replay
@@ -549,6 +556,7 @@ function rrHandle(ev) {
         }
     } else if (ev.type === 'result') {
         rr.result = ev.result;
+        rrRenderBrief();  // the run's tone labels replace the code-only preview
         rr.saveWarning = ev.result?.storage_warning || null;
         if (rr.follow) rr.selected = ev.result?.status === 'escalated_to_human' ? 'human' : (rr.selected || 'case');
     } else if (ev.type === 'error') {
@@ -578,7 +586,7 @@ function rrNodeOf(step) {
     if (/^Round /.test(step.title)) return 'debate';
     return { Collector: 'collector', Classifier: 'classifier', CaseBrief: 'casebrief', Passenger: 'passenger', Driver: 'driver',
              Policy: 'policy', Arbitrator: 'arbitrator', Fairness: 'fairness', Executor: 'executor', Fraud: 'fraud',
-             ImageAnalyst: 'collector' }[step.agent] || 'debate';
+             ImageAnalyst: 'collector', ChatTone: 'collector' }[step.agent] || 'debate';
 }
 function rrStepsOf(node) { return rr.order.map(id => rr.steps[id]).filter(s => rrNodeOf(s) === node); }
 // A failed run is also routed to human review by the workflow
@@ -964,6 +972,15 @@ function rrReasoning(agent, out) {
                 `<span class="rr-chip ${out[f] != null ? 'ok' : 'miss'}">${f}${count(out[f])}</span>`).join('')}</div></div>`
             + rrPhotos(out.evidence || [])
             + rrFindings(out.findings || []);
+    }
+    if (agent === 'ChatTone') {
+        const msgs = out.messages || [];
+        return `<div class="rr-hint">Code labels each chat message's tone; a model re-checks only the doubtful ones
+            (possible sarcasm, a negated insult, a language the word lists barely cover): ${out.llm_checked ?? 0} checked.
+            The labels go to the reviewer and the notice wording, never to the advocates or the Judge.</div>
+            ${msgs.map(m => `<div class="rr-kv" style="margin-top:6px"><div class="k">${rrEsc(m.source)} ${rrEsc(m.sender)}</div>
+                <div>${rrEsc(m.text)}${rrToneTags(m)}${m.why ? ` <span class="rr-hint">(${rrEsc(m.why)})</span>` : ''}</div></div>`).join('')
+              || '<div class="rr-empty">Every message is calm.</div>'}`;
     }
     if (agent === 'ImageAnalyst') {
         const reports = out.reports || [];

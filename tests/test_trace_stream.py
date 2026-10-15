@@ -84,7 +84,7 @@ async def test_stream_full_run_disp002(fake_llm, tmp_path):
     assert "result" in types and "error" not in types
 
     agents = [e["agent"] for e in events if e["type"] == "step_end"]
-    assert agents[:2] == ["Collector", "Classifier"]
+    assert [a for a in agents if a != "ChatTone"][:2] == ["Collector", "Classifier"]
     assert {"Passenger", "Driver", "Policy", "Arbitrator", "Fairness"} <= set(agents)
     # Fairness audits the decision after the Arbitrator, before any execution
     assert agents.index("Fairness") > agents.index("Arbitrator")

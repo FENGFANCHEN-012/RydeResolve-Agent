@@ -59,7 +59,7 @@ from langgraph.graph import END, START, StateGraph
 from src.agents.arbitrator import ArbitrationAgent
 from src.agents.classifier import ClassifierAgent
 from src.agents.case_brief import CaseBriefAgent
-from src.agents.chat_signals import chat_signals
+from src.agents.chat_signals import chat_signals, chat_signals_refined
 from src.agents.collector import CollectorAgent
 from src.agents.executor import (
     ExecutionAgent,
@@ -240,7 +240,15 @@ def build_dispute_graph(
                 context = context.model_copy(update={"image_reports": reports,
                                                      "findings": [*context.findings, *doubts]})
                 s["output"] = {"reports": reports, "findings": [f.model_dump() for f in doubts]}
-        return {"context": context, "status": STATUS_IN_PROGRESS}
+        signals = chat_signals(context.chat_log)
+        if context.chat_log:
+            # Kept out of every agent's input: reviewers and notice wording only (D52)
+            async with step("ChatTone", "Tone of each chat message (code; a model checks the doubtful ones)", {
+                "sees": ["chat log"], "messages": len(context.chat_log),
+            }) as s:
+                signals = await chat_signals_refined(context.chat_log)
+                s["output"] = signals
+        return {"context": context, "chat_signals": signals, "status": STATUS_IN_PROGRESS}
 
     @_safe_node(NODE_CLASSIFIER)
     async def classifier_node(state: DisputeWorkflowState) -> dict:
@@ -440,7 +448,7 @@ def build_dispute_graph(
             execution = await executor.execute(
                 state["decision"], state["context"].dispute_id,
                 reporter=getattr(state["context"], "reporter", None),
-                chat_signals=chat_signals(getattr(state["context"], "chat_log", None)),
+                chat_signals=state.get("chat_signals") or chat_signals(getattr(state["context"], "chat_log", None)),
             )
             s["output"] = execution
         if not isinstance(execution, dict):

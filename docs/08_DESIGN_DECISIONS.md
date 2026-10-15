@@ -1820,3 +1820,41 @@ Not done: no evaluation run, because no LLM input changed; the only ruling-side 
 Fairness note, which cannot stop execution. The labels have not been scored on a labelled blind set of
 chats; a word list misses sarcasm and mixed languages it does not list. Saved demo runs predate D52, so
 their notices carry no acknowledging line; the timeline tags work on every case.
+
+## D52b. Chat tone: a model re-checks the doubtful messages; the review desk shows the tags (2026-10-15)
+
+What changed and why:
+- A word-list test of D52 on 30 hand-written messages missed sarcasm ("Great, just great. Thanks for
+  the scenic tour"), a negated insult ("You're not stupid, the app is") and Malay frustration
+  ("Kenapa lama sangat?"). Now code still labels every message, and marks a message as doubtful when
+  it has a praise word that may be sarcasm, a negation before an insult or yes-word, or a language the
+  lists barely cover (Malay words, a script other than Latin or Chinese). Only doubtful messages, at
+  most 12, go to the model in one call (`chat_signals_refined`, the main LLM client) with the chat as
+  context. Its answer is checked: unknown ids, tones or events are dropped. On any failure, or with
+  `CHAT_TONE_LLM=0`, the code labels stand. Each label says `decided_by: code | llm`.
+- The step runs in the collector node as "ChatTone" (visible in the trace) and its output goes to
+  workflow state `chat_signals`. Still no agent input: the advocates, Judge and Policy agent never see
+  it. The executor uses it for the notice opening line; the run response carries it on resolved and
+  escalated cases.
+- **Human review desk** (`frontend/review.js`): on an escalated case each chat message shows its tone
+  and key moments, with "AI checked" (and the model's reason on hover) where the model relabelled it.
+  The dashboard timeline shows the run's labels once a run finishes, and the code-only preview before.
+
+How it was checked: tests with a fake model (only doubtful messages are sent; unknown ids, tones and
+events dropped; a failure keeps the code labels; no doubtful message means no call) and the trace
+stream test now allows the ChatTone step; 638 Python and 28 frontend tests pass. Live, Groq
+gpt-oss-120b, each of 34 messages as its own chat (the 30 above plus 4 harder ones):
+
+| | Exact (tone and events) | Notes |
+|---|---|---|
+| Code only | 28/34 | all 6 misses serious: 5 upset messages read as calm, 1 non-insult read as abusive |
+| Code + model check | 29/34 | every upset message read as upset; 4 misses are frustrated vs angry, 1 extra "object" on "Awak tipu saya!" |
+
+A first run with all 34 messages in one chat scored 28/34: the model read neighbouring angry messages
+into "Thank you uncle, very kind" and over-used "object"; the prompt now defines the events narrowly.
+The messages were written by us, knowing the word lists, so these scores overstate real accuracy.
+
+Cost: one call per case with a doubtful message, about 600-1,200 tokens (about US$0.0005 on
+gpt-oss-120b); none when every message is clear.
+
+Not done: no labelled blind set of real chats; no evaluation run, since no agent input changed.
