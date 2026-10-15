@@ -83,7 +83,7 @@ const rr = {
     cases: [], filter: '', current: null, detail: null,
     steps: {}, order: [], result: null, running: false, selected: 'case', follow: true,
     selection: 0, loading: false, loadError: null, failure: null, finished: false,
-    request: null, saveWarning: null,
+    request: null, saveWarning: null, clock: null, replaying: false, replayTime: null,
 };
 
 const rrEl = id => document.getElementById(id);
@@ -366,14 +366,46 @@ function rrRenderBrief() {
 // ---------------------------------------------------------------- run / replay
 
 function rrResetRun() {
+    rrStopClock();
     rr.steps = {}; rr.order = []; rr.result = null; rr.selected = 'case'; rr.follow = true;
     rr.failure = null; rr.finished = false; rr.request = null; rr.saveWarning = null;
+    rr.replaying = false; rr.replayTime = null;
 }
 
 function rrSetRunning(on) {
+    if (!on) rrStopClock();
     rr.running = on;
+    if (on && !rr.replaying && rr.clock == null) rr.clock = setInterval(rrRefreshElapsed, 100);
     rrEl('rrTraces').disabled = on;
     rrRenderHeader();
+}
+
+function rrStepElapsed(s, now = performance.now()) {
+    if (s.duration != null) return s.duration;
+    if (rr.replaying) return s.startedTs == null || rr.replayTime == null
+        ? 0 : Math.max(0, rr.replayTime - s.startedTs);
+    return s.startedAt == null ? 0 : Math.max(0, (s.stoppedAt ?? now) - s.startedAt);
+}
+
+function rrStopClock() {
+    if (rr.clock != null) clearInterval(rr.clock);
+    rr.clock = null;
+    const now = performance.now();
+    for (const s of Object.values(rr.steps)) {
+        if (s.status === 'running' && s.stoppedAt == null) s.stoppedAt = now;
+    }
+}
+
+function rrRefreshElapsed() {
+    // Update text only: preserve focus, expanded evidence, and the user's scroll position.
+    for (const el of document.querySelectorAll('[data-rr-node-time]')) {
+        const node = el.dataset.rrNodeTime;
+        if (rrStepsOf(node).some(s => s.status === 'running')) el.textContent = rrNodeMeta(node);
+    }
+    for (const el of document.querySelectorAll('[data-rr-step-time]')) {
+        const s = rr.steps[el.dataset.rrStepTime];
+        if (s?.status === 'running') el.textContent = `${(rrStepElapsed(s) / 1000).toFixed(1)}s`;
+    }
 }
 
 async function rrRun() {
@@ -443,6 +475,7 @@ async function rrReplay(name) {
         const start = events.find(e => e.type === 'run_start');
         const orderId = start?.request?.order_id;
         rrResetRun();
+        rr.replaying = true;
         rr.request = start?.request || null;
         rrSetRunning(true);
         if (orderId && orderId !== rr.current) await rrSelectCase(orderId, true);
@@ -464,11 +497,14 @@ async function rrReplay(name) {
 }
 
 function rrHandle(ev) {
+    // Replay follows recorded event time, never the age of the saved run or playback speed.
+    if (rr.replaying && Number.isFinite(ev.ts)) rr.replayTime = Math.max(rr.replayTime ?? 0, ev.ts * 1000);
     if (ev.type === 'run_start') {
         rr.request = ev.request;
     } else if (ev.type === 'step_start') {
         rr.steps[ev.id] = { id: ev.id, agent: ev.agent, title: ev.title, input: ev.input, output: null,
-                            llm: [], retrievals: [], tools: [], status: 'running', duration: null };
+                            llm: [], retrievals: [], tools: [], status: 'running', duration: null,
+                            startedAt: performance.now(), startedTs: Number.isFinite(ev.ts) ? ev.ts * 1000 : null };
         rr.order.push(ev.id);
         if (rr.follow) rr.selected = ev.id;
     } else if (ev.type === 'llm_call') {
@@ -480,18 +516,20 @@ function rrHandle(ev) {
     } else if (ev.type === 'step_end' || ev.type === 'step_error') {
         const s = rr.steps[ev.id];
         if (s) {
+            s.duration = ev.duration_ms ?? rrStepElapsed(s);
             s.status = ev.type === 'step_end' ? 'done' : 'error';
             s.output = ev.type === 'step_end' ? ev.output : { error: ev.error };
-            s.duration = ev.duration_ms;
         }
     } else if (ev.type === 'result') {
         rr.result = ev.result;
         rr.saveWarning = ev.result?.storage_warning || null;
         if (rr.follow) rr.selected = ev.result?.status === 'escalated_to_human' ? 'human' : (rr.selected || 'case');
     } else if (ev.type === 'error') {
+        rrStopClock();
         rr.failure = ev.message || 'The review could not be completed.';
         showToast(`Pipeline error: ${ev.message}`, 'error');
     } else if (ev.type === 'done') {
+        rrStopClock();
         rr.finished = true;
         if (ev.trace_saved === false || ev.trace_name === null)
             rr.saveWarning = 'The run could not be saved. Replay is unavailable; check the record store.';
@@ -587,7 +625,7 @@ function rrNodeSummary(node) {
 function rrNodeMeta(node) {
     const steps = rrStepsOf(node);
     if (!steps.length) return '';
-    const ms = steps.reduce((a, s) => a + (s.duration || 0), 0);
+    const ms = steps.reduce((a, s) => a + rrStepElapsed(s), 0);
     const llm = steps.reduce((a, s) => a + s.llm.length, 0);
     return `${(ms / 1000).toFixed(1)}s${llm ? ` · ${llm} LLM` : ''}`;
 }
@@ -673,7 +711,7 @@ function rrRenderGraph() {
                     style="--c:${n.color}; grid-column:${n.col}; grid-row:${n.row}; ${key === 'debate' ? 'align-self:center;' : ''}"
                     onclick="rrSelect('${key}')">
                 <div class="rr-node-top"><span class="rr-dot"></span><span class="rr-node-name">${rrEsc(n.name)}</span>
-                    <span class="rr-node-meta">${rrEsc(rrNodeMeta(key))}</span></div>
+                    <span class="rr-node-meta" data-rr-node-time="${key}">${rrEsc(rrNodeMeta(key))}</span></div>
                 <div class="rr-node-role">${rrEsc(n.role)}</div>
                 <div class="rr-node-sum">${rrEsc(rrNodeSummary(key))}</div>${extra}
             </button>`;
@@ -759,8 +797,8 @@ function rrRenderInspector() {
         <div><div class="rr-hint">Receives</div><ul>${node.receives.map(x => `<li>${rrEsc(x)}</li>`).join('')}</ul></div>
         <div><div class="rr-hint">Sends</div><ul>${node.sends.map(x => `<li>${rrEsc(x)}</li>`).join('')}</ul></div></div></div>`;
     let head = `<div class="rr-insp-head" style="--c:${node.color}"><h2>${rrEsc(node.name)}</h2>
-        <span class="rr-sub">${rrEsc(s ? s.title : node.role)}${s && s.status !== 'running' && s.duration != null
-            ? ` · ${(s.duration / 1000).toFixed(2)}s` : ''}${s?.status === 'running' ? ' · running…' : ''}</span></div>`;
+        <span class="rr-sub">${rrEsc(s ? s.title : node.role)}${s
+            ? ` · <span data-rr-step-time="${rrEsc(s.id)}">${(rrStepElapsed(s) / 1000).toFixed(1)}s</span>` : ''}${s?.status === 'running' ? ' · running…' : ''}</span></div>`;
     head += rrRenderChain(RR_NODES[nodeKey] ? nodeKey : 'case');
 
     if (nodeKey === 'case') {
@@ -957,11 +995,13 @@ function rrRenderDebate() {
         }
         const party = s.agent === 'Policy' ? 'Policy check' : s.agent === 'Passenger' ? 'Passenger advocate' : 'Driver advocate';
         const turn = s.agent === 'Policy' ? 'neutral' : isRound ? s.title.replace(/:.*/, '') : 'Opening';
-        return `<button class="rr-bubble ${cls} ${issue ? 'failed' : ''} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'typing' : ''}"
+        return `<button class="rr-bubble ${cls} ${issue ? 'failed' : ''} ${rr.selected === s.id ? 'selected' : ''} ${s.status === 'running' ? 'rr-thinking' : ''}"
                     aria-pressed="${rr.selected === s.id}" onclick="rrSelect('${s.id}')">
             ${reply ? `<div class="reply">${rrEsc(reply)}</div>` : ''}
-            <div class="who"><span class="rr-party">${rrEsc(party)}</span><span class="rr-turn">${rrEsc(turn)}</span><span class="t">${issue ? 'incomplete' : s.status === 'running' ? 'thinking' : ((s.duration || 0) / 1000).toFixed(1) + 's'}</span></div>
-            <div class="txt">${rrRich(text)}</div></button>`;
+            <div class="who"><span class="rr-party">${rrEsc(party)}</span><span class="rr-turn">${rrEsc(turn)}</span><span class="rr-turn-status">${issue ? 'Incomplete' : s.status === 'running'
+                ? `Thinking… · <span data-rr-step-time="${rrEsc(s.id)}">${(rrStepElapsed(s) / 1000).toFixed(1)}s</span>`
+                : (rrStepElapsed(s) / 1000).toFixed(1) + 's'}</span></div>
+            ${s.status === 'running' ? '' : `<div class="txt">${rrRich(text)}</div>`}</button>`;
     }).join('');
     const sel = el.querySelector('.rr-bubble.selected');
     if (sel && rr.follow && !rr.result) sel.scrollIntoView({ block: 'nearest' });

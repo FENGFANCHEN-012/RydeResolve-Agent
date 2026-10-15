@@ -398,17 +398,18 @@
 .rr-bubble:hover { box-shadow: var(--shadow-sm); }
 .rr-bubble.selected { box-shadow: 0 0 0 2px var(--accent); }
 .rr-bubble.failed { --c: var(--danger); }
-.rr-bubble .who { font-size: 14px; display: flex; flex-wrap: wrap; gap: var(--s-sm); align-items: center; }
+.rr-bubble .who { font-size: 14px; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .rr-party { font-weight: 700; color: var(--c); }
 .rr-turn {
     font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
     padding: 1px 8px; border-radius: var(--r-full); background: color-mix(in srgb, var(--c) 12%, var(--surface)); color: var(--c);
 }
-.rr-bubble .who .t { margin-left: auto; color: var(--text-muted); font-weight: 400; font-size: 12px; }
+.rr-bubble .rr-turn-status { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; margin-left: auto; color: var(--text-2); font-size: 13px; line-height: 20px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rr-bubble.rr-thinking .rr-turn-status { padding: 3px 10px; border-radius: 999px; background: var(--surface-2); }
+.rr-bubble.rr-thinking .rr-turn-status::before { content: ''; display: block; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--accent); animation: rrPulse 1.4s ease-in-out infinite; }
 .rr-bubble .txt { font-size: 15px; line-height: 1.75; margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rr-bubble .txt strong { font-weight: 650; }
 .rr-bubble .reply { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-.rr-bubble.typing .txt::after { content: "…"; animation: rrPulse 1s infinite; }
 .rr-run-alert, .rr-issue { color: var(--danger); }
 .rr-run-alert { border: 1px solid #fecaca; background: var(--danger-soft); border-radius: var(--r-md); padding: 12px 14px; line-height: 1.6; }
 
@@ -461,7 +462,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .rr-main { scroll-behavior: auto; }
-    .rr-bubble.typing .txt::after { animation: none; }
+    .rr-bubble.rr-thinking .rr-turn-status::before { animation: none; }
 }
 
 /* ---------------- Notices to both parties ---------------- */
