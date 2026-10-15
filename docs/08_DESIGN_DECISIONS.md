@@ -1903,3 +1903,16 @@ trace and one that the rebuttal budget matches the other calls; 642 Python tests
 
 Not done: the run was not repeated (paid); the Judge's ruling in that run (refund S$4.00, the driver
 12.5 minutes past the original ETA) was not re-examined against the updated-ETA argument.
+
+### D53 continued: which saved and published runs were affected (2026-10-15)
+
+Free scan of every stored trace for empty, cut-off or failed model answers:
+- **Demo runs demo-1 to demo-7 (the video): all clean.** No empty, cut or failed answer.
+- Server ad-hoc runs: the two cut rebuttals above (RYDE-DEMO-007 on 15/10, RYDE-CU-45DA39 on 14/10), one
+  empty rebuttal (13/10), and provider errors (429 daily limit, 402, 413) on older runs.
+- Eval runs of 14-15/10 (2,000+ calls): only the regression run 20261015-152935 (the 44/52) had cut or
+  empty rebuttals, in 3 cases. CR-001 and F2-03 were ruled right. **F2-15 is one of the 8 misses**
+  (sent to a person instead of decided): its debate lacked the rider's opening (Cerebras 429 "queue
+  exceeded") and the driver's rebuttal (empty at the 1,500 cap), and the Judge asked for human review.
+  The miss may come from the incomplete debate; it was not re-run, so the published 44/52 stands as
+  measured.
