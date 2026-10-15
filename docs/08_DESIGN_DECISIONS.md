@@ -1878,4 +1878,6 @@ How it was checked: two new label tests (the SI-001 threat; a number asked for a
 three threats, two personal remarks with a number request, and one "I am scared"; no false hit.
 "I will find you a parking spot" was a false hit in a draft and the pattern was dropped.
 
+The review desk labels escalations recorded before D52b by code on opening (`POST /api/chat-signals`, no model call).
+
 Not done: the browser check of the live page; the access-code prompt has to be answered by a person.

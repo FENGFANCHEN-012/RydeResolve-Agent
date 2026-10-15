@@ -129,8 +129,15 @@ function renderCase() {
     const d = hv.data, ru = d.ruling, r = caseRecords(d), done = d.reviews.length > 0;
     const pts = points(r);
     const senderClass = s => /driver/i.test(s) ? 'driver' : /rider|passenger/i.test(s) ? 'rider' : 'system';
-    const tone = d.response?.chat_signals
-        ? Object.fromEntries((d.response.chat_signals.messages || []).map(m => [m.source, m])) : null;
+    // Escalations recorded before D52b carry no tone: label them by code now (no model call)
+    const signals = d.response?.chat_signals || d.toneByCode;
+    if (!signals && r.chat.length && !d.toneRequested) {
+        d.toneRequested = true;
+        api('/api/chat-signals', { method: 'POST', body: JSON.stringify({ chat_log: r.chat }) })
+            .then(sig => { d.toneByCode = sig; if (hv.data === d) renderCase(); })
+            .catch(err => console.warn('Chat tone unavailable', err));
+    }
+    const tone = signals ? Object.fromEntries((signals.messages || []).map(m => [m.source, m])) : null;
     const html = `
         <header class="hv-casehead">
             <h2>${esc(ru.dispute_id)} <span class="hv-tag type">${esc(words(ru.dispute_type || r.type || 'unknown'))}</span></h2>
