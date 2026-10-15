@@ -321,11 +321,12 @@
 .rr-bubble:hover { background: var(--surface-2); }
 .rr-bubble.selected { border-left-color: var(--accent); background: var(--accent-soft); }
 .rr-bubble.failed { border-left-color: var(--danger); }
-.rr-bubble .who { font-size: 14px; font-weight: 600; display: flex; flex-wrap: wrap; gap: var(--s-sm); align-items: baseline; }
-.rr-bubble .who span { margin-left: auto; color: var(--text-muted); font-weight: 400; font-size: 12px; }
+.rr-bubble .who { font-size: 14px; line-height: 1.5; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.rr-bubble .rr-turn-status { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; margin-left: auto; color: var(--text-2); font-size: 13px; line-height: 20px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rr-bubble.rr-thinking .rr-turn-status { padding: 3px 10px; border-radius: 999px; background: var(--surface-2); }
+.rr-bubble.rr-thinking .rr-turn-status::before { content: ''; display: block; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--accent); animation: rrPulse 1.4s ease-in-out infinite; }
 .rr-bubble .txt { font-size: 15px; line-height: 1.8; margin-top: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rr-bubble .reply { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-.rr-bubble.typing .txt::after { content: "…"; animation: rrPulse 1s infinite; }
 .rr-run-alert, .rr-issue { color: var(--danger); }
 .rr-run-alert { border: 1px solid #fecaca; background: var(--danger-soft); border-radius: var(--r-md); padding: 12px 14px; line-height: 1.6; }
 
@@ -378,7 +379,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .rr-main { scroll-behavior: auto; }
-    .rr-bubble.typing .txt::after { animation: none; }
+    .rr-bubble.rr-thinking .rr-turn-status::before { animation: none; }
 }
 
 /* ---------------- Notices to both parties ---------------- */
