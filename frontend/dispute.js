@@ -327,7 +327,7 @@ function rrRenderBrief() {
 
     // Chat + app events merged into one timeline: exactly what the agents can see
     const tl = [
-        ...(d.chat_logs || []).map((m, i) => ({ ts: m.timestamp, kind: m.sender, label: m.type === 'call' ? `${m.sender} call` : m.sender, text: m.content,
+        ...(d.chat_logs || []).map((m, i) => ({ ts: m.timestamp, kind: m.sender, label: m.type === 'call' ? `${m.sender} call` : m.sender, text: m.content ?? m.message,
             tone: rrRunTone(i) || (rr.toneFor === d ? rr.tone[`chat_log[${i}]`] : null) })),
         ...(d.app_events || []).map(e => ({ ts: e.timestamp, kind: 'event', label: e.event_type.replace(/_/g, ' '), text: e.details })),
     ].sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
@@ -342,12 +342,14 @@ function rrRenderBrief() {
                 ${row('Trips / rating', r.total_trips != null ? `${r.total_trips} · ★ ${r.avg_rating}` : null)}
                 ${row('Past disputes', hist(r.dispute_history))}
                 ${row('Fraud flags', r.fraud_flags ? `${r.fraud_flags} · ${r.fraud_flag_details || ''}` : (r.fraud_flags === 0 ? 'none' : null), r.fraud_flags ? 'rr-flag' : '')}
-                ${row('Pays by', r.payment_method)}</div>
+                ${row('Pays by', r.payment_method)}
+                ${rrToneRow('rider', row)}</div>
             <div class="rr-card"><h4>Driver</h4><div class="big">${rrEsc(dr.name || dr.driver_id || '—')}</div>
                 ${row('Vehicle', dr.vehicle)}
                 ${row('Trips / rating', dr.total_trips != null ? `${dr.total_trips} · ★ ${dr.avg_rating}` : null)}
                 ${row('Past disputes', hist(dr.dispute_history))}
-                ${row('Fraud flags', dr.fraud_flags ? dr.fraud_flags : (dr.fraud_flags === 0 ? 'none' : null), dr.fraud_flags ? 'rr-flag' : '')}</div>
+                ${row('Fraud flags', dr.fraud_flags ? dr.fraud_flags : (dr.fraud_flags === 0 ? 'none' : null), dr.fraud_flags ? 'rr-flag' : '')}
+                ${rrToneRow('driver', row)}</div>
             <div class="rr-card"><h4>Evidence sent</h4>
                 ${row('GPS points', (d.gps_telemetry || []).length || '0 — no GPS', (d.gps_telemetry || []).length ? '' : 'rr-flag')}
                 ${row('Chat messages', (d.chat_logs || []).length)}
@@ -357,7 +359,8 @@ function rrRenderBrief() {
                 ${row('Answer key', 'hidden from agents')}</div>
         </div>
         ${rrPhotos(d.evidence || [], true)}
-        <details class="rr-more"><summary>Evidence timeline — chat + app events (${tl.length})</summary>
+        <details class="rr-more"><summary>Evidence timeline — chat + app events (${tl.length})${
+            tl.some(e => e.tone) ? ` · ${tl.filter(e => e.tone).length} chat message(s) tagged for tone` : ''}</summary>
             <ul class="rr-tl">${tl.map(e => `<li><span class="time">${rrEsc(rrTime(e.ts))}</span>
                 <span class="kind ${rrEsc(e.kind)}">${rrEsc(e.label)}</span><span class="txt">${rrEsc(e.text)}${rrToneTags(e.tone)}</span></li>`).join('')}</ul>
             <div class="rr-tone-note">Tone tags come from code word lists. Reviewers see them and they shape notice wording; they never change a ruling.</div></details>
@@ -368,7 +371,7 @@ function rrRenderBrief() {
 
 // Tone of each chat message (D52), computed by code on the server; shown next to the message
 async function rrLoadTone(d) {
-    rr.toneFor = d; rr.tone = {};
+    rr.toneFor = d; rr.tone = {}; rr.toneOverall = null;
     try {
         const resp = await apiFetch(`${API_BASE}/api/chat-signals`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -378,10 +381,20 @@ async function rrLoadTone(d) {
         const sig = await resp.json();
         if (rr.detail?.dataset !== d) return;  // another case was opened meanwhile
         for (const m of sig.messages || []) rr.tone[m.source] = m;
+        rr.toneOverall = sig.overall || {};
         rrRenderBrief();
     } catch (err) {
         console.warn('Chat tone unavailable', err);
     }
+}
+
+// A party's overall chat tone on its card: the run's labels when there is a run, else the preview
+function rrToneRow(sender, row) {
+    const overall = rr.result?.chat_signals?.overall || (rr.toneFor === rr.detail?.dataset ? rr.toneOverall : null);
+    if (!overall || !(sender in overall)) return '';
+    const t = overall[sender];
+    const cls = { frustrated: 'rr-tone-warn', angry: 'rr-flag', abusive: 'rr-flag', distress: 'rr-flag' }[t] || '';
+    return row('Chat tone', t === 'calm' ? 'calm' : `${t} (see timeline)`, cls);
 }
 
 // After a run, its labels (code + model check) replace the code-only preview

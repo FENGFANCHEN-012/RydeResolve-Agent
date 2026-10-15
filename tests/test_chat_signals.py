@@ -20,6 +20,8 @@ from tests.test_fairness_agent import FakeLLMClient, make_context, make_decision
     ("I feel unsafe, please stop the car", "distress", ["object"]),
     ("Sorry, traffic jam, be there in 5", "calm", ["apology", "promise"]),
     ("可以", "calm", ["agree"]),
+    ("Why you never reply? I know where you stay already haha", "abusive", []),   # SI-001: a threat
+    ("Can I have your number for the receipt?", "calm", []),
 ])
 def test_message_labels(text, tone, events):
     assert message_signals(text) == (tone, events)

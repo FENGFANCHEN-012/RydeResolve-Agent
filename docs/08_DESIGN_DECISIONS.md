@@ -1858,3 +1858,24 @@ Cost: one call per case with a doubtful message, about 600-1,200 tokens (about U
 gpt-oss-120b); none when every message is clear.
 
 Not done: no labelled blind set of real chats; no evaluation run, since no agent input changed.
+
+## D52c. Chat tone visible in the dashboard; harassment and threats labelled (2026-10-15)
+
+What was wrong: the dashboard showed no tone. (1) `index.html` still loaded `dispute.js?v=20261015a`, so
+browsers kept the pre-D52 script; `review.html` loaded its assets with no version at all. (2) The tags
+sat only inside the collapsed evidence timeline. (3) Most demo chats are calm, and the SI-001 driver's
+"I know where you stay already" was labelled calm: the word lists had insults but no harassment or
+threats. (4) The timeline read `content` only, so chats in the organisers' format (`message`) showed
+blank text.
+
+What changed: asset versions bumped (`?v=20261015c`, review assets versioned too); the Rider and Driver
+cards show each party's overall chat tone, and the timeline summary counts tagged messages; abusive now
+also covers unwanted personal remarks, asking for a number (not "for the receipt"), knowing where
+someone lives and "you will regret"; the timeline reads `content` or `message`.
+
+How it was checked: two new label tests (the SI-001 threat; a number asked for a receipt stays calm);
+640 Python and 28 frontend tests pass. Re-scan of every chat under `data/`: the six strong labels are
+three threats, two personal remarks with a number request, and one "I am scared"; no false hit.
+"I will find you a parking spot" was a false hit in a draft and the pattern was dropped.
+
+Not done: the browser check of the live page; the access-code prompt has to be answered by a person.

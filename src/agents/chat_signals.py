@@ -44,6 +44,9 @@ _TONE_PATTERNS = {
     ABUSIVE: [
         r"\b(idiot|stupid|moron|bastard|f+u+c+k\w*|shit\w*|damn you|loser|useless (driver|rider|fellow)|"
         r"shut up|ki(a|o) ?si|knn|chee bye|lan ?jiao)\b",
+        # harassment and threats: unwanted personal remarks, asking for a number, knowing where someone lives
+        r"\b(know(s)? where (you|u) (stay|live)|(can|could|give) (i |me )?(get |have )?(your|ur) (number|no\.?)(?!\s+for)|"
+        r"you look (very |so |really )?(nice|sexy|pretty|hot|beautiful)|you('ll| will) regret)\b",
         "\u7b28\u86cb|\u767d\u75f4|\u6eda",                           # idiot / idiot / get lost
         r"\b(bodoh|babi)\b",                      # Malay insults
     ],
