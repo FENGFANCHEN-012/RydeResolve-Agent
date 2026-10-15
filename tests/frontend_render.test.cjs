@@ -16,13 +16,15 @@ function page(extra = {}) {
         return elements.get(id);
     };
     const context = vm.createContext({
-        document: { getElementById: element },
+        document: { getElementById: element, querySelectorAll: selector => [...elements.values()].filter(el =>
+            selector === '[data-rr-node-time]' ? el.dataset?.rrNodeTime : el.dataset?.rrStepTime) },
         window: { addEventListener() {} },
         requestAnimationFrame() {},
         showToast() {},
         API_BASE: 'http://127.0.0.1:8000',
         apiFetch: async () => ({ok: true, json: async () => ({})}),
-        setTimeout, clearTimeout, TextDecoder, AbortSignal,
+        setTimeout, clearTimeout, TextDecoder, AbortSignal, performance,
+        setInterval: () => 1, clearInterval() {},
         ...extra,
     });
     const source = fs.readFileSync(path.join(__dirname, '../frontend/dispute.js'), 'utf8');
@@ -59,6 +61,75 @@ test('live stream renders history objects and continues through completion', asy
     assert.match(html, /fraud_confirmed/);
     assert.match(html, /&lt;unsafe&gt;/);
     assert.doesNotMatch(html, /<unsafe>|undefined result/);
+});
+
+test('running timers tick without rerendering and stop at the server duration', () => {
+    let now = 1000, tick, cleared = 0, started = 0;
+    const p = page({performance:{now:()=>now},
+        setInterval:fn=>{tick=fn; started++; return 7;},
+        clearInterval:id=>{assert.equal(id,7); cleared++;}});
+    p.run(`rrSetRunning(true); rrHandle({type:'step_start',id:'f',agent:'Fairness',title:'Audit'});
+        rrHandle({type:'step_start',id:'p',agent:'Policy',title:'Policy check'})`);
+    const node = p.element('timer-node'); node.dataset={rrNodeTime:'fairness'};
+    const step = p.element('timer-step'); step.dataset={rrStepTime:'p'};
+    const before = p.element('rrInspector').innerHTML;
+    assert.match(before, /Full chain/);
+    assert.match(before, /data-rr-step-time="p"/);
+    now = 6350; tick();
+    assert.equal(node.textContent,'5.3s');
+    assert.equal(step.textContent,'5.3s');
+    assert.equal(p.element('rrInspector').innerHTML,before);
+    p.run('rrRenderDebate()');
+    assert.match(p.element('rrDebate').innerHTML,/Thinking… · .*5\.3s/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-party">Policy check/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-turn">neutral/);
+    p.run(`rrHandle({type:'step_end',id:'f',duration_ms:5432,output:{}})`);
+    now=11000; tick();
+    assert.equal(p.run("rrNodeMeta('fairness')"),'5.4s');
+    assert.equal(step.textContent,'10.0s');
+    p.run('rrSetRunning(false)');
+    now=20000;
+    assert.equal(p.run("rrNodeMeta('policy')"),'10.0s');
+    assert.equal(started,1);
+    assert.equal(cleared,1);
+    assert.equal(p.run('rr.clock'),null);
+});
+
+test('replay uses saved timestamps instead of the local clock and needs no timer', async () => {
+    const events = [
+        {type:'run_start',ts:100,request:{}},
+        {type:'step_start',id:'f',agent:'Fairness',title:'Audit',ts:101},
+        {type:'llm_call',step_id:'f',ts:106.5,duration_ms:4000},
+        {type:'step_end',id:'f',ts:108,duration_ms:6990,output:{}},
+        {type:'result',result:{status:'resolved',verdict:{verdict:'dismissed'}},ts:109},
+    ];
+    const observed=[];
+    const p = page({performance:{now:()=>999999999},
+        setInterval:()=>{throw new Error('Replay must not use a live timer');},
+        apiFetch:async()=>({ok:true,json:async()=>({events})}),
+        capture:()=>observed.push(p.run("rrNodeMeta('fairness')")),
+    });
+    p.run('const originalRender = rrRenderAll; rrRenderAll=()=>{originalRender();capture()}');
+    await p.run("rrReplay('saved.json')");
+    assert.ok(observed.includes('5.5s · 1 LLM'));
+    assert.equal(p.run("rrNodeMeta('fairness')"),'7.0s · 1 LLM');
+    assert.equal(p.run('rr.clock'),null);
+    assert.equal(p.run('rr.failure'),null);
+});
+
+test('error and reset clear the timer and freeze unfinished steps', () => {
+    let now=0, clears=0;
+    const p=page({performance:{now:()=>now},clearInterval:()=>clears++});
+    p.run(`rrSetRunning(true);rrHandle({type:'step_start',id:'f',agent:'Fairness',title:'Audit'})`);
+    now=4000;
+    p.run("rrHandle({type:'error',message:'Connection lost'})");
+    now=9000;
+    assert.equal(p.run("rrNodeMeta('fairness')"),'4.0s');
+    assert.equal(clears,1);
+    p.run('rrResetRun();rrSetRunning(true);rrResetRun()');
+    assert.equal(clears,2);
+    assert.equal(p.run('rr.order.length'),0);
+    assert.equal(p.run('rr.clock'),null);
 });
 
 test('tool inspector preserves lists, objects, scalars and missing lookup results', () => {
@@ -219,8 +290,11 @@ test('debate renders the full escaped transcript and selected state', () => {
     const p = page();
     p.run(`rr.order = ['p']; rr.selected = 'p'; rr.follow = false;
         rr.steps.p = {id:'p', agent:'Passenger', title:'Passenger opening', status:'done', duration:1200,
-        output:{reasoning:'a'.repeat(1200) + '<tail>'}, llm:[]}; rrRenderDebate()`);
+        output:{reasoning:'a'.repeat(1200) + '<tail> **Important**'}, llm:[]}; rrRenderDebate()`);
     assert.match(p.element('rrDebate').innerHTML, /a{1200}&lt;tail&gt;/);
+    assert.match(p.element('rrDebate').innerHTML, /<strong>Important<\/strong>/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-party">Passenger advocate/);
+    assert.match(p.element('rrDebate').innerHTML, /class="rr-turn">Opening/);
     assert.match(p.element('rrDebate').innerHTML, /aria-pressed="true"/);
 });
 
