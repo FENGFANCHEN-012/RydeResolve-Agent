@@ -28,6 +28,9 @@ from src.config import (
     HUNYUAN_BASE_URL,
     HUNYUAN_MODEL,
     LLM_FALLBACK_PROVIDERS,
+    OPENAI_COMPAT_API_KEY,
+    OPENAI_COMPAT_BASE_URL,
+    OPENAI_COMPAT_MODEL,
     LLM_API_KEY,
     LLM_MODEL,
     LLM_PROVIDER,
@@ -118,7 +121,7 @@ class LLMClient:
 
     def __init__(self, provider: str | None = None, fallbacks: list[str] | None = None):
         self.provider = provider or LLM_PROVIDER
-        if self.provider not in {"gemini", "groq", "cerebras", "hunyuan"}:
+        if self.provider not in {"gemini", "groq", "cerebras", "hunyuan", "openai_compatible"}:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
         if self.provider == "cerebras":
             self.api_key, self.model, self.base_url = CEREBRAS_API_KEY, CEREBRAS_MODEL, CEREBRAS_BASE_URL
@@ -126,10 +129,12 @@ class LLMClient:
             self.api_key, self.model, self.base_url = GROQ_API_KEY, GROQ_MODEL, GROQ_BASE_URL
         elif self.provider == "hunyuan":
             self.api_key, self.model, self.base_url = HUNYUAN_API_KEY, HUNYUAN_MODEL, HUNYUAN_BASE_URL
+        elif self.provider == "openai_compatible":
+            self.api_key, self.model, self.base_url = OPENAI_COMPAT_API_KEY, OPENAI_COMPAT_MODEL, OPENAI_COMPAT_BASE_URL
         else:
             self.api_key, self.model, self.base_url = LLM_API_KEY, LLM_MODEL, None
         # Cerebras and Hunyuan are OpenAI-compatible, so they share the Groq code path
-        self.openai_compatible = self.provider in ("groq", "cerebras", "hunyuan")
+        self.openai_compatible = self.provider in ("groq", "cerebras", "hunyuan", "openai_compatible")
         # Backup providers (built on first use), never including the primary itself
         names = LLM_FALLBACK_PROVIDERS if fallbacks is None else fallbacks
         self._fallback_names = [n for n in dict.fromkeys(names) if n != self.provider]

@@ -43,6 +43,14 @@ CEREBRAS_BASE_URL = os.getenv("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
 HUNYUAN_API_KEY = os.getenv("HUNYUAN_API_KEY", "")
 HUNYUAN_MODEL = os.getenv("HUNYUAN_MODEL", "hy3")
 HUNYUAN_BASE_URL = os.getenv("HUNYUAN_BASE_URL", "https://tokenhub-intl.tencentcloudmaas.com/v1")
+# Any other OpenAI-compatible endpoint, e.g. an open model (DeepSeek) served on your own GPU
+# server with vLLM or Ollama. A local server usually needs no key.
+OPENAI_COMPAT_API_KEY = os.getenv("OPENAI_COMPAT_API_KEY", "none")
+OPENAI_COMPAT_MODEL = os.getenv("OPENAI_COMPAT_MODEL", "")
+OPENAI_COMPAT_BASE_URL = os.getenv("OPENAI_COMPAT_BASE_URL", "http://localhost:8000/v1")
+# The Judge can run on a different provider from the other agents (e.g. a stronger model for
+# the one call that decides money). Empty = same provider as everything else.
+JUDGE_LLM_PROVIDER = os.getenv("JUDGE_LLM_PROVIDER", "").strip().lower()
 # Backup providers, tried in order when a call to LLM_PROVIDER fails (e.g. "groq,cerebras").
 # Empty = no fallback. Evals turn fallback off so one run never mixes models.
 LLM_FALLBACK_PROVIDERS = [p.strip().lower() for p in os.getenv("LLM_FALLBACK_PROVIDERS", "").split(",")

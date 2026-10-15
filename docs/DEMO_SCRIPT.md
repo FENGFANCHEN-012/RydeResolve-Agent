@@ -46,6 +46,10 @@ Replay and narrate each step as it lights up:
 4. Code checks: facts verified, S$3.44 is a record figure and does not exceed the excess distance
    fare; the v2.1 gate finds nothing that needs a person (under S$10, no safety issue). Executed.
 
+Scroll to "Sent to both parties" and click 中文, then Melayu (15 s): the two notices are rebuilt
+by code from the ruling's fields in the chosen language (`POST /api/notices`, no model call, works
+on a replay).
+
 Then 20 seconds on demo-6-DISP-003 (the organisers' surge sample): surge rose from 1.0x to 1.5x
 before pickup, `rider_notified: false`, the surgeable subtotal unchanged, so the S$4.50 difference is
 all surge; v2.1 s3.3 refunds it, and under S$10 the AI ruling is final.

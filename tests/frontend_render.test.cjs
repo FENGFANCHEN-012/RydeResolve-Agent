@@ -307,3 +307,19 @@ test('completion reveals the resolution only when following the run', () => {
         assert.equal(scrolled, follow);
     }
 });
+
+test('notices can be switched to another official language without a new run', async () => {
+    let sent = null;
+    const p = page({ apiFetch: async (url, opts) => { sent = { url, body: JSON.parse(opts.body) };
+        return { ok: true, json: async () => ({ notifications: [{ recipient: 'passenger', subject: 's', message: '将向您退款 SGD 3.44。' }] }) }; } });
+    p.run(`rr.current = 'DISP-001'; rr.result = {status:'resolved', verdict:{verdict:'partially_upheld', refund_amount:3.44, confidence:.9},
+        execution:{notifications:[{recipient:'passenger', subject:'s', message:'SGD 3.44 will be refunded to you.'}]}}; rrRenderVerdict()`);
+    assert.match(p.element('rrVerdict').innerHTML, /data-notice-lang="zh"/);
+    assert.match(p.element('rrVerdict').innerHTML, /will be refunded to you/);
+    await p.run(`rrNoticeLang('zh')`);
+    assert.equal(sent.url, 'http://127.0.0.1:8000/api/notices');
+    assert.equal(sent.body.language, 'zh');
+    assert.equal(sent.body.dispute_id, 'DISP-001');
+    assert.match(p.element('rrVerdict').innerHTML, /将向您退款/);
+    assert.match(p.element('rrVerdict').innerHTML, /class="rr-lang on"[^>]*data-notice-lang="zh"/);
+});

@@ -469,6 +469,11 @@
 .rr-notices { margin-top: 20px; }
 .rr-notices h4 { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
 .rr-notices h4 .rr-hint { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 6px; }
+.rr-langs { display: inline-flex; gap: 4px; margin-left: 10px; vertical-align: middle; }
+.rr-lang { font: inherit; font-size: 11px; text-transform: none; letter-spacing: 0; padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; }
+.rr-lang.on { border-color: var(--accent, currentColor); color: var(--text, inherit); font-weight: 600; }
+.rr-lang:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 1px; }
 .rr-notice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
 .rr-notice { border: 1px solid var(--border); border-radius: var(--r-sm, 6px); padding: 12px 14px; min-width: 0; }
 .rr-notice { background: var(--surface); }

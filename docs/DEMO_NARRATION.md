@@ -33,6 +33,12 @@ says exactly what that means: refund the excess distance fare, not the tolls or 
 rules three dollars forty-four, citing sections 1.2 and 1.3. Code checks the facts and the amount,
 and the policy gate confirms an AI may decide this one. Done, with no human.
 
+**[Scroll to "Sent to both parties"; click 中文, then Melayu]**
+
+Both sides are told the outcome in plain words. Code writes each notice from the ruling itself, so
+it can never promise money the ruling did not give, and each party can read it in any of
+Singapore's four official languages.
+
 **[Saved runs: demo-6-DISP-003]**
 
 Their surge sample: the surge rose to one point five before pickup, and the log says the rider was

@@ -114,8 +114,11 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 6. **Photos checked twice.** Code reads what a photo's file says (when, where, edited, reused);
    a vision model reads what it shows. Either can only raise a doubt, and a doubted photo is
    always a person's decision.
-7. **Learning with a human in the loop.** Reviewers approve or correct rulings, and only approved
-   rulings become precedents the Judge can see. Risk flags count only after a person confirms them.
+7. **Learning with a human in the loop.** Reviewers approve or correct rulings, and a correction
+   becomes a precedent the Judge can see only after an evaluation shows it does no harm. The Judge
+   sees at most three: same dispute type, decided under the policy now in force, one per principle,
+   most similar facts first; a ruling can only claim a precedent it was shown. Risk flags count only
+   after a person confirms them.
 8. **Full audit trail.** A live trace of every agent step and LLM call, rulings stored in a database,
    and an append-only, hash-chained audit log (`GET /api/audit/verify`).
 
@@ -124,7 +127,7 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 | Layer | Technology |
 |-------|-----------|
 | Orchestration | LangGraph state graph (`src/core/workflow.py`) |
-| LLM | `LLM_PROVIDER`: Groq or Cerebras (`gpt-oss-120b`), Google Gemini, or Tencent Hunyuan (TokenHub). `LLM_FALLBACK_PROVIDERS` tries backups in order |
+| LLM | `LLM_PROVIDER`: Groq or Cerebras (`gpt-oss-120b`), Google Gemini, Tencent Hunyuan (TokenHub), or any OpenAI-compatible endpoint (`openai_compatible`, e.g. a self-hosted open model). `JUDGE_LLM_PROVIDER` gives the Judge its own model. `LLM_FALLBACK_PROVIDERS` tries backups in order |
 | Vision | `qwen/qwen3.8-27b` on Groq for photo descriptions; Pillow reads and writes photo EXIF |
 | Governing policy | Ryde Dispute Resolution Policy v2.1 (`data/policies/governing/`), sections selected per case in code (`src/core/governing_policy.py`) |
 | Policy retrieval | Qdrant Cloud hybrid search (dense `bge-base-en-v1.5` + BM25 via fastembed, RRF fusion; collection `ryde_policies_official`); local ChromaDB as an alternative |
@@ -235,6 +238,68 @@ store was empty in every evaluated run; when precedents should reach the Judge i
 Every change, its measured effect and the rejected
 alternatives are in `docs/06_EVAL_PLAN.md` and `docs/08_DESIGN_DECISIONS.md`.
 
+## Responsible AI and data protection
+
+What the system does today:
+- **Each agent sees only what its role needs.** The advocates never see fraud scores or a party's
+  dispute history (only the Judge and Fairness do), so they argue the case, not the person. Every
+  prompt forbids inferring protected characteristics (race, gender, religion) and repeating personal
+  data the ruling does not need.
+- **Both parties get an explanation they can read.** Each party's notice is built by code from the
+  ruling's fields only, so it cannot state an amount the ruling did not make. The dashboard shows it
+  in English, Chinese, Malay or Tamil (`POST /api/notices`, no model call).
+- **A person decides what AI should not.** Safety reports, disputes above S$50, contested damage,
+  doubted photos, low confidence and failed checks go to a person; the escalated party is told no
+  money moves until a specialist reviews the case.
+- **Accountability.** Every ruling, review and precedent change is written to an append-only,
+  hash-chained audit log, and every prompt and response is kept in the case trace.
+- **Access.** Two access codes: the demo code cannot read rulings, precedents, people or the audit log.
+- **Demo data only.** All cases are synthetic or the organisers' samples; no real rider or driver
+  data is used.
+
+What a real deployment under Singapore's PDPA would still need (not built in the hackathon):
+- Tell riders and drivers that an AI system takes part in deciding disputes, and how to ask for a person.
+- Mask names, phone numbers and plate numbers before any call to an external model, or keep the
+  model in-house (self-hosted, below).
+- A retention schedule: delete chats, photos and GPS traces once the dispute and its appeal window
+  close; keep the ruling and its audit entry.
+- Encryption at rest, and model providers under a data-processing agreement with no training on the data.
+- An "ask a person to review" link in every notice, routed to the review desk.
+
+## Scale and cost beyond the demo
+
+The live site is a demo: one Tencent Cloud Lighthouse server in Singapore (2 vCPU, 2 GB), SQLite,
+and one model (`gpt-oss-120b` on Cerebras) on low-tier API keys with daily caps. A real deployment
+would change three things:
+
+- **Servers.** More or larger Tencent Cloud instances behind a load balancer, Postgres (the store
+  already takes `STORE_URL`) and a job queue. A case spends most of its ~89 seconds waiting for the
+  model, so throughput is set by the model provider's rate limits, not by CPU: one async worker runs
+  many cases at once.
+- **A stronger Judge, cheap everything else.** `JUDGE_LLM_PROVIDER` runs the one call that decides
+  money on its own model; every other agent stays on `gpt-oss-120b`. Today it accepts the built-in
+  providers and any OpenAI-compatible endpoint; a Claude Judge would add an adapter on Anthropic's SDK.
+- **Self-hosting.** `LLM_PROVIDER=openai_compatible` (`OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_MODEL`)
+  points any agent at an open model such as DeepSeek served with vLLM or Ollama on a company GPU
+  server: no per-token fee, and the data never leaves the company. Large DeepSeek models need a
+  multi-GPU server; smaller ones fit on one or two GPUs.
+
+Model cost, from the token use measured on the demo runs (Judge about 9,000 tokens in and 1,600
+out; the six other calls together about 24,000 in and 6,000 out) at list prices in USD. The Judge
+range allows 1,600-4,000 output tokens for reasoning; a remanded draft adds one more Judge call;
+photo cases add one vision call per photo; servers and storage are extra. The daily volumes are
+illustrations, not Ryde figures:
+
+| Setup | Per dispute | 1,000 a day, per month | 5,000 a day, per month |
+|---|---|---|---|
+| Everything on `gpt-oss-120b` (Cerebras, $0.35 / $0.75 per million tokens), as today | ~$0.017 | ~$520 | ~$2,600 |
+| Judge on Claude Sonnet 5.5 ($2 / $10), the rest on `gpt-oss-120b` | ~$0.05-0.07 | ~$1,400-2,100 | ~$7,000-10,700 |
+| Judge on Claude Opus 5.5 ($4 / $20), the rest on `gpt-oss-120b` | ~$0.08-0.13 | ~$2,400-3,900 | ~$12,000-19,000 |
+| Open model (e.g. DeepSeek) on the company's own GPU server | no per-token fee | cost of the server | cost of the server |
+
+Every accuracy figure in this README is for `gpt-oss-120b`. Before any model change goes live, the
+same evaluation sets are run on it, and the change ships only if no safety or payout metric gets worse.
+
 ## Project Structure
 
 ```
@@ -270,7 +335,6 @@ RydeResolve-Agent/
 |----------|----------|
 | [docs/01_PROJECT_REQUIREMENTS.md](docs/01_PROJECT_REQUIREMENTS.md) | Competition brief and what it requires |
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
-| [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
 | [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D50) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |

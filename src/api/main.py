@@ -607,6 +607,32 @@ async def get_trace(name: str):
     return {"name": name, "events": events}
 
 
+class NoticeRequest(BaseModel):
+    verdict: dict                     # the ruling's fields, as the dashboard shows them
+    dispute_id: str
+    reporter: str | None = None
+    escalated: bool = False
+    language: str = "en"              # en, zh, ms, ta
+
+
+@app.post("/api/notices")
+async def render_notices(req: NoticeRequest):
+    """The notices both parties get, in another language. Built by the executor's templates from
+    the ruling's structured fields only (no LLM), so it also works on a replayed run."""
+    from src.agents.arbitrator import Decision
+    from src.agents.executor import ExecutionAgent
+    fields = {k: req.verdict.get(k) for k in Decision.model_fields if req.verdict.get(k) is not None}
+    try:
+        decision = Decision.model_validate({"verdict": "dismissed", "confidence": 0.0, "rationale": "", **fields})
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid ruling: {exc}")
+    language = ExecutionAgent._resolve_language(req.language)
+    result = {"notifications": []}
+    ExecutionAgent()._generate_notifications(decision=decision, dispute_id=req.dispute_id[:64], language=language,
+                                             result=result, escalated=req.escalated, reporter=req.reporter)
+    return {"language": language, "notifications": result["notifications"]}
+
+
 @app.post("/api/disputes/resolve-with-files")
 async def resolve_dispute_with_files(
     report_text: str,

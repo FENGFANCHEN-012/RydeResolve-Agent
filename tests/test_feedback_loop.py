@@ -4,7 +4,8 @@ from types import SimpleNamespace
 import pytest
 
 from src.agents.arbitrator import ArbitrationAgent
-from src.rag.precedents import PrecedentIndex, summarize_case
+from src.agents.arbitrator import followed_precedents
+from src.rag.precedents import POLICY_VERSION, PrecedentIndex, summarize_case
 from src.store import feedback
 from src.store.db import ACTIVE, PENDING, REJECTED, RETIRED, STAGED, AuditEntry, Store, case_family
 
@@ -105,9 +106,10 @@ def test_failed_gate_rejects_and_unindexes(store):
 def test_search_hides_staged_and_own_family(store, monkeypatch):
     fake = FakeQdrant()
     index = PrecedentIndex(store=fake)
-    fake.upsert([{"id": "precedent-1", "text": "t", "metadata": {"precedent_id": 1, "family": "NS-002", "status": ACTIVE}},
-                 {"id": "precedent-2", "text": "t", "metadata": {"precedent_id": 2, "family": "NS-001", "status": ACTIVE}},
-                 {"id": "precedent-3", "text": "t", "metadata": {"precedent_id": 3, "family": "CR-002", "status": STAGED}}])
+    v = POLICY_VERSION
+    fake.upsert([{"id": "precedent-1", "text": "t", "metadata": {"precedent_id": 1, "family": "NS-002", "status": ACTIVE, "policy_version": v}},
+                 {"id": "precedent-2", "text": "t", "metadata": {"precedent_id": 2, "family": "NS-001", "status": ACTIVE, "policy_version": v}},
+                 {"id": "precedent-3", "text": "t", "metadata": {"precedent_id": 3, "family": "CR-002", "status": STAGED, "policy_version": v}}])
     monkeypatch.delenv("PRECEDENTS_INCLUDE_STAGED", raising=False)
     # NS-002-C1 is a variant of NS-002: its family's precedent must not answer it
     assert [h["precedent_id"] for h in index.search("q", "NS-002-C1")] == [2]
@@ -144,3 +146,43 @@ def test_judge_prompt_shows_precedents_only_when_there_are_some():
     assert "PRECEDENTS" not in ArbitrationAgent._build_user_prompt(*args)
     prompt = ArbitrationAgent._build_user_prompt(*args, [{"precedent_id": 7, "verdict": "dismissed"}])
     assert "PRECEDENTS" in prompt and '"precedent_id": 7' in prompt
+
+
+def _p(pid, **meta):
+    base = {"precedent_id": pid, "family": f"F-{pid}", "status": ACTIVE, "policy_version": POLICY_VERSION,
+            "dispute_type": "no_show", "principle": f"principle {pid}"}
+    return {"id": f"precedent-{pid}", "text": "t", "metadata": {**base, **meta}}
+
+
+def test_search_keeps_only_current_policy_and_same_type():
+    fake = FakeQdrant()
+    fake.upsert([_p(1, policy_version="ryde_help_centre"),   # decided under an older policy
+                 _p(2, policy_version=None),                 # no policy recorded
+                 _p(3, dispute_type="fare_dispute"),         # other dispute type
+                 _p(4)])
+    hits = PrecedentIndex(store=fake).search("q", "NS-009", dispute_type="no_show")
+    assert [h["precedent_id"] for h in hits] == [4]
+
+
+def test_search_shows_one_precedent_per_principle_in_rank_order():
+    fake = FakeQdrant()
+    fake.upsert([_p(1, principle="Fee stands when the driver waited 5 min."),
+                 _p(2, principle="fee stands  when the driver waited 5 min."),  # same principle, lower rank
+                 _p(3), _p(4), _p(5)])
+    hits = PrecedentIndex(store=fake).search("q", "NS-009", top_k=3, dispute_type="no_show")
+    assert [h["precedent_id"] for h in hits] == [1, 3, 4]
+
+
+def test_upsert_records_the_policy_in_force(store):
+    fake = FakeQdrant()
+    r = _ruling(store)
+    _, p = store.submit_review(r.id, "alice", "override", "late", final_verdict="dismissed", final_refund=0.0)
+    PrecedentIndex(store=fake).upsert(p)
+    assert next(iter(fake.points.values()))["policy_version"] == POLICY_VERSION
+
+
+def test_judge_can_only_claim_precedents_it_was_shown():
+    shown = [{"precedent_id": 4}, {"precedent_id": 9}]
+    assert followed_precedents({"precedent_ids": [9, "4", 99, "x", 9]}, shown) == [9, 4]
+    assert followed_precedents({"precedent_ids": [4]}, None) == []
+    assert followed_precedents({}, shown) == []

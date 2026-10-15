@@ -12,7 +12,7 @@ import logging
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, JUDGE_MAX_TOKENS, JUDGE_REASONING_EFFORT, LLM_API_KEY
+from src.config import CONFIDENCE_THRESHOLD_HIGH, CONFIDENCE_THRESHOLD_LOW, JUDGE_LLM_PROVIDER, JUDGE_MAX_TOKENS, JUDGE_REASONING_EFFORT, LLM_API_KEY
 from src.core.llm_client import LLMClient
 from src.core.policy_refs import case_policy_refs, normalize_case_policy_ref
 from src.agents.case_brief import SUMMARISED_FIELDS, disputed_charge, render_case_brief
@@ -30,6 +30,21 @@ class Verdict(str, Enum):
     DISMISSED = "dismissed"           # no relief; reporter's claim rejected
 
 
+def followed_precedents(parsed: dict, precedents: list[dict] | None) -> list[int]:
+    """The precedent ids the Judge says it followed, kept only if it was actually shown them,
+    so a ruling can never claim an invented or out-of-scope precedent."""
+    shown = {p.get("precedent_id") for p in precedents or []}
+    out = []
+    for raw in parsed.get("precedent_ids") or []:
+        try:
+            pid = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if pid in shown and pid not in out:
+            out.append(pid)
+    return out
+
+
 class Decision(BaseModel):
     verdict: Verdict
     confidence: float = Field(ge=0.0, le=1.0)
@@ -44,6 +59,8 @@ class Decision(BaseModel):
     # D38 code Judge: what the ruling turns on, and the arithmetic behind any refund
     decisive_facts: list[dict] = []   # {"fact", "sources": [record refs], "status"}
     refund_calculation: str | None = None
+    # Human-reviewed precedents the Judge says it followed; code keeps only ids it was shown
+    precedent_ids: list[int] = []
 
 
 # Outcome of one ask. "already_resolved" = satisfied before the ruling (e.g. a promo the
@@ -157,7 +174,8 @@ class ArbitrationAgent:
     def _get_llm_client(self) -> LLMClient | None:
         if self._llm_client is None:
             try:
-                self._llm_client = LLMClient()
+                # JUDGE_LLM_PROVIDER lets the one call that decides money run on its own model
+                self._llm_client = LLMClient(provider=JUDGE_LLM_PROVIDER or None)
                 if not self._llm_client.api_key:
                     self._llm_client = None
             except Exception as exc:
@@ -321,7 +339,8 @@ class ArbitrationAgent:
             parts.append(
                 "\n=== PRECEDENTS (similar past cases decided by human reviewers) ===\n"
                 "Follow a precedent only where the deciding facts truly match this case; "
-                "if they differ, say how. If you follow one, name its precedent_id in your rationale."
+                "if they differ, say how. If you follow one, name its precedent_id in your rationale "
+                "and list it in \"precedent_ids\" (a JSON array of integers; [] if you follow none)."
             )
             parts.append(json.dumps(precedents, indent=2, default=str))
 
@@ -496,6 +515,7 @@ class ArbitrationAgent:
             decisive_facts=[f for f in parsed.get("decisive_facts") or [] if isinstance(f, dict)],
             refund_calculation=(str(parsed["refund_calculation"]) if parsed.get("refund_calculation")
                                 not in (None, "", "null") else None),
+            precedent_ids=followed_precedents(parsed, precedents),
         )
 
         # Enforce threshold overrides (belt-and-suspenders)

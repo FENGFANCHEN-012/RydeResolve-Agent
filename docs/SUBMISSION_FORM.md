@@ -74,7 +74,7 @@ anyone build or copy a case (trip, profiles, both sides' chat, rules, photos) an
 
 Measured with Cerebras gpt-oss-120b, one run per case, on cases with answer keys written before the
 runs (several sets written blind by another model, one sealed set run once):
-- Speed: about 98 seconds per dispute, against 24 to 72 hours today; safety reports reach a person
+- Speed: about 89 seconds per dispute, against 24 to 72 hours today; safety reports reach a person
   in under a second.
 - Automation: under Policy v2.1, 78% of the disputes the policy lets AI decide (28 of 36 in a
   52-case regression) closed with no human, in about 89 seconds each.
@@ -82,9 +82,16 @@ runs (several sets written blind by another model, one sealed set run once):
   full format 25/30; 52 earlier cases re-run with keys re-checked against v2.1: 44/52 with no wrong
   payout. Every miss was a case handed to a person, which costs review time, not money. Wrong
   payouts found along the way (before and during the v2.1 work) are published with their fixes.
-- Cost: about 29,000 tokens, roughly US$0.01-0.02, per dispute.
-- Illustration (not a Ryde figure): at 1,000 disputes a day, 78% automation of the disputes AI may
-  decide removes the first manual read from most of them; the rest reach a person with the case built.
+- Cost: about US$0.017 per dispute on gpt-oss-120b (Judge about 9,000 tokens in / 1,600 out; six
+  other calls about 24,000 in / 6,000 out). At 1,000 disputes a day (an illustration, not a Ryde
+  figure): about US$520 a month as today; about US$1,400-2,100 with the Judge on Claude Sonnet 5.5;
+  about US$2,400-3,900 with the Judge on Claude Opus 5.5, the other agents staying on gpt-oss-120b.
+  An open model such as DeepSeek on the company's own GPU server has no per-token fee.
+- Beyond the demo: the live site runs on one small Tencent Lighthouse server; production adds
+  instances behind a load balancer, Postgres and a job queue. A model change is re-evaluated on the
+  same sets before it goes live.
+- 78% automation of the disputes AI may decide removes the first manual read from most of them; the
+  rest reach a person with the case built.
 
 ## CodeBuddy / WorkBuddy conversation history (required, at least 3 screenshots)
 

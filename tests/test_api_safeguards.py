@@ -158,3 +158,18 @@ async def test_concurrent_reviews_rejected_and_slot_released(monkeypatch):
         finish.set()
         assert (await first).status_code == 200
         assert main._active_runs == 0
+
+
+def test_notices_render_in_another_language_from_the_ruling_fields():
+    client = TestClient(main.app, headers={"Authorization": "Bearer offline-demo"})
+    verdict = {"verdict": "partially_upheld", "confidence": 0.9, "refund_amount": 3.44,
+               "rationale": "Driver did not explain the reroute.", "unknown_field": 1}
+    r = client.post("/api/notices", json={"verdict": verdict, "dispute_id": "DISP-001",
+                                          "reporter": "passenger", "language": "zh"})
+    assert r.status_code == 200 and r.json()["language"] == "zh"
+    notes = {n["recipient"]: n["message"] for n in r.json()["notifications"]}
+    assert "3.44" in notes["passenger"] and "退款" in notes["passenger"] and set(notes) == {"passenger", "driver"}
+    # unknown languages fall back to English; an escalated case promises no money
+    r = client.post("/api/notices", json={"verdict": verdict, "dispute_id": "DISP-001", "escalated": True,
+                                          "language": "fr"})
+    assert r.json()["language"] == "en" and all("3.44" not in n["message"] for n in r.json()["notifications"])

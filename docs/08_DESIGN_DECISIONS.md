@@ -1757,3 +1757,35 @@ Results on the final code (b61d8b8 and later, data changes only after it):
 Not done: the other old sets (fresh_sonnet, images, photo_side, cancel_scope, discretion, fraud,
 stress) were not re-run on the final code; their published scores are pre-v2.1. The sealed set
 was not re-run (run once by design).
+
+## D51. Precedent selection, a Judge-only model, notices in four languages, PDPA and cost (2026-10-15)
+
+What changed and why:
+- **Which precedents the Judge sees** (`src/rag/precedents.py`). Before: the top 3 by similarity, any
+  type, any policy. Now, in similarity order: same dispute type as the case; decided under the
+  governing policy now in force (`policy_version` stored at indexing; a precedent with none or an older
+  one is never shown, so old rulings cannot undo a policy change); one per principle, so near-copies
+  cannot crowd out a different relevant ruling; at most three. The four staged precedents on the
+  server (PT-05..08) were written before v2.1, carry no `policy_version` and are therefore not shown.
+- **What the Judge says it followed** (`followed_precedents`, `Decision.precedent_ids`). The Judge
+  lists the precedents it followed in a JSON field; code keeps only ids it was actually shown. Before,
+  it only named them in free text.
+- **Judge on its own model** (`JUDGE_LLM_PROVIDER`) and a generic `openai_compatible` provider
+  (`OPENAI_COMPAT_*`) for a self-hosted open model (vLLM / Ollama). Both default off: unset, every
+  call is exactly as before.
+- **Notices in English, Chinese, Malay, Tamil from the dashboard** (`POST /api/notices`, language
+  buttons on "Sent to both parties"). The executor's existing templates, from the ruling's fields
+  only; no model call, so it works on replays.
+- **Docs.** README, submission draft and form: data protection (what exists, what a PDPA deployment
+  still needs), production setup, and cost per dispute and per month from the token use measured on
+  the demo runs (Judge ~9,000 in / 1,600 out; six other calls ~24,000 in / 6,000 out).
+
+How it was checked: offline tests for the precedent filters, dedupe, policy stamp and id check; the
+two providers; the notices endpoint (zh, fallback to English, escalated notice states no amount) and
+the dashboard switch. 622 Python and 28 frontend tests pass.
+
+Not done: no evaluation run. No precedent is active on the server, and both new providers are off by
+default, so no live ruling changes. The precedent selection has not been measured on rulings: the
+release gate (scripts/precedents.py) still has to show that rulings which see precedents are no
+worse before any precedent goes live. Cost figures for a Claude Judge are list-price estimates; the
+Claude adapter itself is not built.

@@ -202,3 +202,18 @@ def test_judge_and_fairness_accept_selected_provider_without_gemini_key(monkeypa
     monkeypatch.setattr(llm_module, "GROQ_API_KEY", "offline-groq")
     for agent in (ArbitrationAgent(), FairnessAgent()):
         assert agent._get_llm_client().provider == "groq"
+
+
+def test_openai_compatible_provider_for_self_hosted_models(monkeypatch):
+    import src.core.llm_client as lc
+    monkeypatch.setattr(lc, "OPENAI_COMPAT_MODEL", "deepseek-v3")
+    monkeypatch.setattr(lc, "OPENAI_COMPAT_BASE_URL", "http://gpu-box:8000/v1")
+    c = lc.LLMClient(provider="openai_compatible", fallbacks=[])
+    assert c.openai_compatible and c.model == "deepseek-v3" and c.base_url == "http://gpu-box:8000/v1"
+
+
+def test_judge_can_use_its_own_provider(monkeypatch):
+    import src.agents.arbitrator as arb
+    monkeypatch.setattr(arb, "JUDGE_LLM_PROVIDER", "groq")
+    monkeypatch.setattr("src.core.llm_client.GROQ_API_KEY", "k")
+    assert arb.ArbitrationAgent()._get_llm_client().provider == "groq"

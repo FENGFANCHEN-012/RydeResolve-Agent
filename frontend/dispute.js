@@ -1119,8 +1119,13 @@ function rrRenderVerdict() {
     }
     const keyOpen = el.querySelector('.rr-key-details')?.open;
     // What each party is told: the executor writes one notice per party from the ruling's fields
-    const notes = (res.execution?.notifications || []).filter(n => n && n.message);
-    const notices = notes.length ? `<div class="rr-notices"><h4>Sent to both parties <span class="rr-hint">simulated, not delivered</span></h4>
+    // in the language the viewer picks (Singapore's four official languages), re-rendered by the API
+    if (rr.noticeFor !== res) { rr.noticeFor = res; rr.noticeByLang = {}; rr.noticeLang = 'en'; }
+    const notes = (rr.noticeByLang[rr.noticeLang] || res.execution?.notifications || []).filter(n => n && n.message);
+    const langs = RR_NOTICE_LANGS.map(([code, name]) => `<button type="button" class="rr-lang${code === rr.noticeLang ? ' on' : ''}"
+        data-notice-lang="${code}" aria-pressed="${code === rr.noticeLang}">${name}</button>`).join('');
+    const notices = notes.length ? `<div class="rr-notices"><h4>Sent to both parties <span class="rr-hint">simulated, not delivered</span>
+        <span class="rr-langs" role="group" aria-label="Notice language">${langs}</span></h4>
         <div class="rr-notice-grid">${notes.map(n => `<div class="rr-notice ${rrEsc(n.recipient)}">
             <div class="rr-notice-to">To the ${rrEsc(n.recipient)}</div>
             <div class="rr-notice-subj">${rrEsc(n.subject || '')}</div>
@@ -1128,6 +1133,37 @@ function rrRenderVerdict() {
     el.innerHTML = `${label}${rr.saveWarning ? `<div class="rr-verdict-text">${rrEsc(rr.saveWarning)}</div>` : ''}<div class="rr-verdict-main">${main}</div>${notices}
         <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;
+    el.onclick = e => {  // one handler for the language buttons, which are re-rendered with the panel
+        const b = e.target?.closest?.('[data-notice-lang]');
+        if (b) rrNoticeLang(b.dataset.noticeLang);
+    };
+}
+
+const RR_NOTICE_LANGS = [['en', 'English'], ['zh', '中文'], ['ms', 'Melayu'], ['ta', 'தமிழ்']];
+
+async function rrNoticeLang(lang) {
+    const res = rr.result;
+    if (!res) return;
+    if (lang !== 'en' && !rr.noticeByLang[lang]) {
+        try {
+            const resp = await apiFetch(`${API_BASE}/api/notices`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    verdict: res.verdict || {}, dispute_id: res.dispute_id || rr.current || '',
+                    reporter: rr.request?.reporter || rr.detail?.dataset?.dispute_ticket?.filed_by || null,
+                    escalated: rrEscalated(), language: lang,
+                }),
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            if (rr.result !== res) return;  // another case was opened meanwhile
+            rr.noticeByLang[lang] = (await resp.json()).notifications;
+        } catch (err) {
+            console.warn('Notice translation failed', err);
+            return;
+        }
+    }
+    rr.noticeLang = lang;
+    rrRenderVerdict();
 }
 
 // ---------------------------------------------------------------- render all
