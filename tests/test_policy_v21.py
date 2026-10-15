@@ -242,3 +242,18 @@ def test_rejecting_a_drivers_claim_on_a_doubted_photo_is_allowed_paying_is_not()
     pay = SimpleNamespace(verdict="upheld", refund_amount=28.0, human_review_needed=False, decisive_facts=fact)
     assert code_judge.check_photos(reject, ctx) == [] and code_judge.check_facts(reject, ctx) == []
     assert code_judge.check_photos(pay, ctx) and code_judge.check_facts(pay, ctx)
+
+
+def test_rejection_fact_may_cite_the_drop_off_it_is_measured_against():
+    # OF-17 run 20261015-144231: facts cited evidence[0] together with trip.dropoff_time / location
+    from src.agents import code_judge
+    ctx = {"reporter": "driver", "trip": {"cleaning_fee_claimed": 28.0}, "description": "",
+           "findings": [{"id": "photo_checks.late[0]", "kind": "conflict", "statement": "26 h late",
+                         "sources": ["evidence[0]"], "questioned": ["evidence[0]"]}]}
+    facts = [{"fact": "photo 1565 min after drop-off", "sources": ["evidence[0]", "trip.dropoff_time"],
+              "status": "contradicted"},
+             {"fact": "claim S$28", "sources": ["trip.cleaning_fee_claimed"], "status": "verified"}]
+    reject = SimpleNamespace(verdict="dismissed", refund_amount=None, human_review_needed=False, decisive_facts=facts)
+    assert code_judge.check_facts(reject, ctx) == []
+    other = [{"fact": "the driver arrived", "sources": ["trip.dropoff_time"], "status": "contradicted"}]
+    assert code_judge.check_facts(SimpleNamespace(verdict="dismissed", refund_amount=0, decisive_facts=other), ctx)

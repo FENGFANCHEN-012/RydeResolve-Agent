@@ -162,9 +162,12 @@ def rejects_own_claim(decision, context: dict) -> bool:
     return verdict == "dismissed" and refund <= 0
 
 
-def _photo_only(f: dict) -> bool:
-    return bool(f.get("sources")) and all(str(s).startswith(("evidence[", "photo_checks.", "image_analysis."))
-                                          for s in f.get("sources"))
+def _about_photo(f: dict, flagged: dict) -> bool:
+    """A fact about a photo: it cites the photo, and any other record it cites (the drop-off time
+    or place it is measured against) is not itself questioned (OF-17 cited both)."""
+    srcs = [str(s) for s in f.get("sources") or []]
+    photo = [s for s in srcs if s.startswith(("evidence[", "photo_checks.", "image_analysis."))]
+    return bool(photo) and not any(s in flagged for s in srcs if s not in photo)
 
 
 def check_facts(decision, context: dict) -> list[str]:
@@ -181,7 +184,7 @@ def check_facts(decision, context: dict) -> list[str]:
         if status not in FACT_STATUSES:
             problems.append(f"Decisive fact \"{name}\" has no valid status (verified / unverifiable / contradicted).")
             continue
-        if rejecting and _photo_only(f):
+        if rejecting and _about_photo(f, flagged):
             continue   # a doubt about the claimant's own photo is what rejects the claim (v2.1 s4.4)
         if status != "verified":
             problems.append(f"The ruling turns on a fact that is {status}: \"{name}\". "
