@@ -1712,3 +1712,48 @@ Not done: the old sets were not re-run on this code (about 104 cases, about US$2
 scores are pre-v2.1. Items 5 and 6 were tested only on the two replayed cases. s6.2's 2 km route
 rule is deliberately not enforced (DISP-001). The DISP-001 Judge outcome varied between runs (self
 escalation, unverifiable fact, correct), so one correct run is not proof of stability.
+
+### D50 continued: fixes from the blind sets and the regression (2026-10-14/15)
+
+Fixes found by running, each with a test (615 tests pass):
+- Route refund capped in code at the excess distance fare, from the recorded figure, the two
+  distance fares, or excess km x the per-km rate (stability run 20261014-201340: DISP-001 refunded
+  S$6.50 once; OF-28 refunded S$8.06 for S$4.16).
+- An upheld driver claim must state its award (OF-23 and PS-06: upheld, no amount, nothing paid).
+- s5.2 safety indicators: complaint words (reckless, weaving, tailgating, speeding, harass, threat,
+  unsafe ...) and speeding / harsh-braking events send any dispute to a person (OF-16 reckless
+  driving was ruled as a fare dispute).
+- Rejecting a driver's own claim because its photo fails s4.2 is allowed automatically (s4.4);
+  paying on a doubted photo is still never allowed (OF-17). Photo window defaults to v2.1's 24 h
+  when a case sets none (the IM / PS sets keep their own 60 min).
+- "hospital" alone is no longer a safety word; being taken to / admitted to hospital is (OF-15:
+  "I was in the hospital lobby" went to P0 and a driver suspension was proposed).
+- s6.2 shows a RydeResolve note that its 2 km route row is not applied (DISP-001); one CLAIM_FIELDS
+  list (repair_fee_claimed was missed, OF-27).
+- More keys aligned with v2.1: SQ-001 (speeding, harsh braking: s5.2) and ST-003 (s4.4) expect a
+  person; 7 no-show keys (NS-004, FS-01, F2-01, F2-02, DS-03, NS-005, NS-006) now void the fee under
+  s2.3 (messages but no call before the cancel; no call record of any kind in those files). The
+  regression showed the Judge applying s2.3 on NS-004 and F2-01; a free audit then found every case
+  of the same kind. Old rulings kept under v21_change.was.
+
+Results on the final code (b61d8b8 and later, data changes only after it):
+- Official samples DISP-001, DISP-002, DISP-003: all right (run 20261015-151657-of-replay).
+  Earlier stability runs showed DISP-001 unstable (self-escalation, then a S$6.50 over-refund); both
+  causes were fixed, and it has not been re-run several times since.
+- Official-format blind set OF-01..30 (data/eval_cases/official_format, written blind by a Sonnet
+  subagent from v2.1 and the samples): verdict 25/30 across runs 20261014-210731 (OF-01..15) and
+  20261015-144231-of-v3 (OF-16..30); the run was stopped twice by low laptop memory and code changed
+  in between, so the halves ran on different commits. Of the three wrong payouts in that scoring,
+  OF-23 and OF-28 were fixed and passed in the replay (OF-28 now escalates with the right S$4.16
+  drafted); OF-09 refunded the S$14.40 surge differential at confidence 0.96, which s6.3 allows
+  (>= 0.95) though the key expects a person: a key/policy disagreement, recorded, not changed.
+- Regression mock + heldout + fresh2 (52 cases, run 20261015-*-regression-v21, foreground batches):
+  verdict 44/52, escalation 44/52, 0 wrong payouts. Every miss is an automatic case sent to a person
+  (F2-09, F2-10, F2-11, F2-15, FD-002-I2, FD-002-P2, NS-002-B1, NS-002-C1). fresh2 went from 13/20
+  with one wrong payout (D42) to 16/20 with none.
+- Spend for D50 at Cerebras list price: about US$3.2 (6.0M prompt, 1.4M completion tokens). Four
+  keys hit their daily token limit on 14-15 Oct.
+
+Not done: the other old sets (fresh_sonnet, images, photo_side, cancel_scope, discretion, fraud,
+stress) were not re-run on the final code; their published scores are pre-v2.1. The sealed set
+was not re-run (run once by design).
