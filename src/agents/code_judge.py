@@ -244,13 +244,50 @@ def check_photos(decision, context: dict) -> list[str]:
             "human_review_needed to true."]
 
 
+def excess_distance_fare(trip: dict) -> float | None:
+    """The route deviation's excess distance fare from the records: the recorded figure, else the
+    actual minus the estimated distance fare, else excess km x the per-km rate (OF-28 recorded the
+    two distance fares and the rate, not the excess)."""
+    fb = trip.get("fare_breakdown") if isinstance(trip.get("fare_breakdown"), dict) else {}
+    if isinstance(fb.get("excess_distance_fare"), (int, float)):
+        return float(fb["excess_distance_fare"])
+    est, act = fb.get("estimated"), fb.get("actual")
+    if isinstance(est, dict) and isinstance(act, dict) and all(
+            isinstance(x.get("distance_fare"), (int, float)) for x in (est, act)):
+        return round(act["distance_fare"] - est["distance_fare"], 2)
+    rec = trip.get("recommended_route") if isinstance(trip.get("recommended_route"), dict) else {}
+    rate, km, act_km = fb.get("distance_rate_per_km"), rec.get("estimated_distance_km"), trip.get("actual_distance_km")
+    if all(isinstance(x, (int, float)) for x in (rate, km, act_km)):
+        return round(max(act_km - km, 0) * rate, 2)
+    return None
+
+
+def check_award(decision, context: dict) -> list[str]:
+    """D50: a driver's recorded claim ruled in the driver's favour must state the award (OF-23 and
+    PS-06: upheld, no amount, so the executor paid nothing)."""
+    from src.core.governing_policy import CLAIM_FIELDS
+    ctx = context or {}
+    trip = ctx.get("trip") or {}
+    claimed = [float(trip[k]) for k in CLAIM_FIELDS if k.endswith("_claimed") and isinstance(trip.get(k), (int, float))]
+    verdict = getattr(getattr(decision, "verdict", None), "value", getattr(decision, "verdict", None))
+    try:
+        award = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        award = 0.0
+    if str(ctx.get("reporter") or "").lower() != "driver" or not claimed or verdict not in ("upheld", "partially_upheld"):
+        return []
+    if award <= 0:
+        return [f"The ruling upholds the driver's recorded claim (S${max(claimed):.2f}) but awards nothing: "
+                "set refund_amount to the amount the driver receives and give its refund_calculation."]
+    return []
+
+
 def check_route_refund(decision, context: dict) -> list[str]:
     """D50: Policy v2.1 s1.3 refunds a route deviation's excess DISTANCE fare, never tolls, time or
     surge. When the fare breakdown records that fare, a route refund above it is wrong (DISP-001,
     run 20261014-201340: S$6.50, the whole excess, instead of the recorded S$3.44)."""
     trip = (context or {}).get("trip") or {}
-    fb = trip.get("fare_breakdown") if isinstance(trip.get("fare_breakdown"), dict) else {}
-    edf = fb.get("excess_distance_fare")
+    edf = excess_distance_fare(trip)
     dtype = getattr((context or {}).get("type"), "value", (context or {}).get("type"))
     try:
         refund = float(getattr(decision, "refund_amount", None) or 0)
@@ -266,7 +303,7 @@ def check_route_refund(decision, context: dict) -> list[str]:
 def review(decision, context: dict) -> list[str]:
     """All problems with a draft ruling; empty when it may proceed to the Fairness audit."""
     return (check_facts(decision, context) + check_amount(decision, context) + check_photos(decision, context)
-            + check_route_refund(decision, context))
+            + check_route_refund(decision, context) + check_award(decision, context))
 
 
 def render_code_review(draft: dict, problems: list[str]) -> str:

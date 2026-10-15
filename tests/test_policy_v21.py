@@ -257,3 +257,25 @@ def test_rejection_fact_may_cite_the_drop_off_it_is_measured_against():
     assert code_judge.check_facts(reject, ctx) == []
     other = [{"fact": "the driver arrived", "sources": ["trip.dropoff_time"], "status": "contradicted"}]
     assert code_judge.check_facts(SimpleNamespace(verdict="dismissed", refund_amount=0, decisive_facts=other), ctx)
+
+
+def test_route_cap_from_distance_fares_or_rate():
+    from src.agents.code_judge import check_route_refund, excess_distance_fare
+    nested = {"fare_breakdown": {"estimated": {"distance_fare": 17.12}, "actual": {"distance_fare": 21.28}}}
+    assert excess_distance_fare(nested) == 4.16                               # OF-28
+    rate = {"fare_breakdown": {"distance_rate_per_km": 0.8}, "recommended_route": {"estimated_distance_km": 10},
+            "actual_distance_km": 15.2}
+    assert excess_distance_fare(rate) == 4.16
+    assert check_route_refund(SimpleNamespace(refund_amount=8.06), {"type": "route_deviation", "trip": nested})
+    assert not check_route_refund(SimpleNamespace(refund_amount=4.16), {"type": "route_deviation", "trip": nested})
+
+
+@pytest.mark.parametrize("verdict,award,problem", [
+    ("upheld", None, True),          # OF-23: upheld with no amount
+    ("upheld", 35.0, False),
+    ("dismissed", None, False),
+])
+def test_upheld_driver_claim_states_the_award(verdict, award, problem):
+    from src.agents.code_judge import check_award
+    ctx = {"reporter": "driver", "trip": {"cleaning_fee_claimed": 35.0}}
+    assert bool(check_award(SimpleNamespace(verdict=verdict, refund_amount=award), ctx)) is problem
