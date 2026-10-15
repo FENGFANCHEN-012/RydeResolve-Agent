@@ -168,12 +168,23 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "refund_amount": 0.0,
-    "recommended_action": "no_refund",
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "void_no_show_fee_contact_obligation_not_met",
     "requires_human_review": false,
     "must_escalate": false,
     "reason": "The driver_arrived event is 14:20:00 (GPS within 15 m) and the cancellation is 14:27:00, so the wait was exactly 7 min 00 s. This trip's policy sets the no-show threshold at 7 min counted from arrival and says exactly 7 min 00 s meets it, so the rider counts as a no-show. The rider's claim that she arrived at 14:22 and the driver left after about 4 minutes is contradicted by the platform records: her own app pings put her 760 m away at 14:19:10 and only within 25 m at 14:27:50, after the cancellation. The driver's curt 14:25:00 message does not change the rule. The S$5.00 fee stands.",
-    "expected_dispute_type": "no_show"
+    "expected_dispute_type": "no_show",
+    "v21_change": {
+      "was": {
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "no_refund"
+      },
+      "sections": [
+        "s2.3"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s2.3: before a no-show cancel the driver must send at least one in-app message AND make at least one call, otherwise the fee is voided. The records show messages and no call, so the fee is refunded (D50; found by the regression run after the Judge applied s2.3)."
+    }
   }
 }

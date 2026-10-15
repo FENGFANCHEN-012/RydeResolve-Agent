@@ -178,9 +178,9 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "refund_amount": 0.0,
-    "recommended_action": "no_refund",
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "void_no_show_fee_contact_obligation_not_met",
     "requires_human_review": false,
     "must_escalate": false,
     "reason": "The driver arrived at 08:10:00 (GPS within 20 m and a driver_arrived event) and cancelled at 08:16:20, a wait of 6 min 20 s. This trip's policy sets the no-show threshold at 6 minutes counted from arrival, inclusive, so the condition was met, and the rider's own app ping at 08:17:40 shows she reached the pickup only after the cancellation. The S$5.00 no-show fee stands; the rider's short delay, her hurry and the driver's curt tone do not change that.",
@@ -189,6 +189,17 @@
       "Ryde Help Rider Fares And Charges > Cancellation and Waiting Fee",
       "Ryde Help Driver Popular Topics > Cancellation and Waiting Time Policy",
       "Ryde Help Rider Fares And Charges > Why am I charged for a Waiting Time Fee?"
-    ]
+    ],
+    "v21_change": {
+      "was": {
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "no_refund"
+      },
+      "sections": [
+        "s2.3"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s2.3: before a no-show cancel the driver must send at least one in-app message AND make at least one call, otherwise the fee is voided. The records show messages and no call, so the fee is refunded (D50; found by the regression run after the Judge applied s2.3)."
+    }
   }
 }

@@ -198,9 +198,9 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "cancellation_charge_upheld_no_refund",
-    "refund_amount": 0.0,
+    "verdict": "upheld",
+    "recommended_action": "void_no_show_fee_contact_obligation_not_met",
+    "refund_amount": 8.0,
     "requires_human_review": false,
     "reason": "The driver's GPS and the driver_arrived event put him at the pickup from 19:00 to 19:09 — 9 minutes, past this trip's 8-minute no-show threshold. A chat message saying 'coming in 2 min' does not pause the wait clock under this trip's policy, and the rider had still not appeared 5 minutes after sending it. The S$8.00 fee compensates the driver's time and stands. The driver's record (riders won three of four no-show disputes against him in 60 days) is context for a reviewer; it does not outweigh this trip's data.",
     "expected_dispute_type": "no_show",
@@ -213,6 +213,17 @@
       "Ryde Help Driver Fares Charges > How Does the Cancellation Fee Work?",
       "Ryde Help Rider Fares And Charges > Cancellation Fee Waiver Request"
     ],
-    "fraud_note": "FRAUD EVAL F5 (respondent pattern, genuine this time): respondent_claim_pattern on the driver (soft) -> risk MEDIUM. This trip's GPS and app events show the driver waited past the no-show threshold, so the fee stands: the driver's record must not decide the case against him (mirror of FD-004 for the other side)."
+    "fraud_note": "FRAUD EVAL F5 (respondent pattern, genuine this time): respondent_claim_pattern on the driver (soft) -> risk MEDIUM. This trip's GPS and app events show the driver waited past the no-show threshold, so the fee stands: the driver's record must not decide the case against him (mirror of FD-004 for the other side).",
+    "v21_change": {
+      "was": {
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "cancellation_charge_upheld_no_refund"
+      },
+      "sections": [
+        "s2.3"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s2.3: before a no-show cancel the driver must send at least one in-app message AND make at least one call, otherwise the fee is voided. The records show messages and no call, so the fee is refunded (D50; found by the regression run after the Judge applied s2.3)."
+    }
   }
 }

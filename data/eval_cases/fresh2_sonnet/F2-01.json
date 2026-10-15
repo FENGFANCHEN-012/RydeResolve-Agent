@@ -166,15 +166,26 @@
   },
   "expected_outcome": {
     "heldout": true,
-    "verdict": "dismissed",
-    "recommended_action": "no_refund",
-    "refund_amount": 0.0,
+    "verdict": "upheld",
+    "recommended_action": "void_no_show_fee_contact_obligation_not_met",
+    "refund_amount": 8.0,
     "requires_human_review": false,
     "reason": "The driver_arrived event (10:02:00, geofence check passed) and the GPS fixes at 10:02:00 and 10:08:00 at the pickup point put the driver at the pickup from 10:02:00. The cancellation at 10:10:30 is 8.5 minutes later, which is at or past this trip's 8-minute no-show threshold. The rider's own message at 10:09 says she was still in the lift. The GPS dropout from 10:04:10 to 10:06:50 falls inside the wait but does not matter: the clean driver_arrived event and the clean fixes either side of it settle the arrival and the wait. The S$8.00 fee stands.",
     "expected_dispute_type": "no_show",
     "expected_urgency": null,
     "expected_policy_sections": [],
     "must_escalate": false,
-    "expected_official_sections": []
+    "expected_official_sections": [],
+    "v21_change": {
+      "was": {
+        "verdict": "dismissed",
+        "refund_amount": 0.0,
+        "recommended_action": "no_refund"
+      },
+      "sections": [
+        "s2.3"
+      ],
+      "why": "Ryde Dispute Resolution Policy v2.1 s2.3: before a no-show cancel the driver must send at least one in-app message AND make at least one call, otherwise the fee is voided. The records show messages and no call, so the fee is refunded (D50; found by the regression run after the Judge applied s2.3)."
+    }
   }
 }
