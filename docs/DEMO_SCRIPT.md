@@ -9,7 +9,8 @@ used, a short reflection on the build and CodeBuddy tips. Target length about 7 
 - The recorded moments are replayed from the runs that produced them, so the demo never depends
   on provider quota or on a rerun ruling differently. They are already on the server under
   "Replay a saved run": demo-1-RD-001, demo-2-F2-17, demo-3-SI-001, demo-4-IM-04 (genuine photo),
-  demo-5-IM-12 (AI-generated photo). To add more, copy the eval trace to the same path on the
+  demo-5-IM-12 (AI-generated photo), demo-6-DISP-003 and demo-7-DISP-001 (the organisers' samples,
+  run under Policy v2.1 on 15 Oct). To add more, copy the eval trace to the same path on the
   server (`data/eval/` is not in git) and run `scripts/import_demo_traces.py <trace>` there, then
   restart the service.
 - The case editor segment (5:00) is a live run, about 90 s of agent time: record it once and cut
@@ -22,26 +23,34 @@ Say:
   receipts, photos and policy for each one: 24 to 72 hours, and two agents can rule differently on
   the same facts."
 - "RydeResolve resolves standard disputes in about two minutes with a team of agents: a rider
-  advocate, a driver advocate and a judge, plus evidence, photo, fraud and fairness checks."
+  advocate, a driver advocate and a judge, plus evidence, photo, fraud and fairness checks. It
+  applies the organisers' Ryde Dispute Resolution Policy v2.1, and its routing rules run in code."
 - "Our rule: when the system cannot prove its ruling from the records, a person decides."
 
 Show: the architecture figure (`docs/architecture.png`), 15 seconds, pointing at the flow from
 evidence and photos to advocates to judge to code checks.
 
-## 0:50-2:20 Case 1: route deviation, resolved automatically (demo-1-RD-001)
+## 0:50-2:20 Case 1: the organisers' own sample DISP-001 (demo-7-DISP-001), then DISP-003 (demo-6)
 
-Complaint: "My driver missed the exit on the AYE... charged $18.20 instead of the $14.50 quoted.
-I want the extra $3.70 refunded."
+Complaint (the organisers' route-deviation sample): Orchard Central to Changi T3, "the driver took a
+significantly longer route ... did not inform me ... I am requesting a refund of the excess fare."
 
 Replay and narrate each step as it lights up:
-1. Collector: code tools read GPS, fare, app events and chat; each finding names its record. Route
-   alert, 10.4 km against 8.2 km planned, fare S$18.20 against S$14.50.
-2. Advocates argue; open the debate panel: the driver admitted the missed exit in the chat.
-3. Judge: upheld, refund S$3.70, confidence 0.92, with the facts it rests on.
-4. Code Judge: every decisive fact verified on a clean record; S$3.70 = 18.20 - 14.50. Passes.
-5. Fairness audit passes; the executor tells both rider and driver.
+1. Collector: code reads the organisers' records. 24.8 km against the recommended PIE route's
+   20.5 km: +4.3 km, beyond Policy v2.1's 1 km tolerance; the fare breakdown records an excess
+   distance fare of S$3.44. A traffic record shows a vehicle fire on PIE eastbound, 13:05-13:50,
+   active during the trip and on the recommended route.
+2. Advocates argue; the chat shows the rider asking at 13:24 and the driver not giving the reason.
+3. Judge: partially upheld, S$3.44, citing v2.1 s1.2 (notify the rider) and s1.3 (the refund
+   matrix: rerouted for traffic but not informed = the excess distance fare, not tolls or time).
+4. Code checks: facts verified, S$3.44 is a record figure and does not exceed the excess distance
+   fare; the v2.1 gate finds nothing that needs a person (under S$10, no safety issue). Executed.
 
-Say: "This is the majority path: most standard disputes close like this, in about two minutes."
+Then 20 seconds on demo-6-DISP-003 (the organisers' surge sample): surge rose from 1.0x to 1.5x
+before pickup, `rider_notified: false`, the surgeable subtotal unchanged, so the S$4.50 difference is
+all surge; v2.1 s3.3 refunds it, and under S$10 the AI ruling is final.
+
+Say: "These are the organisers' own samples, ruled by their own policy, section by section."
 
 ## 2:20-3:50 Case 2: the code Judge stops a wrong refund (demo-2-F2-17)
 
@@ -85,8 +94,10 @@ approve money. And a doubted photo always goes to a person, whichever side it wo
 1. Open demo case IM-04 (the genuine photo) and press "Copy & edit".
 2. In Photos, change the photo's "Taken at" to 30 minutes before pickup. Save: a new case CU-xxxxxx
    appears and is selected.
-3. Run agents (cut the waiting). The Collector flags "photo taken before the trip began"; the case
-   goes to a person instead of charging the rider.
+3. Run agents (cut the waiting). The Collector flags "photo taken before the trip began". The
+   rider is not charged: under v2.1 s4.4 the claim is rejected for evidence that is not linked to the
+   trip, or the case goes to a person; no payment can rest on a doubted photo. (Rehearse once: which
+   of the two you get varies.)
 
 Say: "Judges can build their own cases here: trip, profiles, both sides' chat, rules and photos,
 and watch every agent work on them."
@@ -99,7 +110,9 @@ The safety scan marks it P0 in under a second; it goes to a person now. "Safety 
 ## 6:20-7:00 How we know it works
 
 Show the results table from the README:
-- 38 dev and held-out cases: 33 correct, 0 wrong payouts.
+- Under Policy v2.1: the organisers' samples 3/3; a 30-case blind set in their full format 25/30;
+  52 earlier cases re-run with keys re-checked against v2.1: 44/52, 0 wrong payouts.
+- Before v2.1: 38 dev and held-out cases: 33 correct, 0 wrong payouts.
 - Blind sets written by another model that never saw the code: 16/20 and 13/20; a sealed set run
   once: 16/23. Each wrong payout led to a logged fix and a new blind set written for it.
 - Blind photo sets: 8/12, where one S$100 fee was refunded on a doubted photo; after the fix that

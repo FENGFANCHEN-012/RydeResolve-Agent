@@ -1,7 +1,7 @@
 # Submission form: paste-ready text (deadline 16 Oct 2026)
 
 One block per field of the handbook's submission list (docs/01_PROJECT_REQUIREMENTS.md, p.37).
-Figures are from docs/08_DESIGN_DECISIONS.md (D38-D49) and README; change nothing without checking there.
+Figures are from docs/08_DESIGN_DECISIONS.md (D38-D50) and README; change nothing without checking there.
 
 ## Project title (required)
 
@@ -18,8 +18,9 @@ Fair, explainable ride-dispute rulings in minutes, not days.
 RydeResolve settles rider-driver disputes on Ryde with a team of AI agents. A rider or driver files a
 complaint (a longer route, a no-show fee, a cleaning charge with a photo, a surge fare, an unsafe
 driver). The system gathers the trip's evidence (GPS, fare, chat, app events, profiles, photos), a
-rider advocate and a driver advocate each argue their side from that evidence and Ryde's official
-policy, and a Judge rules on every request with its reasons and a confidence score. Code, not the
+rider advocate and a driver advocate each argue their side from that evidence and the organisers'
+Ryde Dispute Resolution Policy v2.1, and a Judge rules on every request with its reasons, the v2.1
+sections it applies and a confidence score. Code, not the
 model, then checks the ruling before any money moves; if the ruling cannot be proven from the records,
 the case goes to a person with the whole file already built.
 
@@ -38,21 +39,26 @@ applied the same way every time, with a full audit trail.
 ### Business and technical architecture, and how prompts drive the AI
 
 Pipeline (LangGraph, FastAPI, every step streamed live to the dashboard):
-1. Collector: code tools read GPS, fare, chat, app events, profiles and the trip's own rules, and
-   report facts, conflicts and data gaps, each naming its record. Photos are checked twice: code
+1. Collector: code tools read the platform records in the organisers' sample format (trip, GPS,
+   chat, app events, fare breakdown, surge log, recommended route, traffic incidents) and report
+   facts, conflicts and data gaps, each naming its record, including the v2.1 checks (surge rose
+   without notice, excess over the recommended route, an incident on that route, a message and a
+   call before a no-show cancel). The samples' own analysis sections are removed first. Photos are checked twice: code
    reads each photo's capture time and GPS against the trip, editing software and reuse in another
    case; a vision model (qwen on Groq) says what the photo shows and can only raise doubts.
 2. Classifier: dispute type and urgency; safety reports go straight to a person.
-3. Case Brief: one shared dossier for every agent, computed without an LLM, with clauses retrieved
-   from Ryde's official policy text (Qdrant hybrid search).
+3. Case Brief: one shared dossier for every agent, computed without an LLM: the v2.1 sections the
+   case needs, in full, plus Help Centre clauses retrieved by hybrid search (Qdrant).
 4. Fraud agent: code risk signals plus evidence-grounded chat labels, seen by the Judge and the
    audit, never by the advocates.
 5. Rider and driver advocates argue and rebut; a Policy agent checks compliance.
 6. Judge (gpt-oss-120b): rules on each request, names the facts the ruling turns on and gives any
    refund as plain arithmetic.
-7. Code Judge and Fairness audit: every decisive fact must be verified on a record nothing
-   contradicts, a refund must be arithmetic on record figures, a doubted photo always goes to a
-   person; a failing draft goes back to the Judge once, then to a person.
+7. Code checks: every decisive fact must be verified on a record nothing contradicts; a refund
+   must be arithmetic on record figures (a route refund no more than the excess distance fare); no
+   payment rests on a doubted photo; a failing draft goes back to the Judge once, then to a person.
+   A policy gate then applies v2.1's routing in code: safety incidents, disputes above S$50, a fraud
+   flag without 95% confidence and a rider contesting damage go to a person. Then a Fairness audit.
 8. Executor: simulated refund or penalty and a notice to each party (English, Chinese, Malay, Tamil).
 
 How prompts drive the AI: every agent has a narrow role, shared grounding rules (no invented
@@ -70,13 +76,15 @@ Measured with Cerebras gpt-oss-120b, one run per case, on cases with answer keys
 runs (several sets written blind by another model, one sealed set run once):
 - Speed: about 98 seconds per dispute, against 24 to 72 hours today; safety reports reach a person
   in under a second.
-- Automation: 82% of standard disputes (67 of 82) closed with no human on the four main sets.
-- Accuracy: 102 of 133 rulings correct across seven test sets. Most misses were cases handed to a
-  person, which costs review time, not money; 5 wrong payouts in 133 runs (the largest S$100,
-  which led to the rule that a doubted photo always goes to a person). All misses are published.
+- Automation: under Policy v2.1, 78% of the disputes the policy lets AI decide (28 of 36 in a
+  52-case regression) closed with no human, in about 89 seconds each.
+- Accuracy under v2.1: the organisers' samples DISP-001..003 all right; a 30-case blind set in their
+  full format 25/30; 52 earlier cases re-run with keys re-checked against v2.1: 44/52 with no wrong
+  payout. Every miss was a case handed to a person, which costs review time, not money. Wrong
+  payouts found along the way (before and during the v2.1 work) are published with their fixes.
 - Cost: about 29,000 tokens, roughly US$0.01-0.02, per dispute.
-- Illustration (not a Ryde figure): at 1,000 disputes a day, 82% automation removes the first
-  manual read from about 820 tickets a day.
+- Illustration (not a Ryde figure): at 1,000 disputes a day, 78% automation of the disputes AI may
+  decide removes the first manual read from most of them; the rest reach a person with the case built.
 
 ## CodeBuddy / WorkBuddy conversation history (required, at least 3 screenshots)
 

@@ -16,35 +16,39 @@
 
 RydeResolve-Agent settles ride disputes on **Ryde**, Singapore's first real-time carpooling
 platform, using a pipeline of cooperating agents. A Rider Advocate and a Driver Advocate each build
-their side's case from platform evidence and official Ryde policy, then rebut each other. A Judge
-rules on every ask, with a confidence score and reasons. Photos are checked by code (capture time,
-place, editing, reuse) and by a vision model. Code checks and a Fairness review decide
-whether the ruling is executed automatically or sent to a person. Every step is traced and
+their side's case from platform evidence and Ryde's policy, then rebut each other. A Judge
+rules on every ask under the organisers' **Ryde Dispute Resolution Policy v2.1**, with a confidence
+score and reasons. Photos are checked by code (capture time,
+place, editing, reuse) and by a vision model. Code checks (including v2.1's routing rules) and a
+Fairness review decide whether the ruling is executed automatically or sent to a person. Every step is traced and
 visible live.
 
-**Status (2026-10-14):** submission candidate with the code Judge (D38), rule checks (D39), photo
-evidence (D46-D47) and a case editor (D49). Evaluated on Cerebras `gpt-oss-120b`, one run per case:
+**Status (2026-10-15):** submission candidate. Since D50 the system reads the organisers' sample
+format (DISP-001..003: fare breakdown, surge log, recommended route, traffic incidents) and rules
+under their Ryde Dispute Resolution Policy v2.1, whose routing rules (safety, dispute value above
+S$50, fraud flags, contested damage) are enforced in code. Evaluated on Cerebras `gpt-oss-120b`, one
+run per case:
 
-- 38 labelled dev and held-out cases: **33/38**, 0 wrong payouts (every miss went to a person).
-- 20 fresh cases written blind by another model: **16/20**, 0 wrong payouts.
-- Sealed set, run once and never used for a fix: **16/23**, with one wrong payout (S$8.00).
-  The remand loophole behind it was then closed (D42).
-- 20 more fresh cases written blind after that fix: **13/20**, with one wrong payout (S$8.00,
-  a rule's wording misread; D42). The fix itself stopped one payout live (F2-17). That wording was
-  rewritten in D48; the three cases that misread it are now right.
-- Two blind photo sets (cleaning fees with stamped photos): **8/12**, with one wrong payout (a
-  S$100 fee refunded because the driver's photo predated the trip, though a doubted photo needs a
-  person; D46), then **9/10** after the fix that sends every doubted photo to a person (D47), with
-  no fee confirmed or removed on a doubted photo.
-- A blind set for the cancellation-fee wording: **7/10**, with two wrong payouts on other points
-  (a held fee, and a driver's own chat admission set aside; D48, open).
+| Under Policy v2.1 (D50) | Correct | Wrong payouts |
+|---|---|---|
+| Organisers' samples DISP-001, DISP-002, DISP-003 | **3/3** | 0 |
+| Blind set V2 (12 cases written from v2.1 by another model) | 10/12 | 0 |
+| Blind set OF (30 cases in the organisers' full format, every dispute type) | 25/30 | 2 found, fixed and re-run; 1 disputed key (D50) |
+| Regression: mock + held-out + fresh2 (52 earlier cases, keys re-checked against v2.1) | **44/52** | **0** |
 
-This is evaluation accuracy, not an automatic resolution rate: a case sent to a person counts as a
-miss whenever the answer key says the system could have decided it. Across the first four sets, 67
-of 82 standard disputes (82%) were closed with no human, in about 98 seconds each.
+On the regression, 28 of the 36 disputes v2.1 lets AI decide (78%) closed with no human, in about
+89 seconds each; every miss was a case handed to a person. This is evaluation accuracy, not an
+automatic resolution rate: a case sent to a person counts as a miss whenever the answer key says the
+system could have decided it.
 
-**Live demo (2026-10-14):** http://43.134.17.192 on a Tencent Lighthouse server in Singapore. An
-access code is required (given to judges); five recorded runs can be replayed under "Saved runs",
+Before v2.1 (D38-D48, Help Centre policy): 38 labelled cases 33/38 with 0 wrong payouts; blind sets
+16/20 and 13/20; a sealed set run once 16/23; photo sets 8/12 and 9/10; a cancellation-scope set
+7/10. Every miss and wrong payout, and the fix it led to, is in
+[docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md).
+
+**Live demo (2026-10-15):** http://43.134.17.192 on a Tencent Lighthouse server in Singapore. An
+access code is required (given to judges); the organisers' samples DISP-001..003 are in the case list,
+recorded runs can be replayed under "Saved runs",
 and "+ New case" / "Copy & edit" build a new case (trip, profiles, chat, rules, photos) to run.
 Walkthrough: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Deployment: [deploy/README.md](deploy/README.md).
 
@@ -79,7 +83,7 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 
 | Agent | Role |
 |-------|------|
-| **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles) produce facts, conflicts and data gaps, each with its source; rule checks measure the trip's time rules and report MET / NOT MET; photo checks read each photo's capture time and GPS against the trip, editing software, and the same file in another case |
+| **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles; the organisers' fare breakdown, surge log, recommended route and traffic incidents) produce facts, conflicts and data gaps, each with its source; v2.1 checks: surge rose without notice (s3.3), excess over the recommended route and its tolerance (s1.3), incidents on that route during the trip (s1.4), a message AND a call before a no-show cancel (s2.3); rule checks measure the trip's time rules and report MET / NOT MET; photo checks read each photo's capture time and GPS against the trip, editing software, and the same file in another case |
 | **ImageAnalyst** | A vision model (`qwen/qwen3.8-27b` on Groq) says what each photo shows: a car, a mess, whether it matches the claim, signs of editing or generation. It can only raise doubts, never approve money |
 | **Classifier** | Dispute type and urgency (P0-P3); safety and unclear cases go straight to a person |
 | **Case Brief** | One shared dossier (no LLM): facts, conflicts, the trip's rules, timeline and retrieved policy clauses |
@@ -87,7 +91,8 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 | **Fraud** | Deterministic risk signals and evidence-grounded chat labels; threats route separately to safety review |
 | **Policy** | Compliance check of both cases against the retrieved official Ryde policy (RAG) |
 | **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; names the facts its ruling turns on and the refund arithmetic; sees approved precedents |
-| **Code Judge** | Code, not a model: every decisive fact must be verified on a record nothing contradicts, and a refund must be plain arithmetic on record figures; a case with a doubted photo goes to a person whichever side the ruling favours; a failing draft goes back to the Judge once, then to a person |
+| **Code Judge** | Code, not a model: every decisive fact must be verified on a record nothing contradicts, and a refund must be plain arithmetic on record figures; a route refund is capped at the excess distance fare; an upheld driver claim must state its award; no payment rests on a doubted photo; a failing draft goes back to the Judge once, then to a person |
+| **Policy gate** | Policy v2.1's routing in code: safety incidents (s5.2, from words or driving-safety events), dispute value above S$50 or S$10-50 below 0.80 confidence (s6.1), a fraud flag below 0.95 confidence (s6.3), a rider contesting damage (s4.4) go to a person |
 | **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person |
 | **Executor** | Simulated refund / penalty and a notice to each party with its own outcome (EN/ZH/MS/TA) |
 
@@ -98,8 +103,9 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
    sets the number of rounds (default 1).
 2. **Rulings per ask, amounts from rules.** The Judge splits a filing into its separate asks and
    takes every amount from a specific policy rule applied to a specific figure.
-3. **Policy anchoring with verified citations.** Rulings may only cite clauses that retrieval
-   actually returned from the official Ryde policy texts. Invalid citations are caught in code.
+3. **Policy anchoring with verified citations.** The sections of Ryde Dispute Resolution Policy
+   v2.1 a case needs are given to every agent in full and cited by section; Help Centre clauses come
+   from retrieval. A ruling may only cite what it was given; invalid citations are caught in code.
 4. **Safe by default.** Safety cases, missing data, contradicted payouts, discretionary refunds and
    high-severity fairness findings go to a person instead of being executed.
 5. **Code checks the Judge.** The model does not check itself: code verifies the facts a ruling
@@ -120,6 +126,7 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 | Orchestration | LangGraph state graph (`src/core/workflow.py`) |
 | LLM | `LLM_PROVIDER`: Groq or Cerebras (`gpt-oss-120b`), Google Gemini, or Tencent Hunyuan (TokenHub). `LLM_FALLBACK_PROVIDERS` tries backups in order |
 | Vision | `qwen/qwen3.8-27b` on Groq for photo descriptions; Pillow reads and writes photo EXIF |
+| Governing policy | Ryde Dispute Resolution Policy v2.1 (`data/policies/governing/`), sections selected per case in code (`src/core/governing_policy.py`) |
 | Policy retrieval | Qdrant Cloud hybrid search (dense `bge-base-en-v1.5` + BM25 via fastembed, RRF fusion; collection `ryde_policies_official`); local ChromaDB as an alternative |
 | Tencent Cloud | ADP (Agent Development Platform) policy assistant on Hunyuan hy3, built over the same official policy files (`scripts/adp/`) |
 | Records | SQLAlchemy store: SQLite locally, Postgres (Supabase) via `STORE_URL` / `DATABASE_URL` |
@@ -208,7 +215,8 @@ python -m pytest -q                                         # offline unit tests
 ```
 
 Each run writes `data/eval/<timestamp>/report.html`, `results.csv` and one trace per case. Evals
-never use fallback providers, so a run never mixes models. Latest results (D38-D48):
+never use fallback providers, so a run never mixes models. Results under Policy v2.1 are in the
+status table above (D50); earlier results (D38-D48, before v2.1):
 
 | Set | Cases | Correct | Wrong payouts | Run |
 |-----|-------|---------|---------------|-----|
@@ -243,9 +251,11 @@ RydeResolve-Agent/
 │   └── config.py
 ├── frontend/          # dashboard: index.html, dispute.js, case_editor.js, review desk
 ├── data/
-│   ├── policies/official/   # verbatim official Ryde policy texts (retrieval source)
+│   ├── policies/governing/  # Ryde Dispute Resolution Policy v2.1 (the organisers' policy)
+│   ├── policies/official/   # verbatim Ryde Help Centre texts (retrieval source)
+│   ├── Dispute_format/      # the organisers' samples DISP-001..003
 │   ├── mock_disputes/       # demo disputes with platform data
-│   ├── eval_cases/          # held-out, sealed, fresh, photo and fraud case sets
+│   ├── eval_cases/          # held-out, sealed, fresh, photo, fraud, policy_v21, official_format
 │   ├── evidence_samples/    # photo library (SOURCES.json) and the stamped case photos
 │   └── eval_answer_keys.json
 ├── scripts/           # eval, index_policies, adp/ (Tencent ADP), migrate_store, seed_people, ...
@@ -262,7 +272,7 @@ RydeResolve-Agent/
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/05_NEXT_STEPS.md](docs/05_NEXT_STEPS.md) | Remaining work before submission |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D49) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D50) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 8-minute demo walkthrough: five recorded runs and a live case-editor run |
 | [deploy/README.md](deploy/README.md) | Running the service on a Linux server (systemd + Caddy) |

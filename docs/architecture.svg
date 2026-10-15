@@ -34,22 +34,22 @@
 
   <!-- Title -->
   <text x="25" y="48" class="h">RydeResolve: multi-agent dispute resolution</text>
-  <text x="25" y="74" class="sub">Rider and driver advocates argue the case, a Judge rules, a Fairness audit decides whether the ruling may execute or must go to a person.</text>
+  <text x="25" y="74" class="sub">Rider and driver advocates argue the case, a Judge rules under Ryde Dispute Resolution Policy v2.1, and code decides whether the ruling may execute or must go to a person.</text>
 
   <!-- Inputs -->
   <rect x="25" y="110" width="360" height="104" rx="8" class="data"/>
   <text x="41" y="136" class="t">Dispute filed</text>
   <text x="41" y="156" class="s">by the rider or the driver, free text, + photos</text>
-  <text x="41" y="174" class="s">+ Ryde platform data (mock API): trip, GPS,</text>
-  <text x="41" y="190" class="k">chat, payment, app events, profiles, trip policy</text>
-  <text x="41" y="206" class="k">or built / copied in the dashboard's case editor</text>
+  <text x="41" y="174" class="s">+ platform records in the organisers' format:</text>
+  <text x="41" y="190" class="k">trip, GPS, chat, events, fare breakdown, surge log,</text>
+  <text x="41" y="206" class="k">recommended route, traffic; analysis sections removed</text>
 
   <!-- Policy RAG -->
   <rect x="425" y="110" width="510" height="104" rx="8" class="code"/>
-  <text x="441" y="136" class="t">Policy knowledge base (RAG)</text>
-  <text x="441" y="158" class="s">Ryde's official policy text, word for word (22 sources)</text>
-  <text x="441" y="178" class="s">hybrid search: bge-base embeddings + BM25, Qdrant</text>
-  <text x="441" y="200" class="k">sections tagged by dispute type and audience</text>
+  <text x="441" y="136" class="t">Policy: Dispute Resolution Policy v2.1 + Help Centre</text>
+  <text x="441" y="158" class="s">v2.1 (governing): the sections a case needs, in full, cited by §</text>
+  <text x="441" y="178" class="s">Help Centre text (22 sources): hybrid search, bge-base + BM25, Qdrant</text>
+  <text x="441" y="200" class="k">v2.1 takes precedence; the trip's own rules set its figures</text>
 
   <!-- Fraud agent -->
   <rect x="975" y="110" width="390" height="104" rx="8" class="llm"/>
@@ -61,11 +61,12 @@
   <rect x="25" y="290" width="160" height="200" rx="8" class="code"/>
   <text x="39" y="318" class="t">1  Collector</text>
   <text x="39" y="344" class="s">Tools over GPS, fare,</text>
-  <text x="39" y="362" class="s">chat, app events,</text>
-  <text x="39" y="380" class="s">profiles, trip time rules</text>
-  <text x="39" y="406" class="s">→ facts, conflicts,</text>
-  <text x="39" y="424" class="s">data gaps, rule MET /</text>
-  <text x="39" y="442" class="s">NOT MET, with sources</text>
+  <text x="39" y="362" class="s">chat, events, profiles;</text>
+  <text x="39" y="380" class="s">surge notified? excess</text>
+  <text x="39" y="398" class="s">vs recommended route,</text>
+  <text x="39" y="416" class="s">traffic, s2.3 contact</text>
+  <text x="39" y="442" class="s">→ facts, conflicts, gaps,</text>
+  <text x="39" y="460" class="s">MET / NOT MET, sources</text>
 
   <rect x="225" y="290" width="160" height="200" rx="8" class="llm"/>
   <text x="239" y="318" class="t">2  Classifier</text>
@@ -108,15 +109,15 @@
   <text x="989" y="442" class="s">→ verdict, confidence</text>
 
   <rect x="1185" y="290" width="180" height="200" rx="8" class="code"/>
-  <text x="1199" y="318" class="t">6  Code Judge + audit</text>
-  <text x="1199" y="344" class="s">Code: decisive facts</text>
-  <text x="1199" y="362" class="s">verified, refund =</text>
-  <text x="1199" y="380" class="s">record figures; fail</text>
-  <text x="1199" y="398" class="s">→ 1 remand → person</text>
-  <text x="1199" y="416" class="s">doubted photo → person,</text>
-  <text x="1199" y="434" class="s">whichever side it favours</text>
-  <text x="1199" y="458" class="s">+ Fairness checks and</text>
-  <text x="1199" y="476" class="s">LLM review of bias</text>
+  <text x="1199" y="318" class="t">6  Code checks</text>
+  <text x="1199" y="342" class="s">Code Judge: facts verified,</text>
+  <text x="1199" y="358" class="s">refund from records (route:</text>
+  <text x="1199" y="374" class="s">excess distance fare only),</text>
+  <text x="1199" y="390" class="s">no pay on a doubted photo</text>
+  <text x="1199" y="410" class="s">Policy v2.1 gate: safety,</text>
+  <text x="1199" y="426" class="s">value &gt; S$50, fraud flag,</text>
+  <text x="1199" y="442" class="s">contested damage → person</text>
+  <text x="1199" y="464" class="s">+ Fairness audit</text>
 
   <rect x="1405" y="290" width="170" height="200" rx="8" class="code"/>
   <text x="1419" y="318" class="t">7  Executor</text>
@@ -161,9 +162,9 @@
   <!-- Human review and learning loop -->
   <rect x="225" y="620" width="710" height="110" rx="8" class="hum"/>
   <text x="241" y="648" class="t">Human review queue</text>
-  <text x="241" y="672" class="s">Gets every case the system should not decide alone: safety (P0), unclear type, a node error,</text>
-  <text x="241" y="692" class="s">a deciding fact nobody can verify, a doubted photo, a draft that fails the code Judge twice,</text>
-  <text x="241" y="712" class="s">a contradicted fee, refunds only Ryde's discretion could set. The review desk shows the full case.</text>
+  <text x="241" y="672" class="s">Gets what v2.1 and the checks keep from AI: safety (s5.2), a dispute value above S$50 (s6.1),</text>
+  <text x="241" y="692" class="s">a fraud flag without 95% confidence, a rider contesting damage, an unverifiable deciding fact,</text>
+  <text x="241" y="712" class="s">a doubted photo, a draft failing the code Judge twice. The review desk shows the full case.</text>
 
   <rect x="975" y="620" width="390" height="110" rx="8" class="code"/>
   <text x="991" y="648" class="t">Precedents (learning loop)</text>
@@ -202,6 +203,6 @@
 
   <text x="25" y="838" class="s">Orchestration: LangGraph (every node fails safe to human review) · LLM: gpt-oss-120b (Cerebras or Groq) · Vision: qwen3.8-27b (Groq) · Backend: FastAPI · Vector store: Qdrant</text>
   <text x="25" y="860" class="s">Observable: every agent's input, output and LLM call is streamed live to the dashboard as an inter-agent trace; a case editor builds new cases to try.</text>
-  <text x="25" y="882" class="s">Evaluated offline: 38 answer-keyed cases 33/38 with 0 wrong payouts; a fresh blind set 16/20, 0 wrong payouts; a sealed set run once 16/23, 1 wrong payout.</text>
-  <text x="25" y="904" class="s">Blind photo sets: 8/12 (1 wrong payout, fixed: a doubted photo now goes to a person), then 9/10 with none. Cancellation-scope set 7/10 (2 wrong payouts).</text>
+  <text x="25" y="882" class="s">Under Policy v2.1: organisers' samples DISP-001..003 3/3; blind sets 10/12 and 25/30 (official format); 52-case regression 44/52, 0 wrong payouts.</text>
+  <text x="25" y="904" class="s">Before v2.1: 38 keyed cases 33/38, blind sets 16/20 and 13/20, sealed set 16/23, photo sets 8/12 and 9/10. Every miss and wrong payout is logged in docs/08.</text>
 </svg>

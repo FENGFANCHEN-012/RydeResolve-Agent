@@ -13,33 +13,30 @@ every one. That takes 24 to 72 hours, and two agents can rule differently on the
 
 RydeResolve is a team of AI agents that settles these disputes in about a minute and a half. A rider
 advocate and a driver advocate each build their side's case from the platform records and Ryde's
-policy. A judge weighs both and rules, with a confidence score and its reasons. Photos are checked too. And
-then code, not the model, checks the ruling before any money moves.
+policy. A judge weighs both and rules under the organisers' Dispute Resolution Policy, with a confidence score
+and its reasons. Photos are checked too. And then code, not the model, checks the ruling before any
+money moves, and applies the policy's rules on what must go to a person.
 
 Our rule is simple: if the system cannot prove its ruling from the records, a person decides.
 
-**[Dashboard. Saved runs: demo-1-RD-001]**
+**[Dashboard. Saved runs: demo-7-DISP-001]**
 
-Here is a rider who says the driver missed the exit on the AYE. The fare was eighteen dollars twenty
-instead of the fourteen fifty quoted.
+This is the organisers' own sample. A rider going to Changi says the driver took a much longer route
+without telling her. The evidence collector reads the records: four point three kilometres over the
+recommended PIE route, and the fare breakdown prices that extra distance at three dollars forty-four.
+It also finds a vehicle fire on the PIE during the trip, right on the recommended route.
 
-The evidence collector reads the GPS, the fare and the app events with code tools, and every finding
-names the record it came from. It finds the route-deviation alert: 10.4 kilometres against 8.2 planned.
+**[Debate panel, then Judge]**
 
-**[Debate panel]**
+So the reroute was justified, but the rider asked at 13:24 and the driver never explained. Policy v2.1
+says exactly what that means: refund the excess distance fare, not the tolls or the time. The judge
+rules three dollars forty-four, citing sections 1.2 and 1.3. Code checks the facts and the amount,
+and the policy gate confirms an AI may decide this one. Done, with no human.
 
-The two advocates argue. Notice the driver's side does not deny it: the driver admitted the missed
-exit in the chat.
+**[Saved runs: demo-6-DISP-003]**
 
-**[Judge, then Code Judge]**
-
-The judge upholds the claim: a refund of three dollars seventy, confidence 0.92. Now the code judge
-checks it. Is every fact the ruling rests on verified, on a record nothing contradicts? Is three
-seventy plain arithmetic on figures in the records, eighteen twenty minus fourteen fifty? Yes. The
-fairness audit passes, and both rider and driver are told the outcome.
-
-This is the common path. In our blind tests, 82 percent of standard disputes closed like this, with no
-human.
+Their surge sample: the surge rose to one point five before pickup, and the log says the rider was
+never told. Four dollars fifty, all of it surge, refunded under section 3.3.
 
 **[Saved runs: demo-2-F2-17]**
 
@@ -85,7 +82,7 @@ person, whichever side it would favour.
 
 You can try this yourself. I copy the genuine case, move the photo's time to half an hour before the
 pickup, and save it as a new case. Run it: the collector flags a photo taken before the trip began,
-and instead of charging the rider, the case goes to a person. Anyone can build a case here, with the
+and the rider is not charged: no payment can rest on a doubtful photo. Anyone can build a case here, with the
 trip, both profiles, both sides' chat, the rules and the photos, and watch every agent work on it.
 
 **[Saved runs: demo-3-SI-001]**
@@ -97,8 +94,8 @@ automatic refund. Safety is never automated.
 **[README results table]**
 
 How do we know it works? We test on cases with known answers, including sets written by another model
-that never saw our code, and a sealed set we ran once and never tuned on. 102 of 133 rulings were
-correct. Most misses were cases handed to a person, which costs time, not money. There were five
+that never saw our code, and a sealed set we ran once and never tuned on. Under the organisers'
+policy, all three of their samples are right, and 44 of 52 earlier cases re-run with no wrong payout. Most misses were cases handed to a person, which costs time, not money. There were five
 wrong payouts, and one ruling that left out the amount. The largest was a hundred-dollar refund on a
 doubtful photo; that is why every doubted photo now goes to a person, and on a new photo set after
 the fix, none slipped through. We publish every miss; the two newest are still open.
