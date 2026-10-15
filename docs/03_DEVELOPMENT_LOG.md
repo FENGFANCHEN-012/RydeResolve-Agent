@@ -1,9 +1,12 @@
 # Development Log — Key Milestones
 
-> **Last updated**: 2026-10-05
+> **Last updated**: 2026-10-15
 >
 > This log records the key milestones, decisions, problems and next steps of every session.
-> Latest update adds Session 6 (2026-10-02 – 10-05): ask-based labels, payout guards, Judge reasoning principles, Supabase record store, rider/driver history, LLM provider fallback, regression run 31/33 and the merge into `main` (PR #18).
+> Every change, with how it was measured, is in `08_DESIGN_DECISIONS.md` (D1-D52b); this log is the
+> session-level summary. Latest update adds Session 7 (2026-10-06 – 10-09: fraud agent, experiments,
+> adaptive triage) and Session 8 (2026-10-10 – 10-15: code Judge, rule checks, blind and sealed sets,
+> photos, Policy v2.1, live server, precedent selection, notices, chat tone).
 
 ---
 
@@ -458,72 +461,69 @@ Short version; details and measured effects in [08_DESIGN_DECISIONS.md](08_DESIG
 
 ---
 
-## Current Pipeline State (LangGraph, `src/core/workflow.py`, updated 2026-10-05)
+## Current Pipeline State (LangGraph, `src/core/workflow.py`, updated 2026-10-15)
 
 ```
-Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classifier]
-                    |
-             [Case Brief]  <- no LLM: facts, case rules, timeline, base clauses
-                    |         (complaint search + type topics + data-triggered topics, tag-ranked)
-   ┌────────────────┼────────────────┐
-   |                |                |
-[Passenger Agent]  [Driver Agent]  [Policy Agent]   <- all read the same brief + clauses
-   |  policy_requests (catalogue topics) -> shared pool
-   └────────────────┼────────────────┘
-                    |
-            [Debate Engine]
-                    |
-            [Arbitrator]  <- brief first; rules per ask, label from the asks
-                    |
-            [Fairness Agent]  <- deterministic checks (decisive_evidence_gap, fee_basis_not_met,
-                    |            refund_beyond_disputed_amount, refund basis) + LLM review; can BLOCK
-          Confidence / human-review routing
-                    |
-            [Executor]  <- simulated actions, one notice per party; rulings, traces and
-                           audit chain in the record store (SQLite or Supabase Postgres)
+Report -> [Collector] deterministic tools: facts / conflicts / gaps / rule checks / photo file checks
+             |  [ImageAnalyst] vision model describes photos (can only raise doubts)
+             |  [ChatTone] code labels each chat message; a model re-checks doubtful ones
+             |             (reviewers and notice wording only, never an agent input)
+          [Classifier] type + urgency P0-P3 ---- safety / legal (P0) ----> [Safety] -> a person
+             |
+          [Case Brief] no LLM: facts, the trip's rules, timeline, Policy v2.1 sections and its
+             |          official precedents 7.1-7.3 for this dispute type
+          [Fraud] risk signals and pair history (Judge and Fairness only)
+             |
+   [Rider advocate]  [Driver advocate]  [Policy]      one round; more for complex cases
+             |
+          [Judge] per-ask ruling, amount arithmetic, confidence, decisive facts, followed precedents
+             |
+          [Code Judge] facts on uncontradicted records, amount adds up; one remand, then a person
+             |
+          [Policy v2.1 gate] sections that must go to a person
+             |
+          [Fairness] deterministic checks + LLM review; high = escalate, medium = note
+             |
+          [Executor] simulated actions; one notice per party, four languages
 ```
+
+Every ruling, review and precedent change is written to the record store (SQLite or Postgres) with
+a hash-chained audit log. Escalated cases go to the review desk (`frontend/review.html`).
 
 ---
 
-## Open Issues (updated)
+## Open Issues (updated 2026-10-15)
 
 | # | Issue | Priority | Status |
 |---|-------|----------|--------|
-| 1 | ~~Arbitrator is still a stub~~ | 🔴 P0 | ✅ Done (`722e3b9`) |
-| 2 | ~~Frontend has no dispute dashboard~~ | 🔴 P0 | ✅ Done (`2ed78dc`, with live trace) |
-| 3 | ~~Executor has no multilingual notification~~ | 🟠 P1 | ✅ Done (`a0bab8f`, actions still simulated) |
-| 4 | ~~Smart Chunker not integrated into Indexer~~ | 🟡 P2 | ✅ Replaced by section chunking (`6769b11`) |
-| 5 | BM25 index not cached | 🟡 P2 | Not started |
-| 6 | Demo script not written | 🟡 P2 | Not started |
-| 7 | ~~Architecture diagram not done~~ | 🟡 P2 | ✅ Done (`docs/architecture.svg`) |
-| 8 | Reword Ryde API as "simulated" | 🟢 Easy | To do |
-| 9 | ~~Teammate's `DESIGN.md` + frontend CSS uncommitted~~ | 🟡 | ✅ Committed (`722e3b9`) |
-| 10 | ~~Groq provider + citation bug fix uncommitted~~ | 🔴 P0 | ✅ Committed |
-| 11 | ~~Collector tools uncommitted~~ | 🟠 P1 | ✅ Committed and merged |
-| 12 | ~~Local changes overlap origin PRs #10–#13~~ | 🔴 P0 | ✅ Synced and merged cleanly |
-| 13 | ~~Cloud vector DB~~ | 🟠 P1 | ✅ Qdrant Cloud, hybrid search (Node 30) |
-| 14 | ~~Evaluation plan phase 1~~ | 🟠 P1 | ✅ Done; full runs D15–D19 |
-| 15 | `fairness.py` change needs Yang Shuo's review | 🟡 | To notify (now merged in PR #18) |
-| 16 | `calculate_confidence()` exists but is never called; the journal describes it as used | 🟡 | Wire in or reword |
-| 17 | Sealed set run once before submission | 🔴 P0 | Before 16 Oct |
-| 18 | Live demo deployment (bonus) | 🟠 P1 | Not started |
+| 1 | Demo video | 🔴 P0 | Recording 16 Oct (`DEMO_NARRATION.md`, about 7.9 min of a 5-8 min limit) |
+| 2 | Submission form | 🔴 P0 | Due 16 Oct, with the demo access code |
+| 3 | Saved demo runs predate D51/D52 (no ChatTone step, no notice opening line) | 🟠 P1 | A new saved run needs a small paid run |
+| 4 | No precedent is active; the D51 selection is not measured on rulings | 🟠 P1 | Needs the release-gate eval (paid) |
+| 5 | Chat tone not scored on a labelled blind set of real chats | 🟡 P2 | D52b scores are on our own sentences |
+| 6 | Older eval sets (fresh_sonnet, images, photo_side, cancel_scope, discretion, fraud, stress) not re-run on the final code | 🟡 P2 | Their published scores are pre-v2.1 |
+| 7 | Route baseline check (OSRM) | 🟡 P2 | Parked: mock routes are shorter than real roads |
+| 8 | Git history scrub (an e-mail address and co-author lines) | 🟢 | Parked; needs team coordination and a force-push |
+| 9 | ~~Live demo deployment~~ | | ✅ Tencent Lighthouse, Caddy, systemd (D44) |
+| 10 | ~~Sealed set run once~~ | | ✅ 16/23 (D41) |
+| 11 | ~~Fraud agent, image analysis, learning loop~~ | | ✅ D20-D22, D46-D47, D45 (gated) |
+| 12 | ~~`calculate_confidence()` unused~~ | | Kept in `src/core/confidence.py`; the Judge states its confidence and the code Judge and gates check the ruling |
 
 ---
 
-## Code Statistics (updated 2026-10-05, origin/main)
+## Code Statistics (updated 2026-10-15, origin/main)
 
 | Metric | Value |
 |--------|-------|
-| Python files (src + scripts) | 73 |
-| Test files | 25 |
-| Local tests | 368 (all pass offline) |
-| Total lines of code (py/js/html/css) | ~22,900 |
-| Git commits (main) | 115 |
-| Agents implemented | 9 (Collector, Classifier, Case Brief, Rider, Driver, Policy, Judge, Fairness, Executor) |
-| Labelled eval cases | 33 (14 dev + 19 held-out) + 9 sealed + 4 fraud |
-| Mock disputes | 13 (DISP-002 format) |
-| Official policy documents | 23 files in `data/policies/official/` |
-| Frontend | `index.html` + `dispute.js` / `dispute.css` (dispute dashboard + live trace) |
+| Python files (src + scripts) | 98 |
+| Test files | 41 (Python and frontend) |
+| Local tests | 638 Python + 28 frontend, all pass offline |
+| Total lines of code (py/js/html/css) | ~31,400 |
+| Git commits (main) | 215 |
+| Agents and checks | Collector, ImageAnalyst, ChatTone, Classifier, Safety, Case Brief, Fraud, Rider, Driver, Policy, Judge, Code Judge, Policy gate, Fairness, Executor |
+| Results (README) | organisers' samples 3/3; blind set in their format 25/30; regression 44/52 with no wrong payout; sealed 16/23 (D41) |
+| Official policy documents | 24 files in `data/policies/official/`; Policy v2.1 governing |
+| Frontend | dashboard (`index.html`, `dispute.js`), case editor, review desk (`review.html`) |
 
 ---
 
@@ -540,34 +540,25 @@ Report -> [Collector] (deterministic tools: facts / conflicts / gaps) -> [Classi
 
 ---
 
-## Session Handoff (for the next session, updated 2026-10-05)
+## Session Handoff (for the next session, updated 2026-10-15)
 
-State: `main` holds everything (PR #18). Latest eval 31/33 (D19). Deadline 16 Oct 2026.
+State: `main` = `feature/rule-engine`, deployed on the Tencent Lighthouse server. Deadline 16 Oct 2026.
 
 ### 🚨 P0 — before submission
-1. README and docs match the code (done 2026-10-05: README, this log, next steps, eval plan)
-2. Submission draft: business value numbers (31/33, ~91 s, US$0.011 per case), open items
-3. CodeBuddy proof: add 1–2 screenshots of actual coding to `proof of usage of codebuddy/`
-4. Sealed set: run once, last (`data/eval_cases/sealed`), report it as the generalisation number
+1. Record the demo video from `DEMO_NARRATION.md` / `DEMO_SCRIPT.md` (saved runs demo-1 to demo-7)
+2. Submit the form (`SUBMISSION_FORM.md`) with the demo access code, not the admin code
 
-### 🟠 Bonus
-5. Live demo URL (Tencent Lighthouse + Docker + Postgres)
-6. Policy agent queries the Tencent ADP assistant; compare with our retriever
-7. Cover image 16:9, blurb under 10 words, optional 5–8 min demo video
-
-### 🟢 Cleanup
-8. `calculate_confidence()`: wire in or reword the journal
-9. Reword `ryde_api.py` as a "simulated integration contract"
-10. Git history scrub (parked; needs team coordination and a force-push)
+### 🟠 If time allows
+3. One new saved run that shows the ChatTone step and the review-desk tags (small paid run)
+4. Release-gate eval of the precedent selection (D51), paid; ask before running
 
 ### Key files
 - `src/core/workflow.py` — LangGraph pipeline; `src/core/llm_client.py` — providers and fallback
-- `src/agents/arbitrator.py` — Judge; `src/agents/fairness.py` — guards and review
+- `src/agents/arbitrator.py` — Judge; `code_judge.py` — code checks; `policy_gates.py` — v2.1 gate
+- `src/agents/fairness.py` — audit; `chat_signals.py` — chat tone; `executor.py` — notices
 - `src/agents/case_brief.py`, `src/agents/collector_tools.py` — shared dossier and evidence tools
-- `src/store/` — record store, audit chain, precedents, people history
-- `scripts/eval.py` — evaluation; `data/eval_answer_keys.json` — answer keys
-- `docs/08_DESIGN_DECISIONS.md` — every change with its measured effect (D1–D19)
-
+- `src/rag/precedents.py` — precedent selection; `src/store/` — records, audit chain, precedents
+- `scripts/eval.py` — evaluation; `docs/08_DESIGN_DECISIONS.md` — every change (D1–D52b)
 
 ## 2026-10-07 — Local demo repairs (uncommitted, fix/demo-reliability)
 
@@ -591,3 +582,40 @@ query returned Unauthenticated; Cerebras key is not configured. No fallback was 
 No new full accuracy claim, sealed-set run, public deployment or browser layout validation.
 The next priorities are working provider quota, shared-store connectivity, review UI and final
 submission evidence. See the repair report exported in the 2026-10-07 Codex chat outputs.
+
+
+## Session 7: 2026-10-06 – 2026-10-09 (billy; fraud agent, experiments, adaptive triage)
+
+- **Fraud & Bad-Faith agent** (D20-D22): deterministic risk signals and an evidence-grounded chat
+  labeller; a contradiction must name the claim words it contradicts; threats go to safety review,
+  not fraud. Seen by the Judge and Fairness only, never by the advocates.
+- **Local demo repairs** (10-07, entry above): stream, escaping, access and storage fixes.
+- **Experimental architecture, not adopted** (D23-D31): advocate-chosen lookups with evidence pools,
+  adaptive orchestration and a structured Judge scored 31-32/37 against 35/37 at +42-47% tokens, so
+  `main` kept the simpler pipeline; the branches keep the records.
+- **Adaptive triage** (D32): complexity x risk decides debate rounds and audit depth; Fairness adds
+  up the disputed total. Regression 35/38, 0 wrong payouts executed, median 92 s per case.
+
+## Session 8: 2026-10-10 – 2026-10-15 (billy; branch `feature/rule-engine`, merged to `main`)
+
+- **10-11 — Judge discipline.** One debate round by default; an objection round tested and left off
+  (D33-D34); a Clerk agent rejected, every case rule given a scope text instead (D35-D36); Fairness
+  sends a discretionary partial refund to a person (D37). **Code Judge** (D38): each decisive fact must
+  sit on an uncontradicted record and a refund must be arithmetic on record figures; one remand, then
+  a person. Wrong payouts executed on its test set: 4 -> 1.
+- **10-12 — Rule checks and fresh tests.** Code evaluates the trip's time rules (D39: 8/10, was
+  5/10). A fresh blind set (D40, 16/20, no wrong payout) and the sealed set, run once (D41, 16/23).
+  The one sealed wrong payout led to D42: a remand cannot pass by deleting the blocked record.
+- **10-13 — Live server and the learning loop.** Deployment faults the laptop did not show (D44).
+  First precedent test: no measurable gain, nothing released (D45). Precedent design (D43).
+- **10-14 — Photos and the organisers' format.** Code checks each photo's time, place, editing tag and
+  reuse; a vision model describes it and can only raise doubts (D46-D47). Case editor in the
+  dashboard (D49). The organisers' sample format and **Ryde Dispute Resolution Policy v2.1** become
+  governing (D50): samples 3/3, blind set in their format 25/30, regression 44/52 with no wrong payout.
+- **10-15 — Submission polish.** Secret scan of the full history (clean); historical plans and
+  unused files removed; Figure 1 redrawn. D51: precedents chosen by type, policy version and
+  principle, the Judge lists the ones it followed (checked by code), a Judge-only model switch and a
+  self-hosted provider, notices in four languages, data protection and cost in the docs. D52/D52b:
+  chat tone by code, doubtful messages re-checked by a model, shown on the review desk and used for
+  notice wording only; Fairness notes a ruling whose reasons lean on a party's manner.
+

@@ -120,7 +120,7 @@ TRTC ASR/TTS, and Tencent Cloud infrastructure.
 | Fraud & Bad-Faith Agent | Done: risk signals and pair history, seen by the Judge only | `src/agents/fraud.py` |
 | Image Analysis | Done: file checks in code plus a vision model that can only raise doubts | D46, D47 |
 | Learning Feedback Loop | Built, gated: a reviewer's ruling becomes a precedent only after an evaluation shows no harm; none released yet (D45) | `src/store/feedback.py` |
-| Notices and chat tone | Done: notices in four languages (D51); chat tone shown to reviewers and used for notice wording only (D52) | `src/agents/executor.py`, `chat_signals.py` |
+| Notices and chat tone | Done: notices in four languages (D51); chat tone by code, doubtful messages re-checked by a model, shown on the review desk and used for notice wording only (D52, D52b) | `src/agents/executor.py`, `chat_signals.py` |
 | CodeBuddy proof | Done | `proof of usage of codebuddy/` |
 | Blurb, cover image, description | Done | `docs/SUBMISSION_FORM.md` |
 

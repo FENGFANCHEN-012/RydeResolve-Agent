@@ -45,7 +45,10 @@ Pipeline (LangGraph, FastAPI, every step streamed live to the dashboard):
    without notice, excess over the recommended route, an incident on that route, a message and a
    call before a no-show cancel). The samples' own analysis sections are removed first. Photos are checked twice: code
    reads each photo's capture time and GPS against the trip, editing software and reuse in another
-   case; a vision model (qwen on Groq) says what the photo shows and can only raise doubts.
+   case; a vision model (qwen on Groq) says what the photo shows and can only raise doubts. Chat
+   tone: code labels each message (frustrated, angry, distress; agree, object), a model re-checks
+   only doubtful ones (sarcasm, negation, other languages). Tone goes to the reviewer and the notice
+   wording, never to the advocates or the Judge: who sounded angrier is not evidence.
 2. Classifier: dispute type and urgency; safety reports go straight to a person.
 3. Case Brief: one shared dossier for every agent, computed without an LLM: the v2.1 sections the
    case needs, in full, plus Help Centre clauses retrieved by hybrid search (Qdrant).
@@ -58,15 +61,18 @@ Pipeline (LangGraph, FastAPI, every step streamed live to the dashboard):
    must be arithmetic on record figures (a route refund no more than the excess distance fare); no
    payment rests on a doubted photo; a failing draft goes back to the Judge once, then to a person.
    A policy gate then applies v2.1's routing in code: safety incidents, disputes above S$50, a fraud
-   flag without 95% confidence and a rider contesting damage go to a person. Then a Fairness audit.
-8. Executor: simulated refund or penalty and a notice to each party (English, Chinese, Malay, Tamil).
+   flag without 95% confidence and a rider contesting damage go to a person. Then a Fairness audit,
+   which also notes a ruling whose reasons lean on a party's manner.
+8. Executor: simulated refund or penalty and a notice to each party (English, Chinese, Malay, Tamil);
+   an upset party's notice opens with one acknowledging line, the outcome unchanged.
 
 How prompts drive the AI: every agent has a narrow role, shared grounding rules (no invented
 evidence, amounts or policy; no protected characteristics) and a strict JSON output schema. Code
 parses each answer, drops any policy citation that was not retrieved, and checks the Judge's facts
 and arithmetic against the records before the next step sees it.
 
-Human in the loop: a review desk shows escalated cases with the full agent chain; reviewer
+Human in the loop: a review desk shows escalated cases with the full agent chain and each chat
+message's tone; reviewer
 decisions can become precedents only after approval and an evaluation gate. A case editor lets
 anyone build or copy a case (trip, profiles, both sides' chat, rules, photos) and watch it run.
 

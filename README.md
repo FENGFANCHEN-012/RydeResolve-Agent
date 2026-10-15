@@ -85,6 +85,7 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 |-------|------|
 | **Collector** | Deterministic tools over platform data (GPS, fare, chat, app events, profiles; the organisers' fare breakdown, surge log, recommended route and traffic incidents) produce facts, conflicts and data gaps, each with its source; v2.1 checks: surge rose without notice (s3.3), excess over the recommended route and its tolerance (s1.3), incidents on that route during the trip (s1.4), a message AND a call before a no-show cancel (s2.3); rule checks measure the trip's time rules and report MET / NOT MET; photo checks read each photo's capture time and GPS against the trip, editing software, and the same file in another case |
 | **ImageAnalyst** | A vision model (`qwen/qwen3.8-27b` on Groq) says what each photo shows: a car, a mess, whether it matches the claim, signs of editing or generation. It can only raise doubts, never approve money |
+| **ChatTone** | Labels each chat message's tone and key moments (agree, object, apology, promise) by code; a model re-checks only doubtful messages (possible sarcasm, a negated insult, a language the word lists barely cover). For the reviewer and the notice wording only, never an agent input |
 | **Classifier** | Dispute type and urgency (P0-P3); safety and unclear cases go straight to a person |
 | **Case Brief** | One shared dossier (no LLM): facts, conflicts, the trip's rules, timeline and retrieved policy clauses |
 | **Rider / Driver advocates** | Each builds its side's case from the brief and cites policy, then rebuts the other |
@@ -93,8 +94,8 @@ Vector source: [`docs/architecture.svg`](docs/architecture.svg).
 | **Judge** | Splits the filing into asks, rules on each with amounts from specific rules, gives confidence and reasons; names the facts its ruling turns on and the refund arithmetic; sees approved precedents |
 | **Code Judge** | Code, not a model: every decisive fact must be verified on a record nothing contradicts, and a refund must be plain arithmetic on record figures; a route refund is capped at the excess distance fare; an upheld driver claim must state its award; no payment rests on a doubted photo; a failing draft goes back to the Judge once, then to a person |
 | **Policy gate** | Policy v2.1's routing in code: safety incidents (s5.2, from words or driving-safety events), dispute value above S$50 or S$10-50 below 0.80 confidence (s6.1), a fraud flag below 0.95 confidence (s6.3), a rider contesting damage (s4.4) go to a person |
-| **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person |
-| **Executor** | Simulated refund / penalty and a notice to each party with its own outcome (EN/ZH/MS/TA) |
+| **Fairness** | Code checks (real citations, GPS gaps, fee basis, refund basis) plus an LLM grounding/bias review; any high-severity finding sends the case to a person; a ruling whose reasons lean on a party's manner gets a note for the reviewer |
+| **Executor** | Simulated refund / penalty and a notice to each party with its own outcome (EN/ZH/MS/TA); an upset party's notice opens with one acknowledging line |
 
 ### Key Innovations
 
@@ -249,10 +250,13 @@ What the system does today:
   ruling's fields only, so it cannot state an amount the ruling did not make. The dashboard shows it
   in English, Chinese, Malay or Tamil (`POST /api/notices`, no model call).
 - **Tone is read, never weighed.** Code labels each chat message's tone (calm, frustrated, angry,
-  abusive, distress) and key moments (agree, object, apology, promise), citing the message. Reviewers
-  see the tags in the case timeline and an upset party's notice opens with one acknowledging line; the
-  advocates and the Judge never get the labels, and Fairness flags a ruling on a fare, fee or refund
-  whose reasons lean on a party's manner (`src/agents/chat_signals.py`, D52).
+  abusive, distress) and key moments (agree, object, apology, promise), citing the message; a model
+  re-checks only the messages a word list may misread (sarcasm, negation, other languages), and its
+  answer is checked. Reviewers see the tags in the case timeline and on the review desk ("AI checked"
+  where the model relabelled), and an upset party's notice opens with one acknowledging line. The
+  advocates and the Judge never get the labels, and Fairness notes a ruling on a fare, fee or refund
+  whose reasons lean on a party's manner (`src/agents/chat_signals.py`, D52, D52b). On 34 test
+  messages: code alone 28/34, code plus model 29/34 with every upset message caught.
 - **A person decides what AI should not.** Safety reports, disputes above S$50, contested damage,
   doubted photos, low confidence and failed checks go to a person; the escalated party is told no
   money moves until a specialist reviews the case.
@@ -312,7 +316,7 @@ RydeResolve-Agent/
 ├── src/
 │   ├── agents/        # collector (+ collector_tools, photo_checks), image_analyst, classifier,
 │   │                  # case_brief, passenger, driver, policy, arbitrator (Judge), code_judge,
-│   │                  # fraud, fairness, executor
+│   │                  # fraud, fairness, executor, chat_signals (chat tone), safety, policy_gates
 │   ├── core/          # workflow (LangGraph), debate, llm_client, trace, policy_refs, confidence
 │   ├── rag/           # indexer, retriever, Qdrant hybrid search, policy topics, precedents
 │   ├── store/         # records DB, audit chain, feedback/precedents, rider/driver history
@@ -341,7 +345,7 @@ RydeResolve-Agent/
 | [docs/01_PROJECT_REQUIREMENTS.md](docs/01_PROJECT_REQUIREMENTS.md) | Competition brief and what it requires |
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D50) |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D52b) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 8-minute demo walkthrough: five recorded runs and a live case-editor run |
 | [deploy/README.md](deploy/README.md) | Running the service on a Linux server (systemd + Caddy) |
