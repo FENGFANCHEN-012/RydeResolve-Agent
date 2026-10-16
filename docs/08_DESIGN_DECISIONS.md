@@ -2177,3 +2177,16 @@ Why: the team asked for the description to follow the form's own structure.
 How it was checked: diff reviewed; architecture and measured figures unchanged word for word.
 
 Not done: nothing else in the form changed.
+
+## D62. Demo and administrator links in the README and submission form (2026-10-16)
+
+What: README "Live demo" now has a table with the demo dashboard (http://43.134.17.192, demo code)
+and the administrator review desk (http://43.134.17.192/review.html, admin code). The submission
+form lists both links; its stale "merge PR #24 into main first" note is removed (PR #24 is merged).
+
+Why: the team asked for both links on GitHub so judges can find the human review side.
+
+How it was checked: both URLs return HTTP 200 (16 Oct); the access codes themselves are not
+written anywhere in the repo.
+
+Not done: the GitHub repository "Website" field is not set.

@@ -129,9 +129,11 @@ Script `docs/DEMO_SCRIPT.md`, narration `docs/DEMO_NARRATION.md`.
 
 ## Project link (optional, earns bonus points)
 
-http://43.134.17.192 (access code: give the DEMO code, not the admin code)
+Demo: http://43.134.17.192 (demo code)
 
-Source code: https://github.com/FENGFANCHEN-012/RydeResolve-Agent (merge PR #24 into main first)
+Administrator review desk: http://43.134.17.192/review.html (admin code)
+
+Source code: https://github.com/FENGFANCHEN-012/RydeResolve-Agent
 
 ## Architecture diagram (must include, p.26)
 
