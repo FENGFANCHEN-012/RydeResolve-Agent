@@ -2190,3 +2190,15 @@ How it was checked: both URLs return HTTP 200 (16 Oct); the access codes themsel
 written anywhere in the repo.
 
 Not done: the GitHub repository "Website" field is not set.
+
+## D63. Demo video added to the repository (2026-10-16)
+
+What: the recorded demo (7:49, 20.6 MB) is committed as docs/demo/demo_video.mp4 and linked from
+the README "Live demo" section and the submission form.
+
+Why: the team asked for the video to be on GitHub next to the demo links.
+
+How it was checked: file size and duration read with ffprobe; under GitHub's 100 MB file limit, so
+no Git LFS needed.
+
+Not done: no subtitles file or thumbnail added.
