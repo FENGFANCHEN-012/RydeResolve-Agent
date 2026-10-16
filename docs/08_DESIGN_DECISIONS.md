@@ -2118,3 +2118,29 @@ Found, not fixed (pre-existing): money that the Judge puts in `compensation` tex
 correct old run) is executed but never checked by the Code Judge, and a driver's claimed fee has no
 structured amount field. A "N%" in a rule is not a figure as N/100. No ceil() for "every started
 minute". No full regression on this code.
+
+## D59. Full regression on D58 code: wrong executions; the "only facts the ruling needs" line removed (2026-10-16)
+
+What: removed D58's Judge prompt line "list only facts the ruling needs: do not add the absence of
+something nobody claimed". floor()/min() and the D58 code changes stay. Branch post-submission only;
+not pushed, not deployed (the submitted tag submission-2026-10-16 = fc6b422 still has the line).
+
+Why: full regression on fc6b422 (run in scratchpad reg58, 52 cases, KEY_4 then KEY_3, no precedents):
+verdict 45/52 (was 44/52), escalation 47/52, but five cases executed a wrong ruling: F2-12, F2-16 and
+F2-17 (all must go to a person) were decided automatically, RD-002 refunded S$3.10 (key: dismissed),
+F2-10 labelled upheld (amount right). In F2-17 and F2-16 the Judge's first draft no longer listed the
+questioned record (app_events[1]; the GPS conflict) among its decisive facts, so the Code Judge's fact
+check had nothing to catch: the D42 loophole, now at the first draft.
+
+How it was checked:
+- Fix on the five cases (KEY_7): F2-16 to a person, RD-002 right; F2-17 (S$5.00) and F2-12 still
+  executed; F2-10 still upheld.
+- Same two cases twice each on 35716de (this morning, before D55-D58): F2-17 executed once of two
+  (draft 2 passed after one remand), F2-12 executed once of two. So these wrong executions are not new
+  today: the 0 wrong payouts published for run 20261015-152935 came from one run per case, and the
+  data-gap cases fail the Code Judge only when the Judge happens to list the questioned record.
+- 660 Python tests pass. Spend about US$1.6 for the regression and US$0.2 for the checks.
+
+Not done: a code check that does not depend on the Judge listing the questioned record (e.g. a gap or
+conflict finding on a record the deciding rule reads sends the case to a person), repeated runs to
+measure how often each data-gap case executes, README/submission figures unchanged.
