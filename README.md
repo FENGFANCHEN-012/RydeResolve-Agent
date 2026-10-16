@@ -50,8 +50,14 @@ Before v2.1 (D38-D48, Help Centre policy): 38 labelled cases 33/38 with 0 wrong 
 7/10. Every miss and wrong payout, and the fix it led to, is in
 [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md).
 
-**Live demo (2026-10-15):** http://43.134.17.192 on a Tencent Lighthouse server in Singapore. An
-access code is required (given to judges); the organisers' samples DISP-001..003 are in the case list,
+**Live demo (2026-10-15)** on a Tencent Lighthouse server in Singapore:
+
+| Page | Link | Access code |
+|---|---|---|
+| Demo dashboard (run a dispute, watch the agents) | http://43.134.17.192 | demo code |
+| Administrator review desk (escalated cases, human rulings, precedents) | http://43.134.17.192/review.html | admin code |
+
+Access codes are given to judges and are not published here. On the dashboard, the organisers' samples DISP-001..003 are in the case list,
 recorded runs can be replayed under "Saved runs",
 and "+ New case" / "Copy & edit" build a new case (trip, profiles, chat, rules, photos) to run.
 Walkthrough: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Deployment: [deploy/README.md](deploy/README.md).
