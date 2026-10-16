@@ -86,7 +86,9 @@ runs (several sets written blind by another model, one sealed set run once):
   52-case regression) closed with no human, in about 89 seconds each.
 - Accuracy under v2.1: the organisers' samples DISP-001..003 all right; a 30-case blind set in their
   full format 25/30; 52 earlier cases re-run with keys re-checked against v2.1: 44/52 with no wrong
-  payout. Every miss was a case handed to a person, which costs review time, not money. Wrong
+  payout. Every miss was a case handed to a person, which costs review time, not money. Half of
+  those misses ran on a debate with one side's call failed (provider busy); with a retry added, 3 of
+  them came out right on re-run. Wrong
   payouts found along the way (before and during the v2.1 work) are published with their fixes.
 - Cost: about US$0.017 per dispute on gpt-oss-120b (Judge about 9,000 tokens in / 1,600 out; six
   other calls about 24,000 in / 6,000 out). At 1,000 disputes a day (an illustration, not a Ryde

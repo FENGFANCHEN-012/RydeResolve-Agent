@@ -37,7 +37,11 @@ run per case:
 | Regression: mock + held-out + fresh2 (52 earlier cases, keys re-checked against v2.1) | **44/52** | **0** |
 
 On the regression, 28 of the 36 disputes v2.1 lets AI decide (78%) closed with no human, in about
-89 seconds each; every miss was a case handed to a person. This is evaluation accuracy, not an
+89 seconds each; every miss was a case handed to a person. Seven of the 52 runs had an advocate turn
+that failed (provider busy or a reply cut at the token cap). After D53-D54 (retry once, else a person)
+those 7 were re-run: 3 of the 4 that were misses are now decided with the right verdict (F2-15 with
+too small an award, S$2.80 of S$8.80) and the 3 that were right stay right. 44/52 stays the measured
+figure; the other 45 cases were not re-run. This is evaluation accuracy, not an
 automatic resolution rate: a case sent to a person counts as a miss whenever the answer key says the
 system could have decided it.
 

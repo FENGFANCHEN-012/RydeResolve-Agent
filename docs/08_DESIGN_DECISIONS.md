@@ -1946,3 +1946,25 @@ escalating a failed opening and a missing rebuttal; the two analysis key-set tes
 Not done: the 7 affected cases were not re-run (paid, about US$0.15). With a retry the four misses may
 resolve, and the two right ones could instead go to a person if both tries fail; the published 44/52
 stays as measured until a re-run.
+
+### D54 continued: the 7 affected cases re-run (run 20261015-224515, 2026-10-15/16)
+
+Same model (Cerebras gpt-oss-120b, one key, no fallback), same answer keys, code with D53 and D54,
+one run each; about US$0.14. No advocate turn failed in any of the 7.
+
+| Case | Regression 152935 | Re-run 224515 |
+|---|---|---|
+| CR-001 | right | right (upheld, S$4.00) |
+| CR-002-C2 | right | right (upheld, S$4.00) |
+| FD-002-I2 | miss (to a person) | **right** (dismissed) |
+| FD-002-P2 | miss (to a person) | **right** (dismissed) |
+| F2-15 | miss (to a person) | **verdict right** (partially upheld) but the award is S$2.80 of the key's S$8.80: the Judge held that no S$6.00 cancellation fee is due because no driver arrival is recorded, the key says the fee applies after the 3-minute window |
+| FD-003 | right (to a person) | right (to a person) |
+| NS-002-B1 | miss (to a person) | miss (to a person): the debate was complete this time, Fairness raised 2 issues; a real miss, not a provider one |
+
+Reading: two of the four misses (FD-002-I2, FD-002-P2) came from the incomplete debate and are fixed
+by the retry; F2-15's verdict follows but its amount does not; NS-002-B1 is unrelated. The three right
+cases stay right. On verdicts the 52 would read 47/52 with these 7 replaced, but only the cases chosen
+for having a failed turn were re-run, so the published figure stays 44/52 (README notes the re-run).
+The F2-15 award (S$6.00 short for the driver) is an underpayment, recorded here; it is not counted
+in "wrong payouts", which the regression defines as money paid that the key does not allow.
