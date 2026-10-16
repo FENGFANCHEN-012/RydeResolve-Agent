@@ -1966,5 +1966,6 @@ Reading: two of the four misses (FD-002-I2, FD-002-P2) came from the incomplete 
 by the retry; F2-15's verdict follows but its amount does not; NS-002-B1 is unrelated. The three right
 cases stay right. On verdicts the 52 would read 47/52 with these 7 replaced, but only the cases chosen
 for having a failed turn were re-run, so the published figure stays 44/52 (README notes the re-run).
-The F2-15 award (S$6.00 short for the driver) is an underpayment, recorded here; it is not counted
-in "wrong payouts", which the regression defines as money paid that the key does not allow.
+The F2-15 award (S$6.00 short for the driver) executed automatically, so it is a wrong payout: had
+these re-run results replaced the originals, the regression would read 47/52 on verdicts with 1 wrong
+payout, not 0. The fee question (does the S$6.00 fee need a recorded arrival?) is open.
