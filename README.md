@@ -1,17 +1,5 @@
 # RydeResolve-Agent
 
-> Multi-Agent System for Automated Dispute Resolution on the Ryde Platform
->
-> **Competition**: Tencent Cloud AI CAN DO IT Hackathon Singapore 2026 — Digital Native Track (Ryde)
->
-> **Prize Pool**: SGD $17,000 (1st: $10,000 / 2nd: $5,000 / 3rd: $2,000)
->
-> **Challenge**: Multi-Agent Autonomous Dispute Resolution System
->
-> **Deadline**: 16 October 2026 | **Demo Day**: 3 November 2026
->
-> **Built with**: CodeBuddy (Tencent Cloud AI coding assistant)
-
 ## Overview
 
 RydeResolve-Agent settles ride disputes on **Ryde**, Singapore's first real-time carpooling
