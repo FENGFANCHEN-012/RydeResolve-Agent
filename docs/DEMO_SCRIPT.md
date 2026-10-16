@@ -115,7 +115,9 @@ The safety scan marks it P0 in under a second; it goes to a person now. "Safety 
 
 Show the results table from the README:
 - Under Policy v2.1: the organisers' samples 3/3; a 30-case blind set in their full format 25/30;
-  52 earlier cases re-run with keys re-checked against v2.1: 44/52, 0 wrong payouts.
+  52 earlier cases re-run with keys re-checked against v2.1: 44/52, 0 wrong payouts in that run (15 Oct);
+  on the submitted code (16 Oct) 45/52, but 5 wrong automatic rulings, 3 of them data-problem cases
+  the Code Judge missed because the Judge did not list the questioned record (D59; next fix).
 - Before v2.1: 38 dev and held-out cases: 33 correct, 0 wrong payouts.
 - Blind sets written by another model that never saw the code: 16/20 and 13/20; a sealed set run
   once: 16/23. Each wrong payout led to a logged fix and a new blind set written for it.

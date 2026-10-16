@@ -11,7 +11,7 @@ place, editing, reuse) and by a vision model. Code checks (including v2.1's rout
 Fairness review decide whether the ruling is executed automatically or sent to a person. Every step is traced and
 visible live.
 
-**Status (2026-10-15):** submission candidate. Since D50 the system reads the organisers' sample
+**Status (2026-10-16):** submitted; one known gap is open (data-problem records, D59, below). Since D50 the system reads the organisers' sample
 format (DISP-001..003: fare breakdown, surge log, recommended route, traffic incidents) and rules
 under their Ryde Dispute Resolution Policy v2.1, whose routing rules (safety, dispute value above
 S$50, fraud flags, contested damage) are enforced in code. Evaluated on Cerebras `gpt-oss-120b`, one
@@ -33,6 +33,17 @@ right (D54). 44/52 stays the measured
 figure; the other 45 cases were not re-run. This is evaluation accuracy, not an
 automatic resolution rate: a case sent to a person counts as a miss whenever the answer key says the
 system could have decided it.
+
+**Re-run on the submitted code (16 Oct, D55-D59):** the same 52 cases, one run each, gave 44/52 ->
+**45/52** verdicts (rate-based refunds such as per-minute stop credits now pass the code checks,
+D57-D58), but **5 automatic rulings were wrong**: F2-12, F2-16 and F2-17 (a record with a logged data
+problem; they must go to a person), RD-002 (S$3.10 refunded, key: no refund) and F2-15 (S$2.80 of
+S$8.80, as in D54). A prompt line added that day made the Judge leave the questioned record out of its
+facts; it is removed (D59), and on re-run F2-16 and RD-002 are right again. Running F2-12 and F2-17
+twice each on the code from before that day shows the same slip once in two: the Code Judge catches a
+questioned record only when the Judge lists it among its facts. So "no wrong payout" above held for
+one run per case, not reliably. The next fix is a code check on the questioned record itself, not on
+what the Judge lists (D59).
 
 Before v2.1 (D38-D48, Help Centre policy): 38 labelled cases 33/38 with 0 wrong payouts; blind sets
 16/20 and 13/20; a sealed set run once 16/23; photo sets 8/12 and 9/10; a cancellation-scope set

@@ -86,10 +86,13 @@ runs (several sets written blind by another model, one sealed set run once):
   52-case regression) closed with no human, in about 89 seconds each.
 - Accuracy under v2.1: the organisers' samples DISP-001..003 all right; a 30-case blind set in their
   full format 25/30; 52 earlier cases re-run with keys re-checked against v2.1: 44/52 with no wrong
-  payout. Every miss was a case handed to a person, which costs review time, not money. Half of
-  those misses ran on a debate with one side's call failed (provider busy); with a retry added, 3 of
-  them got the right verdict on re-run, one with too small an award (S$2.80 of S$8.80). Wrong
-  payouts found along the way (before and during the v2.1 work) are published with their fixes.
+  payout in that run (15 Oct). Half of those misses ran on a debate with one side's call failed
+  (provider busy); with a retry added, 3 of them got the right verdict on re-run, one with too small
+  an award (S$2.80 of S$8.80). A re-run on the submitted code (16 Oct) gave 45/52, but 5 automatic
+  rulings were wrong, 3 of them cases with a logged data problem that must go to a person: the Code
+  Judge catches a questioned record only when the Judge lists it, so the slip happens about one run
+  in two on those cases. One cause added that day is removed; the next fix checks the questioned
+  record in code (D59). Every wrong payout found, and its fix, is published.
 - Cost: about US$0.017 per dispute on gpt-oss-120b (Judge about 9,000 tokens in / 1,600 out; six
   other calls about 24,000 in / 6,000 out). At 1,000 disputes a day (an illustration, not a Ryde
   figure): about US$520 a month as today; about US$1,400-2,100 with the Judge on Claude Sonnet 5.5;

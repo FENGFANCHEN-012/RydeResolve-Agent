@@ -492,14 +492,17 @@ a hash-chained audit log. Escalated cases go to the review desk (`frontend/revie
 
 ---
 
-## Open Issues (updated 2026-10-15)
+## Open Issues (updated 2026-10-16)
 
 | # | Issue | Priority | Status |
 |---|-------|----------|--------|
-| 1 | Demo video | 🔴 P0 | Recording 16 Oct (`DEMO_NARRATION.md`, about 7.9 min of a 5-8 min limit) |
+| 0 | **Data-problem records slip past the Code Judge** when the Judge does not list the questioned record: F2-12, F2-16, F2-17 executed in the 16 Oct re-run; F2-12 and F2-17 also once in two on pre-D55 code | 🔴 P0 | Next fix: check the questioned record in code (D59) |
+| 1 | Demo video | 🔴 P0 | Recording 16 Oct (`DEMO_RECORDING_GUIDE.md`, about 7 min 50 s of a 5-8 min limit) |
 | 2 | Submission form | 🔴 P0 | Due 16 Oct, with the demo access code |
 | 3 | Saved demo runs predate D51/D52 (no ChatTone step, no notice opening line) | 🟠 P1 | A new saved run needs a small paid run |
-| 4 | No precedent is active; the D51 selection is not measured on rulings | 🟠 P1 | Needs the release-gate eval (paid) |
+| 4 | No precedent is active; the Judge now reports the ones it follows (D55), gain not measured | 🟠 P1 | Needs the release-gate eval (paid) |
+| 4b | Money the Judge writes in `compensation` text is executed but not code-checked; a driver's claimed fee has no amount field (D58-02) | 🟠 P1 | Found 16 Oct, not fixed |
+| 4c | Rules counting "every started minute" (no ceil()) and "N%" caps (0.3 not a figure) still go to a person | 🟡 P2 | D58 |
 | 5 | Chat tone not scored on a labelled blind set of real chats | 🟡 P2 | D52b scores are on our own sentences |
 | 6 | Older eval sets (fresh_sonnet, images, photo_side, cancel_scope, discretion, fraud, stress) not re-run on the final code | 🟡 P2 | Their published scores are pre-v2.1 |
 | 7 | Route baseline check (OSRM) | 🟡 P2 | Parked: mock routes are shorter than real roads |
@@ -511,17 +514,17 @@ a hash-chained audit log. Escalated cases go to the review desk (`frontend/revie
 
 ---
 
-## Code Statistics (updated 2026-10-15, origin/main)
+## Code Statistics (updated 2026-10-16, branch post-submission)
 
 | Metric | Value |
 |--------|-------|
 | Python files (src + scripts) | 98 |
 | Test files | 41 (Python and frontend) |
-| Local tests | 638 Python + 28 frontend, all pass offline |
+| Local tests | 660 Python + 28 frontend, all pass offline |
 | Total lines of code (py/js/html/css) | ~31,400 |
 | Git commits (main) | 215 |
 | Agents and checks | Collector, ImageAnalyst, ChatTone, Classifier, Safety, Case Brief, Fraud, Rider, Driver, Policy, Judge, Code Judge, Policy gate, Fairness, Executor |
-| Results (README) | organisers' samples 3/3; blind set in their format 25/30; regression 44/52 with no wrong payout; sealed 16/23 (D41) |
+| Results (README) | organisers' samples 3/3; blind set in their format 25/30; regression 44/52 with no wrong payout (15 Oct), 45/52 with 5 wrong automatic rulings on the submitted code (16 Oct, D59); sealed 16/23 (D41) |
 | Official policy documents | 24 files in `data/policies/official/`; Policy v2.1 governing |
 | Frontend | dashboard (`index.html`, `dispute.js`), case editor, review desk (`review.html`) |
 
@@ -540,9 +543,10 @@ a hash-chained audit log. Escalated cases go to the review desk (`frontend/revie
 
 ---
 
-## Session Handoff (for the next session, updated 2026-10-15)
+## Session Handoff (for the next session, updated 2026-10-16)
 
-State: `main` = `feature/rule-engine`, deployed on the Tencent Lighthouse server. Deadline 16 Oct 2026.
+State: submitted version tagged `submission-2026-10-16` (fc6b422, deployed). Later work on branch
+`post-submission` (D59 onward); during judging nothing goes to `main` or the server without the owner's OK.
 
 ### 🚨 P0 — before submission
 1. Record the demo video from `DEMO_NARRATION.md` / `DEMO_SCRIPT.md` (saved runs demo-1 to demo-7)
@@ -619,3 +623,18 @@ submission evidence. See the repair report exported in the 2026-10-07 Codex chat
   chat tone by code, doubtful messages re-checked by a model, shown on the review desk and used for
   notice wording only; Fairness notes a ruling whose reasons lean on a party's manner.
 
+## Session 9: 2026-10-16 (billy; submission day, then branch `post-submission`)
+
+- **Precedents** (D55): the Judge never returned `precedent_ids` because the system prompt's fixed key
+  list lacked it; added. Isolated test (local store, separate Qdrant collection): 0/14 replies had the
+  key before, 7/7 after; one correct citation; no measured accuracy gain.
+- **Keys** (D56): photo analysis reads its own `VISION_API_KEY`; the server moved to new Cerebras and
+  Groq keys. Cover figures matched to the README (~89 s, 78%); a recording guide added.
+- **Rate-based refunds** (D57-D58): derived numbers written as arithmetic, rule wording counts as
+  record figures, trip pause lengths, floor()/min(), and rate credits not held as discretion. F2-06,
+  F2-09, F2-11, D57-01, D57-04 now decided automatically and right; two new blind sets (D57 5/8, D58
+  3/8) found two older gaps (money in `compensation` text, a driver's fee).
+- **Full regression on the submitted code** (D59): 45/52, but five wrong automatic rulings. A prompt
+  line from D58 made the Judge leave out the questioned record; removed. The deeper gap predates the
+  day: the Code Judge sees a questioned record only if the Judge lists it. Next fix: check the record
+  in code.

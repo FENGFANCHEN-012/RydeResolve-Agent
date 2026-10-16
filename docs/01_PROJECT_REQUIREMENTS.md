@@ -111,7 +111,7 @@ TRTC ASR/TTS, and Tencent Cloud infrastructure.
 | Advocates *autonomously gather* their evidence | **Partial**: they argue from one shared case brief built by the Collector's tools; they do not run their own lookups (constrained autonomy, D7) | `src/agents/case_brief.py` |
 | Judge with confidence and reasoning | Done; a code Judge checks every draft and remands it once (D38, D42) | `src/agents/arbitrator.py`, `code_judge.py` |
 | Evidence sources (GPS, chat, fare, profiles, photos) | Done (mock data and the organisers' sample format, D50) | `data/` |
-| 2+ categories end to end | Done: every dispute type in the organisers' format | samples 3/3, blind OF 25/30, regression 44/52 with no wrong payout (README) |
+| 2+ categories end to end | Done: every dispute type in the organisers' format | samples 3/3, blind OF 25/30, regression 44/52 (15 Oct) and 45/52 with 5 wrong automatic rulings on the submitted code (16 Oct, D59; README) |
 | Observable inter-agent communication | Done | live agent trace and saved runs in the dashboard |
 | Evidence Collection Agent | Done: deterministic Collector tools, photo file checks and a vision model (D46, D47) | `src/agents/collector.py`, `photo_checks.py`, `image_analyst.py` |
 | Policy & Precedent Agent | Done: Policy v2.1 governs, its official precedents 7.1-7.3 go into every brief; reviewed past rulings are chosen by type, policy version and principle (D51) | `src/agents/policy.py`, `src/rag/precedents.py` |

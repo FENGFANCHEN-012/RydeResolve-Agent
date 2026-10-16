@@ -2143,4 +2143,9 @@ How it was checked:
 
 Not done: a code check that does not depend on the Judge listing the questioned record (e.g. a gap or
 conflict finding on a record the deciding rule reads sends the case to a person), repeated runs to
-measure how often each data-gap case executes, README/submission figures unchanged.
+measure how often each data-gap case executes.
+
+Docs updated the same day (README, SUBMISSION_FORM, 01, 03, DEMO_SCRIPT, DEMO_NARRATION,
+DEMO_RECORDING_GUIDE, both .docx): the 15 Oct figure stays with "in that run", the 16 Oct re-run and
+its five wrong rulings are stated next to it, and the narration no longer says the remand loophole
+was closed.

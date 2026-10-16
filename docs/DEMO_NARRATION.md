@@ -1,4 +1,4 @@
-# Demo narration (teleprompter, about 7 min 45 s)
+# Demo narration (teleprompter, about 7 min 50 s)
 
 Read-aloud text for the video. Screen cues are in [brackets]; the full walkthrough with setup is in
 `docs/DEMO_SCRIPT.md`. About 130 words a minute.
@@ -61,8 +61,8 @@ deleted the broken record from its list of facts. The code judge sees that the r
 the draft it blocked, without the record it rested on, and sends the case to a person.
 
 A model raised its own confidence from 0.62 to 0.85 with nothing new. That is why we never let the
-model check itself. We found this loophole in our sealed test set, closed it, and it stopped this
-payout on a fresh set nobody had seen.
+model check itself. We found this loophole in our sealed test set and added this check; here it stopped
+the payout on a fresh set nobody had seen.
 
 **[Review desk]**
 
@@ -100,13 +100,15 @@ automatic refund. Safety is never automated.
 **[README results table]**
 
 How do we know it works? We test on cases with known answers, including sets written by another model
-that never saw our code. Under the organisers' policy, all three of their samples are right. On a
-blind set of thirty cases in their full format, twenty-five are right. And fifty-two earlier cases,
-re-run under the new policy: forty-four right, and no wrong payout. Seventy-eight percent of the
-disputes the policy lets AI decide closed with no human, in about ninety seconds each. Every miss on
-that re-run was a case handed to a person, which costs time, not money. The blind set did catch two
-wrong payouts; we fixed both and ran the cases again. Every miss, and the fix it led to, is published
-in the repo.
+that never saw our code. Under the organisers' policy, all three of their samples are right. On a blind
+set of thirty cases in their full format, twenty-five are right. And fifty-two earlier cases, re-run
+under the new policy: forty-four right, then forty-five on our final code. Seventy-eight percent of the
+disputes the policy lets AI decide closed with no human, in about ninety seconds each. Most misses are
+cases handed to a person, which costs time, not money. But not all: on the final re-run, a few cases
+with a broken record were still paid automatically, because the code judge only caught the broken
+record when the model listed it. That is our next fix: check the record itself, in code. The blind set
+did catch two wrong payouts; we fixed both and ran the cases again. Every miss, and the fix it led to,
+is published in the repo.
 
 **[A CodeBuddy screenshot]**
 
