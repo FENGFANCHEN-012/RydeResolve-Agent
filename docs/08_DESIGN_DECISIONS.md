@@ -2149,3 +2149,31 @@ Docs updated the same day (README, SUBMISSION_FORM, 01, 03, DEMO_SCRIPT, DEMO_NA
 DEMO_RECORDING_GUIDE, both .docx): the 15 Oct figure stays with "in that run", the 16 Oct re-run and
 its five wrong rulings are stated next to it, and the narration no longer says the remand loophole
 was closed.
+
+## D60. Submission form: cost comparison names larger commercial models generically (2026-10-16)
+
+What: in docs/SUBMISSION_FORM.md (Business value, Cost) the two lines that priced the Judge on two
+named commercial models are replaced by one line: moving the Judge to larger commercial AI models
+would cost roughly US$1,400-3,900 a month at 1,000 disputes a day, depending on the model. The range
+is the same as before (the low end of the cheaper model to the high end of the dearer one).
+
+Why: the form compares cost tiers, not vendors; the team asked for a model-neutral wording.
+
+How it was checked: text-only change; diff reviewed; no code, tests or figures changed.
+
+Not done: README.md still has the per-model cost table and the blind-set row naming its writer
+model; left as is unless the team asks.
+
+## D61. Submission form: description regrouped under the form's four headings (2026-10-16)
+
+What: the Project description in docs/SUBMISSION_FORM.md now uses the submission page's four
+headings: Project Overview (target scenarios, users, value proposition); Real World Scenario Insights
+(source of pain points, target audience, core problem solved); Comprehensive Solution Design;
+Business Value. The overview text was split into scenarios / users / value; the pain-point section
+gained a target-audience and a core-problem paragraph built from what the form already said.
+
+Why: the team asked for the description to follow the form's own structure.
+
+How it was checked: diff reviewed; architecture and measured figures unchanged word for word.
+
+Not done: nothing else in the form changed.
