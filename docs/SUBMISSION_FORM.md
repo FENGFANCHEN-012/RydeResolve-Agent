@@ -95,8 +95,8 @@ runs (several sets written blind by another model, one sealed set run once):
   record in code (D59). Every wrong payout found, and its fix, is published.
 - Cost: about US$0.017 per dispute on gpt-oss-120b (Judge about 9,000 tokens in / 1,600 out; six
   other calls about 24,000 in / 6,000 out). At 1,000 disputes a day (an illustration, not a Ryde
-  figure): about US$520 a month as today; about US$1,400-2,100 with the Judge on Claude Sonnet 5.5;
-  about US$2,400-3,900 with the Judge on Claude Opus 5.5, the other agents staying on gpt-oss-120b.
+  figure): about US$520 a month as today; moving the Judge to larger commercial AI models would cost
+  roughly US$1,400-3,900 a month depending on the model, the other agents staying on gpt-oss-120b.
   An open model such as DeepSeek on the company's own GPU server has no per-token fee.
 - Beyond the demo: the live site runs on one small Tencent Lighthouse server; production adds
   instances behind a load balancer, Postgres and a job queue. A model change is re-evaluated on the
