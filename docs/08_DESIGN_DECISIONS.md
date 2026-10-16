@@ -2163,3 +2163,17 @@ How it was checked: text-only change; diff reviewed; no code, tests or figures c
 
 Not done: README.md still has the per-model cost table and the blind-set row naming its writer
 model; left as is unless the team asks.
+
+## D61. Submission form: description regrouped under the form's four headings (2026-10-16)
+
+What: the Project description in docs/SUBMISSION_FORM.md now uses the submission page's four
+headings: Project Overview (target scenarios, users, value proposition); Real World Scenario Insights
+(source of pain points, target audience, core problem solved); Comprehensive Solution Design;
+Business Value. The overview text was split into scenarios / users / value; the pain-point section
+gained a target-audience and a core-problem paragraph built from what the form already said.
+
+Why: the team asked for the description to follow the form's own structure.
+
+How it was checked: diff reviewed; architecture and measured figures unchanged word for word.
+
+Not done: nothing else in the form changed.

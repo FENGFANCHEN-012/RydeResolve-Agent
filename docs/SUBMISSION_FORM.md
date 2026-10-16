@@ -13,30 +13,40 @@ Fair, explainable ride-dispute rulings in minutes, not days.
 
 ## Project description (required)
 
-### Overview: scenarios, users, value
+### Project Overview: Target Scenarios, Users, and Value Proposition
 
-RydeResolve settles rider-driver disputes on Ryde with a team of AI agents. A rider or driver files a
-complaint (a longer route, a no-show fee, a cleaning charge with a photo, a surge fare, an unsafe
-driver). The system gathers the trip's evidence (GPS, fare, chat, app events, profiles, photos), a
-rider advocate and a driver advocate each argue their side from that evidence and the organisers'
-Ryde Dispute Resolution Policy v2.1, and a Judge rules on every request with its reasons, the v2.1
-sections it applies and a confidence score. Code, not the
-model, then checks the ruling before any money moves; if the ruling cannot be proven from the records,
-the case goes to a person with the whole file already built.
+Target scenarios: rider-driver disputes on Ryde, Singapore's first real-time carpooling platform: a
+longer route, a no-show fee, a cleaning charge with a photo, a surge fare, an unsafe driver.
 
-Users: riders and drivers get a ruling and a plain-language explanation in about two minutes; Ryde's
-support staff review only the cases the system should not decide alone; Ryde gets the same rule
-applied the same way every time, with a full audit trail.
+Users: riders and drivers who file or answer a dispute; Ryde's support staff, who review the cases
+the system should not decide alone; Ryde's operations team, who own the policy and the audit trail.
 
-### Real-world pain points
+Value proposition: RydeResolve settles these disputes with a team of AI agents. The system gathers
+the trip's evidence (GPS, fare, chat, app events, profiles, photos), a rider advocate and a driver
+advocate each argue their side from that evidence and the organisers' Ryde Dispute Resolution Policy
+v2.1, and a Judge rules on every request with its reasons, the v2.1 sections it applies and a
+confidence score. Code, not the model, then checks the ruling before any money moves; if the ruling
+cannot be proven from the records, the case goes to a person with the whole file already built.
+Riders and drivers get a ruling and a plain-language explanation in about two minutes, and Ryde gets
+the same rule applied the same way every time, with a full audit trail.
 
+### Real World Scenario Insights: Source of Pain Points, Target Audience and Core Problem Solved
+
+Source of pain points: today every dispute ticket is read and decided by a person.
 - Cost: thousands of dispute tickets a day, each read by a person.
 - Speed: 24 to 72 hours per dispute today.
 - Inconsistency: two agents can rule differently on the same facts.
 - Churn: users who feel unfairly treated leave. Ryde charges drivers 0% commission, so a wrongly
   applied fee hits a driver's whole take-home pay.
 
-### Business and technical architecture, and how prompts drive the AI
+Target audience: riders and drivers waiting on a fair answer, and the support team that has to give
+one at scale.
+
+Core problem solved: deciding a dispute quickly and consistently from the trip's own records and the
+written policy, without paying out on a claim the records do not prove, and handing a person only
+the cases that need one, with the evidence already assembled.
+
+### Comprehensive Solution Design: Business and Technical Architecture, and How Prompts Drive the AI Generation
 
 Pipeline (LangGraph, FastAPI, every step streamed live to the dashboard):
 1. Collector: code tools read the platform records in the organisers' sample format (trip, GPS,
@@ -76,7 +86,7 @@ message's tone; reviewer
 decisions can become precedents only after approval and an evaluation gate. A case editor lets
 anyone build or copy a case (trip, profiles, both sides' chat, rules, photos) and watch it run.
 
-### Business value, with measured figures
+### Business Value: Quantifiable Metrics and Clearly Defined Impact
 
 Measured with Cerebras gpt-oss-120b, one run per case, on cases with answer keys written before the
 runs (several sets written blind by another model, one sealed set run once):
