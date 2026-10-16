@@ -2009,3 +2009,22 @@ rulings do not change. 648 Python tests pass.
 
 Not done: no release-gate run, no new blind set for this change, no rerun of the controls on the fixed
 prompt, the F2-06 refund_calculation format issue is not fixed, and retrieval ranking is unchanged.
+
+## D56. Photo analysis gets its own Groq key (2026-10-16)
+
+What: `src/agents/image_analyst.py` reads `VISION_API_KEY` and falls back to `GROQ_API_KEY` when it is
+unset, so nothing changes for a setup without it. The server now sets both: one Groq key for photos,
+another for the chat fallback (`LLM_FALLBACK_PROVIDERS=groq,gemini` after Cerebras).
+
+Why: photo analysis and the Groq chat fallback used the same key, so a day of Cerebras failures
+falling back to Groq could use up the quota the photo checks need (and the other way round). Groq is
+there mainly for the vision model (`qwen/qwen3.8-27b`) and as Cerebras's backup; separate keys keep
+the two from starving each other.
+
+How it was checked: the photo tests patch the new name; one new test checks the fallback to
+GROQ_API_KEY and the override. 649 Python tests pass. The new vision key answered a test image
+(a plain red square, "Red") on qwen/qwen3.8-27b. After deploy: health check, and the key names
+(not values) read back from the server .env.
+
+Not done: no paid evaluation run (rulings are unchanged; only which key a call uses). The keys were
+pasted in chat, so they should be rotated after the competition.

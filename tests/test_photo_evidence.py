@@ -179,7 +179,7 @@ class FakeClient:
 
 
 def test_analyse_sends_the_image_and_keeps_the_report_unverified(root, monkeypatch):
-    monkeypatch.setattr(image_analyst, "GROQ_API_KEY", "x")
+    monkeypatch.setattr(image_analyst, "VISION_API_KEY", "x")
     make_photo(root / "cases/CF-T/a.jpg", taken="2026:10:11 22:11:00")
     answer = json.dumps({"scene": "car_interior", "mess_visible": True, "severity": "heavy",
                          "matches_claim": "yes", "generation_or_editing_signs": [], "description": "coffee"})
@@ -191,14 +191,14 @@ def test_analyse_sends_the_image_and_keeps_the_report_unverified(root, monkeypat
 
 
 def test_analyse_without_a_key_marks_photos_unanalysed(root, monkeypatch):
-    monkeypatch.setattr(image_analyst, "GROQ_API_KEY", "")
+    monkeypatch.setattr(image_analyst, "VISION_API_KEY", "")
     make_photo(root / "cases/CF-T/a.jpg", taken="2026:10:11 22:11:00")
     reports, findings = asyncio.run(image_analyst.analyse(ctx("cases/CF-T/a.jpg")))
     assert reports == [] and [f.kind for f in findings] == ["gap"]
 
 
 def test_unparseable_model_answer_is_a_gap(root, monkeypatch):
-    monkeypatch.setattr(image_analyst, "GROQ_API_KEY", "x")
+    monkeypatch.setattr(image_analyst, "VISION_API_KEY", "x")
     make_photo(root / "cases/CF-T/a.jpg", taken="2026:10:11 22:11:00")
     reports, findings = asyncio.run(image_analyst.analyse(ctx("cases/CF-T/a.jpg"), client=FakeClient("no idea")))
     assert reports == [] and findings[0].id.startswith("image_analysis.failed")
@@ -211,3 +211,13 @@ def test_code_judge_blocks_a_ruling_resting_on_a_doubted_photo():
     decision = SimpleNamespace(refund_amount=None, refund_calculation=None, decisive_facts=[
         {"fact": "photo shows a heavy coffee stain", "sources": ["evidence[0]"], "status": "verified"}])
     assert code_judge.check_facts(decision, context)
+
+
+def test_vision_key_falls_back_to_groq_key(monkeypatch):
+    import importlib
+    monkeypatch.delenv("VISION_API_KEY", raising=False)
+    assert importlib.reload(image_analyst).VISION_API_KEY == image_analyst.GROQ_API_KEY
+    monkeypatch.setenv("VISION_API_KEY", "vision-only")
+    assert importlib.reload(image_analyst).VISION_API_KEY == "vision-only"
+    monkeypatch.delenv("VISION_API_KEY")
+    importlib.reload(image_analyst)

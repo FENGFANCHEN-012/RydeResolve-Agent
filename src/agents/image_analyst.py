@@ -27,6 +27,8 @@ from src.core.trace import record_llm_call
 logger = logging.getLogger(__name__)
 
 VISION_MODEL = os.getenv("VISION_MODEL", "qwen/qwen3.8-27b")
+# Own Groq key for photos, so vision and the chat fallback (GROQ_API_KEY) do not share one daily quota
+VISION_API_KEY = os.getenv("VISION_API_KEY") or GROQ_API_KEY
 MAX_SIDE = 1024
 
 PROMPT = """You review one photo uploaded as evidence in a ride-hailing dispute in Singapore.
@@ -47,7 +49,7 @@ Describe only what is visible. Do not guess what is outside the picture. Answer 
 
 
 def _enabled() -> bool:
-    return os.getenv("VISION_ENABLED", "1") != "0" and bool(GROQ_API_KEY)
+    return os.getenv("VISION_ENABLED", "1") != "0" and bool(VISION_API_KEY)
 
 
 def _jpeg_b64(path) -> str:
@@ -133,7 +135,7 @@ async def analyse(context, client=None) -> tuple[list[dict], list[Finding]]:
         return reports, findings
     if client is None:
         from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=GROQ_API_KEY, base_url=GROQ_BASE_URL, max_retries=3, timeout=90)
+        client = AsyncOpenAI(api_key=VISION_API_KEY, base_url=GROQ_BASE_URL, max_retries=3, timeout=90)
     claim = _claim_text(context)
     for i, e in photos:
         prompt = PROMPT.format(claim=claim, who=e.uploaded_by, caption=e.description or "none")
