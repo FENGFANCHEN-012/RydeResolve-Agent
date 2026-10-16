@@ -60,6 +60,7 @@ Before v2.1 (D38-D48, Help Centre policy): 38 labelled cases 33/38 with 0 wrong 
 Access codes are given to judges and are not published here. On the dashboard, the organisers' samples DISP-001..003 are in the case list,
 recorded runs can be replayed under "Saved runs",
 and "+ New case" / "Copy & edit" build a new case (trip, profiles, chat, rules, photos) to run.
+Demo video (7:49): [docs/demo/demo_video.mp4](docs/demo/demo_video.mp4).
 Walkthrough: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Deployment: [deploy/README.md](deploy/README.md).
 
 ## Background

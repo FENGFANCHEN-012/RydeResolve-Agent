@@ -125,7 +125,7 @@ Upload from `proof of usage of codebuddy/` (28 screenshots). Suggested if a limi
 
 ## Demo video (optional, 5-8 min)
 
-Script `docs/DEMO_SCRIPT.md`, narration `docs/DEMO_NARRATION.md`.
+Video `docs/demo/demo_video.mp4` (7:49, 20.6 MB). Script `docs/DEMO_SCRIPT.md`, narration `docs/DEMO_NARRATION.md`.
 
 ## Project link (optional, earns bonus points)
 
