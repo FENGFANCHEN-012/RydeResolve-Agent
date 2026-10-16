@@ -1969,3 +1969,43 @@ for having a failed turn were re-run, so the published figure stays 44/52 (READM
 The F2-15 award (S$6.00 short for the driver) executed automatically, so it is a wrong payout: had
 these re-run results replaced the originals, the regression would read 47/52 on verdicts with 1 wrong
 payout, not 0. The fee question (does the S$6.00 fee need a recorded arrival?) is open.
+
+## D55. The Judge never returned precedent_ids: the key was missing from its output list (2026-10-16)
+
+What: `"precedent_ids"` is now one of the keys the Judge's system prompt lists
+(`ArbitrationAgent._build_system_prompt`). One test checks it is there.
+
+Why: a first precedent test showed the Judge ignoring precedents completely. Over 14 cases that were
+shown precedents, its reply never contained a `precedent_ids` key and its rationale never mentioned a
+precedent. The system prompt says "exactly these keys" and did not list it; only the PRECEDENTS block
+at the end of the user prompt asked for it, and the model kept to the system prompt. Prompt length was
+not the cause (Judge prompts were 7,400-9,500 tokens).
+
+How it was checked (isolated: a local sqlite store via STORE_URL and a separate Qdrant collection,
+`ryde_precedents_test`, dropped afterwards; the live store and `ryde_precedents` were not touched):
+
+- Six precedents built through the real path (`record_ruling` -> `submit_review` -> `approve`, staged),
+  from cases of other families: RD-002, RD-001, F2-14, F2-07, DISP-002, plus FD-002 as a family-guard
+  probe. Each principle was written from the source case's own answer key only.
+- Free retrieval check on 8 targets (the 8 misses of the 44/52 regression) and 6 controls: every target
+  with a same-type precedent got one, no FD-002-* variant got FD-002, RD-002-I3 did not get RD-002,
+  F2-11 (no service_quality precedent) got none. Ranking is weak: for F2-09 (a verified road closure)
+  RD-001 (no closure) ranked above RD-002.
+- Before the fix (`--with-staged-precedents`, Cerebras gpt-oss-120b, ~US$0.24, 14 cases):
+  precedent_ids absent in 14/14. Targets 4/8 right, controls 5/6 (F2-06 went to a person because the
+  Judge wrote `17.90 - 14.50 = 3.40` as refund_calculation, which the code check rejects; unrelated).
+- After the fix (7 targets, F2-11 skipped as it gets no precedent, ~US$0.13; KEY_6 hit its daily limit
+  mid-run, the 5 failed cases were re-run on KEY_7): precedent_ids present in 7/7. Followed once: F2-09
+  followed #1 (RD-002, the road-closure precedent), picking it over the higher-ranked RD-001. Not
+  followed where the facts differ, including NS-002-B1/C1, whose precedent (DISP-002) points the other
+  way. Targets 4/7 right (F2-09, F2-10, FD-002-I2, FD-002-P2); F2-15, NS-002-B1, NS-002-C1 still go to a
+  person (NS-002-C1 with the right verdict).
+
+Reading: the fix makes precedent use visible and the one citation was correct; no precedent pulled a
+ruling the wrong way. It does not show precedents improve accuracy: FD-002-I2/P2 were already right
+without precedents after D54 (run 20261015-224515), and the other flips are within run-to-run noise
+(one run each, no no-precedent rerun on this code). No precedent is active on the server, so live
+rulings do not change. 648 Python tests pass.
+
+Not done: no release-gate run, no new blind set for this change, no rerun of the controls on the fixed
+prompt, the F2-06 refund_calculation format issue is not fixed, and retrieval ranking is unchanged.

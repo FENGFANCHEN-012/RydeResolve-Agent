@@ -186,3 +186,8 @@ def test_judge_can_only_claim_precedents_it_was_shown():
     assert followed_precedents({"precedent_ids": [9, "4", 99, "x", 9]}, shown) == [9, 4]
     assert followed_precedents({"precedent_ids": [4]}, None) == []
     assert followed_precedents({}, shown) == []
+
+
+def test_judge_output_keys_include_precedent_ids():
+    # The system prompt fixes "exactly these keys"; without precedent_ids there the Judge never returned it
+    assert '"precedent_ids"' in ArbitrationAgent._build_system_prompt()

@@ -279,7 +279,10 @@ class ArbitrationAgent:
             "  \"rationale\": string (concise, evidence-based reasoning),\n"
             "  \"policy_references\": list of strings (only from provided clauses),\n"
             "  \"escalation_recommended\": boolean (true if confidence is borderline),\n"
-            "  \"human_review_needed\": boolean (true if evidence is too weak)"
+            "  \"human_review_needed\": boolean (true if evidence is too weak),\n"
+            # Listed here too: with only the user-prompt request, the model kept to "exactly these keys"
+            "  \"precedent_ids\": list of integers (ids from the PRECEDENTS section that you followed "
+            "because their deciding facts match this case; [] if none were given or you followed none)"
             + (_CODE_JUDGE_KEYS if CODE_JUDGE else "")
         )
 
