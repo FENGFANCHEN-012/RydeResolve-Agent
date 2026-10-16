@@ -2076,3 +2076,45 @@ How it was checked:
 
 Not done: D57-08 not run; no full regression on the new code; "full minutes" (a floor on a record
 figure) not supported; F2-09's self-made unverifiable fact not addressed.
+
+## D58. floor() and min() in refund arithmetic; no self-made absence facts; rate credits may exceed the charge (2026-10-16)
+
+What:
+- Code Judge arithmetic allows `floor(x)` (rules counting FULL minutes or km) and `min(a, b, ...)` (a
+  cap); their arguments are checked as record figures like any number. Nothing else (no max, abs,
+  ceil).
+- Judge prompt: names floor() and min(); and "list only facts the ruling needs: do not add the absence
+  of something nobody claimed and no rule asks for". The Code Judge's stray-number remand also names
+  floor() and min().
+- Fairness: a refund the trip's own rate computes (D57 `_rule_computed`) may exceed the charge in
+  dispute; a stop or late-arrival credit is not a refund of a charge.
+
+Why: D57-01 and D57-04 had the right amounts refused twice because "12 full minutes of 12.5" cannot
+be written with + - * /. F2-09 went to a person over the Judge's own "no evidence the driver deviated
+beyond the required detour" (unverifiable, no source). D57-01 was then held by Fairness as above the
+S$1.50 in dispute although S$8.10 is the stop credit the trip's rule gives.
+
+How it was checked (Cerebras gpt-oss-120b, KEY_5, no precedents):
+- Free replay of 253 saved drafts (amount + Fairness refund-basis checks): 0 changed.
+- Targets: D57-04 automatic and right ("0.8 * floor(9.3 - 4)"); F2-09 automatic and right, no
+  unverifiable fact; D57-01 right amount, then automatic and right once the Fairness change landed
+  ("(floor(12.5) - 3) * 0.9" after one remand).
+- New blind set D58-01..08 (data/eval_cases/d58_blind, Sonnet subagent, did not see the code; brief
+  data/eval_cases/focus_d58.txt; three invented dispute types mapped to existing ones before the run,
+  outcomes unchanged). Right: D58-03 (closure detour, dismissed), D58-04 (conflicting records, to a
+  person), D58-05 (full minutes, "floor((13.8 - 6)) * 1.1"). D58-07 paid the right S$2.50 credit but as
+  `compensation` text with refund 0. D58-08 right amount, labelled upheld (key partially_upheld).
+  D58-01 right S$9.00 cap but "0.30 * 30": 0.3 is not a record figure (the rule says "30%"), so a
+  person. D58-06 ("every started minute") wrote ceil(), refused, then "(9 - 3)", refused, so a person:
+  the trap held. D58-02 WRONG: a driver's S$3.60 waiting fee, which the Judge computes correctly in its
+  rationale, is not put in any amount field, the driver gets nothing and once got a warning.
+- D58-02 is not caused by D58: 5 runs on D58 code wrong (3 with the D58 prompt, 2 with the prompt
+  reverted, which matches pre-D58 behaviour on this case); one run on 851a6b7 was right. The prompt
+  revert also showed the remand hint alone is weaker (D58-05 then went to a person), so the prompt
+  lines were restored.
+- 660 Python tests pass. Spend about US$0.40.
+
+Found, not fixed (pre-existing): money that the Judge puts in `compensation` text (D58-07, and D58-02's
+correct old run) is executed but never checked by the Code Judge, and a driver's claimed fee has no
+structured amount field. A "N%" in a rule is not a figure as N/100. No ceil() for "every started
+minute". No full regression on this code.

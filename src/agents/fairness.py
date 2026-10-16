@@ -242,7 +242,10 @@ def _refund_basis_problems(context: dict, refund, decision=None) -> list[str]:
         refunded = float(refund or 0)
     except (TypeError, ValueError):
         return []
-    if disputed and refunded > disputed + 0.01:
+    # A credit the trip's own rate computes (a stop or late-arrival credit) is not a refund of a
+    # charge, so it can exceed the charge in dispute (D57-01, D57-02: D58). A whole fare refunded
+    # with no rate still stops here
+    if disputed and refunded > disputed + 0.01 and not _rule_computed(context, decision):
         return ["The refund S$%.2f is larger than the S$%.2f in dispute that the platform data computes; "
                 "no checkable rule covers the difference." % (refunded, disputed)]
     # Service-quality complaints (rude or unsafe driving) have no refund schedule in Ryde's policy:

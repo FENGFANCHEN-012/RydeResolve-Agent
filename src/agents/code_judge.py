@@ -20,6 +20,7 @@ Switched by CODE_JUDGE (on by default on this branch; CODE_JUDGE=0 for A/B runs)
 from __future__ import annotations
 
 import ast
+import math
 import operator
 import os
 import re
@@ -31,6 +32,7 @@ _NUM_RE = re.compile(r"\d+(?:\.\d+)?")
 _DATE_TIME_RE = re.compile(r"\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)?(?:[+-]\d{2}:?\d{2}|Z)?"
                            r"|\b\d{1,2}:\d{2}(?::\d{2})?\b|\b[A-Z]+-[A-Z0-9-]*\d+\b")
 _OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
+_FUNCS = {"floor": math.floor, "min": min}
 
 
 def _dump(o):
@@ -74,7 +76,8 @@ def record_numbers(context: dict) -> set[float]:
 
 
 def _eval_arith(expr: str) -> tuple[float | None, list[float]]:
-    """Value of a plain arithmetic expression and the numbers in it; (None, []) if it is not one."""
+    """Value of a plain arithmetic expression and the numbers in it; (None, []) if it is not one.
+    Allowed: numbers, + - * / ( ), floor(x) and min(a, b, ...)."""
     text = str(expr or "").strip().replace("S$", "").replace("$", "").replace("x", "*").replace("×", "*")
     try:
         tree = ast.parse(text, mode="eval")
@@ -92,6 +95,11 @@ def _eval_arith(expr: str) -> tuple[float | None, list[float]]:
             return _OPS[type(n.op)](ev(n.left), ev(n.right))
         if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
             return -ev(n.operand)
+        # Two functions rules need (D58): floor() for "per FULL minute" (12.5 min -> 12) and min() for
+        # a cap. Their arguments are still checked like any other number
+        if (isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in _FUNCS
+                and n.args and not n.keywords and (n.func.id != "floor" or len(n.args) == 1)):
+            return float(_FUNCS[n.func.id](*(ev(a) for a in n.args)))
         raise ValueError("not plain arithmetic")
 
     try:
@@ -227,8 +235,9 @@ def check_amount(decision, context: dict) -> list[str]:
         problems.append("refund_calculation uses numbers that are not figures in the platform records: "
                         + ", ".join(f"{x:g}" for x in stray)
                         + ". A number worked out from record figures must be written as that arithmetic "
-                          "(\"(18 - 15)\", not \"3\"). An amount set by discretion or goodwill is a person's "
-                          "decision.")
+                          "(\"(18 - 15)\", not \"3\"); a rule that counts FULL minutes or km uses floor() "
+                          "(\"floor(12.5) - 3\"), a cap uses min(). An amount set by discretion or goodwill is "
+                          "a person's decision.")
     return problems
 
 

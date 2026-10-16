@@ -51,6 +51,11 @@ def test_dates_times_and_ids_are_not_figures():
     (3.1, "25.90 - 22.80 = 3.10", False),  # D57: a stated result is refused (the draft goes back)
     (3.6, "3 * 1.2", True),                # D57: 3 from the rule wording above
     (3.1, " 25.90 - 22.80 ", True),        # D57: spaces around it are not an error (D57-03)
+    (3.6, "floor(3.1) * 1.2", True),       # D58: full units of a record figure
+    (3.1, "min(25.9 - 22.8, 40)", True),   # D58: a cap
+    (4.8, "floor(4.9) * 1.2", False),      # 4.9 is not a record figure
+    (3.1, "max(3.1, 1.2)", False),         # only floor and min
+    (3.1, "abs(3.1)", False),
 ])
 def test_refund_must_be_arithmetic_on_record_figures(refund, calc, ok):
     assert (check_amount(dec(refund, calc), CTX) == []) is ok

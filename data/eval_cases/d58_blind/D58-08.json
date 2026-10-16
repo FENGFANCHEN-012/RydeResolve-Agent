@@ -1,0 +1,161 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d58.txt",
+  "dispute_ticket": {
+    "dispute_id": "D58-08",
+    "trip_id": "RYDE-D58-08",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver went a different way from the app's route and the meter ended at $24.00. I want the extra distance charge refunded.",
+    "filed_at": "2026-10-15T17:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9108",
+    "name": "Wendy Sim",
+    "account_age_days": 35,
+    "total_trips": 9,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9208",
+    "name": "Ong Teck Chye",
+    "account_age_days": 700,
+    "total_trips": 2400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Mercedes E200 (SKH 6615 T)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D58-08",
+    "rider_id": "R-9108",
+    "driver_id": "D-9208",
+    "pickup_location": {
+      "name": "Compass One",
+      "lat": 1.3917,
+      "lng": 103.895
+    },
+    "dropoff_location": {
+      "name": "Novena Square",
+      "lat": 1.3203,
+      "lng": 103.8438
+    },
+    "scheduled_time": "2026-10-15T16:30:00+08:00",
+    "pickup_time": "2026-10-15T16:32:00+08:00",
+    "dropoff_time": "2026-10-15T17:02:00+08:00",
+    "estimated_distance_km": 10.0,
+    "actual_distance_km": 11.8,
+    "estimated_duration_min": 24,
+    "actual_duration_min": 30,
+    "estimated_fare": null,
+    "total_fare": 24.0,
+    "service_type": "RydeTAXI",
+    "fare_basis": "metered"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-15T16:32:00+08:00",
+      "lat": 1.3917,
+      "lng": 103.895,
+      "speed_kmh": 6,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-15T16:42:30+08:00",
+      "lat": 1.36,
+      "lng": 103.87,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-15T16:52:00+08:00",
+      "lat": 1.34,
+      "lng": 103.85,
+      "speed_kmh": 38,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-15T17:02:00+08:00",
+      "lat": 1.3203,
+      "lng": 103.8438,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-15T16:44:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "This is not the road on my screen. Where are you going?"
+    },
+    {
+      "timestamp": "2026-10-15T16:45:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Took the side road, less jam I think."
+    },
+    {
+      "timestamp": "2026-10-15T16:50:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Also your radio is very loud."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-15T16:30:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9108 booked RydeTAXI. Metered fare; navigated route estimate 10.0 km."
+    },
+    {
+      "timestamp": "2026-10-15T16:42:30+08:00",
+      "event_type": "route_deviation_flag",
+      "details": "Vehicle left the navigated route. No road closure or traffic incident on the traffic feed for the area. No driver message or call to the rider before this point."
+    },
+    {
+      "timestamp": "2026-10-15T17:02:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Meter stopped. Actual distance 11.8 km. Metered fare S$24.00 charged."
+    }
+  ],
+  "platform_policy": {
+    "unnotified_detour_refund": {
+      "value": "fare_times_extra_distance_over_actual_distance",
+      "text": "The driver must tell the rider by in-app chat or call BEFORE leaving the navigated route. Where the driver leaves the route with no such prior notice and there is no recorded road closure, the rider is refunded the part of the metered fare for the extra distance: metered fare x (actual distance - estimated distance) / actual distance, rounded to the nearest cent. A reason given after the turn does not cure the missing notice."
+    },
+    "fare_type": {
+      "value": "metered",
+      "text": "RydeTAXI trips are charged by meter rather than at a fixed upfront fare."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund",
+    "refund_amount": 3.66,
+    "requires_human_review": false,
+    "reason": "route_deviation_flag at 16:42:30 shows the vehicle left the navigated route with no road closure or traffic incident on the feed and no driver message or call before it; the first chat message is the rider's at 16:44:00 and the driver's reply at 16:45:00 comes after the turn. Extra distance 11.8 - 10.0 = 1.8 km. Under this trip's rule the refund is 24.00 x 1.8 / 11.8 = S$3.661, rounded to S$3.66. The radio volume remark is a side issue.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

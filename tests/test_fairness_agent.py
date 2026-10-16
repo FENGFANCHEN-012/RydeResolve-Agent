@@ -1009,3 +1009,17 @@ def test_service_quality_refund_from_a_rate_rule_is_not_discretion():
     assert _refund_basis_problems(ctx, 18.0, whole_fare)      # no rate: still a person's call
     assert _refund_basis_problems(ctx, 6.0, no_calc)
     assert _refund_basis_problems(ctx, 6.0)                   # old callers: unchanged
+
+
+def test_rate_credit_may_exceed_the_disputed_charge():
+    # D58: a stop credit from the trip's rate is not a refund of a charge (D57-01 was held over S$1.50)
+    from types import SimpleNamespace
+    from src.agents.fairness import _refund_basis_problems
+    ctx = {"type": "service_quality", "reporter": "rider",
+           "trip": {"total_fare": 21.5, "estimated_fare": 20.0},
+           "platform_policy": {"unrequested_stop_credit_per_min": 0.9},
+           "findings": [{"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 1.5}},
+                        {"id": "trip_pauses.pause[0]", "kind": "fact", "value": {"paused_min": 12.5}}],
+           "platform_policy_text": {"unrequested_stop_credit_per_min": "per FULL minute after the first 3 minutes"}}
+    assert _refund_basis_problems(ctx, 8.1, SimpleNamespace(refund_amount=8.1, refund_calculation="floor(12.5 - 3) * 0.9")) == []
+    assert _refund_basis_problems(ctx, 21.5, SimpleNamespace(refund_amount=21.5, refund_calculation="21.5"))

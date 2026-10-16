@@ -1,0 +1,163 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d58.txt",
+  "dispute_ticket": {
+    "dispute_id": "D58-01",
+    "trip_id": "RYDE-D58-01",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver parked at a roadside kiosk for ages while I sat in the car, and I missed my dinner booking. I paid $30.00 and want all of it back.",
+    "filed_at": "2026-10-13T20:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9101",
+    "name": "Priya Nair",
+    "account_age_days": 420,
+    "total_trips": 95,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9201",
+    "name": "Lim Seng Huat",
+    "account_age_days": 700,
+    "total_trips": 2400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Honda Odyssey (SLM 4410 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D58-01",
+    "rider_id": "R-9101",
+    "driver_id": "D-9201",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9449
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.3347,
+      "lng": 103.9632
+    },
+    "scheduled_time": "2026-10-13T18:10:00+08:00",
+    "pickup_time": "2026-10-13T18:12:00+08:00",
+    "dropoff_time": "2026-10-13T18:58:00+08:00",
+    "estimated_distance_km": 9.0,
+    "actual_distance_km": 9.2,
+    "estimated_duration_min": 24,
+    "actual_duration_min": 46,
+    "estimated_fare": 30.0,
+    "total_fare": 30.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-13T18:12:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9449,
+      "speed_kmh": 6,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T18:27:10+08:00",
+      "lat": 1.3441,
+      "lng": 103.9553,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-13T18:39:40+08:00",
+      "lat": 1.3441,
+      "lng": 103.9553,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-13T18:39:50+08:00",
+      "lat": 1.3441,
+      "lng": 103.9553,
+      "speed_kmh": 3,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T18:58:00+08:00",
+      "lat": 1.3347,
+      "lng": 103.9632,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-13T18:27:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Buying durian, wait a while."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-13T18:10:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9101 confirmed fixed fare S$30.00."
+    },
+    {
+      "timestamp": "2026-10-13T18:27:10+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip near Tampines Ave 7. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "2026-10-13T18:39:50+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip."
+    },
+    {
+      "timestamp": "2026-10-13T18:58:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$30.00 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 1.5,
+      "text": "Credit in SGD per full minute that the driver pauses a trip with the rider on board without the rider asking for the stop, after the first 2 minutes of the pause. Measured from the driver_paused_trip event to the driver_resumed_trip event; partial minutes are dropped. Total credit is capped at 30% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 9.0,
+    "requires_human_review": false,
+    "reason": "driver_paused_trip 18:27:10 to driver_resumed_trip 18:39:50 = 12 min 40 s with the rider on board and no stop requested (driver chat: buying durian). The rule counts full minutes only, so 12 full minutes; credit (12 - 2) x S$1.50 = S$15.00, but the credit is capped at 30% of the S$30.00 fare = S$9.00, so S$9.00 is paid. No discretionary refund beyond the credit. The missed dinner booking is a side issue and changes nothing.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

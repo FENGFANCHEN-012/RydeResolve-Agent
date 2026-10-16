@@ -1,0 +1,169 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d58.txt",
+  "dispute_ticket": {
+    "dispute_id": "D58-06",
+    "trip_id": "RYDE-D58-06",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver pulled over and sat there while I was on board and I was late for my meeting. I paid $19.00 and want the whole fare back.",
+    "filed_at": "2026-10-14T16:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9106",
+    "name": "Kelvin Yeo",
+    "account_age_days": 60,
+    "total_trips": 12,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9206",
+    "name": "Sunil Menon",
+    "account_age_days": 700,
+    "total_trips": 2400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Kia Carnival (SKF 9902 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D58-06",
+    "rider_id": "R-9106",
+    "driver_id": "D-9206",
+    "pickup_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3245,
+      "lng": 103.9296
+    },
+    "dropoff_location": {
+      "name": "Suntec City",
+      "lat": 1.295,
+      "lng": 103.8587
+    },
+    "scheduled_time": "2026-10-14T14:00:00+08:00",
+    "pickup_time": "2026-10-14T14:02:00+08:00",
+    "dropoff_time": "2026-10-14T14:33:00+08:00",
+    "estimated_distance_km": 11.0,
+    "actual_distance_km": 11.1,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 31,
+    "estimated_fare": 19.0,
+    "total_fare": 19.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-14T14:02:00+08:00",
+      "lat": 1.3245,
+      "lng": 103.9296,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-14T14:06:00+08:00",
+      "lat": 1.312,
+      "lng": 103.906,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-14T14:14:10+08:00",
+      "lat": 1.312,
+      "lng": 103.906,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-14T14:14:20+08:00",
+      "lat": 1.312,
+      "lng": 103.906,
+      "speed_kmh": 4,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-14T14:33:00+08:00",
+      "lat": 1.295,
+      "lng": 103.8587,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-14T14:06:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Why have we stopped?"
+    },
+    {
+      "timestamp": "2026-10-14T14:07:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Need to collect a parcel from my wife, one moment."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-14T14:00:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9106 confirmed fixed fare S$19.00."
+    },
+    {
+      "timestamp": "2026-10-14T14:06:00+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip on Bedok North Road. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "2026-10-14T14:14:20+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip."
+    },
+    {
+      "timestamp": "2026-10-14T14:33:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$19.00 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 0.85,
+      "text": "Credit in SGD per started minute that the driver pauses a trip with the rider on board without the rider asking for the stop. A partial minute counts as a full minute (the pause length is rounded UP to whole minutes), and the first 3 started minutes of the pause earn no credit. Measured from the driver_paused_trip event to the driver_resumed_trip event. Total credit is capped at 50% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 5.1,
+    "requires_human_review": false,
+    "reason": "driver_paused_trip 14:06:00 to driver_resumed_trip 14:14:20 = 8 min 20 s (500 s), unrequested (driver chat: collecting a parcel). This rule counts every started minute, so the pause is rounded UP to 9 minutes; the first 3 earn nothing, so 6 minutes x S$0.85 = S$5.10, below the cap of 50% x S$19.00 = S$9.50. Rounding down (8 minutes) would give S$4.25, which is wrong here. The missed meeting is a side issue; no refund beyond the credit.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

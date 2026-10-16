@@ -1,0 +1,172 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d58.txt",
+  "dispute_ticket": {
+    "dispute_id": "D58-02",
+    "trip_id": "RYDE-D58-02",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "I reached the pickup point on time and the passenger came out after almost ten minutes. I want a waiting fee of $6.00 added to the rider's charge.",
+    "filed_at": "2026-10-14T09:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9102",
+    "name": "Alvin Tan",
+    "account_age_days": 150,
+    "total_trips": 31,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9202",
+    "name": "Raj Kumar s/o Pillai",
+    "account_age_days": 700,
+    "total_trips": 2400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Wish (SKT 2093 Y)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D58-02",
+    "rider_id": "R-9102",
+    "driver_id": "D-9202",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7649
+    },
+    "dropoff_location": {
+      "name": "one-north MRT",
+      "lat": 1.2997,
+      "lng": 103.7875
+    },
+    "scheduled_time": "2026-10-14T08:38:00+08:00",
+    "driver_arrival_time": "2026-10-14T08:40:00+08:00",
+    "pickup_time": "2026-10-14T08:49:40+08:00",
+    "dropoff_time": "2026-10-14T09:02:00+08:00",
+    "estimated_distance_km": 5.0,
+    "actual_distance_km": 5.1,
+    "estimated_duration_min": 14,
+    "actual_duration_min": 12,
+    "estimated_fare": 18.5,
+    "total_fare": 18.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-14T08:36:00+08:00",
+      "lat": 1.318,
+      "lng": 103.76,
+      "speed_kmh": 28,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-14T08:40:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7649,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-14T08:45:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7649,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-14T08:49:40+08:00",
+      "lat": 1.3151,
+      "lng": 103.7649,
+      "speed_kmh": 2,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-14T09:02:00+08:00",
+      "lat": 1.2997,
+      "lng": 103.7875,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-14T08:44:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at the pickup point, which exit are you?"
+    },
+    {
+      "timestamp": "2026-10-14T08:45:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Coming down now, sorry."
+    },
+    {
+      "timestamp": "2026-10-14T08:49:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks for waiting, I was on a call with my boss."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-14T08:38:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9102 confirmed fixed fare S$18.50."
+    },
+    {
+      "timestamp": "2026-10-14T08:40:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at the pickup point."
+    },
+    {
+      "timestamp": "2026-10-14T08:49:40+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-14T09:02:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$18.50 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "waiting_fee_per_min": {
+      "value": 0.6,
+      "text": "Waiting fee in SGD charged to the rider per full minute the driver waits at the pickup point after the first 3 minutes of waiting. Measured from the driver_arrived event to the rider_boarded event; partial minutes are dropped. Total waiting fee is capped at 25% of the fare."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 3.6,
+    "requires_human_review": false,
+    "reason": "driver_arrived 08:40:00 to rider_boarded 08:49:40 = 9 min 40 s of waiting (GPS status waiting at the same coordinates throughout; the driver messaged at 08:44). The rule counts full minutes only: 9 full minutes; fee (9 - 3) x S$0.60 = S$3.60, below the cap of 25% x S$18.50 = S$4.625. So S$3.60 is owed to the driver, not the S$6.00 claimed. The driver's point that he was on time is a side issue; the fee runs from his arrival event.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

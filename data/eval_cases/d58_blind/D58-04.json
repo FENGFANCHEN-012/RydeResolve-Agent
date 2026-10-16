@@ -1,0 +1,176 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d58.txt",
+  "dispute_ticket": {
+    "dispute_id": "D58-04",
+    "trip_id": "RYDE-D58-04",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver stopped the car for a long time on Lorong Chuan and the trip took far longer than it should. I paid $28.00 and want the stop credit under the rules.",
+    "filed_at": "2026-10-15T22:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9104",
+    "name": "Daniel Ong",
+    "account_age_days": 300,
+    "total_trips": 70,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9204",
+    "name": "Mohd Faizal bin Yusof",
+    "account_age_days": 700,
+    "total_trips": 2400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Prius (SLU 5521 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D58-04",
+    "rider_id": "R-9104",
+    "driver_id": "D-9204",
+    "pickup_location": {
+      "name": "NEX Serangoon",
+      "lat": 1.3507,
+      "lng": 103.8724
+    },
+    "dropoff_location": {
+      "name": "HarbourFront Centre",
+      "lat": 1.2653,
+      "lng": 103.8219
+    },
+    "scheduled_time": "2026-10-15T20:58:00+08:00",
+    "pickup_time": "2026-10-15T21:00:00+08:00",
+    "dropoff_time": "2026-10-15T21:50:00+08:00",
+    "estimated_distance_km": 14.0,
+    "actual_distance_km": 14.1,
+    "estimated_duration_min": 28,
+    "actual_duration_min": 50,
+    "estimated_fare": 28.0,
+    "total_fare": 28.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-15T21:00:00+08:00",
+      "lat": 1.3507,
+      "lng": 103.8724,
+      "speed_kmh": 4,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-15T21:10:00+08:00",
+      "lat": 1.352,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-15T21:19:00+08:00",
+      "lat": 1.352,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-15T21:24:50+08:00",
+      "lat": 1.352,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-15T21:25:10+08:00",
+      "lat": 1.3512,
+      "lng": 103.864,
+      "speed_kmh": 18,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-15T21:50:00+08:00",
+      "lat": 1.2653,
+      "lng": 103.8219,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-15T21:10:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Need to settle something quick, sorry."
+    },
+    {
+      "timestamp": "2026-10-15T21:11:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Okay but please hurry."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-15T20:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9104 confirmed fixed fare S$28.00."
+    },
+    {
+      "timestamp": "2026-10-15T21:10:00+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip on Lorong Chuan. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "2026-10-15T21:19:00+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip."
+    },
+    {
+      "timestamp": "2026-10-15T21:50:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$28.00 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 1.0,
+      "text": "Credit in SGD per full minute that the driver pauses a trip with the rider on board without the rider asking for the stop, after the first 2 minutes of the pause. Measured from the driver_paused_trip event to the driver_resumed_trip event; partial minutes are dropped. Total credit is capped at 50% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "Says how the fare is set for this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "The credit turns on when the pause ended. The driver_resumed_trip event says 21:19:00 (9 min after the 21:10:00 pause: 9 full minutes, credit (9 - 2) x S$1.00 = S$7.00), but the GPS shows the car still stationary with status paused at 21:19:00 and 21:24:50, moving only at 21:25:10 (about 15 min: 15 full minutes, credit 13 x S$1.00 = S$13.00, under the S$14.00 cap). The two records are about 6 minutes apart, the chat gives no time that settles it, and nothing else decides which is right, so a person must decide.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      null
+    ]
+  }
+}

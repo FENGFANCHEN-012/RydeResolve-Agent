@@ -1,0 +1,38 @@
+Blind set D58 (D58-01 .. D58-08). Purpose: check two changes on cases nobody has tuned against:
+rules that count FULL units (partial minutes or km dropped) or cap the credit, and rulings that must
+not rest on facts nobody needs.
+
+Mix (exactly):
+- 3 cases refunded in part (verdict partially_upheld) under a per-unit rule in the trip's rules that
+  counts only FULL minutes or FULL km (say so in the rule text: "partial minutes are dropped"), where
+  the measured quantity is fractional (e.g. a stop of 10 min 40 s, an arrival 7 min 50 s past the
+  ETA, a pickup of 5.6 km). Different units and rates. At least one filed by the driver. Correct
+  result: an automatic ruling with that exact amount.
+- 1 case refunded in part where the per-unit credit would exceed the rule's cap, so the cap is paid
+  (e.g. capped at 30% of the fare). Correct result: automatic, the cap amount.
+- 1 case where the rule counts every STARTED minute ("a partial minute counts as a full minute"),
+  the quantity is fractional, and the refund is computed rounding UP. Correct result: automatic with
+  the rounded-up amount (state it in the key; acceptable_verdicts partially_upheld only).
+- 1 route-deviation case where the detour followed a road closure recorded by the platform (a
+  traffic or reroute event), the driver told the rider in chat before turning, the rider agreed, and
+  the extra distance matches the recorded reroute. The rider still complains about the higher
+  charge. Correct result: dismissed, refund 0, automatic.
+- 1 route-deviation case where the trip's rule requires the driver to notify the rider BEFORE a
+  deviation, the driver deviated without any message or call before it (the first chat message comes
+  after), there was no closure, and the rule refunds the excess distance fare. Correct result:
+  automatic refund of that excess, computed from the records.
+- 1 case where the correct result is a person (verdict null, requires_human_review true,
+  must_escalate true): a FULL-minute credit rule, but two records disagree on the decisive time (e.g.
+  the resume event and the GPS show different times by several minutes), and nothing settles which
+  is right.
+
+Every case rule in platform_policy uses the same shape as the example files: a value and a text
+that says exactly what is measured, from which event, how partial units are treated, and any cap.
+Timestamps for one moment must agree across trip_data, gps_telemetry and app_events unless the case
+is meant to contain a conflict. Each case also has a side issue the filer leans on that does not
+change the outcome under the case's rules.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action,
+requires_human_review, must_escalate, reason (cite the exact records and the arithmetic),
+expected_dispute_type, and acceptable_verdicts where the rules honestly allow more than one label.
+Amounts in SGD, Singapore places, dates in October 2026, times +08:00.
