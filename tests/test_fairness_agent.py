@@ -991,3 +991,21 @@ async def test_chat_threat_goes_to_a_person_unless_safety_tier_is_verbal_abuse()
     threat = [i for i in verbal.issues if i.code == FairnessIssueCode.SAFETY_THREAT_IN_CHAT]
     assert threat and threat[0].severity == "medium" and "verbal_abuse" in threat[0].description
     assert verbal.requires_human_review is False
+
+
+def test_service_quality_refund_from_a_rate_rule_is_not_discretion():
+    # D57 (F2-11): 5 x S$1.20 under this trip's per-minute stop credit is computed, not discretionary
+    from types import SimpleNamespace
+    from src.agents.fairness import _refund_basis_problems
+    ctx = {"type": "service_quality", "reporter": "rider",
+           "trip": {"total_fare": 18.0, "estimated_fare": 18.0},
+           "platform_policy": {"unrequested_stop_credit_per_min": 1.2},
+           "platform_policy_text": {"unrequested_stop_credit_per_min": "per full minute after the first 2 minutes"},
+           "findings": [{"id": "trip_pauses.pause[0]", "kind": "fact", "value": {"paused_min": 7.0}}]}
+    rated = SimpleNamespace(refund_amount=6.0, refund_calculation="(7 - 2) * 1.2")
+    whole_fare = SimpleNamespace(refund_amount=18.0, refund_calculation="18")
+    no_calc = SimpleNamespace(refund_amount=6.0, refund_calculation=None)
+    assert _refund_basis_problems(ctx, 6.0, rated) == []
+    assert _refund_basis_problems(ctx, 18.0, whole_fare)      # no rate: still a person's call
+    assert _refund_basis_problems(ctx, 6.0, no_calc)
+    assert _refund_basis_problems(ctx, 6.0)                   # old callers: unchanged

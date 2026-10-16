@@ -1,0 +1,162 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-07",
+    "trip_id": "RYDE-D57-07",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver stopped his car for five minutes to make a phone call. I want the fare of $16.80 reduced by at least $4.",
+    "filed_at": "2026-10-12T17:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9107",
+    "name": "Aisha Rahman",
+    "account_age_days": 75,
+    "total_trips": 19,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9207",
+    "name": "Chong Wei Liang",
+    "account_age_days": 640,
+    "total_trips": 2300,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Honda Freed (SKD 6603 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-07",
+    "rider_id": "R-9107",
+    "driver_id": "D-9207",
+    "pickup_location": {
+      "name": "Serangoon NEX",
+      "lat": 1.3509,
+      "lng": 103.8725
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-12T16:05:00+08:00",
+    "pickup_time": "2026-10-12T16:06:00+08:00",
+    "dropoff_time": "2026-10-12T16:44:00+08:00",
+    "estimated_distance_km": 11.0,
+    "actual_distance_km": 11.1,
+    "estimated_duration_min": 28,
+    "actual_duration_min": 38,
+    "estimated_fare": 16.8,
+    "total_fare": 16.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T16:06:00+08:00",
+      "lat": 1.3509,
+      "lng": 103.8725,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T16:20:10+08:00",
+      "lat": 1.32,
+      "lng": 103.87,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-12T16:25:10+08:00",
+      "lat": 1.32,
+      "lng": 103.87,
+      "speed_kmh": 4,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-12T16:44:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T16:20:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Pulled over, urgent call from my family, 5 minutes."
+    },
+    {
+      "timestamp": "2026-10-12T16:25:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Thanks for waiting."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T16:05:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9107 confirmed fixed fare S$16.80."
+    },
+    {
+      "timestamp": "2026-10-12T16:20:10+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip on Bendemeer Road. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "2026-10-12T16:25:10+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip."
+    },
+    {
+      "timestamp": "2026-10-12T16:44:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$16.80 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 0.7,
+      "text": "Credit in SGD per full minute that the driver pauses a trip with the rider on board without the rider asking for the stop, counting only time strictly beyond the first 5 minutes of the stop. Measured from the driver_paused_trip event to the driver_resumed_trip event. A stop of exactly 5 minutes 0 seconds or less earns no credit. Total credit is capped at 50% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above for a stop. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "The fare is fixed at booking and does not change with trip length."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0,
+    "requires_human_review": false,
+    "reason": "driver_paused_trip at 16:20:10 and driver_resumed_trip at 16:25:10 give a stop of exactly 5 min 0 s, and the GPS fixes at 16:20:10 and 16:25:10 agree. This trip's rule credits only time strictly beyond the first 5 minutes, and a stop of exactly 5:00 earns nothing: 0 full minutes x S$0.70 = S$0. The rule gives no refund beyond the credit, and the phone call is a side issue, so the fare stands.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "dismissed"
+    ]
+  }
+}

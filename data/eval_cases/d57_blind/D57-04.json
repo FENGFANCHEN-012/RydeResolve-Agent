@@ -1,0 +1,168 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-04",
+    "trip_id": "RYDE-D57-04",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My ride came very late and I paid $17.60 including a surge increase I only noticed afterwards. I want my money back.",
+    "filed_at": "2026-10-09T09:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9104",
+    "name": "Marcus Lee",
+    "account_age_days": 95,
+    "total_trips": 22,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9204",
+    "name": "Rahman Yusof",
+    "account_age_days": 430,
+    "total_trips": 1800,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Kia Cerato (SNB 5521 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-04",
+    "rider_id": "R-9104",
+    "driver_id": "D-9204",
+    "pickup_location": {
+      "name": "Hougang Mall",
+      "lat": 1.3726,
+      "lng": 103.8934
+    },
+    "dropoff_location": {
+      "name": "Suntec City",
+      "lat": 1.2951,
+      "lng": 103.8584
+    },
+    "scheduled_time": "2026-10-09T07:49:00+08:00",
+    "pickup_time": "2026-10-09T07:59:30+08:00",
+    "dropoff_time": "2026-10-09T08:27:00+08:00",
+    "estimated_distance_km": 9.4,
+    "actual_distance_km": 9.5,
+    "estimated_duration_min": 24,
+    "actual_duration_min": 28,
+    "estimated_fare": 17.6,
+    "total_fare": 17.6
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T07:44:00+08:00",
+      "lat": 1.39,
+      "lng": 103.91,
+      "speed_kmh": 30,
+      "status": "en_route_to_pickup"
+    },
+    {
+      "timestamp": "2026-10-09T07:58:20+08:00",
+      "lat": 1.3726,
+      "lng": 103.8934,
+      "speed_kmh": 0,
+      "status": "arrived_pickup"
+    },
+    {
+      "timestamp": "2026-10-09T07:59:30+08:00",
+      "lat": 1.3726,
+      "lng": 103.8934,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-09T08:27:00+08:00",
+      "lat": 1.2951,
+      "lng": 103.8584,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T07:50:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Where are you? It says arriving 07:49."
+    },
+    {
+      "timestamp": "2026-10-09T07:50:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Heavy jam on Upper Serangoon, 5 more minutes."
+    },
+    {
+      "timestamp": "2026-10-09T07:58:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am here at Exit B."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T07:44:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Booking confirmed. Fixed fare S$17.60 at surge 1.2x, shown and accepted by rider R-9104. Driver ETA to pickup 07:49."
+    },
+    {
+      "timestamp": "2026-10-09T07:58:20+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at the pickup point."
+    },
+    {
+      "timestamp": "2026-10-09T07:59:30+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-09T08:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$17.60 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "late_arrival_credit_per_min": {
+      "value": 0.8,
+      "text": "Credit in SGD per FULL minute (partial minutes are dropped) between the ETA to pickup shown in the booking_confirmed event and the driver_arrived event, after a grace of the first 4 minutes. Capped at 25% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above for a late arrival. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "The fare is fixed at booking at the surge shown to and accepted by the rider; a surge shown at booking is not a later increase."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 4.0,
+    "requires_human_review": false,
+    "reason": "booking_confirmed shows an ETA to pickup of 07:49 and driver_arrived is logged at 07:58:20, so the driver was 9 min 20 s late, which is 9 full minutes. This trip's rule gives S$0.80 per full minute after a 4-minute grace: (9 - 4) x 0.80 = S$4.00, below the cap of S$4.40 (25% of S$17.60). The surge complaint is a side issue: the 1.2x surge was shown and accepted at booking on a fixed fare, so no later increase exists.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

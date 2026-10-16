@@ -193,3 +193,15 @@ async def test_raw_data_is_not_modified():
     data.pop("_source", None)
     data.pop("expected_outcome", None)
     assert data == before
+
+
+def test_trip_pauses_gives_the_stop_length():
+    from types import SimpleNamespace
+    ctx = SimpleNamespace(app_events=[
+        {"timestamp": "2026-10-09T19:12:00+08:00", "event_type": "driver_paused_trip"},
+        {"timestamp": "2026-10-09T19:13:30+08:00", "event_type": "telemetry_gap"},
+        {"timestamp": "2026-10-09T19:19:00+08:00", "event_type": "driver_resumed_trip"},
+        {"timestamp": "2026-10-09T19:25:00+08:00", "event_type": "driver_paused_trip"},  # never resumed
+    ])
+    out = collector_tools.trip_pauses(ctx)
+    assert [(f.value["paused_min"], f.sources) for f in out] == [(7.0, ["app_events[0]", "app_events[2]"])]

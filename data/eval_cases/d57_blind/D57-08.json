@@ -1,0 +1,163 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-08",
+    "trip_id": "RYDE-D57-08",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver went through Novena instead of the normal way and I did not see any notice from him. The trip was $18.60; please refund the extra distance.",
+    "filed_at": "2026-10-13T13:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9108",
+    "name": "Kelvin Sim",
+    "account_age_days": 410,
+    "total_trips": 120,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9208",
+    "name": "Yeo Hock Seng",
+    "account_age_days": 1250,
+    "total_trips": 5200,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Mazda 3 (SMC 7745 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-08",
+    "rider_id": "R-9108",
+    "driver_id": "D-9208",
+    "pickup_location": {
+      "name": "Toa Payoh HDB Hub",
+      "lat": 1.3326,
+      "lng": 103.8474
+    },
+    "dropoff_location": {
+      "name": "Raffles Place MRT",
+      "lat": 1.2839,
+      "lng": 103.8515
+    },
+    "scheduled_time": "2026-10-13T12:00:00+08:00",
+    "pickup_time": "2026-10-13T12:02:00+08:00",
+    "dropoff_time": "2026-10-13T12:27:00+08:00",
+    "estimated_distance_km": 12.6,
+    "actual_distance_km": 14.4,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 25,
+    "estimated_fare": 17.0,
+    "total_fare": 18.6
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-13T12:02:00+08:00",
+      "lat": 1.3326,
+      "lng": 103.8474,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T12:06:00+08:00",
+      "lat": 1.325,
+      "lng": 103.844,
+      "speed_kmh": 35,
+      "status": "off_route"
+    },
+    {
+      "timestamp": "2026-10-13T12:15:00+08:00",
+      "lat": 1.32,
+      "lng": 103.846,
+      "speed_kmh": 30,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-13T12:27:00+08:00",
+      "lat": 1.2839,
+      "lng": 103.8515,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-13T12:04:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Can you pass by Novena Square first? I need to collect a parcel from the lobby, 2 min only."
+    },
+    {
+      "timestamp": "2026-10-13T12:04:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sure, I will go via Novena."
+    },
+    {
+      "timestamp": "2026-10-13T12:27:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-13T12:00:00+08:00",
+      "event_type": "route_computed",
+      "details": "Recommended route 12.6 km. Booking confirmed, metered fare, estimated S$17.00."
+    },
+    {
+      "timestamp": "2026-10-13T12:06:00+08:00",
+      "event_type": "route_deviation_flag",
+      "details": "Vehicle left the navigated route toward Novena. Historical traffic data shows no congestion or closure on the recommended segment."
+    },
+    {
+      "timestamp": "2026-10-13T12:27:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Actual distance 14.4 km. Charged S$18.60."
+    }
+  ],
+  "platform_policy": {
+    "unjustified_detour_credit_per_km": {
+      "value": 1.8,
+      "text": "Credit in SGD per km of excess distance (actual_distance_km minus the recommended route distance in the route_computed event) beyond the first 1.0 km of excess, where the driver left the navigated route with no traffic or closure justification. No credit is due where the rider asked for the route change in the in-app chat before the route_deviation_flag event. Capped at 30% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "metered",
+      "text": "The fare is metered; distance is the odometer distance recorded by the app."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "recommended_action": "no_refund",
+    "refund_amount": 0,
+    "requires_human_review": false,
+    "reason": "The excess distance is 14.4 - 12.6 = 1.8 km, and with no traffic justification the credit rule would apply, but its condition fails: the rider's own chat at 12:04:20 asks the driver to pass by Novena Square and the driver agrees at 12:04:40, both before route_deviation_flag at 12:06:00. The detour was requested by the rider in the in-app chat, so no credit is due and the refund is S$0. The rider's claim that he saw no notice from the driver is a side issue, since the rider himself asked for the change.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "dismissed"
+    ]
+  }
+}

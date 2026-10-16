@@ -159,7 +159,9 @@ _CODE_JUDGE_KEYS = (
     "turns on a fact that is not verified, say so and set human_review_needed to true,\n"
     "  \"refund_calculation\": string | null - when refund_amount > 0, the plain arithmetic that gives it, "
     "using only numbers and + - * / ( ), every number a figure from the platform records or this trip's "
-    "rules (e.g. \"60 - 40\", \"4 * 1.20\"); null when nothing is refunded. A goodwill or discretionary "
+    "rules (e.g. \"60 - 40\", \"4 * 1.20\"); a number you work out from record figures is written as "
+    "that arithmetic (\"27 * ((18 - 15) / 18)\", not \"27 * (3 / 18)\"); null when nothing is refunded. "
+    "A goodwill or discretionary "
     "amount has no such calculation: that is a person's decision"
 )
 

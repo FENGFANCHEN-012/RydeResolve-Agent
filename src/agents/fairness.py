@@ -213,7 +213,24 @@ def _fee_basis_problems(context: dict, verdict: str, refund) -> list[str]:
     return problems
 
 
-def _refund_basis_problems(context: dict, refund) -> list[str]:
+def _rule_computed(context: dict, decision) -> bool:
+    """True when the refund is this trip's own rate times record figures: its refund_calculation
+    passes the Code Judge's amount check and uses a numeric case rule (a per-minute credit, a per-km
+    rate). F2-11 refunded 5 x S$1.20 under unrequested_stop_credit_per_min and was still held as
+    discretionary (D57). A whole fare refunded "for bad service" uses no rate, so it is unaffected."""
+    if decision is None or not getattr(decision, "refund_calculation", None):
+        return False
+    from src.agents.code_judge import _eval_arith, check_amount
+    from src.core.case_policy import policy_values
+    if check_amount(decision, context):
+        return False
+    rates = {round(float(v), 2) for v in (policy_values(context.get("platform_policy")) or {}).values()
+             if isinstance(v, (int, float)) and not isinstance(v, bool) and float(v) not in (0.0, 1.0)}
+    _, literals = _eval_arith(str(decision.refund_calculation).partition("=")[0])
+    return any(round(x, 2) in rates for x in literals)
+
+
+def _refund_basis_problems(context: dict, refund, decision=None) -> list[str]:
     """A refund larger than the amount in dispute that the platform data computes (every charge on
     the filer it names: fee, excess over the quoted fare, cleaning fee) has no rule the system can
     check behind the extra money. The Judge refunded a whole S$22.60 fare where only the S$4.20
@@ -240,7 +257,7 @@ def _refund_basis_problems(context: dict, refund) -> list[str]:
                    if isinstance(trip.get(k), (int, float))] or [0.0])
     if str(context.get("reporter") or "").lower() == "driver" and claimed and refunded <= claimed + 0.01:
         return []
-    if dispute_type == "service_quality" and refunded > 0 and not disputed:
+    if dispute_type == "service_quality" and refunded > 0 and not disputed             and not _rule_computed(context, decision):
         return ["The refund S$%.2f in a service-quality dispute rests on Ryde's discretion: no policy rule "
                 "sets an amount, so a person decides it." % refunded]
     return []
@@ -823,7 +840,8 @@ class FairnessAgent:
             requires_human = True
 
         # (j) the refund goes beyond the disputed amount the platform data computes
-        for problem in _refund_basis_problems(context or {}, getattr(decision, "refund_amount", None)):
+        for problem in _refund_basis_problems(context or {}, getattr(decision, "refund_amount", None),
+                                              decision):
             add_issue(
                 FairnessIssueCode.REFUND_BEYOND_DISPUTED,
                 problem,

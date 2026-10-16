@@ -1,0 +1,162 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-03",
+    "trip_id": "RYDE-D57-03",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "I was sent a very far pickup for a short $14.50 trip and then the rider kept me waiting. I want to be compensated and the rider penalised.",
+    "filed_at": "2026-10-08T22:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9103",
+    "name": "Priya Nair",
+    "account_age_days": 150,
+    "total_trips": 38,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9203",
+    "name": "Tan Boon Keat",
+    "account_age_days": 1500,
+    "total_trips": 6200,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Hyundai Avante (SMD 2217 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-03",
+    "rider_id": "R-9103",
+    "driver_id": "D-9203",
+    "pickup_location": {
+      "name": "Bishan Junction 8",
+      "lat": 1.3506,
+      "lng": 103.8483
+    },
+    "dropoff_location": {
+      "name": "Novena Square",
+      "lat": 1.3203,
+      "lng": 103.8438
+    },
+    "scheduled_time": "2026-10-08T21:15:00+08:00",
+    "pickup_time": "2026-10-08T21:21:00+08:00",
+    "dropoff_time": "2026-10-08T21:37:00+08:00",
+    "estimated_distance_km": 5.1,
+    "actual_distance_km": 5.2,
+    "estimated_duration_min": 15,
+    "actual_duration_min": 16,
+    "estimated_fare": 14.5,
+    "total_fare": 14.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T21:03:00+08:00",
+      "lat": 1.2965,
+      "lng": 103.787,
+      "speed_kmh": 40,
+      "status": "en_route_to_pickup"
+    },
+    {
+      "timestamp": "2026-10-08T21:15:00+08:00",
+      "lat": 1.3506,
+      "lng": 103.8483,
+      "speed_kmh": 0,
+      "status": "arrived_pickup"
+    },
+    {
+      "timestamp": "2026-10-08T21:21:00+08:00",
+      "lat": 1.3506,
+      "lng": 103.8483,
+      "speed_kmh": 4,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-08T21:37:00+08:00",
+      "lat": 1.3203,
+      "lng": 103.8438,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T21:15:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at the entrance near the bus stop."
+    },
+    {
+      "timestamp": "2026-10-08T21:18:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Coming down now."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T21:03:00+08:00",
+      "event_type": "driver_accepted_trip",
+      "details": "Driver accepted the booking while 6.3 km from the pickup point (road distance)."
+    },
+    {
+      "timestamp": "2026-10-08T21:15:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup, scheduled pickup 21:15."
+    },
+    {
+      "timestamp": "2026-10-08T21:21:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded 6 min after scheduled time; driver did not cancel."
+    },
+    {
+      "timestamp": "2026-10-08T21:37:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$14.50."
+    }
+  ],
+  "platform_policy": {
+    "long_pickup_credit_per_km": {
+      "value": 0.7,
+      "text": "Credit in SGD paid by Ryde to the driver per km of the driver's road distance to the pickup point, as stated in the driver_accepted_trip event, beyond the first 2.0 km. Capped at S$6.00 per trip."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may pay more than the credit above for a long pickup. False means no payment beyond the credit."
+    },
+    "free_wait_time": {
+      "value": 5,
+      "text": "Free wait at pickup in minutes from the scheduled time before a no-show may be declared; waits are not otherwise compensated on this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 3.01,
+    "requires_human_review": false,
+    "reason": "driver_accepted_trip at 21:03:00 records the driver 6.3 km from the pickup. This trip's rule pays S$0.70 per km beyond the first 2.0 km: (6.3 - 2.0) x 0.70 = 4.3 x 0.70 = S$3.01, below the S$6.00 cap. The driver's side claim about the rider wait is not paid: the rider boarded at 21:21, 6 minutes after schedule, but the driver never cancelled and the rules give no wait payment; no penalty on the rider is supported.",
+    "expected_dispute_type": "driver_rights",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

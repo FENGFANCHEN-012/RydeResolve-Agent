@@ -315,6 +315,29 @@ def route_check(ctx) -> list[Finding]:
     return out
 
 
+def trip_pauses(ctx) -> list[Finding]:
+    """How long each pause lasted: a driver_paused_trip event to the next driver_resumed_trip.
+    Gives the stop length as a record figure, so a per-minute stop credit can be computed from the
+    records (F2-11: a 7-minute stop existed only as two timestamps, D57)."""
+    resumes = _events(ctx, "driver_resumed_trip")
+    out = []
+    for n, (i, e) in enumerate(_events(ctx, "driver_paused_trip")):
+        start = _ts(e.get("timestamp"))
+        nxt = next(((j, r) for j, r in resumes if j > i), None)
+        end = _ts(nxt[1].get("timestamp")) if nxt else None
+        if not start or not end or end < start:
+            continue
+        mins = _minutes(start, end)
+        out.append(Finding(
+            id=f"trip_pauses.pause[{n}]", tool="trip_pauses", kind="fact",
+            statement=f"The driver paused the trip at {_hhmm(start)} and resumed at {_hhmm(end)}: "
+                      f"{mins:g} min.",
+            value={"paused_min": mins},
+            sources=[f"app_events[{i}]", f"app_events[{nxt[0]}]"],
+        ))
+    return out
+
+
 def speed_profile(ctx) -> list[Finding]:
     """Top recorded speed and any driving-behaviour alerts."""
     speeds = [(i, p) for i, p in enumerate(ctx.gps_trace or []) if isinstance(p.get("speed_kmh"), (int, float))]
@@ -791,6 +814,7 @@ STANDARD_TOOLS: dict[str, Callable] = {
     "fare_check": fare_check,
     "route_check": route_check,
     "speed_profile": speed_profile,
+    "trip_pauses": trip_pauses,
     "fee_check": fee_check,
     "consistency_check": consistency_check,
     "data_gaps": data_gaps,

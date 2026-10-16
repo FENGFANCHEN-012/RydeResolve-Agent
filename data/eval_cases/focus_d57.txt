@@ -1,0 +1,33 @@
+Blind set D57 (D57-01 .. D57-08). Purpose: check a change to how refunds computed from a per-unit
+rate are handled, on cases nobody has tuned against.
+
+Mix (exactly):
+- 4 cases refunded in part (verdict partially_upheld) where the amount is this trip's own per-unit
+  rate times a quantity that is NOT written anywhere as a single number: the quantity must be
+  worked out from record figures (minutes between two app events, minutes beyond a free allowance
+  stated in the rule text, km beyond a threshold, the difference of two distances or fares). Use
+  different rates and units: per minute of an unrequested stop, per km of an unjustified detour,
+  per minute of a late arrival past the ETA, per km of a long pickup. At least one is filed by the
+  driver. The correct result is an automatic ruling with that exact amount.
+- 2 cases where the correct result is a person (verdict null, requires_human_review true,
+  must_escalate true): (a) a service-quality complaint (rude driver, uncomfortable ride) asking for
+  compensation, where the trip's rules set NO rate or schedule for it and refund_at_ryde_discretion
+  is true, so any amount is discretion; (b) a per-minute stop credit exists, but the app event that
+  times the decisive moment (the pause or the resume) logs a data problem and no other clean record
+  gives that time.
+- 2 cases where nothing is refunded (verdict dismissed, refund 0): a rate rule exists but its
+  condition is not met (e.g. the rider asked for the stop in chat before it happened; or the stop
+  was within the free allowance the rule text states, with the exact boundary rule spelled out).
+
+Dispute types: service_quality, route_deviation, fare_dispute, driver_rights, cancellation_refund.
+
+Every case rule in platform_policy uses the same shape as the example files: a value and a text
+that says exactly what is measured, from which event, any free allowance, and any cap. Timestamps
+for one moment must agree across trip_data, gps_telemetry and app_events unless the case is meant
+to contain a conflict. Each case also has a side issue the filer leans on that does not change the
+outcome under the case's rules.
+
+Every case: expected_outcome with verdict, refund_amount, recommended_action,
+requires_human_review, must_escalate, reason (cite the exact records and the arithmetic),
+expected_dispute_type, and acceptable_verdicts where the rules honestly allow more than one
+label. Amounts in SGD, Singapore places, dates in October 2026, times +08:00.

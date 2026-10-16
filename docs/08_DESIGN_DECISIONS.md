@@ -2028,3 +2028,51 @@ GROQ_API_KEY and the override. 649 Python tests pass. The new vision key answere
 
 Not done: no paid evaluation run (rulings are unchanged; only which key a call uses). The keys were
 pasted in chat, so they should be rotated after the competition.
+
+## D57. Rate-based refunds: derived numbers written out, stop length as a record figure (2026-10-16)
+
+What:
+- Judge prompt and the Code Judge's remand message: a number worked out from record figures is
+  written as that arithmetic ("27 * ((18 - 15) / 18)", not "27 * (3 / 18)").
+- Code Judge record figures now include the numbers in this trip's rule wording
+  (`platform_policy_text`, e.g. "after the first 2 minutes"), and surrounding spaces in
+  refund_calculation no longer make it unparseable.
+- Collector tool `trip_pauses`: minutes from each driver_paused_trip to the next driver_resumed_trip.
+- Fairness: a service-quality refund whose refund_calculation passes the amount check and uses one of
+  this trip's numeric rates (a per-minute credit, a per-km rate) is not held as discretion. A whole
+  fare refunded "for bad service" uses no rate and is still a person's decision.
+
+Why: 3 of the 8 over-escalations in the 44/52 regression came from the gates, not the rulings:
+F2-10 (refund "27 * (3 / 18)", where 3 = 18 - 15 km), F2-11 (6.00 = 5 x 1.20 per minute; 5 = a
+7-minute stop minus 2 free minutes, the 7 existing only as two timestamps and the 2 only in the rule
+text; Fairness also held it as discretion), and F2-06 in the D55 control run.
+
+Tried and rejected: accepting "expr = result" when the result matches. The free replay below showed
+it let 3 first drafts with wrong amounts through (SL-11, OF-20, OF-28) against 1 right one (FD-001):
+refusing the format sends the draft back, and the second draft is better more often than not.
+
+How it was checked:
+- Free replay of 253 saved Judge drafts with a refund (all runs since 12 Oct), amount check and
+  Fairness refund-basis check, old code vs new: 0 changed (after dropping the rejected change).
+- Rule wording adds the figure 2 in only 1 of the 52 regression contexts; 2 is already a record figure
+  in 26 of them, so "/ 2" was never stopped by the amount check alone. Halved refunds are caught by
+  the D37 Fairness discretionary-split check.
+- Targets on the new code (Cerebras gpt-oss-120b, KEY_5, no precedents): F2-06 right (auto, S$3.40);
+  F2-11 right (auto, S$6.00: first draft "5 * 1.2" sent back, second "(7 - 2) * 1.2" passed); F2-10
+  still to a person, now by the Judge's own request with "27 * ((18 - 15) / 18)" passing the check
+  (its verdict "upheld" is also wrong; the key is partially_upheld).
+- New blind set D57-01..08 (data/eval_cases/d57_blind, written by a Sonnet subagent that did not see
+  the code; brief data/eval_cases/focus_d57.txt). 7 of 8 ran; the run was stopped by low laptop memory
+  before D57-08. 4/7 right, 0 wrong payouts: D57-03 (driver, long-pickup credit) right and automatic;
+  D57-05 (comfort complaint, no rate, discretion) and D57-06 (broken resume record) went to a person
+  as they should, though D57-05's first draft refunded S$12; D57-07 (stop exactly at the free limit)
+  dismissed. Misses, all to a person: D57-01 and D57-04 need "full minutes" (12 of 12.5, 9 of 9.33),
+  which + - * / cannot express, so the right amounts were refused twice; D57-02's S$2.16 detour credit
+  is above the S$1.60 the platform data computes as disputed, and Fairness sent it to a person (the
+  key may be generous). Old and new code judge every D57 draft the same, so this set shows no harm
+  and no measured gain from the change itself.
+- 654 Python tests pass (one unexplained failure in one of five full runs, not reproduced).
+- Spend: about US$0.06 (targets) + 0.14 (blind set).
+
+Not done: D57-08 not run; no full regression on the new code; "full minutes" (a floor on a record
+figure) not supported; F2-09's self-made unverifiable fact not addressed.

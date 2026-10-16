@@ -1,0 +1,162 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-06",
+    "trip_id": "RYDE-D57-06",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "The driver stopped for a long time at a food centre and I was charged the full $28.00. I want the time credit for the stop.",
+    "filed_at": "2026-10-11T22:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9106",
+    "name": "Daniel Chua",
+    "account_age_days": 520,
+    "total_trips": 201,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9206",
+    "name": "Mohd Hafiz",
+    "account_age_days": 300,
+    "total_trips": 950,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Nissan Serena (SLU 3308 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-06",
+    "rider_id": "R-9106",
+    "driver_id": "D-9206",
+    "pickup_location": {
+      "name": "Paya Lebar Square",
+      "lat": 1.3178,
+      "lng": 103.8929
+    },
+    "dropoff_location": {
+      "name": "Bukit Timah Plaza",
+      "lat": 1.3433,
+      "lng": 103.7764
+    },
+    "scheduled_time": "2026-10-11T20:55:00+08:00",
+    "pickup_time": "2026-10-11T20:57:00+08:00",
+    "dropoff_time": "2026-10-11T21:52:00+08:00",
+    "estimated_distance_km": 17.0,
+    "actual_distance_km": 17.4,
+    "estimated_duration_min": 30,
+    "actual_duration_min": 55,
+    "estimated_fare": 28.0,
+    "total_fare": 28.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-11T20:57:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8929,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T21:10:00+08:00",
+      "lat": 1.332,
+      "lng": 103.847,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-11T21:36:00+08:00",
+      "lat": 1.333,
+      "lng": 103.8,
+      "speed_kmh": 45,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-11T21:52:00+08:00",
+      "lat": 1.3433,
+      "lng": 103.7764,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-11T21:10:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Need to grab food, give me a few minutes."
+    },
+    {
+      "timestamp": "2026-10-11T21:10:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Ok but please be quick."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-11T20:55:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9106 confirmed fixed fare S$28.00."
+    },
+    {
+      "timestamp": "2026-10-11T21:10:00+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip near Toa Payoh. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "1970-01-01T08:00:12+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip. DATA ERROR: device clock reset to epoch when this event was logged; server receipt time not retained. The resume time cannot be established from this event."
+    },
+    {
+      "timestamp": "2026-10-11T21:52:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$28.00 (fixed fare)."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 1.0,
+      "text": "Credit in SGD per full minute that the driver pauses a trip with the rider on board without the rider asking for the stop, after the first 2 minutes. Measured from the driver_paused_trip event to the driver_resumed_trip event. Total credit is capped at 50% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above for a stop. False means no refund beyond the credit."
+    },
+    "fare_type": {
+      "value": "fixed_upfront",
+      "text": "The fare is fixed at booking and does not change with trip length."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "recommended_action": "escalate_to_human",
+    "refund_amount": null,
+    "requires_human_review": true,
+    "reason": "A per-minute stop credit applies and the pause is clean (driver_paused_trip 21:10:00; the chat shows the driver's own request for a few minutes, so no rider-requested stop), but the driver_resumed_trip event carries an epoch timestamp (1970-01-01T08:00:12) with a logged data error and no retained server time. No other clean record gives the resume moment: GPS shows paused at 21:10 and next on_trip at 21:36:00, a 26-minute window, and the chat has no time. The stop could be anywhere from about 0 to 26 minutes (credit from S$0 up to the S$14.00 cap), so the amount cannot be computed and a person must decide.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": true,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      null
+    ]
+  }
+}

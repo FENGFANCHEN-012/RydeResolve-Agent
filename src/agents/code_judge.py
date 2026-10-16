@@ -42,8 +42,8 @@ def _findings(context: dict) -> list[dict]:
 
 
 def record_numbers(context: dict) -> set[float]:
-    """Every number in the platform records, including numbers inside strings ("S$2.50 rate").
-    Not the chat."""
+    """Every number in the platform records and this trip's rules (values and wording), including
+    numbers inside strings ("S$2.50 rate"). Not the chat."""
     from src.core.case_policy import policy_values
     nums: set[float] = set()
 
@@ -67,13 +67,15 @@ def record_numbers(context: dict) -> set[float]:
     for section in ("trip", "payment", "app_events"):
         walk((context or {}).get(section))
     walk(policy_values((context or {}).get("platform_policy")))
+    # The rules' own wording is part of this trip's rules: "after the first 2 minutes" (D57)
+    walk((context or {}).get("platform_policy_text"))
     walk([f.get("value") for f in _findings(context)])
     return nums
 
 
 def _eval_arith(expr: str) -> tuple[float | None, list[float]]:
     """Value of a plain arithmetic expression and the numbers in it; (None, []) if it is not one."""
-    text = str(expr or "").replace("S$", "").replace("$", "").replace("x", "*").replace("×", "*")
+    text = str(expr or "").strip().replace("S$", "").replace("$", "").replace("x", "*").replace("×", "*")
     try:
         tree = ast.parse(text, mode="eval")
     except SyntaxError:
@@ -211,7 +213,11 @@ def check_amount(decision, context: dict) -> list[str]:
                 f"records." % refund]
     value, literals = _eval_arith(calc)
     if value is None:
-        return [f"refund_calculation \"{str(calc)[:120]}\" is not plain arithmetic on numbers."]
+        # "17.90 - 14.50 = 3.40" is refused too. Accepting a stated result let 3 wrong first drafts
+        # through in the D57 replay (SL-11, OF-20, OF-28) against 1 right one (FD-001): the refusal
+        # sends the draft back, and the second draft is better more often than not
+        return [f"refund_calculation \"{str(calc)[:120]}\" is not plain arithmetic on numbers: give only "
+                f"the arithmetic, without \"= result\"."]
     problems = []
     if abs(value - refund) > 0.01:
         problems.append(f"refund_calculation \"{calc}\" gives S$%.2f, not the refund S$%.2f." % (value, refund))
@@ -220,7 +226,9 @@ def check_amount(decision, context: dict) -> list[str]:
     if stray:
         problems.append("refund_calculation uses numbers that are not figures in the platform records: "
                         + ", ".join(f"{x:g}" for x in stray)
-                        + ". An amount set by discretion or goodwill is a person's decision.")
+                        + ". A number worked out from record figures must be written as that arithmetic "
+                          "(\"(18 - 15)\", not \"3\"). An amount set by discretion or goodwill is a person's "
+                          "decision.")
     return problems
 
 

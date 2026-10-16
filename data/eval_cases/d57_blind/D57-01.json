@@ -1,0 +1,175 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-01",
+    "trip_id": "RYDE-D57-01",
+    "filed_by": "rider",
+    "dispute_type": "service_quality",
+    "description": "The driver took a break on the way to Tampines and I was late for my dinner reservation. I paid $24.00 and want the whole fare back plus my tip.",
+    "filed_at": "2026-10-06T20:05:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9101",
+    "name": "Natalie Teo",
+    "account_age_days": 212,
+    "total_trips": 64,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9201",
+    "name": "Lim Jun Wei",
+    "account_age_days": 1100,
+    "total_trips": 4100,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Honda Vezel (SLM 4412 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-01",
+    "rider_id": "R-9101",
+    "driver_id": "D-9201",
+    "pickup_location": {
+      "name": "Tiong Bahru Plaza",
+      "lat": 1.2859,
+      "lng": 103.8266
+    },
+    "dropoff_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "scheduled_time": "2026-10-06T18:10:00+08:00",
+    "pickup_time": "2026-10-06T18:12:00+08:00",
+    "dropoff_time": "2026-10-06T18:58:00+08:00",
+    "estimated_distance_km": 19.5,
+    "actual_distance_km": 19.8,
+    "estimated_duration_min": 35,
+    "actual_duration_min": 46,
+    "estimated_fare": 22.5,
+    "total_fare": 24.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T18:12:00+08:00",
+      "lat": 1.2859,
+      "lng": 103.8266,
+      "speed_kmh": 6,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:31:00+08:00",
+      "lat": 1.3402,
+      "lng": 103.9301,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-06T18:37:00+08:00",
+      "lat": 1.3402,
+      "lng": 103.9301,
+      "speed_kmh": 0,
+      "status": "paused"
+    },
+    {
+      "timestamp": "2026-10-06T18:43:30+08:00",
+      "lat": 1.3402,
+      "lng": 103.9301,
+      "speed_kmh": 3,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:58:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T18:31:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Just buying something from the shop here."
+    },
+    {
+      "timestamp": "2026-10-06T18:31:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "ok"
+    },
+    {
+      "timestamp": "2026-10-06T18:43:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sorry, continuing now."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T18:10:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-9101 booked a metered ride; estimated fare S$22.50."
+    },
+    {
+      "timestamp": "2026-10-06T18:31:00+08:00",
+      "event_type": "driver_paused_trip",
+      "details": "Driver paused the trip at a service station on the PIE. Rider on board. No stop requested by rider."
+    },
+    {
+      "timestamp": "2026-10-06T18:43:30+08:00",
+      "event_type": "driver_resumed_trip",
+      "details": "Driver resumed the trip."
+    },
+    {
+      "timestamp": "2026-10-06T18:58:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$24.00."
+    }
+  ],
+  "platform_policy": {
+    "unrequested_stop_credit_per_min": {
+      "value": 0.9,
+      "text": "Credit in SGD per FULL minute (partial minutes are dropped) that the driver pauses a trip with the rider on board without the rider asking for the stop, after the first 3 minutes of the stop. Measured from the driver_paused_trip event to the driver_resumed_trip event. Total credit is capped at 40% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above for a stop. False means no refund beyond the credit."
+    },
+    "tip_handling": {
+      "value": "tips_not_refundable",
+      "text": "Tips go to the driver and are outside any credit calculated for this trip."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 8.1,
+    "requires_human_review": false,
+    "reason": "driver_paused_trip at 18:31:00 and driver_resumed_trip at 18:43:30 give a stop of 12 min 30 s with the rider on board; the driver's own chat says he was shopping and the rider only said 'ok' after the stop began, so no stop was requested. This trip's rule counts full minutes only (12), after the first 3: (12 - 3) x S$0.90 = S$8.10, below the cap of S$9.60 (40% of S$24.00). The dinner reservation and the tip are side issues: the rule gives no refund beyond the credit and tips are outside it.",
+    "expected_dispute_type": "service_quality",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

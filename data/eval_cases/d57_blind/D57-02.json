@@ -1,0 +1,157 @@
+{
+  "_generated_by": "claude-sonnet subagent, blind, 2026-10-16, focus_d57.txt",
+  "dispute_ticket": {
+    "dispute_id": "D57-02",
+    "trip_id": "RYDE-D57-02",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "The driver took a longer way to the office and I was also charged ERP on a road I did not need. My fare was $21.40, please refund it.",
+    "filed_at": "2026-10-07T09:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-9102",
+    "name": "Gerald Ong",
+    "account_age_days": 640,
+    "total_trips": 310,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-9202",
+    "name": "Ahmad Faizal",
+    "account_age_days": 760,
+    "total_trips": 2900,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "vehicle": "Toyota Prius (SLF 9035 U)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-D57-02",
+    "rider_id": "R-9102",
+    "driver_id": "D-9202",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7645
+    },
+    "dropoff_location": {
+      "name": "Mapletree Business City",
+      "lat": 1.2788,
+      "lng": 103.8018
+    },
+    "scheduled_time": "2026-10-07T08:30:00+08:00",
+    "pickup_time": "2026-10-07T08:32:00+08:00",
+    "dropoff_time": "2026-10-07T08:58:00+08:00",
+    "estimated_distance_km": 11.8,
+    "actual_distance_km": 13.7,
+    "estimated_duration_min": 22,
+    "actual_duration_min": 26,
+    "estimated_fare": 19.8,
+    "total_fare": 21.4
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-07T08:32:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7645,
+      "speed_kmh": 5,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:40:00+08:00",
+      "lat": 1.304,
+      "lng": 103.784,
+      "speed_kmh": 52,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:49:00+08:00",
+      "lat": 1.265,
+      "lng": 103.812,
+      "speed_kmh": 47,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-07T08:58:00+08:00",
+      "lat": 1.2788,
+      "lng": 103.8018,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-07T08:31:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Good morning, I am at the lobby."
+    },
+    {
+      "timestamp": "2026-10-07T08:58:10+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-07T08:30:00+08:00",
+      "event_type": "route_computed",
+      "details": "Recommended route 11.8 km. Booking confirmed, metered fare, estimated S$19.80."
+    },
+    {
+      "timestamp": "2026-10-07T08:41:20+08:00",
+      "event_type": "route_deviation_flag",
+      "details": "Vehicle left the navigated route toward the Ayer Rajah Expressway. Historical traffic data for the recommended segment shows free-flowing traffic; no road closure on record."
+    },
+    {
+      "timestamp": "2026-10-07T08:58:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Actual distance 13.7 km. Charged S$21.40."
+    }
+  ],
+  "platform_policy": {
+    "unjustified_detour_credit_per_km": {
+      "value": 2.4,
+      "text": "Credit in SGD per km of excess distance (actual_distance_km minus the recommended route distance in the route_computed event) beyond the first 1.0 km of excess, where the driver left the navigated route with no traffic or closure justification and no rider agreement in chat. Capped at 30% of the fare."
+    },
+    "refund_at_ryde_discretion": {
+      "value": false,
+      "text": "Whether Ryde may refund more than the credit above. False means no refund beyond the credit."
+    },
+    "road_charges": {
+      "value": "passenger_pays",
+      "text": "ERP and other road charges are paid by the rider and are not part of this credit."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund_credit",
+    "refund_amount": 2.16,
+    "requires_human_review": false,
+    "reason": "route_computed gives a recommended route of 11.8 km and trip_completed gives an actual distance of 13.7 km, so the excess is 13.7 - 11.8 = 1.9 km. route_deviation_flag at 08:41:20 shows the traffic data was free-flowing with no closure, and the chat has no rider agreement, so the detour is unjustified. This trip's rule credits S$2.40 per km beyond the first 1.0 km: (1.9 - 1.0) x 2.40 = S$2.16, below the cap of S$6.42 (30% of S$21.40). The excess is under 2 km. ERP is paid by the rider and is a side issue.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "expected_policy_sections": [],
+    "must_escalate": false,
+    "expected_official_sections": [],
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ]
+  }
+}

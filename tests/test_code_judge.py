@@ -14,6 +14,7 @@ CTX = {
                    {"timestamp": "2026-10-09T08:03:30+08:00", "event_type": "traffic_feed_status",
                     "details": "feed outage 07:40-08:10"}],
     "platform_policy": {"cleaning_fee_max": 40, "extra_distance_rate_per_km": 1.2},
+    "platform_policy_text": {"extra_distance_rate_per_km": "Rate per km beyond the first 3 km."},
     "findings": [
         {"id": "fare_check.quoted_vs_charged", "kind": "fact", "value": {"difference": 3.1}, "sources": ["trip"]},
         {"id": "data_gaps.data_problem_event[0]", "kind": "gap", "statement": "telemetry gap",
@@ -47,6 +48,9 @@ def test_dates_times_and_ids_are_not_figures():
     (3.0, "25.9 - 22.8", False),           # arithmetic does not give the refund
     (5.0, "five dollars", False),          # not arithmetic
     (None, None, True),                    # nothing refunded
+    (3.1, "25.90 - 22.80 = 3.10", False),  # D57: a stated result is refused (the draft goes back)
+    (3.6, "3 * 1.2", True),                # D57: 3 from the rule wording above
+    (3.1, " 25.90 - 22.80 ", True),        # D57: spaces around it are not an error (D57-03)
 ])
 def test_refund_must_be_arithmetic_on_record_figures(refund, calc, ok):
     assert (check_amount(dec(refund, calc), CTX) == []) is ok
