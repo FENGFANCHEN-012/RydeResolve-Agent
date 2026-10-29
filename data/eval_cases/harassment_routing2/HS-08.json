@@ -1,0 +1,157 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (second set)",
+  "dispute_ticket": {
+    "dispute_id": "HS-08",
+    "trip_id": "RYDE-HS-008",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "Rider took 4 min 20 s to come down, I waited at the pickup and no waiting fee was added. Please apply the S$5 waiting fee.",
+    "filed_at": "2026-10-09T18:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4108",
+    "name": "Kenneth Lee",
+    "account_age_days": 410,
+    "total_trips": 66,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5127",
+    "name": "Faridah Salleh",
+    "account_age_days": 900,
+    "total_trips": 3300,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Sienta (SLH 8830 K)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HS-008",
+    "rider_id": "R-4108",
+    "driver_id": "D-5127",
+    "pickup_location": {
+      "name": "Block 119 Hougang Ave 1",
+      "lat": 1.36,
+      "lng": 103.892
+    },
+    "dropoff_location": {
+      "name": "Kovan Hub",
+      "lat": 1.36,
+      "lng": 103.885
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-09T17:45:00+08:00",
+    "driver_wait_start": "17:45:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 1.6,
+    "duration_min": 7,
+    "fare": 6.4
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-09T17:45:00+08:00",
+      "lat": 1.36,
+      "lng": 103.892,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-09T17:53:00+08:00",
+      "lat": 1.359,
+      "lng": 103.889,
+      "speed_kmh": 30,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-09T17:56:00+08:00",
+      "lat": 1.36,
+      "lng": 103.885,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-09T17:45:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Good evening, I am outside Block 119. The back seat has a child seat fitted for my next job, would you mind sitting in front?"
+    },
+    {
+      "timestamp": "2026-10-09T17:47:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Coming down now, give me a few minutes. Sure, front is fine."
+    },
+    {
+      "timestamp": "2026-10-09T17:49:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Lovely car by the way, very comfortable."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-09T17:45:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed 'I'm here' at pickup."
+    },
+    {
+      "timestamp": "2026-10-09T17:49:20+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-09T17:56:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$6.40; waiting_fee_applied 0.00."
+    },
+    {
+      "timestamp": "2026-10-09T18:30:00+08:00",
+      "event_type": "dispute_filed",
+      "details": "Driver filed a waiting-fee claim."
+    }
+  ],
+  "platform_policy": {
+    "waiting_time_fee": {
+      "value": 5.0,
+      "text": "The waiting-time fee in SGD that the rider owes when the driver waits longer than the threshold and the trip then goes ahead."
+    },
+    "waiting_fee_threshold_min": {
+      "value": 3,
+      "text": "Minutes, counted from the driver_arrived event to the rider_boarded event, that the driver must wait for a waiting-time fee to be due. The wait must be MORE than this; exactly 3 min 00 s does not qualify."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a cancellation or no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 5.0,
+    "recommended_action": "apply_waiting_fee_to_rider",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived is 17:45:00 and rider_boarded is 17:49:20, a wait of 4 min 20 s, more than this trip's 3-min threshold; the rider's own 17:47:00 message admits he was still coming down. The trip completed with waiting_fee_applied 0.00, so the S$5.00 waiting fee is due and goes to the driver. The driver's 17:45:30 request that the rider sit in front is explained in the same message (child seat in the back), the rider agreed, and his 17:49:40 compliment is about the car, so neither is a conduct matter.",
+    "expected_dispute_type": "driver_rights",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  }
+}

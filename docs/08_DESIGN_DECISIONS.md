@@ -2312,3 +2312,35 @@ dropped when it quotes the filer; claim quotes must be the claim's own words, in
 
 The HR numbers are on a set already used, so they show the change works, not how well it generalises;
 the new blind set in D66d answers that.
+
+### D66d. Second blind harassment set: 10/10 (2026-10-29)
+
+New blind set `data/eval_cases/harassment_routing2` (HS-01..10), written by a new Sonnet subagent from
+`data/eval_cases/focus_harassment2.txt`. It did not read `src/`, `tests/`, `docs/` or the first set, and
+was asked for forms the first brief did not name (touching the arm, remarks on age and clothes, gifts,
+"which unit do you live in", repeated calls, a rider pressing a driver, complaint-only cases, and an
+angry but advance-free look-alike). One full run each, Cerebras gpt-oss-120b, no fallback; run folder
+`data/eval/d66d-harass` (git-ignored).
+
+| Case | Must go to a person | Result | What sent it to a person |
+|---|---|---|---|
+| HS-01 (no chat; arm touched, told only in the complaint) | yes | escalated | the Judge asked for review (no safety route fired) |
+| HS-02 (complaint only; remarks on age and skirt) | yes | escalated | D66c label from the claim words -> Safety "imminent" |
+| HS-03 (driver files; rider's gifts and "which condo") | yes | escalated | D66c label on the rider's chat -> Safety "imminent" |
+| HS-04 (Singlish; "which unit you live") | yes | escalated | D66c label on the driver's chat -> Safety "verbal_abuse" -> s5.2 |
+| HS-05 (messages next day) | yes | escalated | D66 complaint phrase "asking me out" (P0) -> Safety "imminent" |
+| HS-06 (driver files; rider presses for number, 6 calls) | yes | escalated | D66c label (two messages) -> Safety "imminent" |
+| HS-07 (number to return an umbrella) | no | upheld S$9.80, right | |
+| HS-08 (front seat for a child seat; praise of the car) | no | upheld S$5.00, right | |
+| HS-09 ("no drink with me", "you look tired, long day?") | no | dismissed, right | |
+| HS-10 (angry, rude rider, no advance) | no | upheld S$4.00, right | |
+
+**What it solved.** Before D66 (D65 baseline): LX-15 ruled by the AI in 2 of 2 runs. With D66 only
+(D66b): 2 of 6 new harassment cases ruled by the AI, 2 more saved only by the Judge. With D66 + D66c on
+a set nobody tuned on: 6 of 6 reached a person, 5 of them through a safety route, and 0 of 4
+look-alikes were sent to the safety route (all four ruled right, with the right amounts).
+
+**Still weak.** HS-01 shows the gap left: with no chat, the model check does not run, and the
+complaint used no listed phrase ("touched my arm"), so only the Judge's own caution sent it to a person.
+A complaint-only model check (one more small call for cases with no chat) would close it; not done.
+n = 1 run per case, and 10 cases is a small set.

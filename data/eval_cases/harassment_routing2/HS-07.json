@@ -1,0 +1,156 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (second set)",
+  "dispute_ticket": {
+    "dispute_id": "HS-07",
+    "trip_id": "RYDE-HS-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was charged twice for the same ride. Two S$9.80 payments went through within seconds of each other. Please refund the second one.",
+    "filed_at": "2026-10-06T19:55:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4107",
+    "name": "Hui Min Tay",
+    "account_age_days": 300,
+    "total_trips": 55,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5126",
+    "name": "Ismail Rahman",
+    "account_age_days": 1000,
+    "total_trips": 3800,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKV 9051 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HS-007",
+    "rider_id": "R-4107",
+    "driver_id": "D-5126",
+    "pickup_location": {
+      "name": "Block 502 Jurong West St 51",
+      "lat": 1.3496,
+      "lng": 103.7189
+    },
+    "dropoff_location": {
+      "name": "Jurong East MRT",
+      "lat": 1.3329,
+      "lng": 103.7436
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-06T19:02:00+08:00",
+    "driver_wait_start": "19:02:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 3.8,
+    "duration_min": 15,
+    "fare": 9.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T19:02:00+08:00",
+      "lat": 1.3496,
+      "lng": 103.7189,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-06T19:09:00+08:00",
+      "lat": 1.34,
+      "lng": 103.73,
+      "speed_kmh": 40,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-06T19:19:00+08:00",
+      "lat": 1.3329,
+      "lng": 103.7436,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T19:30:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I found a black umbrella on the back seat after your trip. May I have a number to reach you so I can arrange the return? Or I can leave it at the Jurong East taxi stand."
+    },
+    {
+      "timestamp": "2026-10-06T19:31:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Oh thank you! Please leave it at the taxi stand, I will collect it tonight."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T19:04:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-06T19:19:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$9.80."
+    },
+    {
+      "timestamp": "2026-10-06T19:19:05+08:00",
+      "event_type": "payment_charged",
+      "details": "Card charge S$9.80, reference PAY-77410."
+    },
+    {
+      "timestamp": "2026-10-06T19:19:09+08:00",
+      "event_type": "payment_charged",
+      "details": "Card charge S$9.80, reference PAY-77411, same trip id."
+    },
+    {
+      "timestamp": "2026-10-06T19:55:00+08:00",
+      "event_type": "dispute_filed",
+      "details": "Rider filed a fare dispute."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "duplicate_charge_refund": {
+      "value": "full refund of the duplicate",
+      "text": "Governs two charges for the same trip. The second charge is refunded in full when app_events show two payment_charged events for one trip."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "refund_amount": 9.8,
+    "recommended_action": "refund_duplicate_fee",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "app_events show two card charges of S$9.80 for one trip, PAY-77410 at 19:19:05 and PAY-77411 at 19:19:09, against a fare of S$9.80 and a fixed upfront price. The second is a duplicate and this trip's policy refunds a duplicate in full, so refund S$9.80. The driver's 19:30:00 request for a number is about returning the umbrella he found, the rider answered 'leave it at the taxi stand' at 19:31:20, and nothing else personal appears, so it is not a conduct matter.",
+    "expected_dispute_type": "fare_dispute",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  }
+}

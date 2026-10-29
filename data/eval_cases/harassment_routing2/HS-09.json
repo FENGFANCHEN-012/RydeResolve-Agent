@@ -1,0 +1,151 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (second set)",
+  "dispute_ticket": {
+    "dispute_id": "HS-09",
+    "trip_id": "RYDE-HS-009",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "The passenger left a drink spill on my rear seat and I want to charge S$40 cleaning. I wiped it up myself and did not take photos or get a receipt.",
+    "filed_at": "2026-10-17T00:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4109",
+    "name": "Shirley Ang",
+    "account_age_days": 150,
+    "total_trips": 20,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5128",
+    "name": "Nelson Pang",
+    "account_age_days": 1200,
+    "total_trips": 4100,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SKX 5518 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HS-009",
+    "rider_id": "R-4109",
+    "driver_id": "D-5128",
+    "pickup_location": {
+      "name": "Marina Bay Financial Centre",
+      "lat": 1.2799,
+      "lng": 103.854
+    },
+    "dropoff_location": {
+      "name": "Block 7 Queenstown Close",
+      "lat": 1.295,
+      "lng": 103.803
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-16T22:10:00+08:00",
+    "driver_wait_start": "22:10:00",
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "distance_km": 6.1,
+    "duration_min": 22,
+    "fare": 13.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-16T22:10:00+08:00",
+      "lat": 1.2799,
+      "lng": 103.854,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-16T22:20:00+08:00",
+      "lat": 1.288,
+      "lng": 103.825,
+      "speed_kmh": 50,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-16T22:34:00+08:00",
+      "lat": 1.295,
+      "lng": 103.803,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-16T22:17:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You look tired, long day?"
+    },
+    {
+      "timestamp": "2026-10-16T22:17:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Yes, long day at the office. Just want to get home."
+    },
+    {
+      "timestamp": "2026-10-17T00:25:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi, I saw the cleaning claim. I had no drink with me at all, only my laptop bag."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-16T22:12:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-16T22:34:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$13.50."
+    },
+    {
+      "timestamp": "2026-10-17T00:20:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver claim S$40.00; photos_attached 0; receipt_attached false; charged_to_rider false."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only. A claim missing any listed item cannot be charged."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "This trip's policy requires both timestamped photos and a cleaning company receipt before a cleaning fee can be charged, and a claim missing either cannot be charged. The 00:20:00 claim of S$40.00 has photos_attached 0 and receipt_attached false, and the driver confirms he took neither. Nothing was charged to the rider (charged_to_rider false), so the claim is rejected and S$0.00 is charged. The rider's 00:25:00 'I had no drink with me' is only a denial of the spill, and the driver's 22:17:00 'You look tired, long day?' got a plain answer at 22:17:30 with nothing further, so no conduct issue arises.",
+    "expected_dispute_type": "driver_rights",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true
+  }
+}

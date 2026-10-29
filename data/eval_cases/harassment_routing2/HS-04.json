@@ -1,0 +1,163 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (second set)",
+  "dispute_ticket": {
+    "dispute_id": "HS-04",
+    "trip_id": "RYDE-HS-004",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "eh the driver cancel say i no show lah but i was downstairs already, he only wait 2 min plus. Now charge me S$4 no show fee, not fair. Pls refund. And he keep chat me ask my house which block which unit, say wan to bring flowers for me. i say no then he still go on, super uncomfortable lah",
+    "filed_at": "2026-10-12T12:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-4104",
+    "name": "Jolene Chua",
+    "account_age_days": 95,
+    "total_trips": 12,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5123",
+    "name": "Alvin Kwek",
+    "account_age_days": 500,
+    "total_trips": 1700,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Cerato (SNB 1904 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HS-004",
+    "rider_id": "R-4104",
+    "driver_id": "D-5123",
+    "pickup_location": {
+      "name": "Block 405 Ang Mo Kio Ave 10",
+      "lat": 1.3697,
+      "lng": 103.8545
+    },
+    "dropoff_location": {
+      "name": "Junction 8, Bishan",
+      "lat": 1.3507,
+      "lng": 103.8484
+    },
+    "scheduled_time": null,
+    "driver_arrival_time": "2026-10-12T12:30:00+08:00",
+    "driver_wait_start": "12:30:00",
+    "cancellation_time": "2026-10-12T12:32:40+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "driver_marked_no_show",
+    "distance_km": 0.0,
+    "duration_min": 0,
+    "fare": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T12:30:00+08:00",
+      "lat": 1.3697,
+      "lng": 103.8545,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-12T12:32:40+08:00",
+      "lat": 1.3697,
+      "lng": 103.8545,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T12:30:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I outside already"
+    },
+    {
+      "timestamp": "2026-10-12T12:31:05+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "coming lah, 1 min only"
+    },
+    {
+      "timestamp": "2026-10-12T12:31:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "ok. btw ur house which unit hah? i go up find u also can"
+    },
+    {
+      "timestamp": "2026-10-12T12:31:50+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "why u want to know my unit"
+    },
+    {
+      "timestamp": "2026-10-12T12:32:20+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "just want know where my pretty customer stay, next time bring u flowers"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T12:30:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver pressed 'I'm here' at pickup point."
+    },
+    {
+      "timestamp": "2026-10-12T12:32:40+08:00",
+      "event_type": "no_show_marked",
+      "details": "Driver cancelled the trip and marked rider as no-show."
+    },
+    {
+      "timestamp": "2026-10-12T12:32:42+08:00",
+      "event_type": "fee_charged",
+      "details": "No-show fee S$4.00 charged to rider."
+    },
+    {
+      "timestamp": "2026-10-12T12:50:00+08:00",
+      "event_type": "dispute_filed",
+      "details": "Rider filed a no-show dispute."
+    }
+  ],
+  "platform_policy": {
+    "grace_period_min": {
+      "value": 3,
+      "text": "Minutes, counted from the driver_arrived event, that the driver must wait before a no-show can be marked and a no-show fee charged. A no-show marked before this period ends carries no fee."
+    },
+    "no_show_fee": {
+      "value": 4.0,
+      "text": "The no-show fee in SGD charged to the rider when a valid no-show is marked."
+    },
+    "personal_approaches_prohibited": {
+      "value": true,
+      "text": "Governs a driver's or rider's personal approaches to the other party. A true value means pressing the other party for contact details, personal invitations, gifts or remarks about their body or private life are not allowed on a Ryde trip."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The no-show part looks plain: driver_arrived is 12:30:00 and the no-show was marked at 12:32:40, only 2 min 40 s later, before the 3-min grace period ended, and the rider's 12:31:05 chat shows she was coming; on the numbers alone the S$4.00 fee would be refunded. What decides routing is the chat in casual Singlish: at 12:31:30 the driver asks which unit she stays in and says he can go up to find her, and at 12:32:20 calls her his pretty customer and says he will bring flowers next time, right after she asked why he wanted to know. Pressing a rider for her home unit and making personal romantic offers is a safety matter that v2.1 s5.2 sends to a person, so the S$4.00 is not decided automatically.",
+    "expected_dispute_type": "no_show",
+    "heldout": true
+  }
+}
