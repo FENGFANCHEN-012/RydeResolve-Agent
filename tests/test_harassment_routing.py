@@ -53,3 +53,31 @@ def test_policy_gate_sees_plain_word_harassment():
 ])
 def test_ordinary_words_are_not_advances(text):
     assert harassment_in_message(text) == [] and harassment_in_claim(text) == []
+
+
+# D66c: the chat model's unwanted_advance label, checked by code
+from src.agents.fraud import verified_labels  # noqa: E402
+
+CHAT = [{"sender": "driver", "message": "Would love to take you out for coffee sometime."},
+        {"sender": "rider", "message": "I'm not interested. Please stop messaging me."}]
+
+
+def test_model_advance_from_the_other_party_is_kept_and_alerts():
+    found = verified_labels([{"label": "unwanted_advance", "quote": "take you out for coffee"}], CHAT, "", "rider")
+    assert found == [{"label": "unwanted_advance", "quote": "take you out for coffee", "sender": "driver"}]
+    signals, safety = chat_label_signals(found, "R-1")
+    assert signals == [] and "in the chat (driver)" in safety[0]
+
+
+def test_model_advance_quoting_the_filer_is_dropped():
+    assert verified_labels([{"label": "unwanted_advance", "quote": "Please stop messaging me"}],
+                           CHAT, "", "rider") == []
+
+
+def test_model_advance_from_the_claim_needs_the_claim_words():
+    claim = "He kept asking if I had a boyfriend and said I should come for supper with him."
+    ok = {"label": "unwanted_advance", "quote": "said I should come for supper with him"}
+    invented = {"label": "unwanted_advance", "quote": "he touched my hand"}
+    found = verified_labels([ok, invented], CHAT, claim, "rider")
+    assert found == [{"label": "unwanted_advance", "quote": ok["quote"], "sender": "claim"}]
+    assert "described in the claim" in chat_label_signals(found, "R-1")[1][0]

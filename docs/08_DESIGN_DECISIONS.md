@@ -2281,3 +2281,34 @@ Not done: the HR set is now used and must not be used to tune the phrase list (a
 "take you out" would only fit these cases). Next step, proposed: add an "unwanted advance" label to the
 model chat review that already runs on every case with a chat (no extra call), keeping the D66 code
 list as the free floor, and test it on a new blind set.
+
+### D66c. The chat model also looks for unwanted advances (2026-10-29)
+
+**Why.** D66b: the D66 phrase list caught 1 of 6 new harassment cases. Two (HR-05, HR-06) were ruled by
+the AI; two more reached a person only because the Judge happened to ask.
+
+**What changed.** `src/agents/fraud.py`: the model chat review that already runs on every case with a
+chat (when the keyword screen finds nothing) gets one more label, `unwanted_advance`: the OTHER party
+remarks on looks or body, asks the person out, presses for a number or a meeting, insists they sit
+beside them, or keeps contacting them after the trip for personal reasons. The prompt names what is
+not one (a number to return a lost item, the front seat for a practical reason, small talk, a remark
+about the car, plain rudeness). No extra model call. Code checks every label before it counts: the
+quote must be found word for word in a message sent by the other party, or, when the advance is only
+told in the complaint, in the filer's own claim; a quote from the filer's own message is dropped. A
+kept label becomes a safety alert (so the Safety agent and the s5.2 gate see it) and never a fraud
+signal. The D66 phrase list stays as the free floor that works without a model.
+
+Rejected: adding the HR wording ("my type", "take you out") to the phrase list; that set has been seen.
+
+**How it was checked.** 3 new tests (label kept from the other party and turned into a safety alert;
+dropped when it quotes the filer; claim quotes must be the claim's own words, invented ones dropped);
+671 tests pass. Replay of only this model call (Cerebras gpt-oss-120b, about 60k tokens):
+
+| Set | Must go to a person | Advance found |
+|---|---|---|
+| HR-01..06 + LX-15 (seen in D66b) | 7 | 6 (HR-04 still missed) |
+| HR-07..10 look-alikes | 0 | 0 |
+| 40 random ordinary cases with chats from older sets (seed 29) | 0 | 0 |
+
+The HR numbers are on a set already used, so they show the change works, not how well it generalises;
+the new blind set in D66d answers that.

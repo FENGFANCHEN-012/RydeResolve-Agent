@@ -50,7 +50,8 @@ PAID_OUT = ("upheld", "partially_upheld")
 PAIR_MATCHES_30D = 3
 PAIR_CANCELLED_30D = 2
 
-CHAT_LABELS = ("collusion_offer", "threat", "contradicts_claim", "none")
+# unwanted_advance (D66c): the other party's personal or romantic advance; a safety alert, never fraud
+CHAT_LABELS = ("collusion_offer", "threat", "contradicts_claim", "unwanted_advance", "none")
 # Keyword screen before the LLM. Only phrases that leave little room for an innocent reading.
 _COLLUSION_PATTERNS = [
     r"\bclaim (?:the |it |the fee |the money )?back\b.*\b(?:ryde|app)\b",
@@ -175,7 +176,14 @@ class FraudAgent:
                 "and claim a fee back to split it), threat (a threat of harm or retaliation), "
                 f"contradicts_claim (a message by the filer, the {filer_role}, that states a FACT which "
                 "cannot be true if a fact stated in the filed claim is true, e.g. the claim says 'I was "
-                "waiting at the pickup' and the chat says 'I am still at home'), none.\n"
+                "waiting at the pickup' and the chat says 'I am still at home'), "
+                f"unwanted_advance (the OTHER party, not the {filer_role}, makes a personal or romantic "
+                "advance: remarks on the person's looks or body, asks them out, presses for their number "
+                "or a meeting, insists they sit beside them, or keeps contacting them after the trip for "
+                "personal reasons), none.\n"
+                "These are NOT unwanted_advance: asking for a number to return a lost item or to find the "
+                "rider, asking someone to sit in front for a practical reason, polite small talk, a remark "
+                "about the car or the trip, rudeness or anger without a personal advance.\n"
                 "These are NOT contradicts_claim: questions, complaints, greetings, a message that agrees "
                 "with or fits the claim's own account, and a message sent after the trip was cancelled "
                 "that describes where the filer is at that later time. When unsure, use none.\n"
@@ -184,7 +192,9 @@ class FraudAgent:
                 'Return {"labels": [{"label": <one label>, "quote": <exact words copied from one chat '
                 'message>, "claim_quote": <for contradicts_claim only: the exact words of the filed '
                 'claim that the chat message contradicts>, "reason": <one sentence>}]}. Use an empty '
-                "list when nothing applies. Quote verbatim; do not paraphrase.")},
+                "list when nothing applies. Quote verbatim; do not paraphrase. For unwanted_advance only, "
+                "when the advance is described in the filed claim but not in the chat, the quote may be the "
+                "exact words of the filed claim that describe it.")},
             {"role": "user", "content": f"Filed claim: {claim}\n\nChat log:\n{lines}"},
         ], temperature=0.0)
         data = json.loads(raw)
@@ -372,7 +382,8 @@ def verified_labels(labels: list, chat: list[dict], claim: str = "",
                     filer_role: str | None = None) -> list[dict]:
     """Keep a label only when its quote really is in the chat (anti-fabrication, design §5).
     contradicts_claim must also name the claim words it contradicts (found verbatim in the claim)
-    and quote a message the filer sent, so code can check what the label rests on."""
+    and quote a message the filer sent, so code can check what the label rests on. unwanted_advance must
+    quote a message the other party sent, or the filer's own claim words describing the advance."""
     out = []
     for item in labels:
         if not isinstance(item, dict):
@@ -381,8 +392,15 @@ def verified_labels(labels: list, chat: list[dict], claim: str = "",
         if label not in CHAT_LABELS or label == "none" or len(quote) < 4:
             continue
         msg = next((m for m in chat if quote.lower() in _norm(m.get("message")).lower()), None)
+        if msg is None and label == "unwanted_advance" and quote.lower() in _norm(claim).lower():
+            # The filer's own account of what the other party did (D66c)
+            out.append({"label": label, "quote": quote, "sender": "claim"})
+            continue
         if msg is None:
             continue
+        sender = str(msg.get("sender") or "").lower().replace("passenger", "rider")
+        if label == "unwanted_advance" and filer_role and sender == filer_role:
+            continue   # an advance comes from the other party, not the filer
         found = {"label": label, "quote": quote, "sender": msg.get("sender")}
         if label == "contradicts_claim":
             claim_quote = _norm(item.get("claim_quote"))
@@ -403,8 +421,9 @@ def chat_label_signals(found: list[dict], filer_id: str | None) -> tuple[list[Fr
         if f["label"] == "threat":
             safety.append(f"Threat in the chat ({f.get('sender') or '?'}): \"{f['quote'][:160]}\"")
             continue
-        if f["label"] == "harassment":
-            safety.append(f"Unwanted personal advance in the chat ({f.get('sender') or '?'}): "
+        if f["label"] in ("harassment", "unwanted_advance"):
+            where = "described in the claim" if f.get("sender") == "claim" else f"in the chat ({f.get('sender') or '?'})"
+            safety.append(f"Unwanted personal advance {where}: "
                           f"\"{f['quote'][:160]}\"")
             continue
         if f["label"] in seen:
