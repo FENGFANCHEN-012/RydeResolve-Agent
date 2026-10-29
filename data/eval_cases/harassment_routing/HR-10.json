@@ -1,0 +1,169 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29",
+  "dispute_ticket": {
+    "dispute_id": "HR-10",
+    "trip_id": "RYDE-HR-010",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was shown S$17.80 when I confirmed the booking but my card was charged S$19.20. Nobody told me about any extra fee. Please refund the S$1.40 difference.",
+    "filed_at": "2026-10-27T23:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-1724",
+    "name": "Farah Ismail",
+    "account_age_days": 200,
+    "total_trips": 58,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-5099",
+    "name": "Jonathan Seah",
+    "account_age_days": 1400,
+    "total_trips": 5000,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Tesla Model 3 (SMD 1188 Y)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HR-010",
+    "rider_id": "R-1724",
+    "driver_id": "D-5099",
+    "scheduled_time": null,
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "pickup_location": {
+      "name": "Paya Lebar Square",
+      "lat": 1.3178,
+      "lng": 103.8929
+    },
+    "dropoff_location": {
+      "name": "Block 449 Pasir Ris Drive 6",
+      "lat": 1.372,
+      "lng": 103.949
+    },
+    "driver_arrival_time": "2026-10-27T22:20:00+08:00",
+    "driver_wait_start": "22:20:00",
+    "distance_km": 11.9,
+    "duration_min": 21,
+    "fare": 19.2,
+    "fare_breakdown": {
+      "quoted_fare": 17.8,
+      "late_night_surcharge": 1.4,
+      "total": 19.2
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-27T22:20:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8929,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-27T22:30:00+08:00",
+      "lat": 1.345,
+      "lng": 103.92,
+      "speed_kmh": 65,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-27T22:43:00+08:00",
+      "lat": 1.372,
+      "lng": 103.949,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-27T22:21:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I'm in the white Tesla at the main entrance."
+    },
+    {
+      "timestamp": "2026-10-27T22:25:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "You look tired, long day?"
+    },
+    {
+      "timestamp": "2026-10-27T22:25:40+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Yes, a long shift. By the way, lovely car, so quiet and clean."
+    },
+    {
+      "timestamp": "2026-10-27T22:26:10+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Thanks, I will turn the music down so you can rest. Let me know if you want the aircon changed."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-27T22:01:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Fixed fare S$17.80 shown."
+    },
+    {
+      "timestamp": "2026-10-27T22:01:25+08:00",
+      "event_type": "rider_confirmed_booking",
+      "details": "Rider tapped 'Confirm' on the S$17.80 quote."
+    },
+    {
+      "timestamp": "2026-10-27T22:22:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-27T22:43:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Charged S$19.20 = quote S$17.80 + late-night surcharge S$1.40 (surcharge was not shown before confirmation). No change to destination or route requested by rider."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "charge_must_not_exceed_confirmed_quote": {
+      "value": true,
+      "text": "Governs the final charge on a fixed-price trip. A true value means the rider may not be charged more than the quote the rider confirmed, unless the rider changed the trip; any excess is refunded."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "upheld",
+    "refund_amount": 1.4,
+    "recommended_action": "full_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The rider confirmed a fixed S$17.80 quote at 22:01:25 and was charged S$19.20 at 22:43:00, S$1.40 more, because of a late-night surcharge that was not shown before confirmation and with no change to the trip requested. This trip's policy forbids charging more than the confirmed quote, so the S$1.40 excess is refunded in full. The 22:25:00 'you look tired, long day?' exchange and the rider's compliment on the car are friendly small talk and do not affect the outcome.",
+    "expected_dispute_type": "fare_dispute",
+    "acceptable_verdicts": [
+      "upheld",
+      "partially_upheld"
+    ]
+  }
+}

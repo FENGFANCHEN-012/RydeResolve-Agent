@@ -1,0 +1,159 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29",
+  "dispute_ticket": {
+    "dispute_id": "HR-06",
+    "trip_id": "RYDE-HR-006",
+    "filed_by": "driver",
+    "dispute_type": "no_show_fee_claim",
+    "description": "I waited at the pickup point and the rider never got in. I pressed no-show after more than 8 minutes. Please make sure the S$4.00 fee is paid to me.",
+    "filed_at": "2026-10-24T21:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-8120",
+    "name": "Ryan Foo",
+    "account_age_days": 70,
+    "total_trips": 12,
+    "avg_rating": 4.3,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3961",
+    "name": "Sandra Lee",
+    "account_age_days": 1800,
+    "total_trips": 7200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKU 6638 E)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HR-006",
+    "rider_id": "R-8120",
+    "driver_id": "D-3961",
+    "scheduled_time": null,
+    "cancellation_time": "2026-10-24T21:09:10+08:00",
+    "cancellation_fee": 4.0,
+    "cancellation_reason": "rider_no_show",
+    "pickup_location": {
+      "name": "Block 5 Kallang Bahru",
+      "lat": 1.3125,
+      "lng": 103.865
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "driver_arrival_time": "2026-10-24T21:00:00+08:00",
+    "driver_wait_start": "21:00:00"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-24T20:55:00+08:00",
+      "lat": 1.315,
+      "lng": 103.863,
+      "speed_kmh": 25,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-24T21:00:00+08:00",
+      "lat": 1.3125,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-24T21:05:00+08:00",
+      "lat": 1.3125,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-24T21:09:10+08:00",
+      "lat": 1.3125,
+      "lng": 103.865,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-24T21:00:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at the carpark entrance, silver Prius."
+    },
+    {
+      "timestamp": "2026-10-24T21:03:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Only coming down if you let me sit in front next to you, and you are my type btw. Give me your number and I will take the ride, my treat for drinks after."
+    },
+    {
+      "timestamp": "2026-10-24T21:03:40+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Please get in the back seat as the app says. I will not share my number."
+    },
+    {
+      "timestamp": "2026-10-24T21:07:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Then I wait here until you change your mind. You owe me a smile at least."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-24T20:52:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3961 matched. ETA 8 min."
+    },
+    {
+      "timestamp": "2026-10-24T21:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver tapped 'I'm Here'; GPS within 10 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-24T21:09:10+08:00",
+      "event_type": "trip_cancelled",
+      "details": "Driver cancelled; reason: rider_no_show. Wait counted from driver_arrived: 9 min 10 s. No-show fee S$4.00 applied."
+    }
+  ],
+  "platform_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show. The limit counts: a wait of exactly 8 min 00 s meets it."
+    },
+    "no_show_fee": {
+      "value": 4.0,
+      "text": "The fee in SGD charged to the rider when the rider counts as a no-show."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a no-show fee once it is charged."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "On the numbers the fee looks due: the driver arrived at 21:00:00 and cancelled at 21:09:10, a wait of 9 min 10 s against the 8-minute threshold, fee S$4.00. But the chat shows why the rider did not board and how he behaved: at 21:03:00 he said he would only come down if he could sit in front, called her 'my type', asked for her number and offered drinks, and at 21:07:00 said she 'owed him a smile' after she declined at 21:03:40. Unwanted personal and romantic advances by the rider fall under Policy v2.1 s5.2, so a person decides this claim including the fee. No automated verdict or refund.",
+    "expected_dispute_type": "no_show_fee_claim"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29",
+  "dispute_ticket": {
+    "dispute_id": "HR-07",
+    "trip_id": "RYDE-HR-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was charged S$3.50 for ERP on my trip from Novena to Bukit Timah but I never asked for an expressway. I want the ERP line refunded.",
+    "filed_at": "2026-10-12T21:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-6003",
+    "name": "Sharon Pereira",
+    "account_age_days": 330,
+    "total_trips": 74,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-7745",
+    "name": "Ismail Yusof",
+    "account_age_days": 1500,
+    "total_trips": 5400,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SKV 2084 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HR-007",
+    "rider_id": "R-6003",
+    "driver_id": "D-7745",
+    "scheduled_time": null,
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "pickup_location": {
+      "name": "Velocity@Novena Square",
+      "lat": 1.32,
+      "lng": 103.844
+    },
+    "dropoff_location": {
+      "name": "Block 22 Toh Yi Drive",
+      "lat": 1.339,
+      "lng": 103.774
+    },
+    "driver_arrival_time": "2026-10-12T19:21:00+08:00",
+    "driver_wait_start": "19:21:00",
+    "distance_km": 10.8,
+    "duration_min": 24,
+    "fare": 19.7,
+    "fare_breakdown": {
+      "base_fare": 16.2,
+      "erp": 3.5,
+      "total": 19.7
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-12T19:21:00+08:00",
+      "lat": 1.32,
+      "lng": 103.844,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-12T19:34:00+08:00",
+      "lat": 1.33,
+      "lng": 103.81,
+      "speed_kmh": 48,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-12T19:47:00+08:00",
+      "lat": 1.339,
+      "lng": 103.774,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-12T19:20:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hello, I'm at Novena Square entrance."
+    },
+    {
+      "timestamp": "2026-10-12T19:21:20+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Coming!"
+    },
+    {
+      "timestamp": "2026-10-12T20:05:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, you left a black umbrella in the back seat. What number can I call you on to arrange to return it? I can drop it at your block tomorrow."
+    },
+    {
+      "timestamp": "2026-10-12T20:07:30+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Thanks so much! Please just leave it with the security guard at my block, no need to call."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-12T19:22:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-12T19:30:00+08:00",
+      "event_type": "erp_gantry_crossed",
+      "details": "ERP gantry crossed at Dunearn Road (Newton), S$3.50."
+    },
+    {
+      "timestamp": "2026-10-12T19:47:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$16.20 + ERP S$3.50 = S$19.70."
+    }
+  ],
+  "platform_policy": {
+    "erp_pass_through": {
+      "value": true,
+      "text": "Governs ERP and toll charges. A true value means the actual ERP charge incurred on the trip is passed on to the rider and is shown on the receipt."
+    },
+    "lost_item_return_contact_allowed": {
+      "value": true,
+      "text": "Governs a driver contacting a rider after a trip only to return an item the rider left in the car. A true value means such contact is allowed, through the app chat or by phone."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Governs refunds on this trip. A true value means Ryde may refund beyond the strict rules where the facts justify it. It does not create a right to a refund."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": "dismissed",
+    "refund_amount": 0.0,
+    "recommended_action": "no_refund",
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The receipt is S$16.20 base plus S$3.50 ERP = S$19.70, and the 19:30:00 gantry event shows the S$3.50 charge was really incurred at Dunearn Road. This trip's policy passes actual ERP through to the rider, so the charge is correct and nothing is refunded. The driver's 20:05:00 request for a number is only to return the rider's umbrella, which this trip's policy allows, and she answers it politely at 20:07:30; it is not a conduct issue.",
+    "expected_dispute_type": "fare_dispute"
+  }
+}

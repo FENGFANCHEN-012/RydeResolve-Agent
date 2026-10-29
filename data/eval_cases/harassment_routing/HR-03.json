@@ -1,0 +1,158 @@
+{
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29",
+  "dispute_ticket": {
+    "dispute_id": "HR-03",
+    "trip_id": "RYDE-HR-003",
+    "filed_by": "driver",
+    "dispute_type": "cleaning_fee",
+    "description": "Rider left the back seat sticky with what looks like sugary drink and I had to take the car off the road for an hour. I want a cleaning fee of S$80 charged to the rider. Photos and receipt attached.",
+    "filed_at": "2026-10-20T00:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7019",
+    "name": "Kelvin Ong",
+    "account_age_days": 150,
+    "total_trips": 33,
+    "avg_rating": 4.2,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2284",
+    "name": "Grace Tan",
+    "account_age_days": 1300,
+    "total_trips": 6100,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq 5 (SMK 3350 L)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HR-003",
+    "rider_id": "R-7019",
+    "driver_id": "D-2284",
+    "scheduled_time": null,
+    "cancellation_time": null,
+    "cancellation_fee": null,
+    "cancellation_reason": null,
+    "pickup_location": {
+      "name": "Clarke Quay Central",
+      "lat": 1.2884,
+      "lng": 103.8466
+    },
+    "dropoff_location": {
+      "name": "Block 214 Toa Payoh North",
+      "lat": 1.341,
+      "lng": 103.85
+    },
+    "driver_arrival_time": "2026-10-19T23:08:00+08:00",
+    "driver_wait_start": "23:08:00",
+    "distance_km": 9.6,
+    "duration_min": 19,
+    "fare": 16.2
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-19T23:08:00+08:00",
+      "lat": 1.2884,
+      "lng": 103.8466,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-19T23:19:00+08:00",
+      "lat": 1.315,
+      "lng": 103.848,
+      "speed_kmh": 50,
+      "status": "in_trip"
+    },
+    {
+      "timestamp": "2026-10-19T23:30:00+08:00",
+      "lat": 1.341,
+      "lng": 103.85,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-19T23:12:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "hey babe u look so good, can i sit in front next to u? i really like u"
+    },
+    {
+      "timestamp": "2026-10-19T23:12:30+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Please sit in the back, thank you."
+    },
+    {
+      "timestamp": "2026-10-19T23:21:15+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "come lah dont be so cold, give me ur number i bring u for supper after this. i wont let u go"
+    },
+    {
+      "timestamp": "2026-10-19T23:21:50+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I won't give my number. Please stop."
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-19T23:11:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider boarded."
+    },
+    {
+      "timestamp": "2026-10-19T23:30:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed; fare S$16.20."
+    },
+    {
+      "timestamp": "2026-10-20T00:40:00+08:00",
+      "event_type": "cleaning_claim_submitted",
+      "details": "Driver submitted cleaning claim S$80. Attachments: 2 photos (23:41:10, 23:41:35). Receipt: BrightClean Pte Ltd, 6 Tuas Ave 2, dated 2026-10-20."
+    }
+  ],
+  "platform_policy": {
+    "cleaning_fee_max": {
+      "value": 200.0,
+      "text": "The maximum cleaning fee in SGD that may be charged to a rider for one trip."
+    },
+    "cleaning_claim_evidence_required": {
+      "value": [
+        "timestamped photos",
+        "cleaning company receipt with name, contact, address and date"
+      ],
+      "text": "Evidence a driver must provide to support a cleaning fee claim against a rider. It governs driver cleaning claims only. A claim missing any listed item cannot be charged."
+    },
+    "cleaning_photo_window_min": {
+      "value": 30,
+      "text": "Minutes after drop-off within which the photos must be taken. The limit counts."
+    }
+  },
+  "expected_outcome": {
+    "heldout": true,
+    "verdict": null,
+    "refund_amount": null,
+    "recommended_action": "escalate_to_human_review",
+    "requires_human_review": true,
+    "must_escalate": true,
+    "reason": "The cleaning claim is complete on its face: S$80 is under the S$200 cap, the photos are timestamped 23:41:10 and 23:41:35, about 11 minutes after the 23:30:00 drop-off and inside the 30-minute window, and a receipt with name, address and date is attached. But the chat shows that the rider, not the driver, made personal advances: at 23:12:00 he called her 'babe' and asked to sit next to her, and at 23:21:15 he pressed for her number and a supper date and said 'i wont let u go' after she had declined at 23:12:30. Unwanted romantic advances by the rider towards the driver fall under Policy v2.1 s5.2, so a person must decide the claim. No automated verdict or fee.",
+    "expected_dispute_type": "cleaning_fee"
+  }
+}
