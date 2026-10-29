@@ -40,6 +40,33 @@ _IMMINENT_PATTERNS = [
 ]
 _LEGAL_PATTERN = r"\b(police|lawsuit|sue|legal action|lawyer)\b"
 
+# Harassment told in plain words, without "harass" or a threat (D66; LX-15: "made comments about how
+# I look ... asking for my number", chat "you look really nice tonight. can I have your number? maybe
+# dinner this weekend"). Used by the Classifier (complaint), the Fraud chat screen (messages from the
+# other party only) and the policy gate. An invitation must be an invitation: "I had no drink with me"
+# (LX-14, OF-30) is a denial, not an advance.
+HARASSMENT_CLAIM = re.compile(
+    r"\b(comment(s|ed|ing)? (about|on) (how i look|my (looks?|appearance|body|figure|legs|outfit|clothes|dress))"
+    r"|ask(ed|ing|s)? (me )?for my (personal |phone |mobile |contact )?(number|no\.?|address|whatsapp|instagram)"
+    r"|ask(ed|ing|s)? me out|personal questions|(asked|asking|told|tell)( me)? to sit (in )?(the )?front"
+    r"|(messag|text|call)(ed|ing|s)? me after the (trip|ride|drop-?off))", re.I)
+HARASSMENT_CHAT = re.compile(
+    r"\b(you look (very |so |really )?(nice|sexy|pretty|hot|beautiful|cute|gorgeous)"
+    r"|(can|could|may) i (get|have) (your|ur) (number|no\.?|whatsapp|contact)(?!\s+for)"
+    r"|go(ing)? out with me|(a )?date with me|go (out )?for (a )?(dinner|drinks?|coffee)"
+    r"|(dinner|a drink|drinks|coffee) (together |with me )?(this|tonight|tomorrow)"
+    r"|are you single|do you have a (boy|girl)friend|sit (in )?(the )?front with me)", re.I)
+
+
+def harassment_in_claim(text: str) -> list[str]:
+    """Harassment phrases in the filer's own complaint."""
+    return sorted({m.group(0).lower() for m in HARASSMENT_CLAIM.finditer(str(text or ""))})
+
+
+def harassment_in_message(text: str) -> list[str]:
+    """Unwanted personal or romantic advances in one chat message."""
+    return sorted({m.group(0).lower() for m in HARASSMENT_CHAT.finditer(str(text or ""))})
+
 GUIDANCE = ("If you are in immediate danger call 999 (Police) or 995 (Ambulance). A member of the "
             "Ryde safety team will contact you; you will not be matched with this person again.")
 

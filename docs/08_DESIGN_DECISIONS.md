@@ -2202,3 +2202,49 @@ How it was checked: file size and duration read with ffprobe; under GitHub's 100
 no Git LFS needed.
 
 Not done: no subtitles file or thumbnail added.
+
+## D66. Harassment told in plain words, or done in the chat, goes to a person (2026-10-29)
+
+Branch `fix/harassment-routing` (off main). D64 and D65 (learning loop v2 and its blind test) are on
+branches `feature/learning-loop-v2` and `experiment/learning-loop-eval` and are not merged yet.
+
+**Why.** In the D65 blind test, control case LX-15 (a rider reports that the driver asked about her
+boyfriend, told her to sit in front, commented on her looks and messaged her after the trip for her
+number; the chat holds the driver's "you look really nice tonight. can I have your number? maybe dinner
+this weekend") was **ruled by the AI in both runs** (partially upheld, warning to the driver) instead of
+going to a person. Policy v2.1 s5.2 says AI may prepare a safety case but not rule on it.
+
+**Cause.** A case reaches the Safety agent and the s5.2 gate in two ways: safety words in the complaint
+(Classifier P0 list, policy-gate word list), or a threat in the chat (Fraud chat screen). LX-15 used
+neither "harass" nor a threat, so every check said "safe". The ChatTone step did label the driver's
+message abusive, but by design (D52) tone never routes a case.
+
+**What changed.**
+- `src/agents/safety.py`: one shared list of harassment phrases. `HARASSMENT_CLAIM` for the filer's
+  complaint (comments about my looks/body, asked for my number/address, asked me out, personal
+  questions, told me to sit in front, messaged me after the trip). `HARASSMENT_CHAT` for a chat message
+  (you look nice/pretty/..., can I have your number, dinner this weekend, a date with me, are you
+  single, ...). An invitation must read as an invitation: "I had no drink with me" is not one.
+- `src/agents/classifier.py`: complaint phrases count as P0, so the case goes to the Safety agent first.
+- `src/agents/fraud.py`: a chat advance from the **other party** (never the filer quoting it back)
+  becomes a safety alert, like a threat. It is kept out of the fraud score.
+- `src/agents/policy_gates.py`: the s5.2 gate also sees the complaint phrases.
+
+Rejected: letting the ChatTone "abusive" label route cases. It also fires on plain insults, and D52
+kept tone out of routing on purpose. Rejected: a model call to spot harassment. Code is free, gives
+the same answer every run, and a miss here is a safety miss.
+
+**How it was checked (free).** Scan of all 252 case files in `data/` (eval sets and mock disputes)
+with the final functions: 4 flagged (FS-19, PX-14, `safety_incident_01`, LX-15), every one a case whose
+answer is "a person reviews it". Only LX-15 is new; the other three were already caught by the word
+"harass". The first draft also flagged LX-14 and OF-30 ("I had no drink with me"); the invitation
+pattern was narrowed until those two cleared. 8 new tests in `tests/test_harassment_routing.py`
+(LX-15 complaint is P0; the chat advance becomes a safety alert and no fraud signal; the filer quoting
+it is ignored; the gate sees the phrases; four ordinary sentences are not advances). 668 tests pass.
+
+**What it solved.** Before: LX-15 was ruled automatically in 2 of 2 runs. After: its complaint is P0
+and its chat produces a safety alert, so it goes to the Safety agent and the s5.2 gate, which send it
+to a person. No other existing case changes route.
+
+Not done yet: a new blind set written for this change and one paid run (planned as D66b).
+A harassment complaint is still classified with type `accident_liability` (existing P0 behaviour).

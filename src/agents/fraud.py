@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel, Field
 
+from src.agents.safety import harassment_in_message
 from src.core.llm_client import LLMClient
 from src.core.trace import record_tool_call
 
@@ -148,7 +149,7 @@ class FraudAgent:
         chat = [m for m in context.chat_log or [] if isinstance(m, dict)]
         if not chat:
             return [], [], "not run"
-        found = keyword_chat_labels(chat)
+        found = keyword_chat_labels(chat, filer_role)
         review = "keywords"
         llm = self._llm or LLMClient()
         # No key = no model call (offline tests would otherwise wait out the rate-limit spacing)
@@ -348,7 +349,7 @@ def pair_signals(pair: dict | None) -> list[FraudSignal]:
 # ---------------------------------------------------------------------- chat
 
 
-def keyword_chat_labels(chat: list[dict]) -> list[dict]:
+def keyword_chat_labels(chat: list[dict], filer_role: str | None = None) -> list[dict]:
     found = []
     for m in chat:
         text = str(m.get("message") or "")
@@ -356,6 +357,10 @@ def keyword_chat_labels(chat: list[dict]) -> list[dict]:
         for label, patterns in (("collusion_offer", _COLLUSION_PATTERNS), ("threat", _THREAT_PATTERNS)):
             if any(re.search(p, low) for p in patterns):
                 found.append({"label": label, "quote": text, "sender": m.get("sender")})
+        # An advance counts only from the other party: the filer quoting it back is not one (D66)
+        sender = str(m.get("sender") or "").lower().replace("passenger", "rider")
+        if filer_role and sender and sender != filer_role and harassment_in_message(text):
+            found.append({"label": "harassment", "quote": text, "sender": m.get("sender")})
     return found
 
 
@@ -391,12 +396,16 @@ def verified_labels(labels: list, chat: list[dict], claim: str = "",
 
 
 def chat_label_signals(found: list[dict], filer_id: str | None) -> tuple[list[FraudSignal], list[str]]:
-    """Fraud signals, and safety alerts for threats (kept out of the fraud score: being threatened
+    """Fraud signals, and safety alerts for threats and advances (kept out of the fraud score: being threatened
     says nothing about whether a claim is honest, and the sender may not be the filer)."""
     out, safety, seen = [], [], set()
     for f in found:
         if f["label"] == "threat":
             safety.append(f"Threat in the chat ({f.get('sender') or '?'}): \"{f['quote'][:160]}\"")
+            continue
+        if f["label"] == "harassment":
+            safety.append(f"Unwanted personal advance in the chat ({f.get('sender') or '?'}): "
+                          f"\"{f['quote'][:160]}\"")
             continue
         if f["label"] in seen:
             continue

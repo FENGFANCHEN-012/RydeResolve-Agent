@@ -13,6 +13,7 @@ from typing import Optional
 from pydantic import BaseModel, field_validator
 
 from src.agents.collector import DisputeContext, DisputeType
+from src.agents.safety import harassment_in_claim
 from src.core.llm_client import LLMClient
 from src.config import LLM_API_KEY
 
@@ -75,6 +76,8 @@ def _has_p0_keywords(text: str) -> tuple[bool, list[str]]:
         pattern = r"\b" + re.escape(kw) + r"\b"
         if re.search(pattern, text_lower):
             matched.append(kw)
+    # Harassment described without the word (D66, LX-15)
+    matched += harassment_in_claim(text)
     return len(matched) > 0, matched
 
 

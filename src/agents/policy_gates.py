@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import re
 
+from src.agents.safety import harassment_in_claim
 from src.core.governing_policy import CLAIM_FIELDS, is_property_case
 
 AUTO_FINAL_BELOW = 10.0     # s6.1: under S$10 the AI ruling is final
@@ -57,6 +58,7 @@ def safety_indicators(context) -> list[str]:
     """What marks this dispute as a safety incident under s5.1-5.2: words in the complaint, or
     driving-safety events in the platform record."""
     found = [m.group(0).lower() for m in _SAFETY_TEXT.finditer(str(_get(context, "description") or ""))]
+    found += harassment_in_claim(_get(context, "description"))   # D66: harassment in plain words
     found += [e.get("event_type") for e in _get(context, "app_events") or []
               if isinstance(e, dict) and e.get("event_type") in _SAFETY_EVENTS]
     return sorted(set(found))
