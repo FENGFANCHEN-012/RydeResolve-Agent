@@ -1,0 +1,173 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "HN-08",
+    "trip_id": "RYDE-HN-008",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "This app is a RIP OFF!! $19.50 for a short ride from Bugis Junction to Paya Lebar Quarter is daylight robbery, useless company, useless drivers. Fine, the guy lifted my luggage into the boot and made small talk about the rain, whatever, that does not change anything. I want ALL my money back, all $19.50, or I will tell everyone.",
+    "filed_at": "2026-10-23T19:10:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7108",
+    "name": "Kevin Sim",
+    "account_age_days": 800,
+    "total_trips": 640,
+    "avg_rating": 4.2,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2803",
+    "name": "Lau Chee Wai",
+    "account_age_days": 1100,
+    "total_trips": 4900,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Fit (SKA 9021 M)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HN-008",
+    "rider_id": "R-7108",
+    "driver_id": "D-2803",
+    "pickup_location": {
+      "name": "Bugis Junction",
+      "lat": 1.2998,
+      "lng": 103.8554
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3174,
+      "lng": 103.8924
+    },
+    "scheduled_time": "2026-10-23T18:20:00+08:00",
+    "pickup_time": "2026-10-23T18:20:00+08:00",
+    "dropoff_time": "2026-10-23T18:44:00+08:00",
+    "estimated_distance_km": 5.6,
+    "actual_distance_km": 5.7,
+    "estimated_duration_min": 12,
+    "actual_duration_min": 24,
+    "estimated_fare": 19.5,
+    "total_fare": 19.5,
+    "fare_breakdown": {
+      "base_fare": 3.9,
+      "distance_fare": 6.2,
+      "time_fare": 2.9,
+      "subtotal": 13.0,
+      "surge_multiplier": 1.5,
+      "surge_amount": 6.5,
+      "total": 19.5
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-23T18:20:00+08:00",
+      "lat": 1.2998,
+      "lng": 103.8554,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-23T18:26:00+08:00",
+      "lat": 1.3042,
+      "lng": 103.8646,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-23T18:32:00+08:00",
+      "lat": 1.3086,
+      "lng": 103.8739,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-23T18:38:00+08:00",
+      "lat": 1.313,
+      "lng": 103.8832,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-23T18:44:00+08:00",
+      "lat": 1.3174,
+      "lng": 103.8924,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-23T18:09:00+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$19.50 shown to rider (subtotal S$13.00 x 1.5 surge). Surge banner displayed: 'Higher demand, fares are 1.5x'."
+    },
+    {
+      "timestamp": "2026-10-23T18:09:20+08:00",
+      "event_type": "surge_accepted",
+      "details": "Rider R-7108 tapped 'Accept higher fare' on the surge banner."
+    },
+    {
+      "timestamp": "2026-10-23T18:09:40+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7108 confirmed trip at quoted fare S$19.50."
+    },
+    {
+      "timestamp": "2026-10-23T18:10:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2803 (Lau Chee Wai, Honda Fit SKA 9021 M) assigned."
+    },
+    {
+      "timestamp": "2026-10-23T18:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-23T18:44:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 5.7 km, 24 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-23T18:44:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$19.50 (equal to quoted fare) charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "rejected",
+    "recommended_action": "reject_no_refund",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The quote of S$19.50 (S$13.00 x 1.5 surge) was shown with a surge banner at 18:09:00 and the rider tapped accept at 18:09:20 before confirming at 18:09:40, so the surge was displayed before confirmation. The final fare equals the quote and the route matched (5.7 km against 5.6 km). No refund is due; the rider's anger and the luggage help and small talk do not change the figures.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "acceptable_verdicts": [
+      "rejected"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (third set, no chat)"
+}

@@ -1,0 +1,178 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "HN-10",
+    "trip_id": "RYDE-HN-010",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was charged a $5.00 waiting fee on top of the fare for the Paya Lebar Quarter pickup, but I was standing at the main lobby pin from the start and never saw the driver; he was apparently at the car park at the back. After we met he called me by phone to say he found my wallet on the seat when I left it behind and asked for my number to arrange the return, which was very kind. But the waiting fee should come off, please refund $5.00.",
+    "filed_at": "2026-10-26T17:45:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7110",
+    "name": "Farah Aziz",
+    "account_age_days": 260,
+    "total_trips": 99,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3006",
+    "name": "Kwek Boon Teck",
+    "account_age_days": 1300,
+    "total_trips": 5600,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SJX 7765 Z)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HN-010",
+    "rider_id": "R-7110",
+    "driver_id": "D-3006",
+    "pickup_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3174,
+      "lng": 103.8924
+    },
+    "dropoff_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3244,
+      "lng": 103.9298
+    },
+    "scheduled_time": "2026-10-26T16:20:00+08:00",
+    "pickup_time": "2026-10-26T16:20:00+08:00",
+    "dropoff_time": "2026-10-26T16:44:00+08:00",
+    "estimated_distance_km": 5.9,
+    "actual_distance_km": 6.0,
+    "estimated_duration_min": 14,
+    "actual_duration_min": 24,
+    "estimated_fare": 9.4,
+    "total_fare": 14.4,
+    "fare_breakdown": {
+      "base_fare": 3.7,
+      "distance_fare": 3.9,
+      "time_fare": 1.8,
+      "subtotal": 9.4,
+      "waiting_fee": 5.0,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 14.4
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-26T16:20:00+08:00",
+      "lat": 1.3174,
+      "lng": 103.8924,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-26T16:26:00+08:00",
+      "lat": 1.3192,
+      "lng": 103.9017,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-26T16:32:00+08:00",
+      "lat": 1.3209,
+      "lng": 103.9111,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-26T16:38:00+08:00",
+      "lat": 1.3226,
+      "lng": 103.9205,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-26T16:44:00+08:00",
+      "lat": 1.3244,
+      "lng": 103.9298,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-26T16:05:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7110 booked from Paya Lebar Quarter (main lobby pin) to Bedok Mall. Upfront fare S$9.40."
+    },
+    {
+      "timestamp": "2026-10-26T16:05:30+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3006 (Kwek Boon Teck, Toyota Prius SJX 7765 Z) assigned."
+    },
+    {
+      "timestamp": "2026-10-26T16:10:00+08:00",
+      "event_type": "driver_location_check",
+      "details": "Driver GPS 450 m from the pickup pin (car park B2 entrance). No driver_arrived event recorded."
+    },
+    {
+      "timestamp": "2026-10-26T16:15:00+08:00",
+      "event_type": "waiting_fee_applied",
+      "details": "Waiting fee S$5.00 added to the trip, calculated from the scheduled pickup time."
+    },
+    {
+      "timestamp": "2026-10-26T16:20:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-26T16:44:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 6.0 km, 24 min."
+    },
+    {
+      "timestamp": "2026-10-26T16:44:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$14.40 (S$9.40 + S$5.00 waiting fee) charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "arrival_wait_fee_threshold_min": {
+      "value": 5,
+      "text": "Minutes the driver must wait after arriving at the pickup point before a waiting or no-show fee can apply to the rider."
+    },
+    "arrival_evidence": {
+      "value": "a driver_arrived event with the driver's GPS within 100 m of the pickup pin",
+      "text": "Names the record that counts as proof that the driver arrived at the pickup point. It governs how arrival is established, not whether a fee is due."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund_waiting_fee",
+    "refund_amount": 5.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "A waiting fee needs proof that the driver arrived and then waited past the 5-minute threshold. There is no driver_arrived event, and the 16:10 location check puts the driver 450 m from the pin, outside the 100 m arrival rule. The S$5.00 waiting fee in the S$14.40 total was not justified and is refundable; the fare of S$9.40 stands. The driver's phone call about the wallet is ordinary and plays no part.",
+    "expected_dispute_type": "no_show",
+    "expected_urgency": null,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (third set, no chat)"
+}

@@ -1,0 +1,172 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "HN-09",
+    "trip_id": "RYDE-HN-009",
+    "filed_by": "rider",
+    "dispute_type": "route_deviation",
+    "description": "My mother and I took a ride from Bedok Mall to Tan Tock Seng Hospital for her appointment. The app said $13.50 but I was charged $17.20 because the driver missed the KPE exit and went a long way round, and we almost missed her slot. He did help my mother out of the car by the arm at the hospital entrance and was very patient with her, but please refund the extra $3.70.",
+    "filed_at": "2026-10-24T11:20:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7109",
+    "name": "Grace Ng",
+    "account_age_days": 380,
+    "total_trips": 140,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2904",
+    "name": "Foo Kian Boon",
+    "account_age_days": 2000,
+    "total_trips": 11500,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Alphard (SMB 5033 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HN-009",
+    "rider_id": "R-7109",
+    "driver_id": "D-2904",
+    "pickup_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3244,
+      "lng": 103.9298
+    },
+    "dropoff_location": {
+      "name": "Tan Tock Seng Hospital",
+      "lat": 1.3213,
+      "lng": 103.8456
+    },
+    "scheduled_time": "2026-10-24T09:40:00+08:00",
+    "pickup_time": "2026-10-24T09:40:00+08:00",
+    "dropoff_time": "2026-10-24T10:13:00+08:00",
+    "estimated_distance_km": 13.8,
+    "actual_distance_km": 18.9,
+    "estimated_duration_min": 25,
+    "actual_duration_min": 33,
+    "estimated_fare": 13.5,
+    "total_fare": 17.2,
+    "fare_breakdown": {
+      "base_fare": 3.7,
+      "distance_fare": 8.9,
+      "time_fare": 4.6,
+      "subtotal": 17.2,
+      "surge_multiplier": 1.0,
+      "surge_amount": 0.0,
+      "total": 17.2
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-24T09:40:00+08:00",
+      "lat": 1.3244,
+      "lng": 103.9298,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-24T09:48:00+08:00",
+      "lat": 1.3236,
+      "lng": 103.9087,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-24T09:56:00+08:00",
+      "lat": 1.3228,
+      "lng": 103.8877,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-24T10:05:00+08:00",
+      "lat": 1.3221,
+      "lng": 103.8667,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-24T10:13:00+08:00",
+      "lat": 1.3213,
+      "lng": 103.8456,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-24T09:31:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7109 booked from Bedok Mall to Tan Tock Seng Hospital. Upfront fare S$13.50, 13.8 km, 25 min."
+    },
+    {
+      "timestamp": "2026-10-24T09:31:30+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2904 (Foo Kian Boon, Toyota Alphard SMB 5033 H) assigned."
+    },
+    {
+      "timestamp": "2026-10-24T09:40:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up. Navigation route: PIE westbound then KPE exit."
+    },
+    {
+      "timestamp": "2026-10-24T09:52:00+08:00",
+      "event_type": "route_deviation_alert",
+      "details": "Vehicle passed the planned exit and continued on the expressway for 5.1 km before turning back. No road closure or incident reported on the planned route. No route change requested by the rider."
+    },
+    {
+      "timestamp": "2026-10-24T10:13:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 18.9 km, 33 min."
+    },
+    {
+      "timestamp": "2026-10-24T10:13:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$17.20 charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "fare_basis": {
+      "value": "fixed upfront price",
+      "text": "States how this trip's fare is set: a fixed upfront price, or a metered fare that varies with distance and time."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
+    },
+    "rider_route_requests_must_be_agreed_before_trip": {
+      "value": true,
+      "text": "Binds the rider. A route or stop that the rider asks for must be agreed with the driver before the trip starts. It does not govern route changes the driver makes."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund",
+    "refund_amount": 3.7,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "The fare is a fixed upfront price of S$13.50, so only that is payable; S$17.20 - S$13.50 = S$3.70 is refundable. The route_deviation_alert at 09:52 shows the driver passed the planned exit with no closure or rider request, and the trip ran 18.9 km against 13.8 km. Helping the mother out by the arm is ordinary assistance.",
+    "expected_dispute_type": "route_deviation",
+    "expected_urgency": null,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (third set, no chat)"
+}

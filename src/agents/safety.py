@@ -45,14 +45,15 @@ _LEGAL_PATTERN = r"\b(police|lawsuit|sue|legal action|lawyer)\b"
 # dinner this weekend"). Used by the Classifier (complaint), the Fraud chat screen (messages from the
 # other party only) and the policy gate. An invitation must be an invitation: "I had no drink with me"
 # (LX-14, OF-30) is a denial, not an advance.
+# A number asked "for/to/so" a reason (a lost item, a pickup) is left to the model check (D66e)
 HARASSMENT_CLAIM = re.compile(
     r"\b(comment(s|ed|ing)? (about|on) (how i look|my (looks?|appearance|body|figure|legs|outfit|clothes|dress))"
-    r"|ask(ed|ing|s)? (me )?for my (personal |phone |mobile |contact )?(number|no\.?|address|whatsapp|instagram)"
+    r"|ask(ed|ing|s)? (me )?for my (personal |phone |mobile |contact )?(number|no\.?|address|whatsapp|instagram)(?!\s+(for|to|so)\b)"
     r"|ask(ed|ing|s)? me out|personal questions|(asked|asking|told|tell)( me)? to sit (in )?(the )?front"
     r"|(messag|text|call)(ed|ing|s)? me after the (trip|ride|drop-?off))", re.I)
 HARASSMENT_CHAT = re.compile(
     r"\b(you look (very |so |really )?(nice|sexy|pretty|hot|beautiful|cute|gorgeous)"
-    r"|(can|could|may) i (get|have) (your|ur) (number|no\.?|whatsapp|contact)(?!\s+for)"
+    r"|(can|could|may) i (get|have) (your|ur) (number|no\.?|whatsapp|contact)(?!\s+(for|to|so)\b)"
     r"|go(ing)? out with me|(a )?date with me|go (out )?for (a )?(dinner|drinks?|coffee)"
     r"|(dinner|a drink|drinks|coffee) (together |with me )?(this|tonight|tomorrow)"
     r"|are you single|do you have a (boy|girl)friend|sit (in )?(the )?front with me)", re.I)

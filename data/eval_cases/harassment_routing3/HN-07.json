@@ -1,0 +1,173 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "HN-07",
+    "trip_id": "RYDE-HN-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "I was charged $21.00 for the ride from Changi Airport T3 to Marina Bay Sands but the app quote was $15.00 and I never saw a surge notice. I dozed off on the ride and the driver tapped my shoulder once when we reached the hotel entrance, which was fine, thank you. But the fare is not fine. Please refund the extra $6.00.",
+    "filed_at": "2026-10-22T08:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7107",
+    "name": "Daniel Teo",
+    "account_age_days": 500,
+    "total_trips": 210,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-2701",
+    "name": "Wong Yew Meng",
+    "account_age_days": 1600,
+    "total_trips": 7300,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 1,
+      "upheld_against": 0,
+      "rejected": 1
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Camry (SJF 1507 R)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-HN-007",
+    "rider_id": "R-7107",
+    "driver_id": "D-2701",
+    "pickup_location": {
+      "name": "Changi Airport T3",
+      "lat": 1.3573,
+      "lng": 103.9886
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-22T06:40:00+08:00",
+    "pickup_time": "2026-10-22T06:40:00+08:00",
+    "dropoff_time": "2026-10-22T07:12:00+08:00",
+    "estimated_distance_km": 19.4,
+    "actual_distance_km": 19.6,
+    "estimated_duration_min": 26,
+    "actual_duration_min": 32,
+    "estimated_fare": 15.0,
+    "total_fare": 21.0,
+    "fare_breakdown": {
+      "base_fare": 4.0,
+      "distance_fare": 8.5,
+      "time_fare": 2.5,
+      "subtotal": 15.0,
+      "surge_multiplier": 1.4,
+      "surge_amount": 6.0,
+      "total": 21.0
+    }
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-22T06:40:00+08:00",
+      "lat": 1.3573,
+      "lng": 103.9886,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-22T06:48:00+08:00",
+      "lat": 1.3388,
+      "lng": 103.9566,
+      "speed_kmh": 34,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-22T06:56:00+08:00",
+      "lat": 1.3203,
+      "lng": 103.9246,
+      "speed_kmh": 46,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-22T07:04:00+08:00",
+      "lat": 1.3019,
+      "lng": 103.8927,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-22T07:12:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "chat_logs": [],
+  "app_events": [
+    {
+      "timestamp": "2026-10-22T06:29:30+08:00",
+      "event_type": "fare_quote_shown",
+      "details": "Upfront fare S$15.00 shown to rider. Surge multiplier 1.0x; no surge banner displayed."
+    },
+    {
+      "timestamp": "2026-10-22T06:29:45+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7107 confirmed trip at quoted fare S$15.00."
+    },
+    {
+      "timestamp": "2026-10-22T06:30:10+08:00",
+      "event_type": "surge_multiplier_changed",
+      "details": "Zone surge multiplier changed 1.0x -> 1.4x after booking confirmation and applied to this trip. Rider was not shown an updated fare or asked to accept."
+    },
+    {
+      "timestamp": "2026-10-22T06:30:20+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-2701 (Wong Yew Meng, Toyota Camry SJF 1507 R) assigned."
+    },
+    {
+      "timestamp": "2026-10-22T06:40:00+08:00",
+      "event_type": "trip_started",
+      "details": "Rider picked up."
+    },
+    {
+      "timestamp": "2026-10-22T07:12:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Distance 19.6 km, 32 min. Route matched recommended route."
+    },
+    {
+      "timestamp": "2026-10-22T07:12:10+08:00",
+      "event_type": "fare_finalised",
+      "details": "Final fare S$21.00 (subtotal S$15.00 x 1.4 surge) charged to credit card."
+    }
+  ],
+  "platform_policy": {
+    "surge_must_be_displayed_before_confirmation": {
+      "value": true,
+      "text": "Governs surge pricing. A true value means the surge must be shown to the rider before the booking is confirmed."
+    },
+    "refund_at_ryde_discretion": {
+      "value": true,
+      "text": "Says Ryde staff may grant a goodwill refund, case by case, outside the other rules. It is a person's decision: it never makes a charge that this trip's other rules allow refundable, and it does not set any amount."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "refund_surge_amount",
+    "refund_amount": 6.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "fare_quote_shown and booking_confirmed both show S$15.00 at 1.0x with no banner; the 1.4x surge was applied at 06:30:10 after confirmation without telling the rider. The route matched (19.6 km against 19.4 km estimated), so the whole S$6.00 surge amount (21.00 - 15.00) is refundable. The shoulder tap to wake the rider is ordinary courtesy and plays no part.",
+    "expected_dispute_type": "fare_dispute",
+    "expected_urgency": null,
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-29 (third set, no chat)"
+}

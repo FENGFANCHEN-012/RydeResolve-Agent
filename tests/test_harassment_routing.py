@@ -50,6 +50,7 @@ def test_policy_gate_sees_plain_word_harassment():
     "I had no drink with me. The seat was spotless when I got out.",     # OF-30
     "Can I have your number for the lost item report?",
     "The driver asked if he could drop me at the front gate.",
+    "He asked for my number to arrange the return of my wallet.",     # HN-10 (D66e)
 ])
 def test_ordinary_words_are_not_advances(text):
     assert harassment_in_message(text) == [] and harassment_in_claim(text) == []
@@ -81,3 +82,52 @@ def test_model_advance_from_the_claim_needs_the_claim_words():
     found = verified_labels([ok, invented], CHAT, claim, "rider")
     assert found == [{"label": "unwanted_advance", "quote": ok["quote"], "sender": "claim"}]
     assert "described in the claim" in chat_label_signals(found, "R-1")[1][0]
+
+
+# D66e: with no chat, the claim alone is read for an advance or unwanted touch
+import json  # noqa: E402
+
+from src.agents.fraud import FraudAgent  # noqa: E402
+
+
+class _FakeLLM:
+    api_key = "test"
+
+    def __init__(self, labels):
+        self.labels, self.calls = labels, 0
+
+    async def chat_json(self, messages, temperature=None, reasoning_effort=None):
+        self.calls += 1
+        return json.dumps({"labels": self.labels})
+
+
+NO_CHAT_CLAIM = ("The fare was higher than quoted. At a red light the driver reached back and touched my "
+                 "arm twice even after I moved away.")
+
+
+def _no_chat(claim):
+    return DisputeContext(dispute_id="D66E", reporter="rider", order_id="R", description=claim,
+                          type=DisputeType.FARE, chat_log=None)
+
+
+@pytest.mark.asyncio
+async def test_no_chat_claim_with_unwanted_touch_is_a_safety_alert():
+    llm = _FakeLLM([{"label": "unwanted_advance", "quote": "reached back and touched my arm twice"}])
+    report = await FraudAgent(llm_client=llm).assess(_no_chat(NO_CHAT_CLAIM))
+    assert llm.calls == 1 and report.chat_review == "claim only llm"
+    assert report.signals == [] and "described in the claim" in report.safety_alerts[0]
+
+
+@pytest.mark.asyncio
+async def test_no_chat_invented_quote_is_dropped():
+    llm = _FakeLLM([{"label": "unwanted_advance", "quote": "he grabbed my leg"},
+                    {"label": "threat", "quote": "touched my arm"}])
+    report = await FraudAgent(llm_client=llm).assess(_no_chat(NO_CHAT_CLAIM))
+    assert report.safety_alerts == []
+
+
+@pytest.mark.asyncio
+async def test_no_chat_skips_the_call_when_the_phrase_list_already_matched():
+    llm = _FakeLLM([])
+    report = await FraudAgent(llm_client=llm).assess(_no_chat(LX15_CLAIM))
+    assert llm.calls == 0 and report.chat_review == "not run"

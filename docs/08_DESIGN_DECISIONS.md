@@ -2344,3 +2344,72 @@ look-alikes were sent to the safety route (all four ruled right, with the right 
 complaint used no listed phrase ("touched my arm"), so only the Judge's own caution sent it to a person.
 A complaint-only model check (one more small call for cases with no chat) would close it; not done.
 n = 1 run per case, and 10 cases is a small set.
+
+### D66e. No-chat complaints: a complaint-only model check (2026-10-29)
+
+**Why.** D66d left one gap. When a case has no chat log, the D66c model check never ran
+(`FraudAgent._chat_signals` returned "not run" before any call). A complaint that described the conduct
+in words outside the D66 phrase list (HS-01: "he kept hold of my hand and stroked my arm") had no
+safety route; only the Judge's own caution sent HS-01 to a person.
+
+**What changed.**
+- `src/agents/fraud.py`: with no chat, `_claim_only_signals` makes one small model call on the complaint
+  alone (`_llm_claim_advance`). It looks only for `unwanted_advance` by the OTHER party, now including an
+  unwanted touch, and lists what is NOT one (a tap to wake someone, help in or out of the car or with
+  bags, a number asked to return a lost item, small talk, rudeness or a fare complaint with no advance,
+  anything the filer did). The quote must be found verbatim in the complaint (`verified_labels`), so
+  an invented quote is dropped. A hit becomes a safety alert ("Unwanted personal advance described in
+  the claim"), never a fraud signal, and never changes an amount. `chat_review` reads "claim only llm".
+  The call is skipped when the D66 phrase list already matched (the case is P0 anyway), when there is no
+  key, or when `FRAUD_CHAT_LLM=0`. Cases with a chat are unchanged.
+- `src/agents/safety.py`: the blind run (below) found that the D66 phrase list sent HN-10 to a person
+  for "asked for my number to arrange the return" of a lost wallet. A number asked "for", "to" or "so"
+  a reason no longer matches the phrase list, in the complaint or in the chat; such cases are left to
+  the model check, which can tell a lost item from an advance.
+- `tests/test_harassment_routing.py`: 3 tests for the no-chat path (an unwanted touch alerts; an
+  invented quote or a wrong label is dropped; no call when the phrase list already matched) and the
+  HN-10 wording as an ordinary sentence. 675 tests pass.
+
+**Rejected.** Running the complaint-only check on every case, chat or not: the chat check already reads
+the claim for this label (D66c), so it would only add a call. Widening the phrase list with touch
+words: "touched my shoulder to wake me" and "held my arm to help me out" are ordinary, and a list
+cannot tell them apart.
+
+**How checked.**
+1. Free-ish replay (only the new call, about 80 small calls, under US$0.05): 77 complaints (the 7 cases
+   with no chat, the HR and HS sets, 50 random others; 2 skipped as phrase-list hits). HS-01 caught
+   ("he kept hold of my hand and stroked my arm, ..."). The complaint words of HR-01, HR-04, HR-05,
+   HS-02, HS-04, HS-06 caught too. False alarms: 0, including the 8 HR/HS look-alikes.
+2. New blind set `data/eval_cases/harassment_routing3` (HN-01..10), written by a new Sonnet subagent
+   from `data/eval_cases/focus_harassment3.txt`. It read only the brief, `data/mock_disputes` and
+   `data/policies`. Every case has NO chat. The brief banned the words touch/touched, grope and
+   inappropriate (among others), so a hit needs the meaning, not a keyword. One full run each,
+   Cerebras gpt-oss-120b, no fallback; run folder `data/eval/d66e-nochat` (git-ignored).
+
+| Case | Must go to a person | Result | What sent it to a person |
+|---|---|---|---|
+| HN-01 (hand on her knee while pointing at the meter) | yes | escalated | D66e claim-only check |
+| HN-02 (Singlish; presses for home address, will wait downstairs) | yes | escalated | D66e claim-only check |
+| HN-03 (driver files; rider presses for number, held his forearm) | yes | escalated | D66e claim-only check |
+| HN-04 (leaned across to fasten her seatbelt, "you smell nice") | yes | escalated | D66e claim-only check |
+| HN-05 (remarks on her dress and legs) | yes | escalated | D66 phrase "commenting on my dress" (P0) |
+| HN-06 (car waits outside her block the next evening) | yes | escalated | D66e claim-only check |
+| HN-07 (tap on the shoulder to wake her) | no | upheld S$6.00, right | |
+| HN-08 (angry rider, surge was shown) | no | dismissed S$0, right (the key says "rejected", the system's word is "dismissed") | |
+| HN-09 (helped an elderly mother out by the arm) | no | upheld S$3.70, right | |
+| HN-10 (number asked to return a wallet) | no | first run: sent to a person (D66 phrase-list false alarm); after the fix: upheld S$5.00, right | |
+
+The HN-10 rerun came after a fix made because of HN-10, so it is not blind; the first run (trace kept
+in `traces_before_fix/`) is the blind result. The free phrase-list scan over all 256 cases after the
+fix: 6 hits, all real harassment cases (before: the same 5 plus HN-10).
+
+**What it solved.** Before: a no-chat complaint outside the phrase list had no safety route (HS-01
+reached a person only by the Judge's caution). After, on a set nobody tuned on: 6 of 6 no-chat
+harassment cases reached a person through a safety route (5 by the new check, 1 by the phrase list),
+and 3 of 4 look-alikes were right on the blind run; the fourth (HN-10) exposed a phrase-list false
+alarm, now fixed. Cost: one small extra call per no-chat case (about 1 to 2 s).
+
+**Not done / still weak.** n = 1 run per case, 10 cases. The model check now carries most no-chat
+harassment, so a model outage on that call ("llm failed") leaves only the phrase list and the Judge.
+A chat line like "can I have your number so we can go out" no longer matches the phrase list; it relies
+on the D66c chat check.
