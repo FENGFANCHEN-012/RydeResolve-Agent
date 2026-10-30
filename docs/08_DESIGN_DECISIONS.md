@@ -2636,3 +2636,57 @@ it), and the hint says it is a demo replay and nothing is sent. With a `ruling_i
 and stops the run, so run `pytest tests`).
 
 **Not done.** Not viewed in a browser before deploy.
+
+## D73. Appeal = new evidence on borderline rulings, settled by the AI first; review-desk link; party status page (2026-10-30)
+
+Branch `release/demo-day` (= main). Backend + frontend. New table `appeals` (created by
+`create_all`; no existing table altered).
+
+**Why.** Since D70 every auto-resolved ruling offered "Ask a person", and any reason sent the case to
+the review desk. The losing party nearly always wants to appeal, so this sent ordinary cases to people
+and undid the point of automation. The owner's rules: an appeal only where the AI itself was unsure,
+and the AI should still decide as much as it can. Also: the review desk had no link from the
+dashboard, and a party had no way to see where their case stood.
+
+**Data behind the line.** 73 eval traces: 23 escalated, 50 auto-resolved at confidence 0.85-0.99, none
+flagged `escalation_recommended` / `human_review_needed`. Low-confidence cases are already escalated
+by the policy gates before anything is paid. 0.90 was tried first, then the owner set the rule:
+**confidence strictly below 0.80, at most one appeal per ruling** (`APPEAL_BELOW_CONFIDENCE=0.80`,
+separate from the escalation thresholds). Consequence, accepted: none of the 73 eval cases shows the
+form (lowest auto-resolved is 0.85, LX-09, and that trace is from the unmerged learning-loop runs, so
+it is not on the dashboard). The form appears only where a ruling is auto-resolved yet under 0.80,
+e.g. a dispute under S$10 (policy gate s6.1: AI final) at confidence 0.5-0.8.
+
+**What changed.**
+- `src/config.py`: `APPEAL_BELOW_CONFIDENCE` (env, default 0.80, strictly below).
+- `src/store/db.py`: `appeal_open()`; `Appeal` table; `open_appeal` (resolved + below the line +
+  one appeal per ruling whichever party, else 400), `update_appeal`, `get_appeal`, `get_ruling`, `case_status`
+  (stage, dates, final outcome only; no rationale, confidence, risk or reviewer note).
+  `request_appeal` is now only the internal hand-off to a person.
+- `src/core/appeal.py` `settle()`: safety wording (new `safety.safety_words`) -> person, no LLM;
+  LLM check "does this add a fact the case did not have" -> if not, decision kept and the party is
+  told why; if so, the whole pipeline runs again with the text as an evidence item; second ruling
+  resolved at/above the line -> stands (`kept` if same verdict and refund, else `changed`); escalated or
+  still below the line -> person; any error or timeout -> person (escalate over misjudge).
+- `src/api/main.py`: `POST /api/appeals` takes `evidence` (was `reason`), returns at once and settles
+  in the background (waits for any running review; one run at a time as before);
+  `GET /api/status/{ruling_id}`.
+- `src/agents/executor.py`: the "you can ask for a person" sentence (4 languages) is now an optional
+  `{appeal}` piece, written only when the ruling's confidence is below the line.
+- `frontend/dispute.js`: form "Add evidence" only on borderline resolved rulings (replays: disabled,
+  as D72); every recorded ruling gets "Track this case" (status.html); escalated ones get "Open in
+  review desk". `index.html`: "Review desk" link in the top bar. `review.js`: `review.html?case=<id>`.
+  New `frontend/status.html` (four steps, polls while the AI is checking, dark mode, screen-reader
+  state text). Cache-busting versions bumped to 20261030d.
+
+**How checked.** New `tests/test_appeal_evidence.py` (12 tests: the line and one-appeal rule, bad
+input, disagreeing only -> kept with no LLM re-run and no person, new fact -> changed / kept, still
+unsure -> person, pipeline-escalated second ruling not queued twice, safety words -> person with no
+LLM call, LLM failure -> person with audit chain intact, notice templates, both endpoints incl. no
+rationale/confidence in the status JSON). Node test for the form rewritten (borderline / confident /
+escalated). `pytest tests`: 704 pass at the 0.90 line; after the switch to <0.80 the appeal, notice, safety and executor tests were re-run (51 pass) and node 29/29. No live LLM calls (stubbed).
+
+**Not done.** Not viewed in a browser. No live run of the new-fact check or the re-run (costs
+Cerebras credit). Status page uses the sequential ruling id; production should use an unguessable
+token. The re-run registers the dispute's people records again (same as any re-run). A party cannot
+attach a file yet, only text. Not deployed.

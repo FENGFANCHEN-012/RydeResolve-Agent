@@ -38,6 +38,21 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def appeal_open(status: str | None, confidence: float | None) -> bool:
+    """D73: a party may add new evidence only where the AI was itself unsure: an auto-resolved
+    ruling with confidence strictly below APPEAL_BELOW_CONFIDENCE (0.80). A confident routine ruling has no appeal; a ruling
+    already with a person needs none (an appeal there is recorded next to the escalation)."""
+    if status != "resolved":
+        return True
+    return confidence is None or confidence < config.APPEAL_BELOW_CONFIDENCE
+
+
+# D73 appeal states, in order: received -> AI checks the new evidence -> re-decided or with a person
+APPEAL_CHECKING, APPEAL_RECONSIDERING = "checking", "reconsidering"
+APPEAL_KEPT, APPEAL_CHANGED, APPEAL_WITH_PERSON = "kept", "changed", "with_person"
+APPEAL_FINAL = (APPEAL_KEPT, APPEAL_CHANGED, APPEAL_WITH_PERSON)
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -82,6 +97,21 @@ class Escalation(Base):
     source: Mapped[str | None] = mapped_column(String(40))  # classifier / fairness / failed ...
     snapshot: Mapped[dict] = mapped_column(JSON, default=dict)  # case records + pipeline output
     created_at: Mapped[str] = mapped_column(String(32), default=_now)
+
+
+class Appeal(Base):
+    """D73: new evidence a party added to an auto-resolved ruling, and what came of it. A new table,
+    so existing tables never change shape; the AI's second ruling (if any) is a normal rulings row."""
+    __tablename__ = "appeals"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ruling_id: Mapped[int] = mapped_column(ForeignKey("rulings.id"), index=True)
+    party: Mapped[str] = mapped_column(String(16))  # rider / driver
+    evidence: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(24), default=APPEAL_CHECKING)
+    note: Mapped[str | None] = mapped_column(Text)  # what the party is told about the outcome
+    new_ruling_id: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[str] = mapped_column(String(32), default=_now)
+    updated_at: Mapped[str] = mapped_column(String(32), default=_now)
 
 
 class ReviewDetail(Base):
@@ -257,7 +287,9 @@ class Store:
         """D70: a party asks for a person. The ruling leaves the resolved state ("appealed"), so it
         enters the review queue like an escalation; its payout record is untouched (the executor is
         simulated, and a real one would reverse nothing without the reviewer's decision). On a ruling
-        that is already with a person the appeal is recorded next to the existing escalation."""
+        that is already with a person the appeal is recorded next to the existing escalation.
+        D73: parties no longer call this directly; src/core/appeal.py hands a case to a person here
+        only after the AI could not settle the new evidence itself."""
         if party not in ("rider", "driver"):
             raise ValueError("party must be 'rider' or 'driver'")
         if not reason.strip():
@@ -279,6 +311,91 @@ class Store:
                         {"party": party, "previous_status": previous, "status": ruling.status})
             s.commit()
             return esc
+
+    # -- party appeals with new evidence (D73) -----------------------------
+
+    def open_appeal(self, ruling_id: int, party: str, evidence: str, actor: str) -> Appeal:
+        """A party adds new evidence to a ruling. Only borderline auto-resolved rulings are open
+        (appeal_open), once per ruling; src/core/appeal.py then checks and settles it."""
+        if party not in ("rider", "driver"):
+            raise ValueError("party must be 'rider' or 'driver'")
+        evidence = evidence.strip()
+        if not evidence:
+            raise ValueError("describe the new information: what happened that the case does not show yet")
+        with self.session() as s:
+            ruling = s.get(Ruling, ruling_id)
+            if ruling is None:
+                raise KeyError(f"no ruling {ruling_id}")
+            if ruling.status != "resolved" or not appeal_open(ruling.status, ruling.confidence):
+                raise ValueError("this decision is not open to new evidence: it was made with high "
+                                 "confidence, or a person already has the case")
+            if s.scalars(select(Appeal).where(Appeal.ruling_id == ruling_id)).first() is not None:
+                raise ValueError("new evidence was already added to this decision")
+            appeal = Appeal(ruling_id=ruling_id, party=party, evidence=evidence, status=APPEAL_CHECKING)
+            s.add(appeal)
+            s.flush()
+            self._audit(s, actor, "appeal_opened", "appeal", appeal.id, {"ruling_id": ruling_id, "party": party})
+            s.commit()
+            return appeal
+
+    def update_appeal(self, appeal_id: int, status: str, note: str | None = None,
+                      new_ruling_id: int | None = None, actor: str = "pipeline") -> Appeal:
+        with self.session() as s:
+            appeal = s.get(Appeal, appeal_id)
+            if appeal is None:
+                raise KeyError(f"no appeal {appeal_id}")
+            appeal.status, appeal.updated_at = status, _now()
+            if note is not None:
+                appeal.note = note
+            if new_ruling_id is not None:
+                appeal.new_ruling_id = new_ruling_id
+            self._audit(s, actor, f"appeal_{status}", "appeal", appeal_id,
+                        {"ruling_id": appeal.ruling_id, "new_ruling_id": appeal.new_ruling_id})
+            s.commit()
+            return appeal
+
+    def get_appeal(self, appeal_id: int) -> Appeal:
+        with self.session() as s:
+            appeal = s.get(Appeal, appeal_id)
+            if appeal is None:
+                raise KeyError(f"no appeal {appeal_id}")
+            return appeal
+
+    def get_ruling(self, ruling_id: int) -> Ruling:
+        with self.session() as s:
+            ruling = s.get(Ruling, ruling_id)
+            if ruling is None:
+                raise KeyError(f"no ruling {ruling_id}")
+            return ruling
+
+    def case_status(self, ruling_id: int) -> dict:
+        """What the parties may see about a ruling (status.html): the stage, dates and final outcome.
+        Nothing internal (rationale, risk scores, reviewer notes) leaves through here."""
+        with self.session() as s:
+            ruling = s.get(Ruling, ruling_id)
+            if ruling is None:
+                raise KeyError(f"no ruling {ruling_id}")
+            appeal = s.scalars(select(Appeal).where(Appeal.ruling_id == ruling_id)
+                               .order_by(Appeal.id.desc()).limit(1)).first()
+            # The ruling a person would decide: the AI's second one when the appeal produced it
+            current = s.get(Ruling, appeal.new_ruling_id) if appeal and appeal.new_ruling_id else ruling
+            review = s.scalars(select(Review).where(Review.ruling_id == current.id)
+                               .order_by(Review.id.desc()).limit(1)).first()
+            final = ({"verdict": review.final_verdict, "refund_amount": review.final_refund,
+                      "by": "person", "at": review.created_at} if review else
+                     {"verdict": current.verdict, "refund_amount": current.refund_amount, "by": "ai",
+                      "at": current.created_at} if current.status == "resolved" else None)
+            with_person = review is None and current.status != "resolved"
+            return {
+                "ruling_id": ruling.id, "dispute_id": ruling.dispute_id, "received_at": ruling.created_at,
+                "ai_decided": ruling.status in ("resolved", "appealed"),
+                "appeal_open": ruling.status == "resolved" and appeal is None
+                and appeal_open(ruling.status, ruling.confidence),
+                "appeal": {"status": appeal.status, "note": appeal.note, "party": appeal.party,
+                           "at": appeal.created_at, "updated_at": appeal.updated_at} if appeal else None,
+                "with_person": with_person,
+                "final": None if with_person or (appeal and appeal.status not in APPEAL_FINAL) else final,
+            }
 
     def review_queue(self, include_reviewed: bool = False) -> list[dict]:
         """Rulings a person must decide (escalated or failed), newest first, with their latest review."""

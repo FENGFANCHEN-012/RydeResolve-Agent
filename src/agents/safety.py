@@ -96,6 +96,14 @@ def _texts(context, fraud_report: dict | None) -> tuple[str, list[str]]:
     return complaint, alerts
 
 
+def safety_words(text: str) -> list[str]:
+    """D73: physical, sexual, stalking, legal or harassment wording in free text a party adds after
+    a ruling. Any hit sends that text to a person; the AI does not reconsider it."""
+    text = str(text or "")
+    return sorted({h for p in (*_IMMINENT_PATTERNS, _LEGAL_PATTERN) for h in _matches(p, text)}
+                  | set(harassment_in_claim(text)))
+
+
 def code_floor(context, fraud_report: dict | None = None) -> dict | None:
     """The tier code alone decides (imminent or legal), or None when it is the LLM's call."""
     complaint, alerts = _texts(context, fraud_report)

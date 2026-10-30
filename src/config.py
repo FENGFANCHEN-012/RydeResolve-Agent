@@ -128,6 +128,10 @@ OBJECTION_ROUND = os.getenv("OBJECTION_ROUND", "0").strip().lower() in ("1", "tr
 OBJECTION_SIDES = os.getenv("OBJECTION_SIDES", "filer").strip().lower()
 CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.8"))
 CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
+# D73: a party may add new evidence to an auto-resolved ruling only when its confidence is strictly
+# below this line (owner's rule). Most rulings that unsure are escalated by the policy gates before
+# anything is paid, so in practice the form appears rarely (none of the 73 eval cases).
+APPEAL_BELOW_CONFIDENCE = float(os.getenv("APPEAL_BELOW_CONFIDENCE", "0.80"))
 
 # ============================================================
 # API Settings

@@ -790,26 +790,59 @@ async def review_ruling(ruling_id: int, request: ReviewRequest, http_request: Re
 class AppealRequest(BaseModel):
     ruling_id: int
     party: str      # "rider" or "driver"
-    reason: str
+    evidence: str   # the new information; disagreeing alone is not evidence
 
 
 @app.post("/api/appeals")
 async def request_appeal(request: AppealRequest, http_request: Request):
-    """D70: a party asks for a person to review a ruling. Not an administrator route, so the party-
-    facing page and the demo code may call it. The ruling enters the human review queue; nothing is
-    paid or reversed here."""
+    """D73: a party adds new evidence to a borderline auto-resolved ruling (confidence below
+    APPEAL_BELOW_CONFIDENCE, 0.80), once per ruling. Not an administrator route, so the party-facing page and the demo code
+    may call it. The AI checks the evidence in the background (src/core/appeal.py) and hands the
+    case to a person only when it cannot settle it; follow it on GET /api/status/{ruling_id}."""
+    from src.core.appeal import settle
     from src.store.db import get_store
-    reason = request.reason.strip()
-    if not reason or len(reason) > 1000:
-        raise HTTPException(status_code=400, detail="Give a reason of 1-1000 characters.")
+    evidence = request.evidence.strip()
+    if not evidence or len(evidence) > 2000:
+        raise HTTPException(status_code=400, detail="Describe the new information in 1-2000 characters.")
     try:
-        esc = await asyncio.to_thread(get_store().request_appeal, request.ruling_id, request.party, reason,
-                                      http_request.state.actor)
+        appeal = await asyncio.to_thread(get_store().open_appeal, request.ruling_id, request.party, evidence,
+                                         http_request.state.actor)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    return {"ruling_id": request.ruling_id, "status": "appealed", "reason": esc.reason}
+    # A second decision may run the whole pipeline: wait for any running review first, without
+    # holding the request open; a person takes the case if the wait times out (settle never raises)
+    async def run():
+        global _active_runs
+        waited = 0
+        while _active_runs >= 1 and waited < RUN_TIMEOUT_SECONDS:
+            await asyncio.sleep(5)
+            waited += 5
+        _active_runs += 1
+        try:
+            await asyncio.wait_for(settle(appeal.id), timeout=RUN_TIMEOUT_SECONDS)
+        except asyncio.TimeoutError:
+            from src.core.appeal import _to_person
+            await asyncio.to_thread(_to_person, get_store(), appeal.ruling_id, appeal,
+                                    "The AI's second look timed out.")
+        finally:
+            _release_run()
+    task = asyncio.create_task(run())
+    _running_tasks.add(task)
+    task.add_done_callback(_running_tasks.discard)
+    return {"ruling_id": request.ruling_id, "appeal_id": appeal.id, "status": appeal.status}
+
+
+@app.get("/api/status/{ruling_id}")
+async def case_status(ruling_id: int):
+    """D73: the party-facing progress of one case (frontend/status.html). Stage, dates and the final
+    outcome only; no rationale, risk score or reviewer note."""
+    from src.store.db import get_store
+    try:
+        return await asyncio.to_thread(get_store().case_status, ruling_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 # ---------------------------------------------------------------- human review desk

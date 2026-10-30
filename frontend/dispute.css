@@ -550,6 +550,10 @@ h1.topbar-logo { margin: 0; font-size: inherit; font-weight: inherit; }
 .rr-appeal-row input { flex: 1; min-width: 220px; }
 .rr-appeal fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .rr-appeal fieldset:disabled .rr-appeal-row { opacity: .6; }
+/* D73: links to the party's progress page and the review desk */
+.rr-link { color: var(--accent); font-weight: 600; font-size: 13px; text-decoration: none; }
+.rr-link:hover, .rr-link:focus-visible { text-decoration: underline; }
+.rr-case-links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
 @media (prefers-reduced-motion: reduce) {
     .rr *, .rr *::before, .rr *::after { animation: none !important; transition: none !important; }
 }

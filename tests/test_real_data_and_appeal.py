@@ -120,19 +120,13 @@ def test_appeal_on_an_escalated_ruling_keeps_its_status(store):
     assert store.review_queue()[0]["ruling"].status == "escalated_to_human"
 
 
-def test_appeal_endpoint_is_open_to_the_demo_code_and_reports_the_run_mode():
+def test_info_reports_the_run_mode():
+    # The party-facing /api/appeals endpoint changed in D73: tests/test_appeal_evidence.py
     from fastapi.testclient import TestClient
     from src.api import main
-    from src.store.db import get_store
     client = TestClient(main.app, headers={"Authorization": "Bearer offline-demo"})
     info = client.get("/api/info").json()
     assert info["run_mode"] == "shadow" and info["data_source"] == "dataset"
-    r = _ruling(get_store())
-    ok = client.post("/api/appeals", json={"ruling_id": r.id, "party": "rider", "reason": "The quote was S$8.60."})
-    assert ok.status_code == 200 and ok.json()["status"] == "appealed"
-    assert client.post("/api/appeals", json={"ruling_id": r.id + 99, "party": "rider", "reason": "x"}).status_code == 404
-    assert client.post("/api/appeals", json={"ruling_id": r.id, "party": "rider", "reason": " "}).status_code == 400
-    assert client.post("/api/appeals", json={"ruling_id": r.id, "party": "lawyer", "reason": "x"}).status_code == 400
 
 
 def test_appeal_rejects_bad_input(store):

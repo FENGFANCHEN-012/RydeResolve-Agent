@@ -51,7 +51,10 @@ async function loadQueue() {
     }
     $('hvCount').textContent = hv.queue.filter(c => !c.review).length;
     renderQueue();
-    if (!hv.current && hv.queue.length) selectCase(hv.queue[0].id);
+    // D73: review.html?case=<ruling id> opens that case (the dashboard's "Open in review desk")
+    const asked = Number(new URLSearchParams(location.search).get('case'));
+    if (!hv.current && asked) selectCase(asked);
+    else if (!hv.current && hv.queue.length) selectCase(hv.queue[0].id);
 }
 
 function renderQueue() {

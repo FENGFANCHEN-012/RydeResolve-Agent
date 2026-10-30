@@ -324,15 +324,25 @@ test('notices can be switched to another official language without a new run', a
     assert.match(p.element('rrVerdict').innerHTML, /class="rr-lang on"[^>]*data-notice-lang="zh"/);
 });
 
-test('ask-a-person form shows on a replay but disabled, and is live with a recorded ruling', () => {
+test('add-evidence form only on a borderline ruling: disabled on a replay, live with a recorded ruling', () => {
     const p = page();
-    const replay = p.run(`rrAppealForm({})`);
-    assert.match(replay, /Ask a person/);
+    const borderline = { status: 'resolved', verdict: { confidence: 0.72 } };
+    const replay = p.run(`rrAppealForm(${JSON.stringify(borderline)})`);
+    assert.match(replay, /Add evidence/);
     assert.match(replay, /<fieldset disabled>/);
     assert.doesNotMatch(replay, /data-appeal=/);
     assert.match(replay, /Demo replay: .*nothing is sent/);
-    const live = p.run(`rrAppealForm({ruling_id: 42})`);
+    const live = p.run(`rrAppealForm(${JSON.stringify({ ...borderline, ruling_id: 42 })})`);
     assert.match(live, /data-appeal="42"/);
     assert.doesNotMatch(live, /disabled/);
-    assert.match(live, /Goes to the human review desk/);
+    assert.match(live, /New facts are checked first/);
+    assert.match(live, /href="status.html\?case=42"/);
+    // D73: a confident routine ruling has no form, only the progress link
+    const sure = p.run(`rrAppealForm(${JSON.stringify({ status: 'resolved', verdict: { confidence: 0.8 }, ruling_id: 7 })})`);
+    assert.doesNotMatch(sure, /rr-appeal/);
+    assert.match(sure, /status.html\?case=7/);
+    // escalated: with a person already, so no form; staff get the review desk link
+    const esc = p.run(`rr.result = {status:'escalated_to_human'}; rrAppealForm({status:'escalated_to_human', ruling_id: 9})`);
+    assert.doesNotMatch(esc, /rr-appeal/);
+    assert.match(esc, /review.html\?case=9/);
 });

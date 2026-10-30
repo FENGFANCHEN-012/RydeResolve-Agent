@@ -14,7 +14,7 @@ from typing import Any
 
 from src.agents.arbitrator import Decision
 from src.agents.chat_signals import ANGRY, DISTRESS, FRUSTRATED, party_tone
-from src.config import SUPPORTED_LANGUAGES
+from src.config import APPEAL_BELOW_CONFIDENCE, SUPPORTED_LANGUAGES
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +52,9 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
             "Hello {recipient_label}, dispute {dispute_id} has been reviewed. "
             "{outcome} "
             "Reason: {rationale_summary}. "
-            "If you disagree with this decision, you can ask for a person to review it. "
-            "For other questions, contact Ryde support."
+            "{appeal}For other questions, contact Ryde support."
         ),
+        "appeal": "If you have new information about this trip, you can add it to this decision. ",
         "escalation_subject": "Your dispute {dispute_id} is being escalated",
         "escalation_message": (
             "Hello {recipient_label}, your dispute {dispute_id} requires human "
@@ -67,8 +67,9 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "message": (
             "{recipient_label} 您好,纠纷 {dispute_id} 已由系统审核完毕。"
             "{outcome}"
-            "处理原因:{rationale_summary}。如不同意此结果,可申请由人工复核。其他问题请联系 Ryde 客服。"
+            "处理原因:{rationale_summary}。{appeal}其他问题请联系 Ryde 客服。"
         ),
+        "appeal": "如有关于本次行程的新信息,可补充到此决定中。",
         "escalation_subject": "您的纠纷 {dispute_id} 已转交人工处理",
         "escalation_message": (
             "{recipient_label} 您好,您的纠纷 {dispute_id} 需要人工复核,"
@@ -79,9 +80,10 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "subject": "Maklumat terkini pertikaian Ryde anda {dispute_id}",
         "message": (
             "Hai {recipient_label}, pertikaian {dispute_id} telah "
-            "disemak. {outcome} Sebab: {rationale_summary}. Jika anda tidak bersetuju, anda boleh "
-            "meminta seorang pegawai menyemak keputusan ini. Untuk pertanyaan lain, hubungi sokongan Ryde."
+            "disemak. {outcome} Sebab: {rationale_summary}. {appeal}"
+            "Untuk pertanyaan lain, hubungi sokongan Ryde."
         ),
+        "appeal": "Jika anda mempunyai maklumat baharu tentang perjalanan ini, anda boleh menambahnya pada keputusan ini. ",
         "escalation_subject": "Pertikaian anda {dispute_id} telah dinaikkan taraf",
         "escalation_message": (
             "Hai {recipient_label}, pertikaian anda {dispute_id} memerlukan "
@@ -94,10 +96,10 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "subject": "Ryde புகார் {dispute_id} குறித்த புதுப்பிப்பு",
         "message": (
             "{recipient_label}, புகார் {dispute_id} மதிப்பாய்வு "
-            "செய்யப்பட்டது. {outcome} காரணம்: {rationale_summary}. இந்த முடிவை "
-            "ஏற்கவில்லை என்றால், ஒரு நபர் மறுஆய்வு செய்யக் கோரலாம். பிற "
+            "செய்யப்பட்டது. {outcome} காரணம்: {rationale_summary}. {appeal}பிற "
             "கேள்விகளுக்கு Ryde ஆதரவைத் தொடர்பு கொள்ளவும்."
         ),
+        "appeal": "இந்தப் பயணம் குறித்து புதிய தகவல் இருந்தால், அதை இந்த முடிவில் சேர்க்கலாம். ",
         "escalation_subject": "உங்கள் புகார் {dispute_id} மனித மதிப்பாய்வுக்கு அனுப்பப்பட்டது",
         "escalation_message": (
             "{recipient_label}, உங்கள் புகார் {dispute_id} மனித மதிப்பாய்வு "
@@ -432,6 +434,9 @@ class ExecutionAgent:
             language = DEFAULT_LANGUAGE  # no outcome phrases: whole message in English
         template = _NOTIFICATION_TEMPLATES.get(language, _NOTIFICATION_TEMPLATES[DEFAULT_LANGUAGE])
         rationale_summary = self._summarise_rationale(decision)
+        # D73: only a borderline ruling invites new evidence (same line as src/store/db.appeal_open)
+        confidence = getattr(decision, "confidence", None)
+        appeal_open = confidence is None or confidence < APPEAL_BELOW_CONFIDENCE
 
         for recipient, recipient_label in (
             ("passenger", "Passenger"),
@@ -453,6 +458,7 @@ class ExecutionAgent:
                         recipient_label=recipient_label,
                         rationale_summary=rationale_summary,
                         outcome=outcome_text(decision, recipient, reporter, language),
+                        appeal=template["appeal"] if appeal_open else "",
                     )
             except (KeyError, IndexError) as exc:
                 logger.warning(
@@ -473,6 +479,7 @@ class ExecutionAgent:
                         recipient_label=recipient_label,
                         rationale_summary=rationale_summary,
                         outcome=outcome_text(decision, recipient, reporter, DEFAULT_LANGUAGE),
+                        appeal=fallback["appeal"] if appeal_open else "",
                     )
 
             if not escalated and party_tone(chat_signals, recipient) in _UPSET:

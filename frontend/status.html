@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RydeResolve · Case status</title>
+    <!-- D73: what a rider or driver sees about their case: four steps and the outcome, nothing internal.
+         Data: GET /api/status/{ruling_id} (Store.case_status). status.html?case=<ruling id> -->
+    <style>
+        :root {
+            --bg: #f6f7f9; --surface: #ffffff; --border: #e5e7eb; --text: #111827; --muted: #4b5563;
+            --accent: #2563eb; --ok: #15803d; --wait: #b45309; --todo: #9ca3af;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg: #0f1115; --surface: #171a21; --border: #2a2f3a; --text: #f3f4f6; --muted: #b6bcc8;
+                    --accent: #7aa2ff; --ok: #4ade80; --wait: #fbbf24; --todo: #6b7280; }
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text);
+               font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+        main { max-width: 560px; margin: 0 auto; padding: 32px 16px 48px; }
+        h1 { font-size: 22px; margin: 0 0 4px; }
+        .sub { color: var(--muted); margin: 0 0 24px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        ol { list-style: none; margin: 0; padding: 0; }
+        li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding-bottom: 18px; position: relative; }
+        li:not(:last-child)::after { content: ""; position: absolute; left: 13px; top: 28px; bottom: 2px;
+                                     width: 2px; background: var(--border); }
+        .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+               font-size: 14px; font-weight: 700; border: 2px solid var(--todo); color: var(--todo); }
+        li.done .dot { border-color: var(--ok); background: var(--ok); color: var(--surface); }
+        li.now .dot { border-color: var(--wait); color: var(--wait); }
+        .step b { display: block; }
+        .step span { color: var(--muted); font-size: 14px; }
+        li.todo .step b { color: var(--muted); font-weight: 500; }
+        .note { margin-top: 4px; padding: 12px 14px; border-radius: 8px; background: var(--bg); font-size: 14px; }
+        .err { color: var(--wait); }
+        a { color: var(--accent); }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Your case</h1>
+    <p class="sub" id="sub">Loading…</p>
+    <section class="card" aria-labelledby="stepsHead">
+        <h2 id="stepsHead" style="position:absolute;left:-9999px">Progress</h2>
+        <ol id="steps" aria-live="polite"></ol>
+        <div id="note"></div>
+    </section>
+</main>
+<script>
+const API_BASE = (new URLSearchParams(location.search).get('api') ||
+    (location.protocol === 'file:' ? 'http://127.0.0.1:8000' : location.origin)).replace(/\/$/, '');
+const CASE_ID = Number(new URLSearchParams(location.search).get('case'));
+let apiToken = '';
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const when = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-SG', { dateStyle: 'medium', timeStyle: 'short' }); };
+const OUTCOME = { upheld: 'Claim upheld', partially_upheld: 'Claim partly upheld', dismissed: 'Claim not upheld' };
+
+async function api(path) {
+    const send = () => fetch(API_BASE + path, { headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {} });
+    let resp = await send();
+    if (resp.status === 401 && !apiToken) {
+        const code = window.prompt('Enter the access code supplied by the site administrator.');
+        if (code) { apiToken = code.trim(); resp = await send(); }
+    }
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(body.detail || `HTTP ${resp.status}`);
+    return body;
+}
+
+// Four steps: received -> AI decided -> (new evidence checked / with a person) -> final outcome
+function steps(s) {
+    const a = s.appeal;
+    const out = [{ title: 'Received', text: when(s.received_at), state: 'done' }];
+    out.push(s.ai_decided ? { title: 'Decided by RydeResolve', text: 'An automated decision based on the trip records and Ryde policy.', state: 'done' }
+                          : { title: 'Sent to a person', text: 'This case needed a person from the start.', state: s.final ? 'done' : 'now' });
+    if (a) {
+        const checking = a.status === 'checking' || a.status === 'reconsidering';
+        out.push({ title: `New evidence from the ${a.party}`,
+                   text: checking ? (a.status === 'reconsidering' ? 'The case is being decided again with it.' : 'Checking whether it adds new facts.')
+                                  : when(a.updated_at), state: checking ? 'now' : 'done' });
+    }
+    if (s.ai_decided && s.with_person) out.push({ title: 'With a person', text: 'A person from Ryde is reviewing it. No money moves meanwhile.', state: 'now' });
+    const f = s.final;
+    out.push(f ? { title: OUTCOME[f.verdict] || 'Final decision', text: `${f.refund_amount > 0 ? `Refund S$${Number(f.refund_amount).toFixed(2)} · ` : ''}${f.by === 'person' ? 'decided by a person' : 'decided by RydeResolve'} · ${when(f.at)}`, state: 'done' }
+               : { title: 'Final decision', text: 'Not yet', state: 'todo' });
+    return out;
+}
+
+async function load() {
+    if (!CASE_ID) { document.getElementById('sub').innerHTML = '<span class="err">No case number in the link.</span>'; return; }
+    try {
+        const s = await api(`/api/status/${CASE_ID}`);
+        document.getElementById('sub').textContent = `Dispute ${s.dispute_id} · case #${s.ruling_id}`;
+        document.getElementById('steps').innerHTML = steps(s).map((x, i) => `
+            <li class="${x.state}"><span class="dot" aria-hidden="true">${x.state === 'done' ? '✓' : i + 1}</span>
+                <div class="step"><b>${esc(x.title)}</b><span>${esc(x.text)}</span>
+                <span style="position:absolute;left:-9999px">${x.state === 'done' ? 'done' : x.state === 'now' ? 'in progress' : 'not started'}</span></div></li>`).join('');
+        const notes = [s.appeal?.note,
+            s.appeal_open ? 'The AI was not fully sure about this decision. If you have new information (a receipt, a time, something that happened), you can add it on the decision notice.' : null]
+            .filter(Boolean);
+        document.getElementById('note').innerHTML = notes.map(n => `<p class="note">${esc(n)}</p>`).join('');
+        const busy = s.appeal && ['checking', 'reconsidering'].includes(s.appeal.status);
+        if (busy) setTimeout(load, 5000);  // follow the AI's second look until it settles
+    } catch (e) {
+        document.getElementById('sub').innerHTML = `<span class="err">Could not load the case (${esc(e.message)}).</span>`;
+    }
+}
+load();
+</script>
+</body>
+</html>

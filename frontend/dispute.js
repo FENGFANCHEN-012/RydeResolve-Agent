@@ -1200,37 +1200,55 @@ function rrRenderVerdict() {
     };
 }
 
-// D70: the "ask a person" link every notice promises. It needs a recorded ruling (ruling_id), which
-// a replayed run may not carry; the request lands in the human review queue (review.html).
-// D72: a replay (no ruling_id) still shows the form, disabled, so the feature is visible in a demo
-// without writing anything.
+// D73: same line as APPEAL_BELOW_CONFIDENCE in src/config.py (strictly below); the API enforces it,
+// this only hides the form. A confident ruling has no appeal; an escalated one is with a person already.
+const RR_APPEAL_BELOW_CONFIDENCE = 0.80;
+function rrAppealAllowed(res) {
+    const c = res.verdict?.confidence;
+    return !rrEscalated() && res.status === 'resolved' && (c == null || c < RR_APPEAL_BELOW_CONFIDENCE);
+}
+
+// Links for the parties and for staff: the case's progress page and, once a person has it, the desk
+function rrCaseLinks(res) {
+    const id = res.ruling_id;
+    if (!id) return '';
+    const status = `<a class="rr-link" href="status.html?case=${id}" target="_blank" rel="noopener">Track this case →</a>`;
+    const desk = rrEscalated() ? ` <a class="rr-link" href="review.html?case=${id}" target="_blank" rel="noopener">Open in review desk →</a>` : '';
+    return `<div class="rr-case-links">${status}${desk}</div>`;
+}
+
+// D70 "ask a person", D73 reworked: on a borderline ruling a party adds NEW evidence. The AI checks it
+// first (src/core/appeal.py): no new fact = decision kept; a new fact = decided again; a person only
+// when the AI is still unsure. A replay (no ruling_id) shows the form disabled (D72).
 function rrAppealForm(res) {
+    if (!rrAppealAllowed(res)) return rrCaseLinks(res);
     const id = res.ruling_id;
     const note = !id
-        ? 'Demo replay: this saved run has no recorded ruling, so nothing is sent. On a live case this goes to the human review desk.'
-        : rr.appealMsg?.[id] || 'Goes to the human review desk. No money moves while a person looks at it.';
+        ? 'Demo replay: this saved run has no recorded ruling, so nothing is sent.'
+        : rr.appealMsg?.[id] || 'The AI was not fully sure here. New facts are checked first; a person reviews if the AI is still unsure. No money moves meanwhile.';
     return `<form class="rr-appeal"${id ? ` data-appeal="${id}"` : ''}><fieldset${id ? '' : ' disabled'}>
-        <label for="rrAppealWhy">Disagree? Ask a person to review this decision</label>
+        <label for="rrAppealWhy">Have new information? Add evidence to this decision</label>
         <div class="rr-appeal-row">
-            <select class="rr-select" name="party" aria-label="Who is asking">
+            <select class="rr-select" name="party" aria-label="Who is adding evidence">
                 <option value="rider">I am the rider</option><option value="driver">I am the driver</option></select>
-            <input id="rrAppealWhy" name="reason" class="rr-input" required maxlength="1000" placeholder="Why should a person look at it?">
-            <button type="submit" class="rr-btn ghost">Ask a person</button>
+            <input id="rrAppealWhy" name="evidence" class="rr-input" required maxlength="2000"
+                placeholder="What happened that the case does not show? e.g. receipt amount, time, place">
+            <button type="submit" class="rr-btn ghost">Add evidence</button>
         </div></fieldset>
-        <div class="rr-hint" role="status" aria-live="polite">${rrEsc(note)}</div></form>`;
+        <div class="rr-hint" role="status" aria-live="polite">${rrEsc(note)}</div></form>${rrCaseLinks(res)}`;
 }
 
 async function rrAppeal(form) {
     const id = Number(form.dataset.appeal);
-    const body = { ruling_id: id, party: form.party.value, reason: form.reason.value.trim() };
+    const body = { ruling_id: id, party: form.party.value, evidence: form.evidence.value.trim() };
     rr.appealMsg = rr.appealMsg || {};
-    if (!body.reason) { rr.appealMsg[id] = 'Say in a sentence why a person should look at it.'; rrRenderVerdict(); return; }
+    if (!body.evidence) { rr.appealMsg[id] = 'Describe the new information first.'; rrRenderVerdict(); return; }
     try {
         const resp = await apiFetch(`${API_BASE}/api/appeals`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
-        rr.appealMsg[id] = 'Sent to the review desk: a person will look at this case before anything else happens.';
+        rr.appealMsg[id] = 'Received. The AI is checking your new information now; follow it on "Track this case".';
     } catch (err) {
         rr.appealMsg[id] = `Could not send: ${err.message}`;
     }
