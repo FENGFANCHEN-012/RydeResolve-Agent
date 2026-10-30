@@ -45,7 +45,7 @@ Show each step as it lights up, 15 s each:
 
 Show: scroll to "Sent to both parties", click 中文, then Melayu (10 s). Say: "Both parties get a
 notice built by code from the ruling's fields, in four languages. It cannot state an amount the
-ruling did not make."
+ruling did not make, and it tells both of them how to ask for a person."
 
 ## 2:00-3:00 Case 2: the code judge stops a wrong refund (replay demo-2-F2-17)
 
@@ -92,9 +92,10 @@ Say:
 
 ## 4:25-4:45 What happens next
 
-Say: "The next step is not more agents. It is real data in shadow mode: the system reads live
-disputes through Ryde's API, writes its ruling next to the human one, and pays nothing, until the
-agreement rate earns it the right to decide small cases alone."
+Say: "The next step is not more agents. It is real data, and that is already built: one setting
+connects Ryde's API in shadow mode. The system reads live disputes, writes its ruling next to the
+human one and pays nothing, until the agreement rate earns it the right to decide small cases
+alone."
 
 Close: "RydeResolve. Fair, explainable ride-dispute rulings in minutes, not days. Thank you."
 
@@ -106,8 +107,22 @@ Close: "RydeResolve. Fair, explainable ride-dispute rulings in minutes, not days
   advocates make it find the evidence for each side first, and the judge rules on evidence it can
   cite.
 - **How does it connect to Ryde?** One client class (`src/integrations/ryde_api.py`) reads the
-  dispute, trip, chat, payments and photos. Today it reads dataset files in the DISP-002 format; a
-  real deployment maps Ryde's endpoints to that same format and nothing downstream changes.
+  dispute, trip, chat, payments and photos. The demo reads dataset files in the DISP-002 format.
+  With `RYDE_API_MODE=http` it reads Ryde's API and maps the fields to that same format, so nothing
+  downstream changes. It runs in shadow mode: it rules next to a person and pays nothing. The field
+  map is our guess until we see Ryde's real field list.
+- **Where do the policy rules come from?** From Ryde's published policies. Honest answer: the demo
+  uses our paraphrase, and where the policy was silent we wrote a rule and marked it. A version built
+  from the official text is ready on a separate branch. Either way, every ruling cites the section
+  it used, so a reviewer can check it.
+- **Can the rider or driver disagree?** Yes. Every notice, in four languages, says they can ask for
+  a person. The "Ask a person" form sends the case to the review desk, and nothing is paid or
+  reversed until a reviewer decides.
+- **Does it learn?** Only through people. A reviewer's decision becomes a precedent only after an
+  evaluation gate shows results do not get worse. A stronger version of this loop is being tested
+  separately and is not in the live demo.
+- **Accessibility?** Notices in English, Chinese, Malay and Tamil. The dashboard has a skip link,
+  screen-reader status updates, keyboard upload, labelled inputs and 4.6:1 contrast on hint text.
 - **Privacy?** Demo data only. A real deployment masks names, phones and plates before any
   external model call, or keeps the model in-house; both parties are told an AI took part and how
   to ask for a person.
