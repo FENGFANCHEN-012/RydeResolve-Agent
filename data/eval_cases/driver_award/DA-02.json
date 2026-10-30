@@ -1,0 +1,200 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-02",
+    "trip_id": "RYDE-DA-002",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "I reached Jurong East MRT on time and waited. I called and messaged the passenger but got nothing back, so I cancelled as no-show. The app says the no-show fee is on hold and I have not been paid. Please release it to my wallet.",
+    "filed_at": "2026-10-08T19:40:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7102",
+    "name": "Daniel Ong",
+    "account_age_days": 200,
+    "total_trips": 41,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3303",
+    "name": "Hafiz Rahman",
+    "account_age_days": 610,
+    "total_trips": 3300,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Honda Vezel (SKB 2290 C)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-002",
+    "rider_id": "R-7102",
+    "driver_id": "D-3303",
+    "pickup_location": {
+      "name": "Jurong East MRT (Exit A)",
+      "lat": 1.3333,
+      "lng": 103.7425
+    },
+    "dropoff_location": {
+      "name": "Orchard Road (ION)",
+      "lat": 1.304,
+      "lng": 103.8318
+    },
+    "scheduled_time": "2026-10-08T19:00:00+08:00",
+    "driver_arrival_time": "2026-10-08T19:02:00+08:00",
+    "driver_wait_start": "2026-10-08T19:02:00+08:00",
+    "cancellation_time": "2026-10-08T19:11:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show",
+    "cancellation_fee_status": "held_pending_review",
+    "fee_paid_to_driver": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-08T18:52:00+08:00",
+      "lat": 1.3401,
+      "lng": 103.738,
+      "speed_kmh": 35,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T18:58:00+08:00",
+      "lat": 1.335,
+      "lng": 103.7418,
+      "speed_kmh": 12,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-08T19:02:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7425,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-08T19:06:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7425,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-08T19:11:00+08:00",
+      "lat": 1.3333,
+      "lng": 103.7425,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-08T18:48:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7102 booked RYDE-DA-002 from Jurong East MRT (Exit A) to Orchard Road (ION). Pickup 19:00."
+    },
+    {
+      "timestamp": "2026-10-08T18:49:00+08:00",
+      "event_type": "driver_assigned",
+      "details": "Driver D-3303 assigned."
+    },
+    {
+      "timestamp": "2026-10-08T19:02:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup, GPS within 15 m of pickup point."
+    },
+    {
+      "timestamp": "2026-10-08T19:03:00+08:00",
+      "event_type": "driver_messaged_rider",
+      "details": "Driver sent chat message to rider."
+    },
+    {
+      "timestamp": "2026-10-08T19:04:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver initiated in-app call; rang 30s, no answer."
+    },
+    {
+      "timestamp": "2026-10-08T19:06:00+08:00",
+      "event_type": "rider_location",
+      "details": "Rider phone location 2.6 km from pickup, stationary."
+    },
+    {
+      "timestamp": "2026-10-08T19:11:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled, reason rider_no_show, 9 min after arrival."
+    },
+    {
+      "timestamp": "2026-10-08T19:11:00+08:00",
+      "event_type": "cancellation_fee_held",
+      "details": "S$8.00 no-show fee charged to rider; credit to driver held pending review."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-08T19:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I am at Exit A of Jurong East MRT, white Honda Vezel. Where are you?"
+    },
+    {
+      "timestamp": "2026-10-08T19:04:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "Outgoing in-app call to rider - not answered (rang 30s)."
+    },
+    {
+      "timestamp": "2026-10-08T19:08:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Waiting at Exit A. Please reply or I will have to cancel."
+    },
+    {
+      "timestamp": "2026-10-08T19:11:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee S$8.00 applied."
+    }
+  ],
+  "platform_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show and the no-show fee may be charged."
+    },
+    "no_show_fee": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider for a no-show, once the driver has waited at the pickup point for the full no-show threshold. It does not cover a cancellation the driver makes before the threshold is reached."
+    },
+    "driver_must_contact_rider": {
+      "value": true,
+      "text": "Before cancelling for no-show the driver must have tried to reach the rider by in-app call or chat message during the wait. A call or message logged in the trip record counts as contact."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "release_fee_to_driver",
+    "refund_amount": 8.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived at 19:02 with GPS at the pickup; cancelled 19:11 = 9 min wait, over the 8 min threshold. Driver messaged (19:03, 19:08) and called (19:04), so the contact condition is met; rider phone was 2.6 km away. The S$8.00 no-show fee held by the platform is due to the driver.",
+    "expected_dispute_type": "no_show",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

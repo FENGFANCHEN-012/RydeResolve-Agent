@@ -1,0 +1,165 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-05",
+    "trip_id": "RYDE-DA-005",
+    "filed_by": "driver",
+    "dispute_type": "no_show",
+    "description": "Passenger did not show up at Clementi Mall so I cancelled. I want the no-show fee paid to me, please pay me the S$8.",
+    "filed_at": "2026-10-15T14:50:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7105",
+    "name": "Aisha Binte Malik",
+    "account_age_days": 300,
+    "total_trips": 75,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3306",
+    "name": "Gerald Chua",
+    "account_age_days": 400,
+    "total_trips": 1900,
+    "avg_rating": 4.4,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Kia Cerato (SLE 5502 F)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-005",
+    "rider_id": "R-7105",
+    "driver_id": "D-3306",
+    "pickup_location": {
+      "name": "Clementi Mall",
+      "lat": 1.3151,
+      "lng": 103.7641
+    },
+    "dropoff_location": {
+      "name": "NUS University Town",
+      "lat": 1.3039,
+      "lng": 103.7733
+    },
+    "scheduled_time": "2026-10-15T14:15:00+08:00",
+    "driver_arrival_time": "2026-10-15T14:20:00+08:00",
+    "driver_wait_start": "2026-10-15T14:20:00+08:00",
+    "cancellation_time": "2026-10-15T14:25:00+08:00",
+    "cancellation_fee": 0.0,
+    "cancellation_reason": "rider_no_show",
+    "fee_paid_to_driver": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-15T14:14:00+08:00",
+      "lat": 1.32,
+      "lng": 103.76,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-15T14:20:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7641,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-15T14:23:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7641,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-15T14:25:00+08:00",
+      "lat": 1.3151,
+      "lng": 103.7641,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-15T14:05:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7105 booked RYDE-DA-005, Clementi Mall to NUS University Town. Pickup 14:15."
+    },
+    {
+      "timestamp": "2026-10-15T14:20:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup point."
+    },
+    {
+      "timestamp": "2026-10-15T14:22:00+08:00",
+      "event_type": "rider_messaged_driver",
+      "details": "Rider: coming down in 3 min."
+    },
+    {
+      "timestamp": "2026-10-15T14:25:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled, reason rider_no_show, 5 min after arrival."
+    },
+    {
+      "timestamp": "2026-10-15T14:25:00+08:00",
+      "event_type": "no_show_fee_not_applied",
+      "details": "No-show threshold (8 min) not reached; no fee charged to rider."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-15T14:22:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Hi, taking the lift down now, will be there in 3 mins, near the taxi stand."
+    },
+    {
+      "timestamp": "2026-10-15T14:25:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. No fee applied."
+    }
+  ],
+  "platform_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show and the no-show fee may be charged."
+    },
+    "no_show_fee": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider for a no-show, once the driver has waited at the pickup point for the full no-show threshold. It does not cover a cancellation the driver makes before the threshold is reached."
+    },
+    "driver_must_contact_rider": {
+      "value": true,
+      "text": "Before cancelling for no-show the driver must have tried to reach the rider by in-app call or chat message during the wait. A call or message logged in the trip record counts as contact."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_action",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived 14:20, cancelled 14:25 = 5 min, below the 8 min no-show threshold. The rider messaged at 14:22 that she was coming. No fee is due, so nothing is paid to the driver.",
+    "expected_dispute_type": "no_show",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

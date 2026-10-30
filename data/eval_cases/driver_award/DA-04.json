@@ -1,0 +1,174 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-04",
+    "trip_id": "RYDE-DA-004",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "I waited 14 minutes at Bishan MRT before my passenger came, and the fare has no waiting fee at all. Please credit S$10 to my wallet for my time.",
+    "filed_at": "2026-10-14T09:30:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7104",
+    "name": "Marcus Teo",
+    "account_age_days": 90,
+    "total_trips": 22,
+    "avg_rating": 4.5,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3305",
+    "name": "Rosli Abdullah",
+    "account_age_days": 700,
+    "total_trips": 4100,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Hyundai Ioniq (SMC 7733 E)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-004",
+    "rider_id": "R-7104",
+    "driver_id": "D-3305",
+    "pickup_location": {
+      "name": "Bishan MRT",
+      "lat": 1.351,
+      "lng": 103.8482
+    },
+    "dropoff_location": {
+      "name": "one-north",
+      "lat": 1.2995,
+      "lng": 103.7875
+    },
+    "scheduled_time": "2026-10-14T07:30:00+08:00",
+    "driver_arrival_time": "2026-10-14T07:30:00+08:00",
+    "driver_wait_start": "2026-10-14T07:30:00+08:00",
+    "pickup_time": "2026-10-14T07:44:00+08:00",
+    "dropoff_time": "2026-10-14T08:10:00+08:00",
+    "total_fare": 12.6,
+    "waiting_fee_billed": 0.0
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-14T07:24:00+08:00",
+      "lat": 1.356,
+      "lng": 103.844,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-14T07:30:00+08:00",
+      "lat": 1.351,
+      "lng": 103.8482,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-14T07:37:00+08:00",
+      "lat": 1.351,
+      "lng": 103.8482,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-14T07:44:00+08:00",
+      "lat": 1.351,
+      "lng": 103.8482,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-14T08:10:00+08:00",
+      "lat": 1.2995,
+      "lng": 103.7875,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-14T07:20:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7104 booked RYDE-DA-004, Bishan MRT to one-north. Pickup 07:30."
+    },
+    {
+      "timestamp": "2026-10-14T07:30:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup point."
+    },
+    {
+      "timestamp": "2026-10-14T07:35:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver called rider; answered, rider said 'running late'."
+    },
+    {
+      "timestamp": "2026-10-14T07:44:00+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-14T08:10:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$12.60. Waiting fee billed: 0."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-14T07:31:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at Bishan MRT exit B."
+    },
+    {
+      "timestamp": "2026-10-14T07:35:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "So sorry, train delay, coming in 5-10 mins."
+    },
+    {
+      "timestamp": "2026-10-14T07:43:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "I see your car now."
+    }
+  ],
+  "platform_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes after the driver_arrived event during which no waiting fee is charged."
+    },
+    "waiting_fee_per_min": {
+      "value": 0.5,
+      "text": "SGD per minute charged to the rider and paid to the driver for each minute waited after the free waiting time, up to the cap. Counted from driver arrival to rider boarding."
+    },
+    "waiting_fee_cap": {
+      "value": 10.0,
+      "text": "Maximum waiting fee in SGD for one trip."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "partially_upheld",
+    "recommended_action": "partial_refund",
+    "refund_amount": 4.5,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Driver arrived 07:30, rider boarded 07:44 = 14 min wait. Less 5 free minutes = 9 chargeable min x S$0.50 = S$4.50, under the S$10.00 cap. No waiting fee was billed. The driver asked for S$10, but the rule gives S$4.50.",
+    "expected_dispute_type": "driver_rights",
+    "acceptable_verdicts": [
+      "partially_upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

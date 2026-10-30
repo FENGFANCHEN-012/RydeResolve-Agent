@@ -285,7 +285,7 @@ class ExecutionAgent:
             result["status"] = STATUS_EXECUTED
             result["executed"] = True
 
-            self._apply_refund(decision, result)
+            self._apply_refund(decision, result, reporter)
             self._apply_compensation(decision, result)
             self._apply_driver_penalty(decision, result)
             self._generate_notifications(
@@ -334,8 +334,9 @@ class ExecutionAgent:
     # Action handlers
     # ------------------------------------------------------------------
 
-    def _apply_refund(self, decision: Decision, result: dict) -> None:
-        """Record a simulated refund transaction if requested."""
+    def _apply_refund(self, decision: Decision, result: dict, reporter: str | None = None) -> None:
+        """Record a simulated transaction for refund_amount: a refund to a rider who filed, or a payment
+        to a driver who filed (D68: a driver's award was described as a refund to the passenger)."""
         amount = getattr(decision, "refund_amount", None)
         if amount is None:
             return
@@ -353,9 +354,10 @@ class ExecutionAgent:
             return
         if amount_value <= 0:
             return
+        to_driver = getattr(reporter, "value", reporter) == "driver"
 
         record = {
-            "type": "refund",
+            "type": "driver_payment" if to_driver else "refund",
             "status": SIMULATED_TRANSACTION_STATUS,
             "amount": round(amount_value, 2),
             "currency": DEFAULT_CURRENCY,
@@ -363,7 +365,8 @@ class ExecutionAgent:
         }
         result["transaction_records"].append(record)
         result["actions_taken"].append(
-            f"Refund {DEFAULT_CURRENCY} {amount_value:.2f} to passenger (simulated)"
+            f"Pay {DEFAULT_CURRENCY} {amount_value:.2f} to driver (simulated)" if to_driver
+            else f"Refund {DEFAULT_CURRENCY} {amount_value:.2f} to passenger (simulated)"
         )
 
     def _apply_compensation(self, decision: Decision, result: dict) -> None:

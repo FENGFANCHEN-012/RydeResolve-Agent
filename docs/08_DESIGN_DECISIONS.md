@@ -2413,3 +2413,80 @@ alarm, now fixed. Cost: one small extra call per no-chat case (about 1 to 2 s).
 harassment, so a model outage on that call ("llm failed") leaves only the phrase list and the Judge.
 A chat line like "can I have your number so we can go out" no longer matches the phrase list; it relies
 on the D66c chat check.
+
+## D68. A driver's award goes in the amount field, not in text (2026-10-30)
+
+Note (release/demo-day, 2026-10-30): this change is taken onto main without D64-D67 (the learning
+loop work stays on its branches). It does not depend on them; CC-06 and the LT/LX cases named
+above come from those branches' test sets.
+
+
+Branch `fix/judge-amount-fields` (off `fix/precedent-fact-keys`).
+
+**Why.** When a driver filed for money (an extra-stop fee, a held cancellation fee, a cleaning fee), the
+Judge often reasoned correctly but left `refund_amount` empty and wrote the award as text in
+`compensation` ("S$5.00 released to driver"), or listed the rider's wish not to pay as a second ask and
+got "partially upheld, S$0". The executor pays only `refund_amount`, so the driver was paid nothing.
+Seen in LT-06, LT-09 (D65), CC-06 (D67) and, found by the replay below, LX-11 in both D65 runs.
+
+**What changed.**
+- `src/agents/arbitrator.py` (Judge prompt):
+  - `refund_amount` is defined as the money the ruling gives the person who filed, including what a
+    driver receives, and never only in `compensation`.
+  - `asks` lists only the filer's own asks.
+  - When a rule gives less than was asked, the ask is "partly" and the amount is what the rule gives;
+    an ask is never denied only because the amount asked is higher (added after DA-04, below).
+- `src/agents/code_judge.py`: `check_granted_money`. On a driver's filing, an ask that names an S$
+  amount and is granted or partly granted, with `refund_amount` empty or 0, sends the draft back once
+  (a second failure goes to a person). Code never sets the amount. `check_award` (D50) already did this,
+  but only when the trip record has a `*_claimed` field; these filings had none.
+- `src/agents/executor.py`: on a driver's filing the amount is recorded as a payment to the driver
+  (`driver_payment`), not as "Refund to passenger".
+- `tests/test_driver_award_fields.py`: 8 tests. 702 tests pass.
+
+**Rejected.**
+- Reading the amount out of the `compensation` text in the scorer (the D65 idea for LT-09): it would
+  hide the payout defect.
+- Having code fill the amount from text: an amount must come from the Judge's own arithmetic, which
+  the CodeJudge checks.
+
+**How checked.**
+1. Free: `check_granted_money` on all 83 saved rulings in `data/eval/*/traces` fired on 6:
+   LX-11 (x2), LT-09, CC-06, IM-01, LT-06. All six are granted driver money with no amount, so there
+   were no false alarms.
+2. Rerun of the five cases (`data/eval/d68-recheck`, not blind):
+   - CC-06: upheld S$35, right; the draft was sent back by the new check and fixed.
+   - LT-06: upheld S$3.00, right.
+   - LT-09: upheld S$5.00, right.
+   - LX-11: upheld S$4.00, right.
+   - IM-01: escalated, right.
+   Before, all five had no payable amount.
+3. New blind set `data/eval_cases/driver_award` (DA-01..08), written by a new Sonnet subagent from
+   `data/eval_cases/focus_driver_award.txt`. It read only the brief, two mock cases and `data/policies`.
+   Run folder `data/eval/d68-blind`, one run each. CEREBRAS_API_KEY_5 hit its daily quota during the
+   run; six runs that failed on quota were voided (`traces_void_quota/`) and rerun on KEY_4.
+
+| Case | Expected | Result |
+|---|---|---|
+| DA-01 two unbilled extra stops | upheld S$6.00 | upheld S$6.00, right |
+| DA-02 held no-show fee | upheld S$8.00 | upheld S$8.00, right |
+| DA-03 ERP paid by the driver | upheld S$4.00 | upheld S$4.00, right |
+| DA-04 asks S$10, rule gives S$4.50 | partially upheld S$4.50 | blind run: dismissed, nothing paid (wrong). After the prompt line on "partly": S$4.50 computed, then escalated (see below) |
+| DA-05 cancelled below the threshold | dismissed | dismissed, right |
+| DA-06 waiting fee already credited | dismissed | labelled upheld with no amount: nothing paid, which is right, but the ask was "already_resolved", which the label rule counts as satisfied |
+| DA-07 rider, ERP billed twice | upheld S$2.50 | upheld S$2.50, right |
+| DA-08 rider, valid no-show fee | dismissed | dismissed, right |
+
+**What it solved.** Before: driver awards had no payable amount in 5 of the 5 known cases. After: all
+five pay the right amount, and on a blind set the driver's money was right in 6 of 8. DA-06 paid the
+right amount (nothing) under a different label; DA-04 now goes to a person instead of paying nothing.
+
+**Not done / still weak.**
+- DA-04 escalates because the existing arithmetic check (D57) refuses "(14 - 5) * 0.5": 14 is minutes
+  worked out from two timestamps, not a figure in the records. The D67 `waiting_charge` finding
+  measures such minutes, but it only runs when a waiting charge was applied. A follow-up could let
+  measured minutes from Collector findings count as record figures.
+- The DA-04 rerun after the prompt line is not blind.
+- DA-06's label: "already resolved" counts as upheld (an existing rule); the key says dismissed. The
+  money is right either way.
+- n = 1 per case. Spend for D68 about US$0.24.

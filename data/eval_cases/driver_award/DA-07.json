@@ -1,0 +1,166 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-07",
+    "trip_id": "RYDE-DA-007",
+    "filed_by": "rider",
+    "dispute_type": "fare_dispute",
+    "description": "My receipt shows ERP charged twice, S$2.50 each, but we only went through one gantry. Please refund the extra ERP to my card.",
+    "filed_at": "2026-10-21T10:15:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7107",
+    "name": "Grace Lim",
+    "account_age_days": 600,
+    "total_trips": 310,
+    "avg_rating": 4.9,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3308",
+    "name": "Zulkifli Osman",
+    "account_age_days": 800,
+    "total_trips": 4400,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Mazda 3 (SLK 6125 H)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-007",
+    "rider_id": "R-7107",
+    "driver_id": "D-3308",
+    "service_type": "standard",
+    "pickup_location": {
+      "name": "Compass One, Sengkang",
+      "lat": 1.392,
+      "lng": 103.895
+    },
+    "dropoff_location": {
+      "name": "Marina Bay Sands",
+      "lat": 1.2834,
+      "lng": 103.8607
+    },
+    "scheduled_time": "2026-10-21T08:30:00+08:00",
+    "pickup_time": "2026-10-21T08:30:00+08:00",
+    "dropoff_time": "2026-10-21T09:05:00+08:00",
+    "actual_distance_km": 17.8,
+    "base_fare": 16.4,
+    "fare_line_items": [
+      {
+        "item": "base_fare",
+        "amount": 16.4
+      },
+      {
+        "item": "erp 'CTE Braddell Rd' 08:44",
+        "amount": 2.5
+      },
+      {
+        "item": "erp 'CTE Braddell Rd' 08:44",
+        "amount": 2.5
+      }
+    ],
+    "total_fare": 21.4
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-21T08:30:00+08:00",
+      "lat": 1.392,
+      "lng": 103.895,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-21T08:44:00+08:00",
+      "lat": 1.36,
+      "lng": 103.86,
+      "speed_kmh": 65,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-21T08:55:00+08:00",
+      "lat": 1.31,
+      "lng": 103.86,
+      "speed_kmh": 40,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-21T09:05:00+08:00",
+      "lat": 1.2834,
+      "lng": 103.8607,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-21T08:25:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7107 booked standard trip RYDE-DA-007."
+    },
+    {
+      "timestamp": "2026-10-21T08:30:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started."
+    },
+    {
+      "timestamp": "2026-10-21T08:44:00+08:00",
+      "event_type": "erp_gantry_crossed",
+      "details": "Vehicle crossed gantry 'CTE Braddell Rd' once (S$2.50). No other gantry crossings recorded."
+    },
+    {
+      "timestamp": "2026-10-21T09:05:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Total charged S$21.40 (erp line appears twice)."
+    },
+    {
+      "timestamp": "2026-10-21T09:06:00+08:00",
+      "event_type": "payment_captured",
+      "details": "S$21.40 charged to credit card."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-21T08:29:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I am at the drop-off lane at Compass One."
+    }
+  ],
+  "platform_policy": {
+    "erp_charged_to_rider": {
+      "value": "per_crossing",
+      "text": "On a standard trip, ERP is added to the rider fare once for each gantry crossing recorded in the trip, at the gantry's rate."
+    },
+    "erp_crossing_evidence": {
+      "value": "erp_gantry_crossed app event",
+      "text": "The record that counts as one chargeable crossing."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "partial_refund",
+    "refund_amount": 2.5,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Only one erp_gantry_crossed event (CTE Braddell Rd 08:44, S$2.50) is recorded, but the fare has two ERP lines. Correct fare = 16.40 + 2.50 = S$18.90; charged S$21.40; the duplicate S$2.50 is refunded to the rider.",
+    "expected_dispute_type": "fare_dispute",
+    "acceptable_verdicts": [
+      "upheld",
+      "partially_upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

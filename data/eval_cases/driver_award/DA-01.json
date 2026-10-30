@@ -1,0 +1,194 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-01",
+    "trip_id": "RYDE-DA-001",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "My passenger asked me to stop twice on the way to Changi Business Park, once at Simei and once at Expo. Both stops were added in the app. The fare I got was only the normal fare and nothing for the stops. Please add the stop money to my payout.",
+    "filed_at": "2026-10-06T21:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7101",
+    "name": "Priya Nair",
+    "account_age_days": 420,
+    "total_trips": 188,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3302",
+    "name": "Lim Boon Kiat",
+    "account_age_days": 900,
+    "total_trips": 5100,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Corolla Altis (SLA 4471 B)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-001",
+    "rider_id": "R-7101",
+    "driver_id": "D-3302",
+    "pickup_location": {
+      "name": "Tampines Mall",
+      "lat": 1.3525,
+      "lng": 103.9447
+    },
+    "dropoff_location": {
+      "name": "Changi Business Park",
+      "lat": 1.3342,
+      "lng": 103.9626
+    },
+    "scheduled_time": "2026-10-06T18:10:00+08:00",
+    "pickup_time": "2026-10-06T18:10:00+08:00",
+    "dropoff_time": "2026-10-06T18:40:00+08:00",
+    "actual_distance_km": 11.6,
+    "actual_duration_min": 30,
+    "extra_stops_added": 2,
+    "base_fare": 19.8,
+    "extra_stop_fees_billed": 0.0,
+    "total_fare": 19.8
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-06T18:10:00+08:00",
+      "lat": 1.3525,
+      "lng": 103.9447,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:18:00+08:00",
+      "lat": 1.3434,
+      "lng": 103.9531,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:21:00+08:00",
+      "lat": 1.3434,
+      "lng": 103.9531,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:27:00+08:00",
+      "lat": 1.3354,
+      "lng": 103.9617,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:29:00+08:00",
+      "lat": 1.3354,
+      "lng": 103.9617,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-06T18:40:00+08:00",
+      "lat": 1.3342,
+      "lng": 103.9626,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-06T17:58:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7101 booked RYDE-DA-001 from Tampines Mall to Changi Business Park."
+    },
+    {
+      "timestamp": "2026-10-06T18:10:00+08:00",
+      "event_type": "trip_started",
+      "details": "Trip started at Tampines Mall."
+    },
+    {
+      "timestamp": "2026-10-06T18:15:00+08:00",
+      "event_type": "extra_stop_added",
+      "details": "Rider added stop 1 (Simei Station) in the app; driver accepted."
+    },
+    {
+      "timestamp": "2026-10-06T18:24:00+08:00",
+      "event_type": "extra_stop_added",
+      "details": "Rider added stop 2 (Expo MRT) in the app; driver accepted."
+    },
+    {
+      "timestamp": "2026-10-06T18:40:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$19.80. Extra stop fees billed: 0 (not applied)."
+    },
+    {
+      "timestamp": "2026-10-06T18:41:00+08:00",
+      "event_type": "payout_issued",
+      "details": "Driver payout S$19.80 for RYDE-DA-001."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-06T18:14:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Can we stop at Simei station for 2 mins? I need to pick up my bag from my sister."
+    },
+    {
+      "timestamp": "2026-10-06T18:14:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Sure, I will add the stop in the app."
+    },
+    {
+      "timestamp": "2026-10-06T18:23:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "One more quick stop at Expo MRT please."
+    },
+    {
+      "timestamp": "2026-10-06T18:23:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "OK, added."
+    }
+  ],
+  "platform_policy": {
+    "extra_stop_fee_per_stop": {
+      "value": 3.0,
+      "text": "Fee in SGD for each additional stop the rider adds after the trip has started and the driver accepts in the app. It is added to the fare for every such stop and is paid to the driver."
+    },
+    "extra_stop_fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives the extra-stop fee once it is due."
+    },
+    "stop_evidence": {
+      "value": "extra_stop_added app event",
+      "text": "The record that counts as proof that a stop was added. One extra_stop_added event is one chargeable stop."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "upheld",
+    "recommended_action": "reimburse_driver",
+    "refund_amount": 6.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Two extra_stop_added events (18:15 Simei, 18:24 Expo), both accepted by the driver, and GPS shows the car stationary at both places (18:18-18:21, 18:27-18:29). Fare shows extra_stop_fees_billed 0.0. 2 stops x S$3.00 = S$6.00 owed to the driver.",
+    "expected_dispute_type": "driver_rights",
+    "acceptable_verdicts": [
+      "upheld"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

@@ -1,0 +1,188 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-08",
+    "trip_id": "RYDE-DA-008",
+    "filed_by": "rider",
+    "dispute_type": "no_show",
+    "description": "I was charged S$8 for no-show at Holland Village but I told the driver I would be late. This is unfair, please refund the S$8.",
+    "filed_at": "2026-10-23T22:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7108",
+    "name": "Jason Wee",
+    "account_age_days": 150,
+    "total_trips": 33,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3309",
+    "name": "Mohd Faizal",
+    "account_age_days": 950,
+    "total_trips": 5200,
+    "avg_rating": 4.8,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Vios (SMA 9054 J)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-008",
+    "rider_id": "R-7108",
+    "driver_id": "D-3309",
+    "pickup_location": {
+      "name": "Holland Village MRT",
+      "lat": 1.3114,
+      "lng": 103.7959
+    },
+    "dropoff_location": {
+      "name": "Tiong Bahru Plaza",
+      "lat": 1.2859,
+      "lng": 103.827
+    },
+    "scheduled_time": "2026-10-23T21:00:00+08:00",
+    "driver_arrival_time": "2026-10-23T21:00:00+08:00",
+    "driver_wait_start": "2026-10-23T21:00:00+08:00",
+    "cancellation_time": "2026-10-23T21:09:00+08:00",
+    "cancellation_fee": 8.0,
+    "cancellation_reason": "rider_no_show",
+    "cancellation_fee_status": "charged"
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-23T20:55:00+08:00",
+      "lat": 1.315,
+      "lng": 103.799,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-23T21:00:00+08:00",
+      "lat": 1.3114,
+      "lng": 103.7959,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-23T21:05:00+08:00",
+      "lat": 1.3114,
+      "lng": 103.7959,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-23T21:09:00+08:00",
+      "lat": 1.3114,
+      "lng": 103.7959,
+      "speed_kmh": 0,
+      "status": "cancelled"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-23T20:45:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7108 booked RYDE-DA-008, Holland Village MRT to Tiong Bahru Plaza. Pickup 21:00."
+    },
+    {
+      "timestamp": "2026-10-23T21:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup, GPS at pickup point."
+    },
+    {
+      "timestamp": "2026-10-23T21:02:00+08:00",
+      "event_type": "driver_called_rider",
+      "details": "Driver called rider; answered, rider said still at dinner."
+    },
+    {
+      "timestamp": "2026-10-23T21:05:00+08:00",
+      "event_type": "rider_location",
+      "details": "Rider phone location 1.1 km from pickup."
+    },
+    {
+      "timestamp": "2026-10-23T21:09:00+08:00",
+      "event_type": "driver_cancelled",
+      "details": "Driver cancelled, reason rider_no_show, 9 min after arrival."
+    },
+    {
+      "timestamp": "2026-10-23T21:09:00+08:00",
+      "event_type": "cancellation_fee_applied",
+      "details": "S$8.00 no-show fee charged to rider credit card."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-23T21:01:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "Hi, I am at Holland Village MRT Exit A."
+    },
+    {
+      "timestamp": "2026-10-23T21:02:00+08:00",
+      "sender": "driver",
+      "type": "call",
+      "content": "In-app call to rider - answered, 40s."
+    },
+    {
+      "timestamp": "2026-10-23T21:06:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Still at the restaurant, need another 15 min, can you wait?"
+    },
+    {
+      "timestamp": "2026-10-23T21:07:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I can only wait a little more, please hurry."
+    },
+    {
+      "timestamp": "2026-10-23T21:09:00+08:00",
+      "sender": "system",
+      "type": "system",
+      "content": "Trip cancelled by driver. Reason: rider_no_show. Cancellation fee S$8.00 applied."
+    }
+  ],
+  "platform_policy": {
+    "no_show_threshold_min": {
+      "value": 8,
+      "text": "Minutes the driver must wait at the pickup point, counted from the driver_arrived event, before the rider counts as a no-show and the no-show fee may be charged."
+    },
+    "no_show_fee": {
+      "value": 8.0,
+      "text": "The fee in SGD charged to the rider for a no-show, once the driver has waited at the pickup point for the full no-show threshold. It does not cover a cancellation the driver makes before the threshold is reached."
+    },
+    "driver_must_contact_rider": {
+      "value": true,
+      "text": "Before cancelling for no-show the driver must have tried to reach the rider by in-app call or chat message during the wait. A call or message logged in the trip record counts as contact."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a no-show fee once it is charged. It governs where the money goes, not whether the fee is due."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_action",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "driver_arrived 21:00 at the pickup; cancelled 21:09 = 9 min, over the 8 min threshold. The driver messaged at 21:01 and 21:07 and called at 21:02 (answered). The rider's own message at 21:06 says he needed 15 more minutes and his phone was 1.1 km away. The S$8.00 fee is valid; refund S$0.",
+    "expected_dispute_type": "no_show",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

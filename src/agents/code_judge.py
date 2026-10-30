@@ -299,6 +299,34 @@ def check_award(decision, context: dict) -> list[str]:
     return []
 
 
+_MONEY_RE = re.compile(r"S\$\s?\d")
+
+
+def check_granted_money(decision, context: dict) -> list[str]:
+    """D68: a driver's ask for money that the ruling grants must carry the amount in refund_amount.
+    check_award needs a *_claimed trip field; these filings had none and the Judge wrote the award
+    as text or as 0 (LT-06 extra-stop fee, LT-09 held fee, CC-06 cleaning fee), so the executor paid
+    nothing. This only sends the draft back; code never sets the amount."""
+    ctx = context or {}
+    if str(ctx.get("reporter") or "").lower() != "driver" or check_award(decision, ctx):
+        return []
+    try:
+        award = float(getattr(decision, "refund_amount", None) or 0)
+    except (TypeError, ValueError):
+        award = 0.0
+    if award > 0:
+        return []
+    granted = [str(a.get("ask") or "") for a in getattr(decision, "asks", None) or []
+               if isinstance(a, dict) and a.get("outcome") in ("granted", "partly")
+               and _MONEY_RE.search(str(a.get("ask") or ""))]
+    if not granted:
+        return []
+    return [f"The ruling grants the driver's money ask \"{granted[0][:120]}\" but refund_amount is "
+            f"{getattr(decision, 'refund_amount', None)}: set refund_amount to the amount the driver receives "
+            "(the payout reads that field; compensation text pays nothing) and give its refund_calculation. "
+            "List only the driver's own asks."]
+
+
 def check_route_refund(decision, context: dict) -> list[str]:
     """D50: Policy v2.1 s1.3 refunds a route deviation's excess DISTANCE fare, never tolls, time or
     surge. When the fare breakdown records that fare, a route refund above it is wrong (DISP-001,
@@ -320,7 +348,8 @@ def check_route_refund(decision, context: dict) -> list[str]:
 def review(decision, context: dict) -> list[str]:
     """All problems with a draft ruling; empty when it may proceed to the Fairness audit."""
     return (check_facts(decision, context) + check_amount(decision, context) + check_photos(decision, context)
-            + check_route_refund(decision, context) + check_award(decision, context))
+            + check_route_refund(decision, context) + check_award(decision, context)
+            + check_granted_money(decision, context))
 
 
 def render_code_review(draft: dict, problems: list[str]) -> str:

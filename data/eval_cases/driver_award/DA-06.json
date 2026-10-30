@@ -1,0 +1,177 @@
+{
+  "dispute_ticket": {
+    "dispute_id": "DA-06",
+    "trip_id": "RYDE-DA-006",
+    "filed_by": "driver",
+    "dispute_type": "driver_rights",
+    "description": "I waited a long time at Bedok Mall for my passenger and I never got any waiting money. Please credit my wallet for the waiting time.",
+    "filed_at": "2026-10-19T18:00:00+08:00",
+    "status": "open"
+  },
+  "rider_profile": {
+    "rider_id": "R-7106",
+    "name": "Shawn Lee",
+    "account_age_days": 510,
+    "total_trips": 260,
+    "avg_rating": 4.7,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "fraud_flag_details": null,
+    "payment_method": "credit_card"
+  },
+  "driver_profile": {
+    "driver_id": "D-3307",
+    "name": "Kumar Subramaniam",
+    "account_age_days": 1100,
+    "total_trips": 6000,
+    "avg_rating": 4.6,
+    "dispute_history": {
+      "total_disputes": 0,
+      "upheld_against": 0,
+      "rejected": 0
+    },
+    "fraud_flags": 0,
+    "vehicle": "Toyota Prius (SKH 3318 G)"
+  },
+  "trip_data": {
+    "trip_id": "RYDE-DA-006",
+    "rider_id": "R-7106",
+    "driver_id": "D-3307",
+    "pickup_location": {
+      "name": "Bedok Mall",
+      "lat": 1.3245,
+      "lng": 103.9301
+    },
+    "dropoff_location": {
+      "name": "Paya Lebar Quarter",
+      "lat": 1.3178,
+      "lng": 103.8929
+    },
+    "scheduled_time": "2026-10-19T09:00:00+08:00",
+    "driver_arrival_time": "2026-10-19T09:00:00+08:00",
+    "pickup_time": "2026-10-19T09:12:00+08:00",
+    "dropoff_time": "2026-10-19T09:30:00+08:00",
+    "total_fare": 11.9,
+    "waiting_fee_billed": 3.5,
+    "waiting_fee_paid_to_driver": 3.5
+  },
+  "gps_telemetry": [
+    {
+      "timestamp": "2026-10-19T08:54:00+08:00",
+      "lat": 1.328,
+      "lng": 103.925,
+      "speed_kmh": 30,
+      "status": "en_route"
+    },
+    {
+      "timestamp": "2026-10-19T09:00:00+08:00",
+      "lat": 1.3245,
+      "lng": 103.9301,
+      "speed_kmh": 0,
+      "status": "arrived"
+    },
+    {
+      "timestamp": "2026-10-19T09:06:00+08:00",
+      "lat": 1.3245,
+      "lng": 103.9301,
+      "speed_kmh": 0,
+      "status": "waiting"
+    },
+    {
+      "timestamp": "2026-10-19T09:12:00+08:00",
+      "lat": 1.3245,
+      "lng": 103.9301,
+      "speed_kmh": 0,
+      "status": "on_trip"
+    },
+    {
+      "timestamp": "2026-10-19T09:30:00+08:00",
+      "lat": 1.3178,
+      "lng": 103.8929,
+      "speed_kmh": 0,
+      "status": "completed"
+    }
+  ],
+  "app_events": [
+    {
+      "timestamp": "2026-10-19T08:50:00+08:00",
+      "event_type": "booking_confirmed",
+      "details": "Rider R-7106 booked RYDE-DA-006, Bedok Mall to Paya Lebar Quarter. Pickup 09:00."
+    },
+    {
+      "timestamp": "2026-10-19T09:00:00+08:00",
+      "event_type": "driver_arrived",
+      "details": "Driver arrived at pickup."
+    },
+    {
+      "timestamp": "2026-10-19T09:12:00+08:00",
+      "event_type": "rider_boarded",
+      "details": "Rider boarded; trip started."
+    },
+    {
+      "timestamp": "2026-10-19T09:30:00+08:00",
+      "event_type": "trip_completed",
+      "details": "Trip completed. Fare S$11.90 including waiting fee S$3.50."
+    },
+    {
+      "timestamp": "2026-10-19T09:31:00+08:00",
+      "event_type": "waiting_fee_credited",
+      "details": "S$3.50 waiting fee credited to driver wallet (ref WF-20261019-0912)."
+    },
+    {
+      "timestamp": "2026-10-19T17:55:00+08:00",
+      "event_type": "wallet_statement",
+      "details": "Driver wallet statement shows credit S$3.50 on 19 Oct 09:31, ref WF-20261019-0912."
+    }
+  ],
+  "chat_logs": [
+    {
+      "timestamp": "2026-10-19T09:03:00+08:00",
+      "sender": "driver",
+      "type": "message",
+      "content": "I am at Bedok Mall main entrance."
+    },
+    {
+      "timestamp": "2026-10-19T09:08:00+08:00",
+      "sender": "rider",
+      "type": "message",
+      "content": "Sorry, lift is stuck, almost there."
+    }
+  ],
+  "platform_policy": {
+    "free_wait_time_min": {
+      "value": 5,
+      "text": "Minutes after the driver_arrived event during which no waiting fee is charged."
+    },
+    "waiting_fee_per_min": {
+      "value": 0.5,
+      "text": "SGD per minute charged to the rider and paid to the driver for each minute waited after the free waiting time, up to the cap. Counted from driver arrival to rider boarding."
+    },
+    "waiting_fee_cap": {
+      "value": 10.0,
+      "text": "Maximum waiting fee in SGD for one trip."
+    },
+    "fee_goes_to": {
+      "value": "driver_compensation",
+      "text": "Says who receives a waiting fee once it is charged."
+    }
+  },
+  "expected_outcome": {
+    "verdict": "dismissed",
+    "recommended_action": "no_action",
+    "refund_amount": 0.0,
+    "requires_human_review": false,
+    "must_escalate": false,
+    "reason": "Wait 09:00 to 09:12 = 12 min, less 5 free = 7 min x S$0.50 = S$3.50. That exact amount was already billed and credited to the driver wallet at 09:31 (ref WF-20261019-0912, confirmed on the wallet statement). Nothing further is owed.",
+    "expected_dispute_type": "driver_rights",
+    "acceptable_verdicts": [
+      "dismissed"
+    ],
+    "heldout": true
+  },
+  "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)"
+}

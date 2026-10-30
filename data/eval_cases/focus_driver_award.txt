@@ -1,0 +1,28 @@
+Driver-award check (D68, 2026-10-30). One blind author writes all eight cases.
+Folder data/eval_cases/driver_award, dispute ids DA-01 .. DA-08, trip ids RYDE-DA-001 ..
+
+A. DA-01 .. DA-04: a DRIVER files to receive money, and the records support it, so the driver gets a
+   definite amount computed from the trip's own rules. Vary the kind: an extra-stop fee that was not
+   added; a cancellation or no-show fee the platform is holding although the driver waited past the
+   threshold and contacted the rider; a toll or ERP charge the driver paid that was left off the fare;
+   a waiting fee owed to the driver. Phrase the money in everyday words ("release", "credit to my
+   wallet", "pay me back", "add it to the fare"). One of them partly: the driver asks for more than the
+   rule gives (the answer is the rule amount, partially_upheld).
+
+B. DA-05 .. DA-06: a DRIVER files for money and the records do NOT support it (the threshold was not
+   reached, or the fee was already paid): dismissed, amount 0.
+
+C. DA-07 .. DA-08: a RIDER files for a refund; one is supported (a definite refund), one is not.
+
+Every case must be decidable from the records and the trip's own rules (platform_policy with value +
+text for each rule that matters); none should need a person. Complete trip record like the example
+cases (trip_data, gps_telemetry, app_events, chat_logs, rider_profile, driver_profile,
+platform_policy). Timestamps for one moment agree across records.
+
+Every case: "_generated_by": "Claude Sonnet subagent, blind, 2026-10-30 (driver award)";
+expected_outcome with verdict (upheld / partially_upheld / dismissed), refund_amount (the money the
+person who filed receives; for a driver, what the driver receives), recommended_action,
+requires_human_review false, must_escalate false, reason (cite records and figures),
+expected_dispute_type, acceptable_verdicts where honest, and heldout: true. SGD, Singapore places,
+October 2026, +08:00. README.md in the folder: provenance (what was read) and a table
+id | type | filed_by | one-line scenario (no answers).
