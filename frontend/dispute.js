@@ -1186,7 +1186,7 @@ function rrRenderVerdict() {
         <div class="rr-notice-grid">${notes.map(n => `<div class="rr-notice ${rrEsc(n.recipient)}">
             <div class="rr-notice-to">To the ${rrEsc(n.recipient)}</div>
             <div class="rr-notice-subj">${rrEsc(n.subject || '')}</div>
-            <div class="rr-prose">${rrRich(n.message)}</div></div>`).join('')}</div></div>` : '';
+            <div class="rr-prose">${rrRich(n.message)}</div></div>`).join('')}</div>${rrAppealForm(res)}</div>` : '';
     el.innerHTML = `${label}${rr.saveWarning ? `<div class="rr-verdict-text">${rrEsc(rr.saveWarning)}</div>` : ''}<div class="rr-verdict-main">${main}</div>${notices}
         <details class="rr-key-details" ${keyOpen ? 'open' : ''}><summary>Compare with answer key · hidden from agents</summary>${key}</details>`;
     el.hidden = false;
@@ -1194,6 +1194,44 @@ function rrRenderVerdict() {
         const b = e.target?.closest?.('[data-notice-lang]');
         if (b) rrNoticeLang(b.dataset.noticeLang);
     };
+    el.onsubmit = e => {
+        const f = e.target?.closest?.('form[data-appeal]');
+        if (f) { e.preventDefault(); rrAppeal(f); }
+    };
+}
+
+// D70: the "ask a person" link every notice promises. It needs a recorded ruling (ruling_id), which
+// a replayed run may not carry; the request lands in the human review queue (review.html).
+function rrAppealForm(res) {
+    if (!res.ruling_id) return '<div class="rr-hint">Ask-a-person needs a recorded ruling; replayed runs have none.</div>';
+    const id = res.ruling_id;
+    const note = rr.appealMsg?.[id] || 'Goes to the human review desk. No money moves while a person looks at it.';
+    return `<form class="rr-appeal" data-appeal="${id}">
+        <label for="rrAppealWhy">Disagree? Ask a person to review this decision</label>
+        <div class="rr-appeal-row">
+            <select class="rr-select" name="party" aria-label="Who is asking">
+                <option value="rider">I am the rider</option><option value="driver">I am the driver</option></select>
+            <input id="rrAppealWhy" name="reason" class="rr-input" required maxlength="1000" placeholder="Why should a person look at it?">
+            <button type="submit" class="rr-btn ghost">Ask a person</button>
+        </div>
+        <div class="rr-hint" role="status" aria-live="polite">${rrEsc(note)}</div></form>`;
+}
+
+async function rrAppeal(form) {
+    const id = Number(form.dataset.appeal);
+    const body = { ruling_id: id, party: form.party.value, reason: form.reason.value.trim() };
+    rr.appealMsg = rr.appealMsg || {};
+    if (!body.reason) { rr.appealMsg[id] = 'Say in a sentence why a person should look at it.'; rrRenderVerdict(); return; }
+    try {
+        const resp = await apiFetch(`${API_BASE}/api/appeals`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
+        rr.appealMsg[id] = 'Sent to the review desk: a person will look at this case before anything else happens.';
+    } catch (err) {
+        rr.appealMsg[id] = `Could not send: ${err.message}`;
+    }
+    rrRenderVerdict();
 }
 
 const RR_NOTICE_LANGS = [['en', 'English'], ['zh', '中文'], ['ms', 'Melayu'], ['ta', 'தமிழ்']];

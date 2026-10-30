@@ -539,3 +539,15 @@
     .ce-photo { grid-template-columns: 1fr; }
     .ce-body, .ce-head { padding-left: var(--s-lg); padding-right: var(--s-lg); }
 }
+
+/* ---- accessibility (D70): skip link, heading reset, ask-a-person form, reduced motion ---- */
+.skip-link { position: absolute; left: 8px; top: -40px; z-index: 1000; padding: 6px 10px; background: var(--accent); color: #fff; border-radius: 6px; font-weight: 600; }
+.skip-link:focus { top: 8px; outline: 3px solid var(--ring-focus); }
+h1.topbar-logo { margin: 0; font-size: inherit; font-weight: inherit; }
+.rr-appeal { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border, #e5e7eb); }
+.rr-appeal label { display: block; font-weight: 600; margin-bottom: 6px; }
+.rr-appeal-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rr-appeal-row input { flex: 1; min-width: 220px; }
+@media (prefers-reduced-motion: reduce) {
+    .rr *, .rr *::before, .rr *::after { animation: none !important; transition: none !important; }
+}

@@ -289,7 +289,33 @@ What a real deployment under Singapore's PDPA would still need (not built in the
 - A retention schedule: delete chats, photos and GPS traces once the dispute and its appeal window
   close; keep the ruling and its audit entry.
 - Encryption at rest, and model providers under a data-processing agreement with no training on the data.
-- An "ask a person to review" link in every notice, routed to the review desk.
+- ~~An "ask a person to review" link in every notice, routed to the review desk.~~ Built (D70): every
+  notice says the party can ask for a person; the dashboard's "Ask a person" form posts to
+  `/api/appeals`, the ruling enters the human review queue and nothing moves until a reviewer decides.
+
+## Connecting real data (shadow mode)
+
+Every agent reads one shape, the organisers' DISP-002 record (dispute ticket, trip, profiles, GPS,
+app events, chat, policy), through one client, `src/integrations/ryde_api.py`. Today that client
+reads dataset files. Set `RYDE_API_MODE=http` and it reads the same shape from Ryde's API instead:
+
+| Setting | Meaning | Default |
+|---|---|---|
+| `RYDE_API_MODE` | `dataset` (files) or `http` (Ryde's API) | `dataset` |
+| `RYDE_API_BASE_URL`, `RYDE_API_KEY` | endpoint and bearer token | placeholder URL, no key |
+| `RYDE_API_DISPUTE_PATH`, `RYDE_API_LIST_PATH` | one dispute by order id; the open-dispute list | `/disputes/{order_id}`, `/disputes?status=open` |
+| `RUN_MODE` | `shadow`: rulings recorded and compared, nothing paid | `shadow` |
+
+`map_ryde_payload` renames Ryde's keys to DISP-002 keys (`RYDE_FIELD_MAP`) and passes values
+through: it never fills a missing value in, and answer keys and analysis sections are stripped
+exactly as for files. Ryde has not published a dispute API, so the URL is a placeholder and the
+field map is the contract a real integration completes; nothing downstream changes.
+
+Shadow mode is how it would go live: the system reads real disputes, writes its ruling next to the
+human one, and pays nothing (the executor is simulated; `RUN_MODE=live` is not implemented, on
+purpose). When the agreement rate on small cases earns it, those cases are the first the system
+decides alone, with everything above S$50, every safety report and every doubted photo still going
+to a person. Every ruling carries `run_mode`, and `/api/info` reports the mode and data source.
 
 ## Scale and cost beyond the demo
 

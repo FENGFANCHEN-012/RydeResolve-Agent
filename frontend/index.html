@@ -30,7 +30,7 @@
             --text: #111827;
             --text-2: #374151;
             --text-muted: #6b7280;
-            --text-faint: #9ca3af;
+            --text-faint: #6f7785;  /* 4.6:1 on white; #9ca3af was 2.5:1 and used for hint text */
 
             /* Accent + status */
             --accent: #2563eb;
@@ -631,32 +631,34 @@
     <link rel="stylesheet" href="dispute.css?v=20261015c">
 </head>
 <body>
+<a class="skip-link" href="#tab-dispute">Skip to the case</a>
 
 <!-- Top Bar -->
-<div class="topbar">
+<header class="topbar">
     <div class="topbar-left">
         <div>
-            <div class="topbar-logo">RydeResolve<span class="accent">.</span></div>
+            <h1 class="topbar-logo">RydeResolve<span class="accent">.</span></h1>
             <div class="topbar-sub">Dispute Resolution Dashboard</div>
         </div>
     </div>
     <div class="topbar-right">
-        <div class="status-pill">
-            <span class="status-dot" id="statusDot"></span>
+        <div class="status-pill" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot" aria-hidden="true"></span>
             <span id="statusText">Connecting...</span>
         </div>
     </div>
-</div>
+</header>
 
 <!-- Layout -->
 <div class="layout rr-wide">
 
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" aria-label="Knowledge base documents">
         <!-- Upload Section -->
         <div class="sidebar-section">
             <h3>Upload Documents</h3>
-            <div class="upload-zone" id="uploadZone">
+            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload documents: drop files or press Enter to browse"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                 <div class="upload-icon">📄</div>
                 <p>Drop files or click to browse</p>
                 <div class="formats">PDF · DOCX · TXT · MD · HTML</div>
@@ -714,7 +716,7 @@
     <!-- Main -->
     <main class="main">
         <!-- Tabs -->
-        <div class="tabs">
+        <div class="tabs" aria-label="Dashboard sections">
             <button class="tab active" data-tab="dispute" onclick="switchTab('dispute')">Dispute Resolution</button>
             <button class="tab" data-tab="chat" onclick="switchTab('chat')">Chat &amp; QA</button>
             <button class="tab" data-tab="search" onclick="switchTab('search')">Search</button>
@@ -741,7 +743,7 @@
                     <header class="rr-casehead">
                         <div id="rrCaseTitle"><h2>Pick a case</h2></div>
                         <div class="rr-run">
-                            <span class="rr-status" id="rrStatus">Ready</span>
+                            <span class="rr-status" id="rrStatus" role="status" aria-live="polite">Ready</span>
                             <details class="rr-options">
                                 <summary class="rr-btn ghost">Options</summary>
                                 <div class="rr-options-panel">
@@ -820,7 +822,7 @@
                     <span class="preset-chip" onclick="fillQuestion('Summarize the driver code of conduct')">driver conduct</span>
                 </div>
                 <div class="input-row">
-                    <textarea id="questionInput" placeholder="Ask a question about your documents..." rows="1"></textarea>
+                    <textarea id="questionInput" placeholder="Ask a question about your documents..." rows="1" aria-label="Question about the uploaded documents"></textarea>
                     <button class="btn-primary" id="askBtn" onclick="askQuestion()">Send</button>
                 </div>
                 <div class="input-hint">Enter to send · Shift+Enter for new line</div>
@@ -831,7 +833,7 @@
         <div class="tab-content" id="tab-search">
             <div class="search-panel">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search document chunks by keyword..." onkeydown="if(event.key==='Enter')searchChunks()">
+                    <input type="text" id="searchInput" placeholder="Search document chunks by keyword..." aria-label="Search document chunks" onkeydown="if(event.key==='Enter')searchChunks()">
                     <button class="btn-primary lime" onclick="searchChunks()">Search</button>
                 </div>
                 <div class="search-results" id="searchResults">
@@ -850,15 +852,15 @@
                     <p>Ask a question, then rate whether the RAG answer is correct. This builds an accuracy dataset to evaluate retrieval quality.</p>
                     <div class="test-row">
                         <div class="test-label">Question</div>
-                        <input type="text" class="test-input" id="testQuestion" placeholder="e.g. What is the cancellation fee after 2 minutes?">
+                        <input type="text" class="test-input" id="testQuestion" aria-label="Test question" placeholder="e.g. What is the cancellation fee after 2 minutes?">
                     </div>
                     <div class="test-row">
                         <div class="test-label">Expected Answer</div>
-                        <textarea class="test-input" id="testExpected" placeholder="The ground-truth answer (for comparison)"></textarea>
+                        <textarea class="test-input" id="testExpected" aria-label="Expected answer" placeholder="The ground-truth answer (for comparison)"></textarea>
                     </div>
                     <div class="test-row">
                         <div class="test-label">Top K</div>
-                        <input type="number" class="test-input" id="testTopK" value="5" style="max-width:80px;" min="1" max="20">
+                        <input type="number" class="test-input" id="testTopK" aria-label="Top K chunks" value="5" style="max-width:80px;" min="1" max="20">
                     </div>
                     <button class="btn-violet" id="testRunBtn" onclick="runAccuracyTest()">Run Test</button>
                 </div>

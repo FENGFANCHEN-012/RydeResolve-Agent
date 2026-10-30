@@ -83,6 +83,8 @@ class Orchestrator:
             if final_state.get(key):
                 response[key] = final_state[key]   # D24 tier and process; D33 objections to the draft
         ruling_id = await asyncio.to_thread(_record_ruling, final_state, response)
+        from src.config import RUN_MODE
+        response["run_mode"] = RUN_MODE  # D70: "shadow" = recorded and simulated, nothing paid
         if ruling_id is not None:
             response["ruling_id"] = ruling_id  # a reviewer confirms or overrides it by this id
         elif os.getenv("RECORD_RULINGS", "1") != "0":

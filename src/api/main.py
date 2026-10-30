@@ -133,7 +133,15 @@ async def root():
         "competition": "Tencent Cloud AI CAN DO IT Hackathon Singapore 2026",
         "track": "Digital Native — Ryde",
         "features": ["multi-agent", "rag", "file-upload"],
+        # D70: where disputes come from and whether a ruling can move money
+        "data_source": _ryde_api_mode(),
+        "run_mode": config.RUN_MODE,
     }
+
+
+def _ryde_api_mode() -> str:
+    from src.integrations.ryde_api import RYDE_API_MODE
+    return RYDE_API_MODE
 
 
 @app.get("/api/health")
@@ -777,6 +785,31 @@ async def review_ruling(ruling_id: int, request: ReviewRequest, http_request: Re
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"review_id": review.id, "precedent": _precedent_json(precedent) if precedent else None}
+
+
+class AppealRequest(BaseModel):
+    ruling_id: int
+    party: str      # "rider" or "driver"
+    reason: str
+
+
+@app.post("/api/appeals")
+async def request_appeal(request: AppealRequest, http_request: Request):
+    """D70: a party asks for a person to review a ruling. Not an administrator route, so the party-
+    facing page and the demo code may call it. The ruling enters the human review queue; nothing is
+    paid or reversed here."""
+    from src.store.db import get_store
+    reason = request.reason.strip()
+    if not reason or len(reason) > 1000:
+        raise HTTPException(status_code=400, detail="Give a reason of 1-1000 characters.")
+    try:
+        esc = await asyncio.to_thread(get_store().request_appeal, request.ruling_id, request.party, reason,
+                                      http_request.state.actor)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"ruling_id": request.ruling_id, "status": "appealed", "reason": esc.reason}
 
 
 # ---------------------------------------------------------------- human review desk

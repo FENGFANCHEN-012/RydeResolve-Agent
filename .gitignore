@@ -35,3 +35,4 @@ data/eval/
 # Record store for rulings, reviews, precedents and the audit log (local data)
 data/ryde_resolve.db
 data/ryde_resolve*.db*
+docs/demo/clips/

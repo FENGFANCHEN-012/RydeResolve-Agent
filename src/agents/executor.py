@@ -52,7 +52,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
             "Hello {recipient_label}, dispute {dispute_id} has been reviewed. "
             "{outcome} "
             "Reason: {rationale_summary}. "
-            "If you have further questions, please contact Ryde support."
+            "If you disagree with this decision, you can ask for a person to review it. "
+            "For other questions, contact Ryde support."
         ),
         "escalation_subject": "Your dispute {dispute_id} is being escalated",
         "escalation_message": (
@@ -66,7 +67,7 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "message": (
             "{recipient_label} 您好,纠纷 {dispute_id} 已由系统审核完毕。"
             "{outcome}"
-            "处理原因:{rationale_summary}。如有疑问请联系 Ryde 客服。"
+            "处理原因:{rationale_summary}。如不同意此结果,可申请由人工复核。其他问题请联系 Ryde 客服。"
         ),
         "escalation_subject": "您的纠纷 {dispute_id} 已转交人工处理",
         "escalation_message": (
@@ -78,8 +79,8 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "subject": "Maklumat terkini pertikaian Ryde anda {dispute_id}",
         "message": (
             "Hai {recipient_label}, pertikaian {dispute_id} telah "
-            "disemak. {outcome} Sebab: {rationale_summary}. Sila hubungi sokongan Ryde "
-            "untuk sebarang pertanyaan lanjut."
+            "disemak. {outcome} Sebab: {rationale_summary}. Jika anda tidak bersetuju, anda boleh "
+            "meminta seorang pegawai menyemak keputusan ini. Untuk pertanyaan lain, hubungi sokongan Ryde."
         ),
         "escalation_subject": "Pertikaian anda {dispute_id} telah dinaikkan taraf",
         "escalation_message": (
@@ -93,8 +94,9 @@ _NOTIFICATION_TEMPLATES: dict[str, dict[str, dict[str, str]]] = {
         "subject": "Ryde புகார் {dispute_id} குறித்த புதுப்பிப்பு",
         "message": (
             "{recipient_label}, புகார் {dispute_id} மதிப்பாய்வு "
-            "செய்யப்பட்டது. {outcome} காரணம்: {rationale_summary}. கூடுதல் "
-            "கேள்விகளுக்கு Ryde ஆதரவை தொடர்பு கொள்ளவும்."
+            "செய்யப்பட்டது. {outcome} காரணம்: {rationale_summary}. இந்த முடிவை "
+            "ஏற்கவில்லை என்றால், ஒரு நபர் மறுஆய்வு செய்யக் கோரலாம். பிற "
+            "கேள்விகளுக்கு Ryde ஆதரவைத் தொடர்பு கொள்ளவும்."
         ),
         "escalation_subject": "உங்கள் புகார் {dispute_id} மனித மதிப்பாய்வுக்கு அனுப்பப்பட்டது",
         "escalation_message": (

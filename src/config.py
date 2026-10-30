@@ -141,6 +141,14 @@ CORS_ORIGINS = os.getenv(
 CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS if origin.strip() and origin.strip() != "*"]
 
 # ============================================================
+# Run mode (D70)
+# ============================================================
+# "shadow": every ruling is recorded and shown next to the human decision, and the executor only
+# records simulated transactions, so no money moves. "live" is not implemented: it is the one
+# place a payment API would be called, and it stays off until shadow results earn it.
+RUN_MODE = os.getenv("RUN_MODE", "shadow").strip().lower()
+
+# ============================================================
 # Supported Languages (Singapore Official Languages)
 # ============================================================
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "en,zh,ms,ta").split(",")

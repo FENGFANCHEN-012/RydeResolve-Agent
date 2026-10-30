@@ -2535,3 +2535,52 @@ US$0.35 (two runs overlapped for part of the set and shared the key's per-minute
   for those changes.
 - The Qdrant keep-alive is a cron on the demo server, not a code fallback: if the cluster is deleted,
   the policy lookup still fails. A local vector store fallback is the proper fix.
+
+## D70. Real data in shadow mode, "ask a person" appeal, dashboard accessibility (2026-10-30)
+
+Branch `release/demo-day` (= main). For Demo Day: the rubric scores feasibility (how real data gets
+in), responsible AI (the notice's "ask a person" promise) and accessibility; none of these changed a
+ruling path, so no blind set was written and the 693-test suite is the check.
+
+**Why.**
+- Real data: `RydeAPIClient` only read dataset files, with a placeholder base URL. A judge asking
+  "how does this connect to Ryde" had no code to look at.
+- Appeal: the README's PDPA list named an "ask a person" link in every notice as not built, and the
+  notice told parties to "contact Ryde support" instead.
+- Accessibility: no skip link, no `h1`, an icon-only status pill and a clickable upload `div` with no
+  keyboard path, hint text at 2.5:1 contrast, five unlabeled inputs on the knowledge-base tabs.
+
+**What changed.**
+- `src/integrations/ryde_api.py`: `RYDE_API_MODE=http` reads one dispute from
+  `GET {base}{RYDE_API_DISPUTE_PATH}` and the open list from `RYDE_API_LIST_PATH` with a bearer key;
+  `map_ryde_payload` renames Ryde keys to DISP-002 keys (`RYDE_FIELD_MAP`) and refuses a payload with
+  no trip id; answer keys and analysis sections are stripped as for files. `mode="dataset"` is the
+  default and unchanged. A `transport` argument lets tests use `httpx.MockTransport`.
+- `src/config.py` `RUN_MODE` (default `shadow`), stamped on every response by the orchestrator and
+  reported with the data source by `/api/info`. `live` is deliberately not implemented.
+- `Store.request_appeal` + `POST /api/appeals` (not an admin route): a resolved ruling becomes
+  `appealed` and enters the review queue; an already escalated one keeps its status and gets the
+  appeal recorded next to the escalation. Audit action `appeal_requested`. Nothing is paid or reversed.
+- `src/agents/executor.py`: the four notices now say the party can ask for a person (en/zh/ms/ta).
+- `frontend/dispute.js`: an "Ask a person" form under the notices (rider/driver + reason), with a
+  hint on replayed runs that carry no `ruling_id`. `review.js` labels such cases "appealed".
+- `frontend/index.html` + `dispute.css`: skip link, `header`/`h1`, `role="status"` + `aria-live` on
+  the connection pill and the run status, keyboard-operable upload zone, `aria-label` on the
+  sidebar, the tab strip and the five inputs, `--text-faint` raised from 2.5:1 to 4.6:1, and a
+  `prefers-reduced-motion` rule.
+- `README.md`: "Connecting real data (shadow mode)" with the settings table; the PDPA item is
+  marked built. `tests/test_real_data_and_appeal.py`: 10 tests. 693 pass.
+
+**How checked.** Tests only (mock transport for HTTP, sqlite for the store, the FastAPI test client
+for the endpoint). `node --check` on both scripts. Not run against the live server before this entry.
+
+**Not done / still weak.**
+- The field map is a guess at Ryde's shape; a real integration will need per-field mapping (dates,
+  money, GPS point format) that this entry does not attempt. Values are never invented.
+- `review_queue` shows the first escalation per ruling, so on an already escalated ruling the
+  appeal's reason is in the audit log and the escalation table, not in the queue card.
+- Accessibility was checked by reading the markup, not with a screen reader. The tab strip is not
+  an ARIA tablist (incomplete ARIA is worse than none). The review desk got only the label fix.
+- Demo clips cut from the submitted video (`docs/demo/clips/`, not in git): 01 organisers' samples
+  95 s, 02 code judge F2-17 94 s, 03 photo 74 s, 04 safety 26 s, 05 results 42 s; cut by the script's
+  timings with a few seconds of padding, not yet watched.

@@ -253,6 +253,33 @@ class Store:
             s.add(Escalation(ruling_id=ruling_id, reason=reason, source=source, snapshot=snapshot))
             s.commit()
 
+    def request_appeal(self, ruling_id: int, party: str, reason: str, actor: str) -> Escalation:
+        """D70: a party asks for a person. The ruling leaves the resolved state ("appealed"), so it
+        enters the review queue like an escalation; its payout record is untouched (the executor is
+        simulated, and a real one would reverse nothing without the reviewer's decision). On a ruling
+        that is already with a person the appeal is recorded next to the existing escalation."""
+        if party not in ("rider", "driver"):
+            raise ValueError("party must be 'rider' or 'driver'")
+        if not reason.strip():
+            raise ValueError("say in a sentence why a person should look at it")
+        with self.session() as s:
+            ruling = s.get(Ruling, ruling_id)
+            if ruling is None:
+                raise KeyError(f"no ruling {ruling_id}")
+            previous = ruling.status
+            if previous == "resolved":
+                ruling.status = "appealed"
+            esc = Escalation(ruling_id=ruling_id, reason=f"The {party} asked for a person: {reason.strip()}",
+                             source="party_appeal",
+                             snapshot={"appeal": {"party": party, "reason": reason.strip(),
+                                                  "previous_status": previous}})
+            s.add(esc)
+            s.flush()
+            self._audit(s, actor, "appeal_requested", "ruling", ruling_id,
+                        {"party": party, "previous_status": previous, "status": ruling.status})
+            s.commit()
+            return esc
+
     def review_queue(self, include_reviewed: bool = False) -> list[dict]:
         """Rulings a person must decide (escalated or failed), newest first, with their latest review."""
         with self.session() as s:

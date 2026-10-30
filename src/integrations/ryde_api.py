@@ -94,6 +94,64 @@ def dataset_order_id(data: dict) -> Optional[str]:
     ).get("trip_id")
 
 
+# ---------------------------------------------------------------------------
+# Real data: Ryde's API (D70)
+# ---------------------------------------------------------------------------
+# RYDE_API_MODE=dataset (default) reads the files above. RYDE_API_MODE=http reads one dispute from
+# GET {RYDE_API_BASE_URL}{RYDE_API_DISPUTE_PATH} and the open-dispute list from RYDE_API_LIST_PATH,
+# with "Authorization: Bearer {RYDE_API_KEY}". The payload is mapped to the DISP-002 shape every
+# agent reads (map_ryde_payload), so nothing downstream changes; answer keys and analysis sections
+# are stripped exactly as for files. Ryde has not published a dispute API: the base URL is a
+# placeholder and RYDE_FIELD_MAP is the contract a real integration fills in. See the README,
+# "Connecting real data".
+RYDE_API_MODE = os.getenv("RYDE_API_MODE", "dataset").strip().lower()
+RYDE_API_BASE_URL = os.getenv("RYDE_API_BASE_URL", "https://api.rydesharing.com/v1").rstrip("/")
+RYDE_API_KEY = os.getenv("RYDE_API_KEY", "")
+RYDE_API_DISPUTE_PATH = os.getenv("RYDE_API_DISPUTE_PATH", "/disputes/{order_id}")
+RYDE_API_LIST_PATH = os.getenv("RYDE_API_LIST_PATH", "/disputes?status=open")
+RYDE_API_TIMEOUT = float(os.getenv("RYDE_API_TIMEOUT", "15"))
+
+# Ryde payload key -> DISP-002 key. Keys already in DISP-002 form pass unchanged.
+RYDE_FIELD_MAP = {
+    "dispute": "dispute_ticket", "ticket": "dispute_ticket",
+    "rider": "rider_profile", "passenger": "rider_profile",
+    "driver": "driver_profile",
+    "trip": "trip_data", "order": "trip_data",
+    "gps": "gps_telemetry", "telemetry": "gps_telemetry",
+    "events": "app_events",
+    "chat": "chat_logs", "messages": "chat_logs",
+    "policy": "platform_policy",
+    "payments": "payment_records",
+}
+
+
+class RydeAPIError(RuntimeError):
+    """Ryde's API answered with an error or with something that is not a dispute."""
+
+
+def map_ryde_payload(payload) -> dict:
+    """Map one API payload to the DISP-002 shape. A payload wrapped in {"data": {...}} is unwrapped.
+    Only keys are renamed: values are passed through, never filled in (the rule at the top of this
+    file). Raises RydeAPIError when no trip id can be found, because every agent keys on it."""
+    if not isinstance(payload, dict):
+        raise RydeAPIError("Ryde API returned no dispute object")
+    body = payload.get("data") if isinstance(payload.get("data"), dict) else payload
+    out = {RYDE_FIELD_MAP.get(k, k): v for k, v in body.items()}
+    if not dataset_order_id(out):
+        raise RydeAPIError("Ryde API dispute has no trip_id")
+    return out
+
+
+def _list_items(payload) -> list:
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        for key in ("disputes", "data", "items", "results"):
+            if isinstance(payload.get(key), list):
+                return payload[key]
+    raise RydeAPIError("Ryde API dispute list has no list of disputes")
+
+
 class RydeAPIClient:
     """
     Client for fetching order data from the Ryde platform.
@@ -107,11 +165,54 @@ class RydeAPIClient:
         api_key: str | None = None,
         base_url: str | None = None,
         data_dirs: list[str | Path] | None = None,
+        mode: str | None = None,
+        transport=None,
     ):
-        self.api_key = api_key or "demo-api-key"
-        self.base_url = base_url or "https://api.rydesharing.com/v1"
+        self.api_key = api_key or RYDE_API_KEY or "demo-api-key"
+        self.base_url = (base_url or RYDE_API_BASE_URL).rstrip("/")
         self.data_dirs = [Path(d) for d in (data_dirs or DEFAULT_DATA_DIRS)]
+        self.mode = (mode or RYDE_API_MODE).strip().lower()   # "dataset" or "http"
+        self._transport = transport                           # tests pass an httpx.MockTransport
         self._index: dict[str, Path] | None = None
+
+    # -- Ryde's API (mode "http") -----------------------------------------
+
+    def _headers(self) -> dict[str, str]:
+        return {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
+
+    @staticmethod
+    def _check(response, path: str):
+        if response.status_code == 404:
+            return None
+        if response.status_code != 200:
+            raise RydeAPIError(f"Ryde API {path}: HTTP {response.status_code}")
+        try:
+            return response.json()
+        except ValueError as exc:
+            raise RydeAPIError(f"Ryde API {path}: not JSON") from exc
+
+    async def _http_get(self, path: str):
+        import httpx
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=RYDE_API_TIMEOUT,
+                                     transport=self._transport) as client:
+            return self._check(await client.get(path, headers=self._headers()), path)
+
+    def _http_get_sync(self, path: str):
+        import httpx
+        with httpx.Client(base_url=self.base_url, timeout=RYDE_API_TIMEOUT, transport=self._transport) as client:
+            return self._check(client.get(path, headers=self._headers()), path)
+
+    @staticmethod
+    def _summary(data: dict, source: str) -> dict:
+        ticket = data.get("dispute_ticket") or {}
+        return {
+            "order_id": dataset_order_id(data),
+            "dispute_id": ticket.get("dispute_id"),
+            "dispute_type": ticket.get("dispute_type"),
+            "filed_by": ticket.get("filed_by"),
+            "description": ticket.get("description", ""),
+            "source": source,
+        }
 
     def _build_index(self) -> dict[str, Path]:
         """Map order id -> dataset file. Built once per client."""
@@ -140,6 +241,13 @@ class RydeAPIClient:
         Return the dataset for an order, with answer keys removed, or None if
         the order is unknown. `_source` records which file it came from.
         """
+        if self.mode == "http":
+            payload = await self._http_get(RYDE_API_DISPUTE_PATH.format(order_id=order_id))
+            if payload is None:
+                return None
+            data = strip_answer_keys(map_ryde_payload(payload))
+            data["_source"] = f"ryde_api:{order_id}"
+            return data
         if self._index is None:
             self._index = self._build_index()
         path = self._index.get(order_id)
@@ -151,20 +259,21 @@ class RydeAPIClient:
 
     def list_orders(self) -> list[dict]:
         """Summary of every known order (for the dashboard's case picker). No answer keys."""
+        if self.mode == "http":
+            items = _list_items(self._http_get_sync(RYDE_API_LIST_PATH) or [])
+            orders = []
+            for item in items:
+                try:
+                    data = strip_answer_keys(map_ryde_payload(item))
+                except RydeAPIError as exc:
+                    logger.warning("Skipping a dispute from Ryde's API: %s", exc)
+                    continue
+                orders.append(self._summary(data, f"ryde_api:{dataset_order_id(data)}"))
+            return orders
         if self._index is None:
             self._index = self._build_index()
-        orders = []
-        for order_id, path in self._index.items():
-            ticket = load_dispute_dataset(path).get("dispute_ticket") or {}
-            orders.append({
-                "order_id": order_id,
-                "dispute_id": ticket.get("dispute_id"),
-                "dispute_type": ticket.get("dispute_type"),
-                "filed_by": ticket.get("filed_by"),
-                "description": ticket.get("description", ""),
-                "source": f"{path.parent.name}/{path.name}",
-            })
-        return orders
+        return [self._summary(load_dispute_dataset(path), f"{path.parent.name}/{path.name}")
+                for path in self._index.values()]
 
     async def get_full_order_context(self, order_id: str) -> dict:
         """Order data for the preview endpoint; {} if the order is unknown."""

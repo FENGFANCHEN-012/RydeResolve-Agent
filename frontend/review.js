@@ -58,7 +58,7 @@ function renderQueue() {
     $('hvQueue').innerHTML = hv.queue.map(c => `
         <button class="hv-item ${hv.current === c.id ? 'selected' : ''}" onclick="selectCase(${c.id})">
             <div class="hv-item-top"><b>${esc(c.dispute_id)}</b>
-                ${c.review ? '<span class="hv-tag done">reviewed</span>' : `<span class="hv-tag esc">${esc(c.status === 'failed' ? 'failed' : 'escalated')}</span>`}
+                ${c.review ? '<span class="hv-tag done">reviewed</span>' : `<span class="hv-tag esc">${esc(c.status === 'failed' ? 'failed' : c.status === 'appealed' ? 'appealed' : 'escalated')}</span>`}
                 <span class="when">#${c.id}</span></div>
             <div class="hv-item-desc">${esc(c.escalation_reason || c.description || words(c.dispute_type) || 'No details recorded')}</div>
         </button>`).join('') || '<div class="hv-empty">Nothing waiting. Every escalated case has a human decision.</div>';
