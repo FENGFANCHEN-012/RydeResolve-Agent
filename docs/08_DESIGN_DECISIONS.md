@@ -2616,3 +2616,23 @@ wrong: old 04 "safety" showed only the README, old 02 started on DISP-003, old 0
   no longer kept awake. The server copy needs `chmod +x` once; later deploys keep the bit.
 
 **Not done.** No real-user quote (needs a real person); the mobile layout was not checked.
+
+## D72. "Ask a person" form visible on replays, disabled (2026-10-30)
+
+Branch `release/demo-day` (= main). Frontend only.
+
+**Why.** The Demo Day pitch uses replays only, and a replay has no `ruling_id`. Since D70 a replay
+showed one grey line ("Ask-a-person needs a recorded ruling; replayed runs have none") instead of
+the form, so judges would never see the appeal that every notice promises.
+
+**What changed.** `frontend/dispute.js` `rrAppealForm`: without a `ruling_id` the same form is drawn
+inside a disabled `fieldset`, with no `data-appeal` attribute (so the submit handler cannot send
+it), and the hint says it is a demo replay and nothing is sent. With a `ruling_id` nothing changed.
+`dispute.css`: the fieldset has no border and a disabled row is drawn at 60% opacity.
+
+**How checked.** New node test in `tests/frontend_render.test.cjs` (replay: disabled, no
+`data-appeal`, demo hint; recorded ruling: live form): 29/29 node tests pass. `pytest tests`:
+693 pass (plain `pytest` also collects `scripts/adp/adp_chat_test.py`, which calls a live endpoint
+and stops the run, so run `pytest tests`).
+
+**Not done.** Not viewed in a browser before deploy.

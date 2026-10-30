@@ -1202,18 +1202,21 @@ function rrRenderVerdict() {
 
 // D70: the "ask a person" link every notice promises. It needs a recorded ruling (ruling_id), which
 // a replayed run may not carry; the request lands in the human review queue (review.html).
+// D72: a replay (no ruling_id) still shows the form, disabled, so the feature is visible in a demo
+// without writing anything.
 function rrAppealForm(res) {
-    if (!res.ruling_id) return '<div class="rr-hint">Ask-a-person needs a recorded ruling; replayed runs have none.</div>';
     const id = res.ruling_id;
-    const note = rr.appealMsg?.[id] || 'Goes to the human review desk. No money moves while a person looks at it.';
-    return `<form class="rr-appeal" data-appeal="${id}">
+    const note = !id
+        ? 'Demo replay: this saved run has no recorded ruling, so nothing is sent. On a live case this goes to the human review desk.'
+        : rr.appealMsg?.[id] || 'Goes to the human review desk. No money moves while a person looks at it.';
+    return `<form class="rr-appeal"${id ? ` data-appeal="${id}"` : ''}><fieldset${id ? '' : ' disabled'}>
         <label for="rrAppealWhy">Disagree? Ask a person to review this decision</label>
         <div class="rr-appeal-row">
             <select class="rr-select" name="party" aria-label="Who is asking">
                 <option value="rider">I am the rider</option><option value="driver">I am the driver</option></select>
             <input id="rrAppealWhy" name="reason" class="rr-input" required maxlength="1000" placeholder="Why should a person look at it?">
             <button type="submit" class="rr-btn ghost">Ask a person</button>
-        </div>
+        </div></fieldset>
         <div class="rr-hint" role="status" aria-live="polite">${rrEsc(note)}</div></form>`;
 }
 

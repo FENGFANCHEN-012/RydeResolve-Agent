@@ -548,6 +548,8 @@ h1.topbar-logo { margin: 0; font-size: inherit; font-weight: inherit; }
 .rr-appeal label { display: block; font-weight: 600; margin-bottom: 6px; }
 .rr-appeal-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .rr-appeal-row input { flex: 1; min-width: 220px; }
+.rr-appeal fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.rr-appeal fieldset:disabled .rr-appeal-row { opacity: .6; }
 @media (prefers-reduced-motion: reduce) {
     .rr *, .rr *::before, .rr *::after { animation: none !important; transition: none !important; }
 }

@@ -323,3 +323,16 @@ test('notices can be switched to another official language without a new run', a
     assert.match(p.element('rrVerdict').innerHTML, /将向您退款/);
     assert.match(p.element('rrVerdict').innerHTML, /class="rr-lang on"[^>]*data-notice-lang="zh"/);
 });
+
+test('ask-a-person form shows on a replay but disabled, and is live with a recorded ruling', () => {
+    const p = page();
+    const replay = p.run(`rrAppealForm({})`);
+    assert.match(replay, /Ask a person/);
+    assert.match(replay, /<fieldset disabled>/);
+    assert.doesNotMatch(replay, /data-appeal=/);
+    assert.match(replay, /Demo replay: .*nothing is sent/);
+    const live = p.run(`rrAppealForm({ruling_id: 42})`);
+    assert.match(live, /data-appeal="42"/);
+    assert.doesNotMatch(live, /disabled/);
+    assert.match(live, /Goes to the human review desk/);
+});
