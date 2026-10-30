@@ -11,6 +11,11 @@ place, editing, reuse) and by a vision model. Code checks (including v2.1's rout
 Fairness review decide whether the ruling is executed automatically or sent to a person. Every step is traced and
 visible live.
 
+**Update (2026-10-30):** harassment and unwanted advances now always reach a person (6/6 and 6/6 on two
+new blind sets, including complaints with no chat), and a driver who wins a money claim is now paid the
+amount instead of having it written as text. What changed, why, and the results:
+[docs/UPDATE_2026-10-30.md](docs/UPDATE_2026-10-30.md).
+
 **Status (2026-10-16):** submitted; one known gap is open (data-problem records, D59, below). Since D50 the system reads the organisers' sample
 format (DISP-001..003: fare breakdown, surge log, recommended route, traffic incidents) and rules
 under their Ryde Dispute Resolution Policy v2.1, whose routing rules (safety, dispute value above
@@ -356,7 +361,8 @@ RydeResolve-Agent/
 | [docs/01_PROJECT_REQUIREMENTS.md](docs/01_PROJECT_REQUIREMENTS.md) | Competition brief and what it requires |
 | [docs/03_DEVELOPMENT_LOG.md](docs/03_DEVELOPMENT_LOG.md) | Dated development log and current handoff |
 | [docs/06_EVAL_PLAN.md](docs/06_EVAL_PLAN.md) | How the architecture is evaluated |
-| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D52b) |
+| [docs/UPDATE_2026-10-30.md](docs/UPDATE_2026-10-30.md) | What changed after the submission, why, and the blind-test results |
+| [docs/08_DESIGN_DECISIONS.md](docs/08_DESIGN_DECISIONS.md) | Every design change with its measured effect, and the rejected ones (D1–D68) |
 | [docs/09_FRAUD_AGENT_DESIGN.md](docs/09_FRAUD_AGENT_DESIGN.md) | Fraud and bad-faith detection design |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 8-minute demo walkthrough: five recorded runs and a live case-editor run |
 | [deploy/README.md](deploy/README.md) | Running the service on a Linux server (systemd + Caddy) |
