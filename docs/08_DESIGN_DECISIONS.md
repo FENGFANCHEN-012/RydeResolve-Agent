@@ -2611,4 +2611,8 @@ boundary. New cuts: 01 DISP-001/003 48-142 s, 02 F2-17 142-201 s, 03 IM-04/IM-12
 04 SI-001 260-287 s, 05 README results 338-390 s, new 06 review desk 288-337 s. The old cuts were
 wrong: old 04 "safety" showed only the README, old 02 started on DISP-003, old 05 ended in CodeBuddy.
 
+- `deploy/qdrant_keepalive.sh` is now executable in git (mode 100755). The D70 deploy unpacked it
+  with mode 644, so from about 16:20 every cron run failed with "Permission denied" and Qdrant was
+  no longer kept awake. The server copy needs `chmod +x` once; later deploys keep the bit.
+
 **Not done.** No real-user quote (needs a real person); the mobile layout was not checked.
