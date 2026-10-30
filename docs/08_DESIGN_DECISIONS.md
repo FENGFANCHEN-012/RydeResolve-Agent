@@ -2517,18 +2517,20 @@ store, `gpt-oss-120b` on Cerebras), 13 cases chosen to cover every touched path:
 | SI-001, HS-02, HN-01, HR-05 | safety / harassment, to a person | all escalated, no money moved |
 | SL-02 | upheld S$6.61 | dismissed, the known disagreement with the key (D57 table) |
 | FS-09 | upheld S$14.50 | to a person, as before (D55 table: the data-gap tool reads the retried capture as a platform failure) |
-| OF-06 | dismissed | one run: dismissed, right. A second run under provider rate limits (HTTP 429 in the fraud chat review): to a person, by the rule that a failed check never resolves alone |
-| IM-04 | upheld S$40 (genuine photo) | upheld S$40 in the draft, then the Judge itself asked for a person, in both runs (see below) |
+| OF-06 | dismissed | three runs, "dismissed" in every draft. Resolved once; to a person once under provider rate limits (HTTP 429 in the fraud chat review: a failed check never resolves alone); to a person once because the Judge's second draft, after a code send-back, set `human_review_needed` |
+| IM-04 | upheld S$40 (genuine photo) | three runs, "upheld S$40" in every draft. Resolved once; twice the Judge itself set `human_review_needed` (see below) |
 
 No wrong payout in any run; nothing regressed against the D55-D68 tables. 683 tests pass. Spend about
 US$0.35 (two runs overlapped for part of the set and shared the key's per-minute limit, which caused the
 429s).
 
 **Not done / still weak.**
-- IM-04 now ends with the Judge's own `human_review_needed`, where the 15 Oct run resolved it. The
-  verdict and amount are right and the reviewer only confirms, so it costs time, not money; the likely
-  cause is the D68 prompt lines on a driver's asks making the Judge more careful on driver claims. Not
-  investigated before Demo Day. IM-04 is still a replay (demo-4) in the demo, so the stage is not affected.
+- On IM-04 and OF-06 the Judge's own `human_review_needed` flag varies between runs (IM-04: set in 2
+  of 3, OF-06: set in 1 of 3) while the verdict and amount are the same every time. The reviewer only
+  confirms, so it costs time, not money. Whether the D68 prompt lines on a driver's asks made the Judge
+  more careful was not investigated before Demo Day; the flag is a model choice that no code check
+  reads back. Both cases are replays in the demo (demo-4 is IM-04), so the stage is not affected.
+  Spend for the extra runs about US$0.03.
 - The regression is n = 1 per case under rate limits; the blind sets for D66 and D68 are the evidence
   for those changes.
 - The Qdrant keep-alive is a cron on the demo server, not a code fallback: if the cluster is deleted,
