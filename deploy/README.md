@@ -55,6 +55,29 @@ ssh ryde 'cd ~/ryderesolve && .venv/bin/python -c "from src.core.workflow import
 Then run one case from the dashboard. If every LLM step fails with HTTP 402, the server's
 `CEREBRAS_API_KEY` has no credit left: put another key in `~/ryderesolve/.env` and restart.
 
+## Keep Qdrant awake before a live demo
+
+The Qdrant Cloud free cluster suspends after a period with no requests, and the first request after
+that fails; `/api/health` does not touch Qdrant, so the service looks healthy while the policy lookup
+is broken. `deploy/qdrant_keepalive.sh` lists the collections once, reading the URL and key from
+`~/ryderesolve/.env`. Run it every 5 minutes from cron (once, on the server):
+
+```bash
+chmod +x ~/ryderesolve/deploy/qdrant_keepalive.sh
+(crontab -l 2>/dev/null; echo '*/5 * * * * ~/ryderesolve/deploy/qdrant_keepalive.sh >> ~/qdrant_keepalive.log 2>&1') | crontab -
+~/ryderesolve/deploy/qdrant_keepalive.sh      # expect "... qdrant 200"
+```
+
+## Which cases the dashboard lists
+
+`EXTRA_DISPUTE_DIRS` in `~/ryderesolve/.env` (colon-separated, relative to the repo) adds evaluation
+folders to the dashboard's case list. For the Demo Day build it should include the harassment and
+driver-award sets:
+
+```
+EXTRA_DISPUTE_DIRS=data/eval_cases/fresh2_sonnet:data/eval_cases/images:data/eval_cases/harassment_routing:data/eval_cases/harassment_routing3:data/eval_cases/driver_award
+```
+
 ## Undo
 
 ```bash

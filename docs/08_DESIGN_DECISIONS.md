@@ -2490,3 +2490,46 @@ right amount (nothing) under a different label; DA-04 now goes to a person inste
 - DA-06's label: "already resolved" counts as upheld (an existing rule); the key says dismissed. The
   money is right either way.
 - n = 1 per case. Spend for D68 about US$0.24.
+
+## D69. Demo Day release: regression check, Qdrant keep-alive, five-minute script (2026-10-30)
+
+Branch `release/demo-day` = main (7295e6a) + D66-D66e + D68 + `docs/UPDATE_2026-10-30.md`.
+
+**Why.** The finals materials deadline is 30 Oct 23:59 and the judges see only the project link, the
+description and the video. The harassment routing (D66) and driver-award (D68) fixes had to reach main
+and the live server, and the live demo had two known weak points: the Qdrant free cluster suspends
+when idle (and `/api/health` does not notice), and the only script was the 8-minute video one.
+
+**What changed.**
+- `deploy/qdrant_keepalive.sh` + a section in `deploy/README.md`: a cron entry every 5 minutes lists
+  the Qdrant collections, so the cluster never suspends before or during the demo. The README also
+  states the `EXTRA_DISPUTE_DIRS` value the Demo Day server needs (harassment and driver-award sets).
+- `docs/PITCH_5MIN.md`: the Demo Day script, replays only (no model call on stage), three cases
+  (DISP-001, F2-17, SI-001), results and cost, likely questions. Linked from the README docs table.
+- No agent code changed in this entry.
+
+**How checked.** Regression on release/demo-day with the D68 eval settings (precedents off, isolated
+store, `gpt-oss-120b` on Cerebras), 13 cases chosen to cover every touched path:
+
+| Case | Expected | Result |
+|---|---|---|
+| RD-001, F2-17, DA-02, DA-07, HN-07 | money cases | all resolved with the expected verdict and amount |
+| SI-001, HS-02, HN-01, HR-05 | safety / harassment, to a person | all escalated, no money moved |
+| SL-02 | upheld S$6.61 | dismissed, the known disagreement with the key (D57 table) |
+| FS-09 | upheld S$14.50 | to a person, as before (D55 table: the data-gap tool reads the retried capture as a platform failure) |
+| OF-06 | dismissed | one run: dismissed, right. A second run under provider rate limits (HTTP 429 in the fraud chat review): to a person, by the rule that a failed check never resolves alone |
+| IM-04 | upheld S$40 (genuine photo) | upheld S$40 in the draft, then the Judge itself asked for a person, in both runs (see below) |
+
+No wrong payout in any run; nothing regressed against the D55-D68 tables. 683 tests pass. Spend about
+US$0.35 (two runs overlapped for part of the set and shared the key's per-minute limit, which caused the
+429s).
+
+**Not done / still weak.**
+- IM-04 now ends with the Judge's own `human_review_needed`, where the 15 Oct run resolved it. The
+  verdict and amount are right and the reviewer only confirms, so it costs time, not money; the likely
+  cause is the D68 prompt lines on a driver's asks making the Judge more careful on driver claims. Not
+  investigated before Demo Day. IM-04 is still a replay (demo-4) in the demo, so the stage is not affected.
+- The regression is n = 1 per case under rate limits; the blind sets for D66 and D68 are the evidence
+  for those changes.
+- The Qdrant keep-alive is a cron on the demo server, not a code fallback: if the cluster is deleted,
+  the policy lookup still fails. A local vector store fallback is the proper fix.
