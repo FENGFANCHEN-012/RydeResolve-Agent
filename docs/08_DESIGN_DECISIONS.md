@@ -2690,3 +2690,31 @@ escalated). `pytest tests`: 704 pass at the 0.90 line; after the switch to <0.80
 Cerebras credit). Status page uses the sequential ruling id; production should use an unguessable
 token. The re-run registers the dispute's people records again (same as any re-run). A party cannot
 attach a file yet, only text. Not deployed.
+
+## D74. Demo Day deck v4: three features told as what, why and impact (2026-11-01)
+
+**What.** `docs/pitch/RydeResolve_DemoDay_v4.pptx` replaces v3 for the 5-minute finals slot, with
+`docs/pitch/DEMO_DAY_SCRIPT.md` rewritten to match. 12 slides: introduction (Tung Tung team), hook
+(the AI-generated stain photo, IM-12), Ryde's problem statement quoted with 5 pains and answers, then
+the three features, each with a muted auto-play clip recorded from the live site's saved replays:
+① agents working together (DISP-001, `clips/v4_agents_DISP-001.mp4`), ② guardrails (F2-17 as one
+static slide; HR-03, harassment found in the chat of a cleaning-fee claim, new since the video,
+`clips/v4_harass_HR-03.mp4`), ③ photo checks (IM-04 and IM-12, `clips/v4_photos_IM-04_IM-12.mp4`),
+then the review desk and status page (reused `demo4` clip) and proof plus next step. Slides 10-12
+(architecture, engineering decisions, results) are Q&A backup. Speaker and rough timing live only in
+the speaker notes, not on the slides.
+
+**Why.** The judges already watched our 7:49 video, so old cases come back from a new angle and one
+new case is added. The rubric gives 40 points to real-world use and 30 to technology, so each feature
+is spoken over its clip as what the clip shows, why we built it that way, and what it changes for
+riders, drivers and Ryde (for example: why a review desk exists and what goes wrong without one).
+No live run on stage: we do not control the venue laptop, and replays call no model.
+
+**How checked.** Every slide exported to PNG through PowerPoint and viewed; notes for slides 1-9 are
+generated from the script so the two cannot disagree; spoken words counted (675 words, about 4:05 at
+165 words a minute, leaving about 55 s for Q&A). HR-03 replay imported on the server as
+`demo-1-HR-03.json` from the D66 evaluation trace. The v3 claim "52 cases, 0 wrong payouts" was
+removed: it held for one run only; v4 says 45/52 and the Q&A answer is honest about the re-run.
+
+**Not done.** Not yet rehearsed aloud with a timer (rehearsal 2026-11-02 16:00). Not played on the
+venue laptop. The recorder and builder scripts are not in the repo.
