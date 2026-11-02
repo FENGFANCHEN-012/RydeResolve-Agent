@@ -2786,3 +2786,45 @@ for escalation). A screenshot would need staged data, so the owner chose the dia
 **How checked.** Slide exported through PowerPoint and viewed; every claim matches
 `src/core/appeal.py` and `frontend/dispute.js` (rrAppealForm). Talk now about 4:20; the owner will
 trim it at rehearsal.
+
+## D79. Demo Day deck v9: Ryde colours, a film slot, merged slides and Q&A answer slides (2026-11-03)
+
+**What.** `docs/pitch/RydeResolve_DemoDay_v9.pptx`, built from v5 so the embedded clips keep their
+auto-play timing. 24 slides:
+- Design: white background, Ryde's own colours taken from rydesharing.com and its logo (pink #E93864,
+  slate #31373E, light grey #F4F4F4); the cover and the thank-you slide are full Ryde pink. No Ryde logo
+  is used. Morph transitions of 0.7 s on the main slides (fade where Morph is not supported); kicker,
+  title and the clip frame keep the same place from slide to slide, so only the content changes.
+- Main talk, 9 slides: cover; IM-12 hook; a slot for a ~60 s team film (problem and product overview,
+  no case details or numbers) that replaces v5's problem slide; DISP-001 (clip now starts at 8 s, 36 s);
+  F2-17; HR-03; photo checks (clip cut to 44 s, plus a "Next: photos taken inside the Ryde app" line);
+  review desk + status page + appeal (v5 slides 8 and 9 merged); proof.
+- Thank-you slide, then ten Q&A answer slides (each: the question, a one-line answer, three points,
+  an "Honest limit" card, a ~20 s spoken answer in the notes): wrong rulings, a fake photo with no
+  watermark, why several agents, connection to Ryde, policy sources, what the numbers mean, learning
+  (precedent lifecycle pending -> staged -> active -> retired), appeals, privacy, Tencent Cloud.
+  The v5 backups (architecture, engineering decisions, results, how it learns) follow.
+
+**Why.** The talk is 5 minutes plus 1 minute of Q&A and the team adds a film; the deck had to make
+room without rewriting lines the speakers had learned. Only sentences were removed (slide 1 second
+half, the whole problem slide, slide 4's opening and "The impact..." line, slide 6's "Blind tests: ten
+of ten.", two duplicate lines on slide 8); the merged slide 8 has new, plainer notes for Speaker 3.
+The Q&A slides answer the questions a first-time judge is likely to ask, using the numbers in the
+README and the limits recorded here (D46-D47, D54-D59), so no answer claims more than was measured.
+
+**Honest points the Q&A slides state.** In the 16 Oct re-run, 5 automatic rulings were wrong (D59).
+78% is 28 of the 36 cases v2.1 lets AI decide, not all disputes. US$0.017 is model calls only.
+Masking personal data before outside model calls is not built. Precedent learning is built but has
+not been shown to raise accuracy. A realistic generated photo with forged time and GPS data could
+pass the photo checks; any claim above S$50 still goes to a person (policy_gates.ALWAYS_HUMAN_ABOVE),
+which also means HR-03, IM-12 and the other photo cases above S$50 do not isolate the photo or safety
+check as the reason for escalation.
+
+**How checked.** Every slide exported through PowerPoint and viewed; PowerPoint reports Morph on
+slides 1-9; the file opens and has no duplicate parts. Estimated talk with a 60 s film: about 4:35 at
+165 words a minute, 4:48 at 150. If a rehearsal runs over 4:50, cut the appeal lines on slide 8, then
+trim the film to 50 s.
+
+**Not done.** The film itself (the team is making it; slide 3 is a placeholder with instructions).
+Not checked on the venue laptop: Morph needs PowerPoint 2019/365 and the Segoe UI fonts are Windows
+fonts. Intermediate decks v6-v8 are not committed.

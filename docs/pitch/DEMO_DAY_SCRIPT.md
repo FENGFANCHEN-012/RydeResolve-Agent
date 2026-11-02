@@ -1,3 +1,27 @@
+# Demo Day v9 (3 Nov): 5-minute talk + 1-minute Q&A
+
+Deck: `RydeResolve_DemoDay_v9.pptx`. The speaker notes in the deck are the script; this section is the
+run of show. The v5 notes below are kept for reference (D79 lists every line that was removed).
+
+| Slide | Speaker | Content | About |
+|---|---|---|---|
+| 1 Cover | 1 | "Good afternoon. We are the Tung Tung team." | 0:05 |
+| 2 IM-12 hook | 1 | unchanged | 0:13 |
+| 3 Film | — | team film, plays automatically; press next when it ends | 0:60 |
+| 4 DISP-001 | 1 | starts at "The collector finds the facts" (clip 36 s) | 0:36 |
+| 5 F2-17 | 2 | unchanged | 0:30 |
+| 6 HR-03 | 2 | "Blind tests: ten of ten." removed | 0:34 |
+| 7 Photos | 2 | unchanged (clip 44 s) | 0:44 |
+| 8 People + appeal | 3 | new notes (v5 slides 8 and 9 merged) | 0:32 |
+| 9 Proof | 3 | unchanged, ends with "Thank you." | 0:23 |
+| 10 Thank you | 3 | take questions | |
+| 11-20 Q&A | any | type the slide number and press Enter to jump; the list is in slide 10's notes | |
+
+Total about 4:35-4:48 with handovers. Over 4:50 at rehearsal: cut the appeal lines on slide 8 first,
+then trim the film to 50 s.
+
+---
+
 # Demo Day: 4-minute talk + 1-minute Q&A, product shown inside the slides
 
 Deck: `RydeResolve_DemoDay_v5.pptx` (this folder). Clips: `clips/` (also embedded in the deck).
