@@ -2767,3 +2767,22 @@ at once could hit the Cerebras spend cap (LLM_SPEND_CAP_USD) or slow the 2-CPU s
 
 **How checked.** Cover and slide 9 exported through PowerPoint and viewed; no QR left in the cover
 source, the deck builder or the script.
+
+## D78. Appeal slide for Speaker 3 (2026-11-02)
+
+**What.** New main slide 9 in `RydeResolve_DemoDay_v5.pptx`, right after the review-desk slide:
+"Unsure ruling? One appeal, with new evidence". A flow diagram, no screenshot: AI ruled under 80%
+confidence -> rider or driver adds new evidence once -> the AI checks it first (no money moves) ->
+no new fact = kept, new fact = decided again, safety words or still unsure = a person. Speaker 3
+says one ~44-word line (about 15 s). Proof moved to slide 10, backup to 11-14. Script: new section
+"8b" and run-of-show row; backup page numbers updated. Nothing else changed.
+
+**Why.** Owner wants the appeal path explained on stage, not only in small text.
+
+**Why a diagram, not a screenshot.** No real run shows the appeal form: every ruling under 0.80 in
+all 124 saved eval traces was already escalated to a person (the arbitrator flags confidence <= 0.80
+for escalation). A screenshot would need staged data, so the owner chose the diagram.
+
+**How checked.** Slide exported through PowerPoint and viewed; every claim matches
+`src/core/appeal.py` and `frontend/dispute.js` (rrAppealForm). Talk now about 4:20; the owner will
+trim it at rehearsal.

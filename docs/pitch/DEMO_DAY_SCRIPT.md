@@ -32,9 +32,10 @@ slide 9, learning loop on slide 8 and backup slide 13).
 | 6 ② Guardrails, HR-03 | 2:00–2:32 | 2 | clip 34 s + 3 callouts | Responsible AI, HCD |
 | 7 ③ Photos, IM-04 / IM-12 | 2:32–3:13 | 2 | clip 50 s + both photos | Innovation, Responsible AI |
 | 8 People | 3:13–3:44 | 3 | clip 29 s (review desk, status page); reviewer decisions become precedents | HCD, UX & Accessibility, AI Interaction |
+| 8b Appeal (new, deck slide 9) | +15 s after slide 8 | 3 | flow: ruling under 80% → new evidence once → AI checks → kept / decided again / a person | HCD, Responsible AI |
 | 9 Proof and next step | 3:44–4:05 | 3 | 4 results, shadow mode, cost, close line, Tencent Cloud stack | Feasibility, Impact |
 | Q&A | 4:05–5:00 | 3 routes | stay on slide 9 | — |
-| 10–13 Backup | — | — | architecture, engineering decisions, results table, how it learns | Q&A only |
+| 11–14 Backup (deck) | — | — | architecture, engineering decisions, results table, how it learns | Q&A only |
 
 Rules
 - One clicker, held by whoever speaks. Press "next" only when you finish a slide; never click on a
@@ -136,6 +137,11 @@ the amount match a record."
   languages, and can appeal once when the AI was unsure."
   (The status page itself is English; the notices are in four languages.)
 
+### Slide 8b, appeal (Speaker 3, about 15 s, new; deck slide 9)
+"When the AI decided alone but was under 80% sure, either side can add new evidence, once. The AI
+checks it first: nothing new, the ruling stands; a new fact, it decides again; still unsure or a
+safety issue, a person takes over."
+
 ### Slide 9, proof and next step (Speaker 3, 3:44–4:05)
 "Tested on cases it never saw: the organisers' samples three of three, a blind set 25 of 30, our
 regression 45 of 52. And it is ready: one setting connects Ryde's API in shadow mode, ruling beside
@@ -155,7 +161,7 @@ Speaker 3 takes the question and passes it on.
 | Where do the policy rules come from? | 1 | Ryde's published policies. Honest: the demo uses our paraphrase, with gaps marked; the official-text version is on a separate branch. Every ruling cites its section. |
 | Privacy? | 3 | Demo data only. A deployment masks names, phones and plates before any external model call, or runs the model in-house. The status page shows parties no AI internals. |
 | Why Tencent Cloud? | 1 | Lighthouse server in Singapore, the policy assistant on Tencent ADP (Hunyuan), built with CodeBuddy. |
-| Does it learn? | 2 | Only through people: a reviewer's decision becomes a precedent after an evaluation gate shows results do not get worse. Show backup slide 13. |
+| Does it learn? | 2 | Only through people: a reviewer's decision becomes a precedent after an evaluation gate shows results do not get worse. Show the "How it learns" backup slide (deck slide 14). |
 
 ## If something goes wrong
 - A clip does not play: click once on the video (it starts), keep talking.
