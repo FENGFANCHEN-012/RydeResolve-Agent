@@ -24,7 +24,7 @@ Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
 
 | Slide | Time | Speaker | On screen | Rubric it serves |
 |---|---|---|---|---|
-| 1 Title / introduction | 0:00–0:10 | 1 | name, one-line pitch, a real ruling card (DISP-001), team name | — |
+| 1 Title / introduction | 0:00–0:10 | 1 | name, one-line pitch, a real ruling card (DISP-001), team name, QR code to the live site | — |
 | 2 Hook | 0:10–0:22 | 1 | the AI-generated stain photo (IM-12) | Impact, Innovation |
 | 3 Problem statement | 0:22–0:49 | 1 | Ryde's problem statement (quoted), 5 pains → 5 answers, the rule | Impact, HCD |
 | 4 ① Agents, DISP-001 | 0:49–1:32 | 1 | clip 44 s + 3 callouts | AI Interaction, Technical |
@@ -37,6 +37,9 @@ Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
 | 10–13 Backup | — | — | architecture, engineering decisions, results table, how it learns | Q&A only |
 
 Rules
+- Put the cover on screen while we set up: judges can scan its QR code and try the site on
+  their phones before we start (dashboard asks for the access code; "Replay a saved run" needs no
+  model quota). The same QR code is on slide 9 for Q&A.
 - One clicker, held by whoever speaks. Press "next" only when you finish a slide; never click on a
   video (that pauses it).
 - If a clip ends before you finish, it stays on its last frame. If you finish first, advance anyway.

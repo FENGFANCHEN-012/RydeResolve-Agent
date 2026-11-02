@@ -2742,3 +2742,18 @@ Slide 8 notes read back from the saved file. Spoken words: slide 8 84 (was 87), 
 timing stays about 4:05. Learning lifecycle, gate metrics and hash-chained audit log checked in code.
 
 **Not done.** QR code not scanned with a phone yet. Not rehearsed aloud. Builder script not in the repo.
+
+## D76. QR code on the cover (2026-11-02)
+
+**What.** The cover (`docs/cover/cover_v5.html`, rebuilt into v5) now carries the QR code to
+http://43.134.17.192 with "Try it on your phone · access code in our submission"; slide 9 keeps its
+copy for Q&A. The script says to show the cover while setting up.
+
+**Why.** Judges can try the site from the first second instead of only at the end.
+
+**How checked.** QR decoded by OpenCV from the 4K cover and from a 720p downscale (both give the
+URL). The live dashboard was opened at phone size (390x844) with the demo code: the code prompt
+appears, 25 saved replays load, DISP-001 shows "Partially upheld, S$3.44, 94%", no sideways scroll.
+
+**Not done.** Not scanned with a real phone. No rate limit on "Run agents": many judges running live
+at once could hit the Cerebras spend cap (LLM_SPEND_CAP_USD) or slow the 2-CPU server.
