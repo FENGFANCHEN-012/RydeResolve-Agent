@@ -1,7 +1,8 @@
 # Demo Day: 4-minute talk + 1-minute Q&A, product shown inside the slides
 
-Deck: `RydeResolve_DemoDay_v4.pptx` (this folder). Clips: `clips/` (also embedded in the deck).
-v3 is kept for reference; v4 replaces it.
+Deck: `RydeResolve_DemoDay_v5.pptx` (this folder). Clips: `clips/` (also embedded in the deck).
+v4 is kept for reference; v5 replaces it (new cover from `docs/cover/cover_v5.html`, QR code and
+Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
 
 ## Why this deck looks the way it does
 
@@ -23,17 +24,17 @@ v3 is kept for reference; v4 replaces it.
 
 | Slide | Time | Speaker | On screen | Rubric it serves |
 |---|---|---|---|---|
-| 1 Title / introduction | 0:00–0:10 | 1 | logo, product name, one-line pitch | — |
+| 1 Title / introduction | 0:00–0:10 | 1 | name, one-line pitch, a real ruling card (DISP-001), team name | — |
 | 2 Hook | 0:10–0:22 | 1 | the AI-generated stain photo (IM-12) | Impact, Innovation |
 | 3 Problem statement | 0:22–0:49 | 1 | Ryde's problem statement (quoted), 5 pains → 5 answers, the rule | Impact, HCD |
 | 4 ① Agents, DISP-001 | 0:49–1:32 | 1 | clip 44 s + 3 callouts | AI Interaction, Technical |
 | 5 ② Guardrails, F2-17 | 1:32–2:00 | 2 | draft 1 → blocked → draft 2 → person; 6 checks | Responsible AI, Technical |
 | 6 ② Guardrails, HR-03 | 2:00–2:32 | 2 | clip 34 s + 3 callouts | Responsible AI, HCD |
 | 7 ③ Photos, IM-04 / IM-12 | 2:32–3:13 | 2 | clip 50 s + both photos | Innovation, Responsible AI |
-| 8 People | 3:13–3:44 | 3 | clip 29 s (review desk, status page) | HCD, UX & Accessibility |
-| 9 Proof and next step | 3:44–4:05 | 3 | 4 results, shadow mode, cost, close line | Feasibility, Impact |
+| 8 People | 3:13–3:44 | 3 | clip 29 s (review desk, status page); reviewer decisions become precedents | HCD, UX & Accessibility, AI Interaction |
+| 9 Proof and next step | 3:44–4:05 | 3 | 4 results, shadow mode, cost, close line, QR code to the live site, Tencent Cloud stack | Feasibility, Impact |
 | Q&A | 4:05–5:00 | 3 routes | stay on slide 9 | — |
-| 10–12 Backup | — | — | architecture, engineering decisions, results table | Q&A only |
+| 10–13 Backup | — | — | architecture, engineering decisions, results table, how it learns | Q&A only |
 
 Rules
 - One clicker, held by whoever speaks. Press "next" only when you finish a slide; never click on a
@@ -128,11 +129,12 @@ the amount match a record."
 
 ### Slide 8, people (Speaker 3, 3:13–3:44)
 - [0–20 s, review desk] "This is the review desk, where the AI hands cases over: why it stopped, the
-  facts in dispute, and a Tencent ADP assistant for policy. Why do we need it? Automation fails on
-  the hard cases: safety, fakes, large amounts. Without a desk they get a wrong ruling or start
-  again from zero. Here the reviewer starts with the evidence already gathered."
-- [20–29 s, status page] "Riders and drivers follow their case on a status page, in four languages,
-  with one appeal when the AI was unsure. Nobody is left guessing."
+  facts in dispute, and a Tencent ADP assistant for policy. Automation fails on the hard cases:
+  safety, fakes, large amounts. Here the reviewer starts with the evidence gathered, and once a
+  test shows no harm, their decision becomes a precedent the AI uses next time."
+- [20–29 s, status page] "Riders and drivers follow their case on a status page, get notices in four
+  languages, and can appeal once when the AI was unsure."
+  (The status page itself is English; the notices are in four languages.)
 
 ### Slide 9, proof and next step (Speaker 3, 3:44–4:05)
 "Tested on cases it never saw: the organisers' samples three of three, a blind set 25 of 30, our
@@ -153,7 +155,7 @@ Speaker 3 takes the question and passes it on.
 | Where do the policy rules come from? | 1 | Ryde's published policies. Honest: the demo uses our paraphrase, with gaps marked; the official-text version is on a separate branch. Every ruling cites its section. |
 | Privacy? | 3 | Demo data only. A deployment masks names, phones and plates before any external model call, or runs the model in-house. The status page shows parties no AI internals. |
 | Why Tencent Cloud? | 1 | Lighthouse server in Singapore, the policy assistant on Tencent ADP (Hunyuan), built with CodeBuddy. |
-| Does it learn? | 2 | Only through people: a reviewer's decision becomes a precedent after an evaluation gate shows results do not get worse. |
+| Does it learn? | 2 | Only through people: a reviewer's decision becomes a precedent after an evaluation gate shows results do not get worse. Show backup slide 13. |
 
 ## If something goes wrong
 - A clip does not play: click once on the video (it starts), keep talking.

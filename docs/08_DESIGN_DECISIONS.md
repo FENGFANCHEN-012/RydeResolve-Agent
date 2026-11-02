@@ -2718,3 +2718,27 @@ removed: it held for one run only; v4 says 45/52 and the Q&A answer is honest ab
 
 **Not done.** Not yet rehearsed aloud with a timer (rehearsal 2026-11-02 16:00). Not played on the
 venue laptop. The recorder and builder scripts are not in the repo.
+
+## D75. Demo Day deck v5: new cover, learning loop, QR code, script fixes (2026-11-02)
+
+**What.** `docs/pitch/RydeResolve_DemoDay_v5.pptx` is v4 plus seven changes, made in place on the v4
+file (v4 kept). (1) New cover from `docs/cover/cover_v5.html` (3840x2160, full 16:9): a real ruling
+card for DISP-001 (partially upheld, S$3.44, 94%, four languages, code-checked), the team name and the
+hackathon. (2) Slide 3: "Two agents, two answers" -> "Two staff, two answers". (3) Slide 4 footer:
+every step replayable and in a hash-chained audit log. (4) Slide 8: the review-desk card and the
+spoken line now say that tested reviewer decisions become precedents. (5) Slide 8 spoken line fixed:
+the status page is English only; the notices are in four languages. (6) Slide 9: QR code to the live
+site ("access code in our submission") and a Tencent Cloud stack line (Lighthouse, ADP / Hunyuan,
+CodeBuddy). (7) New backup slide 13, "How it learns": pending -> staged -> evaluation gate -> active,
+hard safety metrics, rollback, audit log. `DEMO_DAY_SCRIPT.md` updated to match.
+
+**Why.** A check of slides against script found one over-claim (four-language status page) and one
+confusing word ("agents" meaning support staff). The learning loop on main (`src/store/feedback.py`)
+was not in the spoken part at all, and judges had no way to open the site from the room. Only the
+main-branch learning loop is shown; learning-loop v2 (unmerged) is not mentioned.
+
+**How checked.** Changed slides exported to PNG through PowerPoint and viewed (cover, 3, 4, 8, 9, 13).
+Slide 8 notes read back from the saved file. Spoken words: slide 8 84 (was 87), total about 665, so
+timing stays about 4:05. Learning lifecycle, gate metrics and hash-chained audit log checked in code.
+
+**Not done.** QR code not scanned with a phone yet. Not rehearsed aloud. Builder script not in the repo.
