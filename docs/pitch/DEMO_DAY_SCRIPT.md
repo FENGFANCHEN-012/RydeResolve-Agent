@@ -1,8 +1,8 @@
 # Demo Day: 4-minute talk + 1-minute Q&A, product shown inside the slides
 
 Deck: `RydeResolve_DemoDay_v5.pptx` (this folder). Clips: `clips/` (also embedded in the deck).
-v4 is kept for reference; v5 replaces it (new cover from `docs/cover/cover_v5.html`, QR code and
-Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
+v4 is kept for reference; v5 replaces it (new cover from `docs/cover/cover_v5.html`, Tencent Cloud line on
+slide 9, learning loop on slide 8 and backup slide 13).
 
 ## Why this deck looks the way it does
 
@@ -24,7 +24,7 @@ Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
 
 | Slide | Time | Speaker | On screen | Rubric it serves |
 |---|---|---|---|---|
-| 1 Title / introduction | 0:00–0:10 | 1 | name, one-line pitch, a real ruling card (DISP-001), team name, QR code to the live site | — |
+| 1 Title / introduction | 0:00–0:10 | 1 | name, one-line pitch, a real ruling card (DISP-001), team name | — |
 | 2 Hook | 0:10–0:22 | 1 | the AI-generated stain photo (IM-12) | Impact, Innovation |
 | 3 Problem statement | 0:22–0:49 | 1 | Ryde's problem statement (quoted), 5 pains → 5 answers, the rule | Impact, HCD |
 | 4 ① Agents, DISP-001 | 0:49–1:32 | 1 | clip 44 s + 3 callouts | AI Interaction, Technical |
@@ -32,14 +32,11 @@ Tencent Cloud line on slide 9, learning loop on slide 8 and backup slide 13).
 | 6 ② Guardrails, HR-03 | 2:00–2:32 | 2 | clip 34 s + 3 callouts | Responsible AI, HCD |
 | 7 ③ Photos, IM-04 / IM-12 | 2:32–3:13 | 2 | clip 50 s + both photos | Innovation, Responsible AI |
 | 8 People | 3:13–3:44 | 3 | clip 29 s (review desk, status page); reviewer decisions become precedents | HCD, UX & Accessibility, AI Interaction |
-| 9 Proof and next step | 3:44–4:05 | 3 | 4 results, shadow mode, cost, close line, QR code to the live site, Tencent Cloud stack | Feasibility, Impact |
+| 9 Proof and next step | 3:44–4:05 | 3 | 4 results, shadow mode, cost, close line, Tencent Cloud stack | Feasibility, Impact |
 | Q&A | 4:05–5:00 | 3 routes | stay on slide 9 | — |
 | 10–13 Backup | — | — | architecture, engineering decisions, results table, how it learns | Q&A only |
 
 Rules
-- Put the cover on screen while we set up: judges can scan its QR code and try the site on
-  their phones before we start (dashboard asks for the access code; "Replay a saved run" needs no
-  model quota). The same QR code is on slide 9 for Q&A.
 - One clicker, held by whoever speaks. Press "next" only when you finish a slide; never click on a
   video (that pauses it).
 - If a clip ends before you finish, it stays on its last frame. If you finish first, advance anyway.

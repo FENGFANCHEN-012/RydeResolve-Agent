@@ -2757,3 +2757,13 @@ appears, 25 saved replays load, DISP-001 shows "Partially upheld, S$3.44, 94%", 
 
 **Not done.** Not scanned with a real phone. No rate limit on "Run agents": many judges running live
 at once could hit the Cerebras spend cap (LLM_SPEND_CAP_USD) or slow the 2-CPU server.
+
+## D77. QR codes removed again (2026-11-02)
+
+**What.** Removed the QR code from the cover and from slide 9 (D75, D76), and the matching lines in
+`DEMO_DAY_SCRIPT.md`. The Tencent Cloud line on slide 9 stays; the closing line is back to its v4 size.
+
+**Why.** Owner's call: the judges have already seen the live site, so the QR code adds nothing.
+
+**How checked.** Cover and slide 9 exported through PowerPoint and viewed; no QR left in the cover
+source, the deck builder or the script.
